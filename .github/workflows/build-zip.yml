@@ -36,4 +36,6 @@ jobs:
         with:
           artifacts: "storekeeper-woocommerce-b2c.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ format('Build {0}', github.run_id) }}
           prerelease:  ${{ ! startsWith( 'refs/tags/', github.ref ) }}
+          draft:  ${{ startsWith( 'refs/tags/', github.ref ) }}
