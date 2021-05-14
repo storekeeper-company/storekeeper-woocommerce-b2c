@@ -31,11 +31,8 @@ jobs:
           filename: 'storekeeper-woocommerce-b2c.zip'
           exclusions: '*.git* /tests/* /*docker* /*docs/* /*Docker* phpunit.xml Makefile /.php* /.env*'
 
-      - name: Upload Release
-        uses: ncipollo/release-action@v1
+      - uses: actions/upload-artifact@v2
         with:
-          artifacts: "storekeeper-woocommerce-b2c.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: ${{ format('Build {0}', github.run_id) }}
-          prerelease:  ${{ ! startsWith( 'refs/tags/', github.ref ) }}
-          draft:  ${{ startsWith( 'refs/tags/', github.ref ) }}
+          name: storekeeper-woocommerce-b2c
+          path: storekeeper-woocommerce-b2c.zip
+          if-no-files-found: error
