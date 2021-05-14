@@ -31,8 +31,9 @@ jobs:
         with:
           name: storekeeper-woocommerce-b2c
           if-no-files-found: error
+          # wildcard on the first line is needed to preserve the structure, actions/upload-artifact quirk
           path: |
-            storekeeper-woocommerce-b2c/exports/**
+            storekeeper-woocommerce-*/exports/**
             storekeeper-woocommerce-b2c/i18n/**
             storekeeper-woocommerce-b2c/scripts/**
             storekeeper-woocommerce-b2c/src/**
