@@ -12,7 +12,7 @@
  * Plugin Name:         StoreKeeper for WooCommerce
  * Description:         This plugin provides sync possibilities with the StoreKeeper Backoffice.
  * Allows synchronization of the WooCommerce product catalog, customers, orders and handles payments using StoreKeeper payment platform.
- * Version:             5.0
+ * Version:             0.0.1
  * Author:              Storekeeper
  * Author URI:          https://www.storekeeper.nl/
  * Text Domain:         storekeeper-woocommerce-b2c
@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('STOREKEEPER_WOOCOMMERCE_B2C_VERSION', '5.0'); # use only minor version, hotfix is applied on build
+define('STOREKEEPER_WOOCOMMERCE_B2C_VERSION', '0.0.1');
 
 include_once __DIR__.'/autoload.php';
 

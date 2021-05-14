@@ -8,6 +8,13 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: 'storekeeper-woocommerce-b2c'
+          fetch-depth: 0
+
+      - name: 'Get Previous tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 0.0.1
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -24,8 +31,13 @@ jobs:
       - name: Install packages
         run: cd storekeeper-woocommerce-b2c && composer install --ignore-platform-reqs --prefer-dist --no-dev --optimize-autoloader
 
-      - name: Apply version
-        run: php storekeeper-woocommerce-b2c/dev-tools/add-build-to-version.php $GITHUB_RUN_ID storekeeper-woocommerce-b2c/storekeeper-woocommerce-b2c.php
+      - name: Apply version with build
+        if: ${{ ! startsWith( 'refs/tags/', github.ref ) }}
+        run: php storekeeper-woocommerce-b2c/dev-tools/set-version.php ${{ steps.previoustag.outputs.tag }}-b$GITHUB_RUN_ID storekeeper-woocommerce-b2c/storekeeper-woocommerce-b2c.php
+
+      - name: Set release version
+        if: ${{ startsWith( 'refs/tags/', github.ref ) }}
+        run: php storekeeper-woocommerce-b2c/dev-tools/set-version.php ${{ steps.previoustag.outputs.tag }} storekeeper-woocommerce-b2c/storekeeper-woocommerce-b2c.php
 
       - uses: actions/upload-artifact@v2
         with:
@@ -37,6 +49,14 @@ jobs:
             storekeeper-woocommerce-b2c/i18n/**
             storekeeper-woocommerce-b2c/scripts/**
             storekeeper-woocommerce-b2c/src/**
+            storekeeper-woocommerce-b2c/vendor/**
             storekeeper-woocommerce-b2c/composer*
             storekeeper-woocommerce-b2c/*.php
             storekeeper-woocommerce-b2c/Readme.txt
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        if: ${{ startsWith( 'refs/tags/', github.ref ) }}
+        with:
+          artifacts: "storekeeper-woocommerce-b2c"
+          token: ${{ secrets.GITHUB_TOKEN }}
