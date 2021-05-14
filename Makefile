@@ -6,6 +6,9 @@ format:
 test-clean:
 	docker-compose -f docker-compose.test.yml down -v
 
+test-pull:
+	docker-compose -f docker-compose.test.yml pull
+
 test:
 	docker-compose -f docker-compose.test.yml build
 	docker-compose -f docker-compose.test.yml up -d db-test web-test
