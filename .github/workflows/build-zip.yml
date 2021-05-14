@@ -1,5 +1,8 @@
 name: Create Archive
-on: [push]
+on:
+  push:
+    branches:
+      - "master"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -57,10 +60,3 @@ jobs:
             storekeeper-woocommerce-b2c/composer*
             storekeeper-woocommerce-b2c/*.php
             storekeeper-woocommerce-b2c/Readme.txt
-
-      - name: Release
-        uses: ncipollo/release-action@v1
-        if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
-        with:
-          artifacts: "storekeeper-woocommerce-b2c"
-          token: ${{ secrets.GITHUB_TOKEN }}
