@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:
+  web:
+    build:
+      dockerfile: Dockerfile
+      target: dev
+      context: .
+      args:
+        - PHP_VERSION
+        - WORDPRESS_VERSION
+        - WOOCOMMERCE_VERSION
+    ports:
+      - 8888:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+      WORDPRESS_ADMIN_USER: admin
+      WORDPRESS_ADMIN_PASSWORD: examplepass
+      PHP_IDE_CONFIG: serverName=docker
+    volumes:
+      - .:/app/src/wp-content/plugins/storekeeper-woocommerce-b2c:ro
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_ROOT_PASSWORD: somerootpassword
+    volumes:
+      - db:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db:db
+    ports:
+      - 8881:80
+    environment:
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: somerootpassword
+
+volumes:
+  db:

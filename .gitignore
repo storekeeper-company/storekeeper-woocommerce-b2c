@@ -1,0 +1,24 @@
+# Created by .ignore support plugin (hsz.mobi)
+syntax: glob
+
+# test envs
+.env.test.local
+
+### Composer template
+composer.phar
+vendor/
+.idea/
+tests/data/dumps/
+auth.json
+logs/plugin.log
+public/config.json
+public/styles/theme/twentyseventeen/parts/*css
+.tmp/
+.php_cs.cache
+
+# Commit your application's lock file http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file
+# You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
+# composer.lock
+
+*.zip
+*.tar.gz

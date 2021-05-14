@@ -1,0 +1,176 @@
+{
+    "success": true,
+    "call_id": "5e554f3959e82",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        0,
+        0,
+        1,
+        null,
+        null
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 32,
+                    "product_id": 16,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 40.5,
+                    "ppu_wt": 49,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-02-10 13:45:49+01:00",
+                    "date_updated": "2020-02-10 13:45:49+01:00",
+                    "product_price_type_id": 6
+                },
+                "product_default_price": {
+                    "id": 28,
+                    "product_id": 16,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 45.45,
+                    "ppu_wt": 55,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-02-10 10:54:35+01:00",
+                    "date_updated": "2020-02-10 10:54:35+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 16,
+                    "product_id": 16,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-02-18 10:47:09+01:00",
+                    "title": "Lightning-naar-digitale-AV-adapter",
+                    "summary": "De Lightning-naar-digitale-AV-adapter is bedoeld voor je iPhone, iPad of iPod met Lightning-connector. Met de Lightning-naar-digitale-AV-adapter kun je bijvoorbeeld apps, presentaties, websites of diavoorstellingen op het scherm van je device synchroon weergeven via je HDMI-televisie, -beeldscherm, -projector of een ander geschikt scherm in maximaal 1080p HD.",
+                    "body": "De Lightning-naar-digitale-AV-adapter is bedoeld voor je iPhone, iPad of iPod met Lightning-connector. Met de Lightning-naar-digitale-AV-adapter kun je bijvoorbeeld apps, presentaties, websites of diavoorstellingen op het scherm van je device synchroon weergeven via je HDMI-televisie, -beeldscherm, -projector of een ander geschikt scherm in maximaal 1080p HD.\n\nDaarnaast is deze adapter ook geschikt voor video-uitvoer, zodat je films, tv-programma's of bijvoorbeeld zelf opgenomen videomateriaal in maximaal 1080p HD op een groot scherm kunt bekijken. Daarvoor hoef je alleen de Lightning-naar-digitale-AV-adapter aan te sluiten op de Lightning-ingang van je apparaat en via een afzonderlijk verkrijgbare HDMI-kabel op de HDMI-ingang van je tv of projector.",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 16,
+                    "slug": "lightning-naar-digitale-av-adapter-1",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 16,
+                        "date_created": "2020-02-10 10:53:01+01:00",
+                        "date_updated": "2020-02-12 14:10:24+01:00",
+                        "relation_data_id": 2,
+                        "published": false,
+                        "configuration_id": 1,
+                        "content_id": 43,
+                        "sku": "MD826ZM\/A",
+                        "type": "simple",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_discount_price_id": 32,
+                        "product_price_id": 28,
+                        "object_instance_id": 119,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "small_image_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MD826_small_image.jpeg?img_w=200&img_h=200&",
+                            "big_image_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MD826_big_image.jpeg?img_w=1500&img_h=1500&",
+                            "slug": "lightning-naar-digitale-av-adapter-1",
+                            "translatable_id": 46
+                        },
+                        "product_stock": {
+                            "id": 16,
+                            "product_id": 16,
+                            "value": 10,
+                            "in_stock": true,
+                            "unlimited": false,
+                            "date_updated": "2020-02-10 13:46:03+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Barcode",
+                            "attribute_id": 1,
+                            "name": "barcode",
+                            "value": "885909627653",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Kleur",
+                            "attribute_id": 13,
+                            "attribute_option_id": 7,
+                            "value_label": "Wit",
+                            "name": "kleur",
+                            "value": "wit",
+                            "attribute_published": true
+                        }
+                    ],
+                    "main_image": {
+                        "id": 49,
+                        "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MD826_small_image.jpeg?img_w=200&img_h=200&",
+                        "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MD826_big_image.jpeg?img_w=1500&img_h=1500&"
+                    },
+                    "product_images": [
+                        {
+                            "id": 49,
+                            "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MD826_small_image.jpeg?img_w=200&img_h=200&",
+                            "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MD826_big_image.jpeg?img_w=1500&img_h=1500&"
+                        },
+                        {
+                            "id": 50,
+                            "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MD826_AV1_small_image.jpeg?img_w=200&img_h=200&",
+                            "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MD826_AV1_big_image.jpeg?img_w=1500&img_h=1500&"
+                        }
+                    ],
+                    "main_category": {
+                        "id": 8,
+                        "title": "iPhone",
+                        "slug": "iphone"
+                    },
+                    "categories": [
+                        {
+                            "id": 10,
+                            "title": "Voeding en kabels",
+                            "slug": "voeding-en-kabels",
+                            "published": true
+                        },
+                        {
+                            "id": 8,
+                            "title": "iPhone",
+                            "slug": "iphone",
+                            "published": true
+                        },
+                        {
+                            "id": 9,
+                            "title": "iPhone Accessories",
+                            "slug": "iphone-accessories",
+                            "published": true
+                        }
+                    ]
+                },
+                "id": 9,
+                "product_id": 16,
+                "product_price_id": 32,
+                "date_created": "2020-02-10 10:53:01+01:00",
+                "active": true,
+                "backorder_enabled": true,
+                "product_discount_price_id": 32,
+                "discount_dirty": false,
+                "object_instance_id": 120,
+                "date_updated": "2020-02-12 14:10:24+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 28
+            }
+        ],
+        "total": 8,
+        "count": 8
+    },
+    "_type": "moduleFunction",
+    "time_ms": 414.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-25T16:45:45+00:00"
+}

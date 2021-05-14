@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "call_id": "5ebe206a2ea60",
+    "module_name": "ShopModule",
+    "function": "getUpsellShopProductIds",
+    "params": [
+        6
+    ],
+    "return": [],
+    "_type": "moduleFunction",
+    "time_ms": 511.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-15T04:54:02+00:00"
+}

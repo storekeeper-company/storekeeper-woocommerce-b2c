@@ -1,0 +1,68 @@
+{
+    "success": true,
+    "call_id": "5e32b720ed235",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        0,
+        0,
+        1,
+        [
+            {
+                "name": "category_tree\/level",
+                "dir": "DESC"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "category_type": {
+                    "id": 6,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 3956,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 145575,
+                    "lang": "en",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-04-09 14:06:37+02:00",
+                    "backref": "BlogModule::Category(id=3956)",
+                    "translatable_type_id": 7
+                },
+                "id": 3956,
+                "title": "Soft Drinks",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-04-09 14:06:37+02:00",
+                "category_type_id": 6,
+                "slug": "soft-drinks",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 145575,
+                "object_instance_id": 370645,
+                "protected": false
+            }
+        ],
+        "total": 8,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 360.0,
+    "_version": "1.0",
+    "_timestamp": "2020-01-30T10:59:45+00:00"
+}

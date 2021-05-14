@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "call_id": "602d9f02f3c23",
+  "request": {
+    "headers": {
+      "host": [
+        "localhost:8888"
+      ],
+      "user_agent": [
+        "GuzzleHttp\/6.5.1 curl\/7.64.0 PHP\/7.3.9-1~deb10u1"
+      ],
+      "content_type": [
+        "application\/json"
+      ],
+      "upxhooktoken": [
+        "bed8238b316a6aa25be31c4f2723f20ff34bcd4cfa29763924d1f67eb5628c84"
+      ],
+      "content_length": [
+        "328"
+      ]
+    },
+    "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2021-02-1723:34:33+01\",\"backref\":\"ShopModule::CouponCode(id=18)\",\"events\":{\"175\":{\"id\":175,\"event\":\"updated\",\"date\":\"2021-02-1723:34:33+01\"}}}}",
+    "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+    "method": "POST",
+    "query_params": {
+      "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+    },
+    "file_params": []
+  },
+  "hook_action": "events",
+  "return": true,
+  "_type": "hook",
+  "time_ms": 169.0,
+  "_version": "1.0",
+  "_timestamp": "2020-03-18T04:02:32+00:00"
+}

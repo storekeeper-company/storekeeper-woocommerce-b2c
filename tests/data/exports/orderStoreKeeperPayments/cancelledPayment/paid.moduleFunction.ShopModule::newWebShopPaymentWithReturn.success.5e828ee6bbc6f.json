@@ -1,0 +1,58 @@
+{
+    "success": true,
+    "call_id": "5e828ee6bbc6f",
+    "module_name": "ShopModule",
+    "function": "newWebShopPaymentWithReturn",
+    "params": [
+        {
+            "redirect_url": "http:\/\/localhost:8888\/?wc-api=backoffice_pay_gateway_return&utm_nooverride=1&wc-order-id=96",
+            "provider_method_id": 8,
+            "amount": "0.01",
+            "title": "Order number: 96"
+        }
+    ],
+    "return": {
+        "provider": {
+            "id": 5,
+            "provider_type_id": 7,
+            "date_created": "2019-11-07 11:17:21+01:00",
+            "title": "skpay",
+            "is_default": true,
+            "configuration_id": 1,
+            "relation_data_id": 2,
+            "webhook_key": "5dc3ef31-10e2-48f1-835e-d93a1c73767a",
+            "published": true,
+            "alias": "skpay",
+            "test_mode": false,
+            "deleted": false
+        },
+        "provider_method": {
+            "id": 8,
+            "title": "iDEAL",
+            "eid": "10",
+            "image_url": "https:\/\/admin.pay.nl\/images\/payment_profiles\/10.gif",
+            "provider_method_type_id": 1
+        },
+        "id": 622,
+        "provider_id": 5,
+        "method": "iDEAL",
+        "amount": 0.01,
+        "currency_iso3": "EUR",
+        "is_test": false,
+        "title": "Order number: 96",
+        "status": "open",
+        "date_created": "2020-03-31 02:29:27+02:00",
+        "date_updated": "2020-03-31 02:29:27+02:00",
+        "payment_url": "https:\/\/ideal.pay.nl\/payment\/init\/1235370756X0d042\/70b869dcdd680c9c1ee28f2675bce06ec2b2bda9\/10\/NL",
+        "redirect_url": "http:\/\/localhost:8888\/?wc-api=backoffice_pay_gateway_return&utm_nooverride=1&wc-order-id=96",
+        "eid": "1235370756X0d042",
+        "relation_data_id": 123,
+        "provider_method_id": 8,
+        "trx": "5e828ee7-1b8e-4934-bebf-1299ada6d118",
+        "is_virtual": false
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1487.0,
+    "_version": "1.0",
+    "_timestamp": "2020-03-31T00:29:28+00:00"
+}

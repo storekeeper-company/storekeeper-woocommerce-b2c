@@ -1,0 +1,57 @@
+{
+    "success": true,
+    "call_id": "5e7199ec0ddd3",
+    "module_name": "ShopModule",
+    "function": "listMenuItemsForHooks",
+    "params": [
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__=",
+                "val": 151
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "menu_item_type": {
+                    "id": 10,
+                    "module_name": "BlogModule",
+                    "alias": "None",
+                    "date_created": "2019-11-07 10:44:08+01:00"
+                },
+                "menu": {
+                    "id": 28,
+                    "alias": "New Menu",
+                    "relation_data_id": 6,
+                    "published": false,
+                    "date_created": "2020-03-18 04:45:19+01:00",
+                    "site_id": 11
+                },
+                "id": 151,
+                "slug": "text",
+                "title": "Text",
+                "auto_children": false,
+                "order": 0,
+                "menu_id": 28,
+                "menu_item_type_id": 10,
+                "date_created": "2020-03-18 04:45:57+01:00",
+                "object_instance_id": 12603
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1096.0,
+    "_version": "1.0",
+    "_timestamp": "2020-03-18T03:47:57+00:00"
+}

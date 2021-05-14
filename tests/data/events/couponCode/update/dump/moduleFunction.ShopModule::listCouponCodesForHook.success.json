@@ -1,0 +1,50 @@
+{
+  "success": true,
+  "call_id": "602d9f02f3c22",
+  "module_name": "ShopModule",
+  "function": "listCouponCodesForHook",
+  "params": [
+    0,
+    100,
+    [
+      {
+        "name": "id",
+        "dir": "asc"
+      }
+    ],
+    [
+      {
+        "name": "id__=",
+        "val": 18
+      }
+    ]
+  ],
+  "return": {
+    "data": [
+      {
+        "id": 18,
+        "configuration_id": 1,
+        "relation_data_id": 4,
+        "title": "UPDATED-PRODUCT",
+        "code": "UPDATED-PRODUCT",
+        "fixed_value_wt": 69,
+        "allow_with_other_codes": false,
+        "active": true,
+        "date_created": "2021-02-17 23:34:19+01:00",
+        "date_updated": "2021-02-17 23:34:19+01:00",
+        "object_instance_id": 431,
+        "type": "fixed_order",
+        "free_shipping": false,
+        "min_order_value_wt": 25,
+        "allow_on_discounted_products": false,
+        "times_per_customer_per_shop": 5
+      }
+    ],
+    "total": 1,
+    "count": 1
+  },
+  "_type": "moduleFunction",
+  "time_ms": 1107.0,
+  "_version": "1.0",
+  "_timestamp": "2021-02-17T22:56:04+00:00"
+}

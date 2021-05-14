@@ -1,0 +1,160 @@
+{
+    "success": true,
+    "call_id": "5e32b7234e5fe",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "category_type\/alias__=",
+                "val": "Label"
+            },
+            {
+                "name": "category_type\/module_name__=",
+                "val": "ProductsModule"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "category_type": {
+                    "id": 7,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 7359,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 196003,
+                    "lang": "en",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-06-13 12:11:15+02:00",
+                    "backref": "BlogModule::Category(id=7359)",
+                    "translatable_type_id": 7
+                },
+                "id": 7359,
+                "title": "Featured",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-06-13 12:11:15+02:00",
+                "category_type_id": 7,
+                "slug": "storekeeper-special-featured",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 196003,
+                "object_instance_id": 461689,
+                "protected": true
+            },
+            {
+                "category_type": {
+                    "id": 7,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 7360,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 196004,
+                    "lang": "en",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-06-13 12:11:15+02:00",
+                    "backref": "BlogModule::Category(id=7360)",
+                    "translatable_type_id": 7
+                },
+                "id": 7360,
+                "title": "New",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-06-13 12:11:15+02:00",
+                "category_type_id": 7,
+                "slug": "storekeeper-special-new",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 196004,
+                "object_instance_id": 461690,
+                "protected": true
+            },
+            {
+                "category_type": {
+                    "id": 7,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 7361,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 196005,
+                    "lang": "en",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-06-13 12:11:15+02:00",
+                    "backref": "BlogModule::Category(id=7361)",
+                    "translatable_type_id": 7
+                },
+                "id": 7361,
+                "title": "Sale",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-06-13 12:11:15+02:00",
+                "category_type_id": 7,
+                "slug": "storekeeper-special-sale",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 196005,
+                "object_instance_id": 461691,
+                "protected": true
+            }
+        ],
+        "total": 3,
+        "count": 3
+    },
+    "_type": "moduleFunction",
+    "time_ms": 321.0,
+    "_version": "1.0",
+    "_timestamp": "2020-01-30T10:59:47+00:00"
+}

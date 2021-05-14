@@ -1,0 +1,41 @@
+{
+    "success": true,
+    "call_id": "5e56a987532f3",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "flat_product\/product\/type__in_list",
+                "multi_val": [
+                    "simple",
+                    "configurable",
+                    "configurable_assign"
+                ]
+            },
+            {
+                "name": "id__=",
+                "val": 9
+            }
+        ]
+    ],
+    "return": {
+        "data": [],
+        "total": 0,
+        "count": 0
+    },
+    "_type": "moduleFunction",
+    "time_ms": 327.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-26T17:23:19+00:00"
+}

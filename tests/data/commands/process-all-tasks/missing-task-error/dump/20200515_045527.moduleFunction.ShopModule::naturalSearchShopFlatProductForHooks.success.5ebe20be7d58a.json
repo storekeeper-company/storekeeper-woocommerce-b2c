@@ -1,0 +1,163 @@
+{
+    "success": true,
+    "call_id": "5ebe20be7d58a",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        1,
+        null,
+        [
+            {
+                "name": "id__=",
+                "val": "6"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 7,
+                    "product_id": 6,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 11.05,
+                    "ppu_wt": 13.37,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-05-15 06:32:28+02:00",
+                    "date_updated": "2020-05-15 06:32:29+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 7,
+                    "product_id": 6,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 11.05,
+                    "ppu_wt": 13.37,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-05-15 06:32:28+02:00",
+                    "date_updated": "2020-05-15 06:32:29+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 6,
+                    "product_id": 6,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-05-15 06:38:57+02:00",
+                    "title": "Verf pot",
+                    "summary": "Flexa Strak In De Lak Zijdeglans Gebroken Wit Ral 9010 2,5L is ideaal om al je deuren, meubels, kozijnen en ander houtwerk in jouw gekozen kleur te schilderen! Deze verf op waterbasis geeft een goed dekkend, hoogwaardig en duurzaam resultaat. Flexa Strak In De Lak Zijdeglans Gebroken Wit Ral 9010 2,5L is geschikt voor hout, metaal, kunststof en intacte verf. De lak is kras- en stootvast, optimaal dekkend, sneldrogend en geurarm.",
+                    "body": "**Gevarenaanduiding**\nBevat 1.2-benzisothiazool-3(2H)-on, C(M)IT\/MIT(3:1) en Methylisothiazolinon. Kan een allergische reactie veroorzaken.\n\n**Voorzorgsmaatregelen**\nBij het inwinnen van medisch advies, de verpakking of het etiket ter beschikking houden. Buiten het bereik van kinderen houden. Contact met de ogen, de huid of de kleding vermijden. Bij onwel voelen een ANTIGIFCENTRUM of een arts raadplegen. De inhoud en \/ verpakking verwerken volgens de plaatselijke \/ regionale \/ nationale \/ internationale voorschriften.",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 6,
+                    "slug": "verf-pot",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 6,
+                        "date_created": "2020-05-15 06:32:28+02:00",
+                        "date_updated": "2020-05-15 06:38:57+02:00",
+                        "relation_data_id": 3,
+                        "published": false,
+                        "configuration_id": 1,
+                        "content_id": 9,
+                        "sku": "verf-pot",
+                        "type": "configurable",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 7,
+                        "object_instance_id": 82,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "small_image_url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_small_image.jpg?img_w=200&img_h=200&",
+                            "big_image_url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_big_image.jpg?img_w=1500&img_h=1500&",
+                            "slug": "verf-pot",
+                            "translatable_id": 50
+                        },
+                        "product_stock": {
+                            "id": 6,
+                            "product_id": 6,
+                            "value": 1,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-05-15 06:32:28+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Brand",
+                            "attribute_id": 2,
+                            "attribute_option_id": 13,
+                            "value_label": "Doe het zelf",
+                            "name": "brand",
+                            "value": "doe-het-zelf",
+                            "attribute_option_image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/doe-het-zelf.png?img_w=1330&img_h=1064&",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Barcode",
+                            "attribute_id": 1,
+                            "name": "barcode",
+                            "value": "2220000000006",
+                            "attribute_published": true
+                        }
+                    ],
+                    "main_image": {
+                        "id": 2,
+                        "url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_small_image.jpg?img_w=200&img_h=200&",
+                        "big_url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_big_image.jpg?img_w=1500&img_h=1500&"
+                    },
+                    "product_images": [
+                        {
+                            "id": 2,
+                            "url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_small_image.jpg?img_w=200&img_h=200&",
+                            "big_url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_big_image.jpg?img_w=1500&img_h=1500&"
+                        }
+                    ],
+                    "main_category": {
+                        "id": 5,
+                        "title": "Nieuw",
+                        "slug": "storekeeper-special-new"
+                    },
+                    "categories": [
+                        {
+                            "id": 5,
+                            "title": "Nieuw",
+                            "slug": "storekeeper-special-new",
+                            "published": true
+                        }
+                    ]
+                },
+                "id": 6,
+                "product_id": 6,
+                "product_price_id": 7,
+                "date_created": "2020-05-15 06:32:29+02:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 83,
+                "date_updated": "2020-05-15 06:32:29+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 7
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1389.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-15T04:55:27+00:00"
+}

@@ -1,0 +1,68 @@
+{
+    "success": true,
+    "call_id": "5ecdf54519513",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        0,
+        0,
+        1,
+        [
+            {
+                "name": "category_tree\/level",
+                "dir": "DESC"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "category_type": {
+                    "id": 9,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2020-05-13 06:08:05+02:00"
+                },
+                "category_tree": {
+                    "category_id": 4,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 27,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-13 06:08:26+02:00",
+                    "backref": "BlogModule::Category(id=4)",
+                    "translatable_type_id": 7
+                },
+                "id": 4,
+                "title": "Uitgelicht",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-05-13 06:08:26+02:00",
+                "category_type_id": 9,
+                "slug": "storekeeper-special-featured",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 27,
+                "object_instance_id": 77,
+                "protected": true
+            }
+        ],
+        "total": 3,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1111.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-27T05:06:14+00:00"
+}

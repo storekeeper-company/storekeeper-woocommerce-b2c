@@ -1,0 +1,52 @@
+{
+    "success": true,
+    "call_id": "5e828f0e8aeea",
+    "module_name": "ShopModule",
+    "function": "syncWebShopPaymentWithReturn",
+    "params": [
+        "622"
+    ],
+    "return": {
+        "provider": {
+            "id": 5,
+            "provider_type_id": 7,
+            "title": "skpay",
+            "alias": "skpay"
+        },
+        "provider_method": {
+            "id": 8,
+            "title": "iDEAL",
+            "eid": "10",
+            "image_url": "https:\/\/admin.pay.nl\/images\/payment_profiles\/10.gif",
+            "provider_method_type_id": 1
+        },
+        "id": 622,
+        "provider_id": 5,
+        "method": "iDEAL",
+        "amount": 0.01,
+        "currency_iso3": "EUR",
+        "is_test": false,
+        "title": "Order number: 96",
+        "status": "paid",
+        "date_created": "2020-03-31 02:29:27+02:00",
+        "date_updated": "2020-03-31 02:30:07+02:00",
+        "date_paid": "2020-03-31 02:30:01+02:00",
+        "payment_url": "https:\/\/ideal.pay.nl\/payment\/init\/1235370756X0d042\/70b869dcdd680c9c1ee28f2675bce06ec2b2bda9\/10\/NL",
+        "redirect_url": "http:\/\/localhost:8888\/?wc-api=backoffice_pay_gateway_return&utm_nooverride=1&wc-order-id=96",
+        "eid": "1235370756X0d042",
+        "relation_data_id": 123,
+        "provider_method_id": 8,
+        "trx": "5e828ee7-1b8e-4934-bebf-1299ada6d118",
+        "is_virtual": false,
+        "payment_vars": [
+            {
+                "name": "details.ipAddress",
+                "value": "60.230.83.153"
+            }
+        ]
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1213.0,
+    "_version": "1.0",
+    "_timestamp": "2020-03-31T00:30:07+00:00"
+}

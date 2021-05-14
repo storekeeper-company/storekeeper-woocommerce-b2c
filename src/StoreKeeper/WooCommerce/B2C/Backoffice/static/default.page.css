@@ -1,0 +1,99 @@
+.storekeeper-page {
+    padding: 0 20px 0 20px;
+}
+
+.storekeeper-page .notice {
+    margin: 0 0 10px;
+}
+
+.storekeeper-tab {
+    padding: 20px 0;
+}
+
+.storekeeper-form .storekeeper-form-group,
+.storekeeper-form .storekeeper-form-action-group {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.storekeeper-form .storekeeper-form-action-group > *:not(:last-child) {
+    margin-right: 10px;
+}
+
+.storekeeper-form .storekeeper-form-group .storekeeper-form-label {
+    font-weight: bold;
+    min-width: 250px;
+    width: 15%;
+}
+
+.storekeeper-form .storekeeper-form-group .storekeeper-form-input {
+    width: 85%;
+}
+
+.storekeeper-table {
+    margin-top: 10px;
+}
+
+.storekeeper-table thead th {
+    font-weight: bold;
+}
+
+.storekeeper-table .storekeeper-header-mass_action,
+.storekeeper-table .storekeeper-body-massAction {
+    text-align: center;
+    width: 25px;
+}
+
+.storekeeper-table .storekeeper-header-times_ran,
+.storekeeper-table .storekeeper-body-times_ran {
+    width: 75px;
+}
+
+.storekeeper-table .storekeeper-header-status,
+.storekeeper-table .storekeeper-body-status {
+    width: 100px;
+}
+
+.storekeeper-table .storekeeper-header-type,
+.storekeeper-table .storekeeper-body-type {
+    width: 125px;
+}
+
+.storekeeper-table .storekeeper-header-action,
+.storekeeper-table .storekeeper-body-action {
+    width: 125px;
+}
+
+.storekeeper-table th input[type=checkbox] {
+    margin-left: 4px;
+}
+
+h1.storekeeper-form-header,
+h2.storekeeper-form-header,
+h3.storekeeper-form-header,
+h4.storekeeper-form-header,
+h5.storekeeper-form-header,
+h6.storekeeper-form-header {
+    margin: 0;
+}
+
+p.storekeeper-form-note {
+    margin: 0;
+}
+
+.text-success {
+    color: #8cc46e !important;
+}
+
+.text-danger {
+    color: #e65e5e !important;
+}
+
+.text-warning {
+    color: #fa9c61 !important;
+}
+
+.text-information {
+    color: #3498db !important;
+}

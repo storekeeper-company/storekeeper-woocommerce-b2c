@@ -1,0 +1,599 @@
+<?php
+
+namespace StoreKeeper\WooCommerce\B2C\Tools;
+
+use Exception;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
+use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
+use StoreKeeper\WooCommerce\B2C\Tasks\AttributeImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\CategoryDeleteTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\CategoryImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\CouponCodeDeleteTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\CouponCodeImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\MenuItemDeleteTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\MenuItemImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\OrderDeleteTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\OrderExportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\OrderImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ParentProductRecalculationTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ProductActivateTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ProductDeactivateTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ProductDeleteTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ProductImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ProductStockUpdateTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\RedirectDeleteTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\RedirectImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\TagDeleteTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\TagImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\TriggerVariationSaveActionTask;
+use Throwable;
+
+class TaskHandler
+{
+    use LoggerAwareTrait;
+
+    /**
+     * NOTE: When adding an constant here related to a new task/import type make sure you also add it to
+     * const TASKS_BY_PRIORITY_ASC in this file to prioritize it.
+     */
+    const FULL_IMPORT = 'full-import';
+    const ATTRIBUTE_IMPORT = 'attribute-import';
+    const CATEGORY_IMPORT = 'category-import';
+    const PRODUCT_IMPORT = 'product-import';
+    const PRODUCT_STOCK_UPDATE = 'product-stock-update';
+    const TAG_IMPORT = 'tag-import';
+    const COUPON_CODE_IMPORT = 'coupon-code-import';
+
+    const MENU_ITEM_IMPORT = 'menu-item-import';
+    const MENU_ITEM_DELETE = 'menu-item-delete';
+
+    const REDIRECT_IMPORT = 'redirect-import';
+    const REDIRECT_DELETE = 'redirect-delete';
+
+    const CATEGORY_DELETE = 'category-delete';
+    const PRODUCT_DELETE = 'product-delete';
+    const PRODUCT_DEACTIVATED = 'product-deactivated';
+    const PRODUCT_ACTIVATED = 'product-activated';
+
+    const TAG_DELETE = 'tag-delete';
+    const COUPON_CODE_DELETE = 'coupon-code-delete';
+
+    const ORDERS_EXPORT = 'orders-export';
+    const ORDERS_IMPORT = 'orders-import';
+    const ORDERS_DELETE = 'orders-delete';
+
+    const STATUS_NEW = 'status-new';
+    const STATUS_PROCESSING = 'status-processing';
+    const STATUS_FAILED = 'status-failed';
+    const STATUS_SUCCESS = 'status-success';
+
+    const STATUSES = [
+        self::STATUS_NEW,
+        self::STATUS_PROCESSING,
+        self::STATUS_FAILED,
+        self::STATUS_SUCCESS,
+    ];
+
+    const TRIGGER_VARIATION_SAVE_ACTION = 'trigger-variation-save-action';
+    const PARENT_PRODUCT_RECALCULATION = 'parent-product-recalculation';
+
+    const REPORT_ERROR = 'report-error';
+
+    const OTHER_TYPE_GROUP = 'other';
+    const PRODUCT_TYPE_GROUP = 'product';
+    const CATEGORY_TYPE_GROUP = 'category';
+    const PRODUCT_STOCK_TYPE_GROUP = 'product-stock';
+    const TAG_TYPE_GROUP = 'tag';
+    const COUPON_CODE_TYPE_GROUP = 'coupon-code';
+    const MENU_ITEM_TYPE_GROUP = 'menu-item';
+    const REDIRECT_TYPE_GROUP = 'redirect';
+    const ORDER_TYPE_GROUP = 'order';
+    const TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP = 'trigger-variation-save-action';
+    const PARENT_PRODUCT_RECALCULATION_TYPE_GROUP = 'parent-product-recalculation';
+    const REPORT_ERROR_TYPE_GROUP = 'report-error';
+
+    const TYPE_GROUPS = [
+        self::OTHER_TYPE_GROUP,
+        self::PRODUCT_TYPE_GROUP,
+        self::CATEGORY_TYPE_GROUP,
+        self::PRODUCT_STOCK_TYPE_GROUP,
+        self::TAG_TYPE_GROUP,
+        self::COUPON_CODE_TYPE_GROUP,
+        self::MENU_ITEM_TYPE_GROUP,
+        self::REDIRECT_TYPE_GROUP,
+        self::ORDER_TYPE_GROUP,
+        self::TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP,
+        self::PARENT_PRODUCT_RECALCULATION_TYPE_GROUP,
+        self::REPORT_ERROR_TYPE_GROUP,
+    ];
+
+    protected $trashed_tasks = [];
+
+    private static $typeRegex = '/(.*)::(.*)/';
+
+    public static function getStatusLabel(string $status): string
+    {
+        switch ($status) {
+            case TaskHandler::STATUS_NEW:
+                return __('New', I18N::DOMAIN);
+            case TaskHandler::STATUS_PROCESSING:
+                return __('Processing', I18N::DOMAIN);
+            case TaskHandler::STATUS_SUCCESS:
+                return __('Success', I18N::DOMAIN);
+            case TaskHandler::STATUS_FAILED:
+                return __('Failed', I18N::DOMAIN);
+            default:
+                return $status;
+        }
+    }
+
+    /**
+     * @param $type
+     * @param int $id
+     *
+     * @return mixed
+     */
+    public static function getScheduledTask($type, $id = 0)
+    {
+        global $wpdb;
+
+        $select = TaskModel::getSelectHelper()
+            ->cols(['id'])
+            ->where('name = :name')
+            ->where('status != :status')
+            ->bindValue('name', TaskModel::getName($type, $id))
+            ->bindValue('status', TaskHandler::STATUS_SUCCESS)
+            ->limit(1);
+
+        $id = $wpdb->get_var(TaskModel::prepareQuery($select));
+
+        return TaskModel::get($id);
+    }
+
+    public function __construct()
+    {
+        $this->setLogger(new NullLogger());
+    }
+
+    public function getTrashedTasks()
+    {
+        return $this->trashed_tasks;
+    }
+
+    public function addTrashedTask($task_id)
+    {
+        $this->trashed_tasks[] = $task_id;
+    }
+
+    private static function getTypeGroup($type): string
+    {
+        switch ($type) {
+            case self::CATEGORY_IMPORT:
+            case self::CATEGORY_DELETE:
+                return self::CATEGORY_TYPE_GROUP;
+            case self::PRODUCT_IMPORT:
+            case self::PRODUCT_DELETE:
+            case self::PRODUCT_DEACTIVATED:
+            case self::PRODUCT_ACTIVATED:
+                return self::PRODUCT_TYPE_GROUP;
+            case self::PRODUCT_STOCK_UPDATE:
+                return self::PRODUCT_STOCK_TYPE_GROUP;
+            case self::TAG_IMPORT:
+            case self::TAG_DELETE:
+                return self::TAG_TYPE_GROUP;
+            case self::COUPON_CODE_IMPORT:
+            case self::COUPON_CODE_DELETE:
+                return self::COUPON_CODE_TYPE_GROUP;
+            case self::ORDERS_EXPORT:
+            case self::ORDERS_IMPORT:
+            case self::ORDERS_DELETE:
+                return self::ORDER_TYPE_GROUP;
+            case self::TRIGGER_VARIATION_SAVE_ACTION:
+                return self::TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP;
+            case self::PARENT_PRODUCT_RECALCULATION:
+                return self::PARENT_PRODUCT_RECALCULATION_TYPE_GROUP;
+            case self::MENU_ITEM_IMPORT:
+            case self::MENU_ITEM_DELETE:
+                return self::MENU_ITEM_TYPE_GROUP;
+            case self::REDIRECT_IMPORT:
+            case self::REDIRECT_DELETE:
+                return self::REDIRECT_TYPE_GROUP;
+            case self::REPORT_ERROR:
+                return self::REPORT_ERROR_TYPE_GROUP;
+            default:
+                return self::OTHER_TYPE_GROUP;
+        }
+    }
+
+    public static function getTypeGroupTitle($typeId): string
+    {
+        switch ($typeId) {
+            case self::PRODUCT_TYPE_GROUP:
+                return __('Product', I18N::DOMAIN);
+            case self::CATEGORY_TYPE_GROUP:
+                return __('Category', I18N::DOMAIN);
+            case self::PRODUCT_STOCK_TYPE_GROUP:
+                return __('Product stock', I18N::DOMAIN);
+            case self::TAG_TYPE_GROUP:
+                return __('Tag', I18N::DOMAIN);
+            case self::COUPON_CODE_TYPE_GROUP:
+                return __('Coupon code', I18N::DOMAIN);
+            case self::MENU_ITEM_TYPE_GROUP:
+                return __('Menu item', I18N::DOMAIN);
+            case self::REDIRECT_TYPE_GROUP:
+                return __('Redirect', I18N::DOMAIN);
+            case self::ORDER_TYPE_GROUP:
+                return __('Order', I18N::DOMAIN);
+            case self::TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP:
+                return __('Trigger variation save actions', I18N::DOMAIN);
+            case self::PARENT_PRODUCT_RECALCULATION_TYPE_GROUP:
+                return __('Parent product recalculation', I18N::DOMAIN);
+            case self::REPORT_ERROR_TYPE_GROUP:
+                return __('Report error', I18N::DOMAIN);
+            default:
+                return __('Other', I18N::DOMAIN);
+        }
+    }
+
+    private static function getTitle($type, $id = 0)
+    {
+        switch ($type) {
+            case self::FULL_IMPORT:
+                $title = __('Full import', I18N::DOMAIN);
+                break;
+            case self::ATTRIBUTE_IMPORT:
+                $title = __('Attribute import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::CATEGORY_IMPORT:
+                $title = __('Category import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::PRODUCT_IMPORT:
+                $title = __('Product import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::PRODUCT_STOCK_UPDATE:
+                $title = __('Product stock update', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::TAG_IMPORT:
+                $title = __('Tag import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::COUPON_CODE_IMPORT:
+                $title = __('Coupon code import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::ORDERS_EXPORT:
+                $title = __('Order export', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::ORDERS_IMPORT:
+                $title = __('Order import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::CATEGORY_DELETE:
+                $title = __('Delete category', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::PRODUCT_DELETE:
+                $title = __('Delete product', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::PRODUCT_DEACTIVATED:
+                $title = __('Deactiveer product', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::PRODUCT_ACTIVATED:
+                $title = __('Activeer product', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::TAG_DELETE:
+                $title = __('Delete tag', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::ORDERS_DELETE:
+                $title = __('Delete order', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::COUPON_CODE_DELETE:
+                $title = __('Delete coupon code', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::TRIGGER_VARIATION_SAVE_ACTION:
+                $title = __('Trigger variation save actions', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::PARENT_PRODUCT_RECALCULATION:
+                $title = __('Parent product recalculation', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::MENU_ITEM_IMPORT:
+                $title = __('Menu item import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::MENU_ITEM_DELETE:
+                $title = __('Menu item delete', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::REDIRECT_IMPORT:
+                $title = __('Redirect import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::REDIRECT_DELETE:
+                $title = __('Redirect delete', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::REPORT_ERROR:
+                $title = __('Report error', I18N::DOMAIN)."(task_id=$id)";
+                break;
+            default:
+                $title = "$type (id=$id)";
+                break;
+        }
+
+        return $title;
+    }
+
+    public function trashTasks(string $type, string $id): void
+    {
+        global $wpdb;
+
+        $delete = TaskModel::getDeleteHelper()
+            ->where('name = :name')
+            ->bindValue('name', TaskModel::getName($type, $id));
+
+        $wpdb->query(TaskModel::prepareQuery($delete));
+    }
+
+    public function rescheduleTask($type, $id = 0, $metadata = [])
+    {
+        $this->trashTasks($type, $id);
+
+        return self::scheduleTask($type, $id, $metadata);
+    }
+
+    /**
+     * @param $type
+     * @param int    $id
+     * @param array  $meta_data
+     * @param bool   $force_add
+     * @param string $task_status
+     *
+     * @return mixed
+     */
+    public static function scheduleTask(
+        $type,
+        $id = 0,
+        $meta_data = [],
+        $force_add = false,
+        $task_status = self::STATUS_NEW
+    ) {
+        $existingTask = self::getScheduledTask($type, $id);
+        if (!$force_add && !empty($existingTask)) {
+            // Dont update status if the status is new of success
+            if (!in_array($existingTask['status'], [self::STATUS_NEW, self::STATUS_SUCCESS])) {
+                $existingTask['status'] = self::STATUS_NEW;
+                TaskModel::update($existingTask['id'], $existingTask);
+            }
+
+            return $existingTask;
+        }
+
+        TaskModel::newTask(
+            self::getTitle($type, $id),
+            $type,
+            self::getTypeGroup($type),
+            (int) $id,
+            $meta_data,
+            $task_status
+        );
+
+        return self::getScheduledTask($type, $id);
+    }
+
+    /**
+     * @param $typeName
+     * @param array $task_options
+     *
+     * @return array|bool
+     *
+     * @throws Exception
+     * @throws Throwable
+     */
+    public function handleImport($typeName, $task_options = [])
+    {
+        $regexOutput = preg_match(self::$typeRegex, $typeName, $regexMatches);
+
+        $this->logger->debug('Handle import');
+
+        if (0 === $regexOutput) {
+            $type = $typeName;
+            $id = 0;
+        } else {
+            if (1 === $regexOutput && count($regexMatches) > 0) {
+                $type = $regexMatches[1];
+                $id = $regexMatches[2];
+                $id = absint($id);
+            } else {
+                return false;
+            }
+        }
+
+        if (self::FULL_IMPORT === $type) {
+            return true;
+        }
+
+        $this->logger->debug('Got the task: '.$type);
+
+        switch ($type) {
+            case self::ATTRIBUTE_IMPORT:
+                $import = new AttributeImportTask();
+                break;
+            case self::CATEGORY_IMPORT:
+                $import = new CategoryImportTask();
+                break;
+            case self::PRODUCT_IMPORT:
+                $import = new ProductImportTask();
+                break;
+            case self::PRODUCT_STOCK_UPDATE:
+                $import = new ProductStockUpdateTask();
+                break;
+            case self::TAG_IMPORT:
+                $import = new TagImportTask();
+                break;
+            case self::ORDERS_EXPORT:
+                $import = new OrderExportTask();
+                break;
+            case self::ORDERS_IMPORT:
+                $import = new OrderImportTask();
+                break;
+            case self::CATEGORY_DELETE:
+                $import = new CategoryDeleteTask();
+                break;
+            case self::PRODUCT_DELETE:
+                $import = new ProductDeleteTask();
+                break;
+            case self::PRODUCT_ACTIVATED:
+                $import = new ProductActivateTask();
+                break;
+            case self::PRODUCT_DEACTIVATED:
+                $import = new ProductDeactivateTask();
+                break;
+            case self::TAG_DELETE:
+                $import = new TagDeleteTask();
+                break;
+            case self::ORDERS_DELETE:
+                $import = new OrderDeleteTask();
+                break;
+            case self::COUPON_CODE_IMPORT:
+                $import = new CouponCodeImportTask();
+                break;
+            case self::COUPON_CODE_DELETE:
+                $import = new CouponCodeDeleteTask();
+                break;
+            case self::TRIGGER_VARIATION_SAVE_ACTION:
+                $import = new TriggerVariationSaveActionTask();
+                break;
+            case self::PARENT_PRODUCT_RECALCULATION:
+                $import = new ParentProductRecalculationTask();
+                break;
+            case self::MENU_ITEM_IMPORT:
+                $import = new MenuItemImportTask();
+                break;
+            case self::MENU_ITEM_DELETE:
+                $import = new MenuItemDeleteTask();
+                break;
+            case self::REDIRECT_IMPORT:
+                $import = new RedirectImportTask();
+                break;
+            case self::REDIRECT_DELETE:
+                $import = new RedirectDeleteTask();
+                break;
+            default:
+                throw new Exception("$type not found");
+        }
+
+        $import->setLogger($this->logger);
+        $import->setTaskHandler($this);
+
+        $this->logger->debug(
+            'Got the task',
+            [
+                'class' => get_class($import),
+            ]
+        );
+
+        if ($id > 0) {
+            $import->setId($id);
+        }
+
+        $task = self::getScheduledTask($type, $id);
+
+        $task_id = $task['id'];
+        if (0 != $task_id) {
+            $import->setTaskId($task_id);
+        }
+
+        // Load all task meta for the task
+        $taskMeta = $import->loadTaskMeta();
+
+        $this->logger->debug(
+            'Got the task meta',
+            [
+                'meta' => $taskMeta,
+            ]
+        );
+
+        $this->logger->info(
+            'Running the task',
+            [
+                'type' => $type,
+                'options' => $task_options,
+                'class' => get_class($import),
+            ]
+        );
+
+        try {
+            $import->increaseTimesRan();
+
+            if (!$import->run($task_options)) {
+                throw new Exception("Failed to run the task (id=$id) (task_id=$task_id)");
+            }
+
+            $this->logger->notice(
+                'Task success',
+                [
+                    'type' => $type,
+                    'options' => $task_options,
+                    'class' => get_class($import),
+                ]
+            );
+
+            //Recount categories because WP cant
+            _wc_term_recount(
+                get_terms(
+                    'product_cat',
+                    ['hide_empty' => false, 'fields' => 'id=>parent']
+                ),
+                get_taxonomy('product_cat'),
+                true,
+                false
+            );
+
+            //Recount Labels because WP cant
+            _wc_term_recount(
+                get_terms('product_tag', ['hide_empty' => false, 'fields' => 'id=>parent']),
+                get_taxonomy('product_tag'),
+                true,
+                false
+            );
+        } catch (Throwable $e) {
+            // If the task failed, report it
+            $this->reportFailedTask($task_id, $e);
+            $this->logger->error("Failed to run the task (id=$task_id)");
+
+            // Throw the exception so it can be picked up by process-single-task
+            throw $e;
+        }
+    }
+
+    /**
+     * Reports a failed task.
+     *
+     * @param int       $task_id   Task id of the task that failed
+     * @param Exception $exception The exception that occurred
+     *
+     * @throws WordpressException
+     */
+    private function reportFailedTask($task_id, $exception)
+    {
+        $metaData = [];
+
+        if (0 !== $task_id) {
+            // If task id is not 0, it must be a failed task that is being reported
+            $metaData['failed-task-task-id'] = $task_id;
+            $metaData['failed-task-task-link'] = get_site_url(
+                null,
+                "/wp-admin/admin.php?page=storekeeper-logs&task-id=$task_id"
+            );
+
+            /*
+             * failed-task-try is the try that the task was ran on.
+             * So if this is the 4th time this task runs, it will
+             * be reported as the 4th try.
+             */
+            $data = TaskModel::get($task_id);
+            if ($data) {
+                $metaData['failed-task-try'] = $data['times_ran'];
+            }
+        }
+
+        // Create an error task in the task queue
+        LoggerFactory::createErrorTask('task-in-queue-failed', $exception, $task_id, $metaData);
+    }
+}

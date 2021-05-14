@@ -1,0 +1,36 @@
+{
+    "success": true,
+    "call_id": "5e4bb36734f37",
+    "request": {
+        "headers": {
+            "host": [
+                "localhost:8888"
+            ],
+            "user_agent": [
+                "GuzzleHttp\/6.5.1 curl\/7.64.0 PHP\/7.3.9-1~deb10u1"
+            ],
+            "content_type": [
+                "application\/json"
+            ],
+            "upxhooktoken": [
+                "4606ea5e89ba2632c99c57a9a6d7efd79010ad0108d045c6e4921e82852894ad"
+            ],
+            "content_length": [
+                "1949"
+            ]
+        },
+        "body": "{\"action\":\"init\",\"payload\":{\"sync_auth\":{\"rights\":\"subuser\",\"mode\":\"apikey\",\"account\":\"myawesomeshop\",\"subaccount\":\"5e4bb366-1abb-4b8c-a40d-fe27eec16630\",\"user\":\"sync\",\"apikey\":\"s876rTg34WfMgpJ4rmeNb2RklFY8JMNk\"},\"guest_auth\":{\"rights\":\"subuser\",\"mode\":\"apikey\",\"account\":\"myawesomeshop\",\"subaccount\":\"5e4bb366-1abb-4b8c-a40d-fe27eec16630\",\"user\":\"guest\",\"apikey\":\"lEPRiEBJYsRv3025AkXe6kKQoVRedB97\"},\"shop\":{\"site\":{\"id\":\"1\",\"alias\":\"5e411fe5-24cc-48a3-8bb2-9eedbbab5ea1\",\"title\":\"Development\",\"published\":true,\"description\":\"\",\"date_created\":\"2020-02-10 10:18:29+01\",\"relation_data_id\":\"2\",\"group_id\":\"22\",\"translatable_id\":\"29\",\"product_id\":\"18\",\"property_id\":null,\"url\":\"http:\\\/\\\/localhost\"},\"configuration\":{\"id\":\"1\",\"relation_data_id\":\"2\",\"group_id\":\"1\",\"published\":true,\"is_default\":true,\"alias\":\"main\",\"date_created\":\"2020-01-29 10:53:53+01\",\"tax_rate_default_id\":\"55\",\"currency_iso3\":\"EUR\",\"product_id\":\"17\",\"provider_id\":\"1\",\"payment_redirect_url\":null,\"configuration_id\":\"1\",\"backorder_enabled\":true,\"out_of_stock_availability_default_id\":null,\"guest_relation_data_id\":null,\"sync_relation_data_id\":null,\"registration_enabled\":true,\"tax_rate_default_shipment_id\":\"55\",\"tax_rate_default_payment_id\":\"55\",\"default_product_category_id\":\"2\",\"gift_card_product_id\":\"1\",\"member_card_product_id\":\"2\",\"emballage_product_id\":\"3\"},\"shop_type\":{\"id\":\"5\",\"alias\":\"WebWithSync\",\"module_name\":\"CommerceModule\",\"date_created\":\"2020-01-29 10:39:05+01\",\"class\":\"CommerceModule\\\\objects\\\\WebShopWithSyncType\"},\"id\":\"4\",\"configuration_id\":\"1\",\"site_id\":\"1\",\"category_id\":\"2\",\"is_default\":false,\"date_created\":\"2020-02-10 10:18:29+01\",\"date_updated\":\"2020-02-10 10:18:29.941744+01\",\"alias\":\"5e411fe5-24cc-48a3-8bb2-9eedbbab5ea1\",\"relation_data_id\":\"2\",\"published\":true,\"hook_id\":null,\"name\":\"Development\",\"shop_type_id\":\"5\",\"order_prefix\":\"S4\",\"deleted\":false,\"address_id\":\"6\",\"visible\":true},\"hook_id\":\"6\",\"api_url\":\"https:\\\/\\\/api-myawesomeshop.storekeepercloud.com\\\/\"}}",
+        "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+        "method": "POST",
+        "query_params": {
+            "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+        },
+        "file_params": []
+    },
+    "hook_action": "init",
+    "return": true,
+    "_type": "hook",
+    "time_ms": 163.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-18T09:50:31+00:00"
+}

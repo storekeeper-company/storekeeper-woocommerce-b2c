@@ -1,0 +1,255 @@
+{
+    "success": true,
+    "call_id": "5e32b7224a919",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "parent_id__notnull",
+                "val": "1"
+            },
+            {
+                "name": "category_type\/alias__=",
+                "val": "Product"
+            },
+            {
+                "name": "category_type\/module_name__=",
+                "val": "ProductsModule"
+            },
+            {
+                "name": "category_tree\/level__=",
+                "val": 1
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "category_type": {
+                    "id": 6,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 3956,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 145575,
+                    "lang": "en",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-04-09 14:06:37+02:00",
+                    "backref": "BlogModule::Category(id=3956)",
+                    "translatable_type_id": 7
+                },
+                "id": 3956,
+                "title": "Soft Drinks",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-04-09 14:06:37+02:00",
+                "category_type_id": 6,
+                "slug": "soft-drinks",
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/logo-blue.png?img_w=73&img_h=73&",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 145575,
+                "object_instance_id": 370645,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 6,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 3958,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 145577,
+                    "lang": "en",
+                    "used_langs": [
+                        "nl"
+                    ],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [
+                        "nl"
+                    ],
+                    "date_created": "2019-04-09 14:06:51+02:00",
+                    "backref": "BlogModule::Category(id=3958)",
+                    "translatable_type_id": 7
+                },
+                "id": 3958,
+                "title": "Wine",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-04-09 14:06:51+02:00",
+                "category_type_id": 6,
+                "slug": "wine",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 145577,
+                "object_instance_id": 370647,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 6,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 3962,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 145581,
+                    "lang": "en",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-04-09 14:07:57+02:00",
+                    "backref": "BlogModule::Category(id=3962)",
+                    "translatable_type_id": 7
+                },
+                "id": 3962,
+                "title": "Desserts",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-04-09 14:07:57+02:00",
+                "category_type_id": 6,
+                "slug": "desserts",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 145581,
+                "object_instance_id": 370651,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 6,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 3963,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 145582,
+                    "lang": "en",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-04-09 14:38:27+02:00",
+                    "backref": "BlogModule::Category(id=3963)",
+                    "translatable_type_id": 7
+                },
+                "id": 3963,
+                "title": "Vegan",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-04-09 14:38:27+02:00",
+                "category_type_id": 6,
+                "slug": "vegan",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 145582,
+                "object_instance_id": 370652,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 6,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                },
+                "category_tree": {
+                    "category_id": 3965,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 145584,
+                    "lang": "en",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-04-09 14:38:44+02:00",
+                    "backref": "BlogModule::Category(id=3965)",
+                    "translatable_type_id": 7
+                },
+                "id": 3965,
+                "title": "Drinks",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-04-09 14:38:44+02:00",
+                "category_type_id": 6,
+                "slug": "drinks",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 145584,
+                "object_instance_id": 370654,
+                "protected": false
+            }
+        ],
+        "total": 5,
+        "count": 5
+    },
+    "_type": "moduleFunction",
+    "time_ms": 353.0,
+    "_version": "1.0",
+    "_timestamp": "2020-01-30T10:59:46+00:00"
+}

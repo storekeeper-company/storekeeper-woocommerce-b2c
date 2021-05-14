@@ -1,0 +1,160 @@
+{
+    "success": true,
+    "call_id": "5ebe203b2ecca",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "flat_product\/product\/type__in_list",
+                "multi_val": [
+                    "simple",
+                    "configurable",
+                    "configurable_assign"
+                ]
+            },
+            {
+                "name": "id__=",
+                "val": 8
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 9,
+                    "product_id": 8,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 11.05,
+                    "ppu_wt": 13.37,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-05-15 06:35:41+02:00",
+                    "date_updated": "2020-05-15 06:35:41+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 9,
+                    "product_id": 8,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 11.05,
+                    "ppu_wt": 13.37,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-05-15 06:35:41+02:00",
+                    "date_updated": "2020-05-15 06:35:41+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 8,
+                    "product_id": 8,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-05-15 06:39:30+02:00",
+                    "title": "Verf pot (Roze)",
+                    "summary": "Flexa Strak In De Lak Zijdeglans Gebroken Wit Ral 9010 2,5L is ideaal om al je deuren, meubels, kozijnen en ander houtwerk in jouw gekozen kleur te schilderen! Deze verf op waterbasis geeft een goed dekkend, hoogwaardig en duurzaam resultaat. Flexa Strak In De Lak Zijdeglans Gebroken Wit Ral 9010 2,5L is geschikt voor hout, metaal, kunststof en intacte verf. De lak is kras- en stootvast, optimaal dekkend, sneldrogend en geurarm.",
+                    "body": "**Gevarenaanduiding**\nBevat 1.2-benzisothiazool-3(2H)-on, C(M)IT\/MIT(3:1) en Methylisothiazolinon. Kan een allergische reactie veroorzaken.\n\n**Voorzorgsmaatregelen**\nBij het inwinnen van medisch advies, de verpakking of het etiket ter beschikking houden. Buiten het bereik van kinderen houden. Contact met de ogen, de huid of de kleding vermijden. Bij onwel voelen een ANTIGIFCENTRUM of een arts raadplegen. De inhoud en \/ verpakking verwerken volgens de plaatselijke \/ regionale \/ nationale \/ internationale voorschriften.",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 8,
+                    "slug": "verf-pot-roze",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 8,
+                        "date_created": "2020-05-15 06:35:41+02:00",
+                        "date_updated": "2020-05-15 06:36:29+02:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 12,
+                        "sku": "verf-pot_roze",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 9,
+                        "object_instance_id": 91,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "verf-pot-roze",
+                            "translatable_id": 53
+                        },
+                        "product_stock": {
+                            "id": 8,
+                            "product_id": 8,
+                            "value": 150,
+                            "in_stock": true,
+                            "unlimited": false,
+                            "date_updated": "2020-05-15 06:36:29+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Kleur",
+                            "attribute_id": 14,
+                            "attribute_option_id": 12,
+                            "value_label": "Roze",
+                            "name": "kleur",
+                            "value": "roze",
+                            "attribute_option_image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/roze.png?img_w=597&img_h=477&",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Barcode",
+                            "attribute_id": 1,
+                            "name": "barcode",
+                            "value": "2220000000006-7",
+                            "attribute_published": true
+                        }
+                    ],
+                    "main_image": {
+                        "id": 2,
+                        "url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_small_image.jpg?img_w=200&img_h=200&",
+                        "big_url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_big_image.jpg?img_w=1500&img_h=1500&"
+                    },
+                    "product_images": [
+                        {
+                            "id": 2,
+                            "url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_small_image.jpg?img_w=200&img_h=200&",
+                            "big_url": "\/download\/public\/profes\/FileModule\/profes\/main\/verf_big_image.jpg?img_w=1500&img_h=1500&"
+                        }
+                    ]
+                },
+                "id": 8,
+                "product_id": 8,
+                "product_price_id": 9,
+                "date_created": "2020-05-15 06:35:41+02:00",
+                "active": true,
+                "discount_dirty": false,
+                "object_instance_id": 96,
+                "date_updated": "2020-05-15 06:35:41+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 9
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1331.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-15T04:53:16+00:00"
+}

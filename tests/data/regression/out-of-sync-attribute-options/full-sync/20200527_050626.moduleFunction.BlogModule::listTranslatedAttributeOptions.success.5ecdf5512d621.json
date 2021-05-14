@@ -1,0 +1,27 @@
+{
+    "success": true,
+    "call_id": "5ecdf5512d621",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributeOptions",
+    "params": [
+        "en",
+        100,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        []
+    ],
+    "return": {
+        "data": [],
+        "total": 14,
+        "count": 0
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1055.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-27T05:06:26+00:00"
+}

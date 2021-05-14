@@ -1,0 +1,381 @@
+<?php
+
+namespace StoreKeeper\WooCommerce\B2C\Commands;
+
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
+use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
+use StoreKeeper\WooCommerce\B2C\Query\CronQueryBuilder;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
+use Throwable;
+
+class ProcessAllTasks extends AbstractCommand
+{
+    public static function needsFullWpToExecute(): bool
+    {
+        return false; // DO NOT activate otherwise will be really slow
+    }
+
+    /**
+     * @var DatabaseConnection
+     */
+    protected $db;
+
+    /**
+     * @return mixed|void
+     *
+     * @throws Throwable
+     */
+    public function execute(array $arguments, array $assoc_arguments)
+    {
+        if (!$this->lock()) {
+            $this->logger->notice('Cannot run. lock on.');
+
+            return;
+        }
+
+        $this->db = new DatabaseConnection();
+
+        $this->logger->debug(
+            'Connected to DB',
+            [
+                'host' => DB_HOST,
+                'user' => DB_USER,
+                'db' => DB_NAME,
+            ]
+        );
+
+        // Update the last run cron to now.
+        $task_ids = $this->getTaskIds();
+        $task_quantity = count($task_ids);
+
+        $this->logger->info(
+            'Tasks to process',
+            [
+                'total' => $task_quantity,
+            ]
+        );
+
+        $removed_task_ids = [];
+
+        // Looping over the tasks ids
+        foreach ($task_ids as $index => $task_id) {
+            if (in_array($task_id, $removed_task_ids)) {
+                continue; // task is removed
+            }
+
+            $task = $this->getTask($task_id);
+
+            if (!$task) {
+                $this->logger->notice(
+                    'Task not found -> skipping',
+                    [
+                        'post_id' => $task_id,
+                    ]
+                );
+                continue;
+            }
+
+            if (!in_array($task['status'], [TaskHandler::STATUS_NEW, TaskHandler::STATUS_SUCCESS])) {
+                $this->logger->notice(
+                    'Task not in new state -> skipping',
+                    [
+                        'post_id' => $task_id,
+                        'state' => $task['status'],
+                    ]
+                );
+                continue;
+            }
+
+            $log_context = [
+                'index' => $index,
+                'task_id' => $task_id,
+                'task_left' => $task_quantity - $index - 1,
+            ];
+            try {
+                // Mark task as processing
+                $this->updateTaskStatus($task, TaskHandler::STATUS_PROCESSING);
+
+                // Processing task
+                $this->executeSubCommand(ProcessSingleTask::getCommandName(), [$task_id], [], 600);
+
+                // Check if running the tasks remove any of the old tasks
+                $removed_task_ids = array_merge(
+                    $removed_task_ids,
+                    $this->getRemovedTaskIds($task['id'])
+                );
+
+                // Mark task as success
+                $this->updateTaskStatus($task, TaskHandler::STATUS_SUCCESS);
+
+                $this->logger->info('Task processed', $log_context);
+
+                // Update the last run cron to now.
+                $this->ensureSuccessRunTime();
+            } catch (Throwable $e) {
+                // The task has failed, set the status to failed
+                $this->updateTaskStatus($task, TaskHandler::STATUS_FAILED);
+
+                $this->reportErrorDetails($task_id, $e, $log_context);
+            }
+        }
+        $this->deduplicateCron();
+    }
+
+    private function getRemovedTaskIds($id): array
+    {
+        $task = $this->getTask($id);
+        $metaData = unserialize($task['meta_data']);
+
+        if (array_key_exists('removed_task_ids', $metaData)) {
+            return $metaData['removed_task_ids'];
+        }
+
+        return [];
+    }
+
+    private function ensureLastRunTime()
+    {
+        if ($this->hasLastRunTime()) {
+            $this->db->querySql(CronQueryBuilder::getUpdateLastRunTimeSql());
+        } else {
+            $this->db->querySql(CronQueryBuilder::getInsertLastRunTimeSql());
+        }
+    }
+
+    private function hasLastRunTime()
+    {
+        $row = $this->db->getRow(CronQueryBuilder::getCountLastRunTimeSql());
+
+        return !empty($row) && count($row) > 0 && $row[0] > 0;
+    }
+
+    private function ensureSuccessRunTime()
+    {
+        if ($this->hasSuccessRunTime()) {
+            $this->db->querySql(CronQueryBuilder::getUpdateSuccessRunTimeSql());
+        } else {
+            $this->db->querySql(CronQueryBuilder::getInsertSuccessRunTimeSql());
+        }
+    }
+
+    private function hasSuccessRunTime()
+    {
+        $row = $this->db->getArray(CronQueryBuilder::getCountSuccessRunTimeSql());
+
+        return !empty($row) && array_key_exists('count', $row) && $row['count'] > 0;
+    }
+
+    private function getCronOption()
+    {
+        $data = $this->db->getArray(CronQueryBuilder::getCronOptionSql());
+
+        if ($data && array_key_exists('option_value', $data)) {
+            $unserialized = unserialize($data['option_value']);
+        } else {
+            $unserialized = [];
+        }
+
+        return $unserialized;
+    }
+
+    private function setCronOption(array $data): void
+    {
+        $sql = CronQueryBuilder::updateCronOptionSql($this->db, $data);
+        $this->db->querySql($sql);
+    }
+
+    private function deduplicateCron(): void
+    {
+        $cron = $this->getCronOption();
+        if (empty($cron)) {
+            return;
+        }
+
+        $newCron = [
+            'version' => $cron['version'],
+        ];
+
+        $deDuplicateTasks = ['delete_version_transients', 'woocommerce_flush_rewrite_rules'];
+        $deDuplicateCrons = [];
+
+        // Loop over current crons
+        foreach ($cron as $index => $data) {
+            if (is_array($data)) {
+                $keys = array_keys($data);
+
+                // Check if it is one of the banned crons, is so. de duplicate it.
+                if (0 === count(array_intersect($keys, $deDuplicateTasks))) {
+                    $newCron[$index] = $data;
+                } else {
+                    $key = $keys[0];
+                    $deDuplicateCrons[$key] = [
+                        'index' => $index,
+                        'data' => $data,
+                    ];
+                }
+            }
+        }
+
+        // Loop over all de duplicated crons and add the back.
+        foreach ($deDuplicateCrons as $cronData) {
+            $newCron[$cronData['index']] = $cronData['data'];
+        }
+
+        $this->setCronOption($newCron);
+    }
+
+    /**
+     * @param $task_id
+     * @param $e
+     *
+     * @throws \Exception
+     */
+    protected function reportErrorDetails($task_id, Throwable $e, array $log_context): void
+    {
+        $error_parts = [
+            'plugin_version' => constant('STOREKEEPER_WOOCOMMERCE_B2C_VERSION'),
+            'task_url' => $this->getSiteUrl()."/wp-admin/admin.php?page=storekeeper-logs&task-id=$task_id",
+            'exception' => BaseException::getAsString($e),
+        ];
+
+        if ($e instanceof SubProcessException) {
+            $process = $e->getProcess();
+            $error_parts['process_output'] = $process->getOutput();
+            $error_parts['process_error'] = $process->getErrorOutput();
+            $error_parts['process_exit_code'] = $process->getExitCode();
+        }
+
+        $error = '';
+        foreach ($error_parts as $name => $error_part) {
+            $error .= "\n===[ $name ]===\n$error_part\n";
+        }
+
+        $task = $this->getTask($task_id);
+        $task['error_output'] = $error;
+        $this->updateTask($task['id'], $task);
+
+        $this->logger->error('Task failed', $log_context + $error_parts);
+    }
+
+    protected function getSiteUrl(): string
+    {
+        // Check if we can access the get_site_url wordpress function, if not, use empty string
+        $has_wordpress = function_exists('get_site_url');
+        $site_url = $has_wordpress ? get_site_url() : '';
+
+        return (string) $site_url;
+    }
+
+    public static function getOrderTaskIds(): array
+    {
+        $db = new DatabaseConnection();
+
+        $select = TaskModel::getSelectHelper()
+            ->cols(['id'])
+            ->where('type IN (:type1,:type2,:type3)')
+            ->where('status = :status')
+            ->bindValue('status', TaskHandler::STATUS_NEW)
+            ->bindValue('type1', TaskHandler::ORDERS_IMPORT)
+            ->bindValue('type2', TaskHandler::ORDERS_EXPORT)
+            ->bindValue('type3', TaskHandler::ORDERS_DELETE)
+            ->limit(100);
+
+        $query = $db->prepare($select);
+        $results = $db->querySql($query)->fetch_all();
+
+        return array_map('current', $results);
+    }
+
+    public static function getNonOrderTaskIds(): array
+    {
+        $db = new DatabaseConnection();
+
+        $select = TaskModel::getSelectHelper()
+            ->cols(['id'])
+            ->where('type NOT IN (:type1,:type2,:type3)')
+            ->where('status = :status')
+            ->bindValue('status', TaskHandler::STATUS_NEW)
+            ->bindValue('type1', TaskHandler::ORDERS_IMPORT)
+            ->bindValue('type2', TaskHandler::ORDERS_EXPORT)
+            ->bindValue('type3', TaskHandler::ORDERS_DELETE)
+            ->limit(100);
+
+        $query = $db->prepare($select);
+        $results = $db->getResults($query);
+
+        return array_map('current', $results);
+    }
+
+    protected function updateTaskStatus(array $task, string $status): void
+    {
+        $task['status'] = $status;
+        $this->updateTask($task['id'], $task);
+    }
+
+    protected function getTaskIds(): array
+    {
+        $this->ensureLastRunTime();
+
+        $order_task_ids = self::getOrderTaskIds();
+        $this->logger->info(
+            'Found order tasks',
+            [
+                'total' => count($order_task_ids),
+            ]
+        );
+
+        $this->logger->debug(
+            'Order task ids',
+            [
+                'task_ids' => $order_task_ids,
+            ]
+        );
+
+        $non_order_task_ids = self::getNonOrderTaskIds();
+        $this->logger->info(
+            'Found non-order tasks',
+            [
+                'total' => count($non_order_task_ids),
+            ]
+        );
+        $this->logger->debug(
+            'non-order task ids',
+            [
+                'post_ids' => $non_order_task_ids,
+            ]
+        );
+
+        $task_ids = array_merge($order_task_ids, $non_order_task_ids);
+
+        return $task_ids;
+    }
+
+    private function getTask($id)
+    {
+        $select = TaskModel::getSelectHelper()
+            ->cols(['*'])
+            ->where('id = :id')
+            ->bindValue('id', $id);
+
+        $query = $this->db->prepare($select);
+
+        return $this->db->getArray($query);
+    }
+
+    private function updateTask($id, $data)
+    {
+        $data['id'] = $id;
+        TaskModel::validateData($data, true);
+
+        $update = TaskModel::getUpdateHelper()
+            ->cols(TaskModel::prepareData($data))
+            ->where('id = :id')
+            ->bindValue('id', $id);
+
+        $query = $this->db->prepare($update);
+
+        return $this->db->querySql($query);
+    }
+}

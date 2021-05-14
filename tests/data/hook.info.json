@@ -1,0 +1,140 @@
+{
+  "success": true,
+  "call_id": "5ea7c88e18cc4",
+  "request": {
+    "headers": {
+      "host": [
+        "localhost:8888"
+      ],
+      "user_agent": [
+        "GuzzleHttp\/6.5.1 curl\/7.64.0 PHP\/7.3.9-1~deb10u1"
+      ],
+      "content_type": [
+        "application\/json"
+      ],
+      "upxhooktoken": [
+        "724aa436163af8df0f35a0cb98d8e34d42e7370a21f978d788c7c76fe2188f07"
+      ],
+      "content_length": [
+        "30"
+      ]
+    },
+    "body": "{\"action\":\"info\",\"payload\":[]}",
+    "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+    "method": "POST",
+    "query_params": {
+      "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+    },
+    "file_params": []
+  },
+  "hook_action": "info",
+  "return": {
+    "vendor": "StoreKeeper",
+    "platform_name": "Wordpress",
+    "platform_version": "5.3.2-src",
+    "software_name": "storekeeper-woocommerce-b2c",
+    "software_version": "3.0.1",
+    "extra": {
+      "name": "WP-DEV",
+      "description": "Just another WordPress site",
+      "url": "http:\/\/localhost:8888",
+      "language": "en-US",
+      "pingback_url": "http:\/\/localhost:8888\/xmlrpc.php",
+      "atom_url": "http:\/\/localhost:8888\/?feed=atom",
+      "rdf_url": "http:\/\/localhost:8888\/?feed=rdf",
+      "rss_url": "http:\/\/localhost:8888\/?feed=rss",
+      "rss2_url": "http:\/\/localhost:8888\/?feed=rss2",
+      "comments_atom_url": "http:\/\/localhost:8888\/?feed=comments-atom",
+      "comments_rss2_url": "http:\/\/localhost:8888\/?feed=comments-rss2",
+      "plugins": [
+        {
+          "WC requires at least": "",
+          "WC tested up to": "",
+          "Woo": "",
+          "Name": "StoreKeeper synchronization plugin",
+          "PluginURI": "",
+          "Version": "3.0.1",
+          "Description": "This plugin provides sync possibilities with the Backoffice.",
+          "Author": "Storekeeper",
+          "AuthorURI": "https:\/\/www.storekeeper.nl\/",
+          "TextDomain": "storekeeper-woocommerce-b2c",
+          "DomainPath": "\/i18n",
+          "Network": false,
+          "RequiresWP": "",
+          "RequiresPHP": "",
+          "Title": "StoreKeeper synchronization plugin",
+          "AuthorName": "Storekeeper"
+        },
+        {
+          "WC requires at least": "",
+          "WC tested up to": "",
+          "Woo": "",
+          "Name": "Hello Dolly",
+          "PluginURI": "http:\/\/wordpress.org\/plugins\/hello-dolly\/",
+          "Version": "1.7.2",
+          "Description": "This is not just a plugin, it symbolizes the hope and enthusiasm of an entire generation summed up in two words sung most famously by Louis Armstrong: Hello, Dolly. When activated you will randomly see a lyric from <cite>Hello, Dolly<\/cite> in the upper right of your admin screen on every page.",
+          "Author": "Matt Mullenweg",
+          "AuthorURI": "http:\/\/ma.tt\/",
+          "TextDomain": "",
+          "DomainPath": "",
+          "Network": false,
+          "RequiresWP": "",
+          "RequiresPHP": "",
+          "Title": "Hello Dolly",
+          "AuthorName": "Matt Mullenweg"
+        },
+        {
+          "WC requires at least": "",
+          "WC tested up to": "",
+          "Woo": "",
+          "Name": "WooCommerce",
+          "PluginURI": "https:\/\/woocommerce.com\/",
+          "Version": "3.9.0",
+          "Description": "An eCommerce toolkit that helps you sell anything. Beautifully.",
+          "Author": "Automattic",
+          "AuthorURI": "https:\/\/woocommerce.com",
+          "TextDomain": "woocommerce",
+          "DomainPath": "\/i18n\/languages\/",
+          "Network": false,
+          "RequiresWP": "",
+          "RequiresPHP": "",
+          "Title": "WooCommerce",
+          "AuthorName": "Automattic"
+        }
+      ],
+      "active_theme": {
+        "Name": "Twenty Twenty",
+        "Description": "Our default theme for 2020 is designed to take full advantage of the flexibility of the block editor. Organizations and businesses have the ability to create dynamic landing pages with endless layouts using the group and column blocks. The centered content column and fine-tuned typography also makes it perfect for traditional blogs. Complete editor styles give you a good idea of what your content will look like, even before you publish. You can give your site a personal touch by changing the background colors and the accent color in the Customizer. The colors of all elements on your site are automatically calculated based on the colors you pick, ensuring a high, accessible color contrast for your visitors.",
+        "Author": "the WordPress team",
+        "Version": "1.1",
+        "ThemeURI": "https:\/\/wordpress.org\/themes\/twentytwenty\/",
+        "AuthorURI": "https:\/\/wordpress.org\/",
+        "Status": "publish",
+        "Tags": [
+          "blog",
+          "one-column",
+          "custom-background",
+          "custom-colors",
+          "custom-logo",
+          "custom-menu",
+          "editor-style",
+          "featured-images",
+          "footer-widgets",
+          "full-width-template",
+          "rtl-language-support",
+          "sticky-post",
+          "theme-options",
+          "threaded-comments",
+          "translation-ready",
+          "block-styles",
+          "wide-blocks",
+          "accessibility-ready"
+        ]
+      }
+    }
+  },
+  "_type": "hook",
+  "time_ms": 109.0,
+  "_version": "1.0",
+  "_timestamp": "2020-04-28T06:09:18+00:00"
+}

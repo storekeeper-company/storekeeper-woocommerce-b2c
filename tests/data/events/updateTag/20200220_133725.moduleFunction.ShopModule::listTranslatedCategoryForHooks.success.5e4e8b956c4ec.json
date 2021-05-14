@@ -1,0 +1,82 @@
+{
+    "success": true,
+    "call_id": "5e4e8b956c4ec",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "category_type\/alias__=",
+                "val": "Label"
+            },
+            {
+                "name": "category_type\/module_name__=",
+                "val": "ProductsModule"
+            },
+            {
+                "name": "id__=",
+                "val": 11
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "category_type": {
+                    "id": 9,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2020-01-23 09:41:06+01:00"
+                },
+                "category_tree": {
+                    "category_id": 11,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 45,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-19 15:39:11+01:00",
+                    "backref": "BlogModule::Category(id=11)",
+                    "translatable_type_id": 7
+                },
+                "id": 11,
+                "title": "Label5",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-02-19 15:39:11+01:00",
+                "category_type_id": 9,
+                "slug": "label3",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 45,
+                "object_instance_id": 95,
+                "protected": false
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 327.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-20T13:37:25+00:00"
+}

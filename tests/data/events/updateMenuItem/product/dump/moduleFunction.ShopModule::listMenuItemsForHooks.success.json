@@ -1,0 +1,71 @@
+{
+    "success": true,
+    "call_id": "5e719c81b5e2b",
+    "module_name": "ShopModule",
+    "function": "listMenuItemsForHooks",
+    "params": [
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__=",
+                "val": 151
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "menu_item_type": {
+                    "id": 12,
+                    "module_name": "ShopModule",
+                    "alias": "ShopProduct",
+                    "date_created": "2019-11-07 10:44:08+01:00"
+                },
+                "menu": {
+                    "id": 28,
+                    "alias": "New Menu",
+                    "relation_data_id": 6,
+                    "published": false,
+                    "date_created": "2020-03-18 04:45:19+01:00",
+                    "site_id": 11
+                },
+                "id": 151,
+                "slug": "vault-boi-1",
+                "title": "Vault Boi",
+                "auto_children": false,
+                "order": 0,
+                "menu_id": 28,
+                "menu_item_type_id": 12,
+                "date_created": "2020-03-18 04:56:37+01:00",
+                "object_instance_id": 12609,
+                "menu_item_vars": [
+                    {
+                        "name": "url",
+                        "value": "https:\/\/www.reddit.com\/r\/beerporn\/"
+                    },
+                    {
+                        "name": "shop_product_id",
+                        "value": "235"
+                    },
+                    {
+                        "name": "shop_product_name",
+                        "value": "Vault Boi"
+                    }
+                ]
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1931.0,
+    "_version": "1.0",
+    "_timestamp": "2020-03-18T03:58:59+00:00"
+}

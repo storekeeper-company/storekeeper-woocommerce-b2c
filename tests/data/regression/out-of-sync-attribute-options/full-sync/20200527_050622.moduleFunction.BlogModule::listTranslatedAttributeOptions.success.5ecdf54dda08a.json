@@ -1,0 +1,48 @@
+{
+    "success": true,
+    "call_id": "5ecdf54dda08a",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributeOptions",
+    "params": [
+        0,
+        0,
+        1
+    ],
+    "return": {
+        "data": [
+            {
+                "attribute": {
+                    "id": 2,
+                    "name": "brand",
+                    "label": "Brand"
+                },
+                "translatable": {
+                    "id": 12,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-13 06:08:26+02:00",
+                    "backref": "BlogModule::AttributeOption(id=1)",
+                    "translatable_type_id": 4
+                },
+                "id": 1,
+                "attribute_id": 2,
+                "name": "profes_b.v.",
+                "label": "Profes B.V.",
+                "order": 0,
+                "is_default": true,
+                "date_created": "2020-05-13 06:08:26+02:00",
+                "translatable_id": 12,
+                "date_updated": "2020-05-13 06:08:26+02:00"
+            }
+        ],
+        "total": 14,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 502.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-27T05:06:22+00:00"
+}

@@ -1,0 +1,44 @@
+{
+    "success": true,
+    "call_id": "5ecdf546788a0",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "parent_id__notnull",
+                "val": "1"
+            },
+            {
+                "name": "category_type\/alias__=",
+                "val": "Product"
+            },
+            {
+                "name": "category_type\/module_name__=",
+                "val": "ProductsModule"
+            },
+            {
+                "name": "category_tree\/level__=",
+                "val": 0
+            }
+        ]
+    ],
+    "return": {
+        "data": [],
+        "total": 0,
+        "count": 0
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1342.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-27T05:06:15+00:00"
+}

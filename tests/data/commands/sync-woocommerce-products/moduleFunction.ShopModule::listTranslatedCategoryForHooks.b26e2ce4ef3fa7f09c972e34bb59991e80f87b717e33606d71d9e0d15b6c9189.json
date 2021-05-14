@@ -1,0 +1,217 @@
+{
+    "success": true,
+    "call_id": "5e53e51595edf",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        "en",
+        0,
+        0,
+        [
+            {
+                "name": "category_tree\/level",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "category_type\/module_name__=",
+                "val": "ProductsModule"
+            },
+            {
+                "name": "category_type\/alias__=",
+                "val": "Product"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "category_type": {
+                    "id": 8,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2020-01-29 10:39:05+01:00"
+                },
+                "category_tree": {
+                    "category_id": 8,
+                    "is_leaf": false,
+                    "is_root": false,
+                    "direct_children": [
+                        9
+                    ],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 48,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-10 15:30:17+01:00",
+                    "backref": "BlogModule::Category(id=8)",
+                    "translatable_type_id": 7
+                },
+                "id": 8,
+                "title": "iPhone",
+                "summary": "En toen was er Pro.\nEen baanbrekend triple camera-systeem dat massa’s nieuwe intuïtieve mogelijk­heden biedt. Een ongekende sprong in batterijduur. En een buitengewone chip die fors inzet op machine learning en daarmee de grenzen verlegt van wat een smartphone allemaal kan. Dit is de eerste iPhone waar je ‘Pro’ tegen zegt.",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-02-10 15:30:17+01:00",
+                "category_type_id": 8,
+                "slug": "iphone",
+                "parent_id": 2,
+                "order": 0,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/iphone-11-hero.png?img_w=1594&img_h=622&",
+                "translatable_id": 48,
+                "description": "Maak jij graag foto's en video's met je telefoon? Dan is de iPhone 11, iPhone 11 Pro of iPhone 11 Pro Max helemaal jouw ding. Want hiermee schiet je spectaculaire beelden met een realistische kleurenweergave en indrukwekkende scherpte-diepte effecten. Met de night mode ook in het donker!\n\nDe iPhone 11 heeft 2 camera's: een groothoekcamera en ultragroothoekcamera. De ultragroothoekcamera (ultra wide lens) legt beeld vast in een hoek van maar liefst 120 graden, zonder vervorming! Hiermee krijg je zowel het nieuwe interieur van je woonkamer als hoge gebouwen én uitgestrekte landschappen perfect op de kiek.\n\nDe iPhone 11 Pro en iPhone 11 Pro Max hebben een extra camera: de telelenscamera. Hiermee kun je verbluffend ver inzoomen, zonder kwaliteitsverlies!",
+                "object_instance_id": 150,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 8,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2020-01-29 10:39:05+01:00"
+                },
+                "category_tree": {
+                    "category_id": 9,
+                    "is_leaf": false,
+                    "is_root": false,
+                    "direct_children": [
+                        10
+                    ],
+                    "path": [
+                        2,
+                        8
+                    ],
+                    "level": 2
+                },
+                "translatable": {
+                    "id": 49,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-10 15:30:35+01:00",
+                    "backref": "BlogModule::Category(id=9)",
+                    "translatable_type_id": 7
+                },
+                "id": 9,
+                "title": "iPhone Accessories",
+                "summary": "**Bold**\n*Italic*\n~~Stike Through~~\n[Link](https:\/\/documentaries.sjoerd.it)\n[Product link](backref:\/\/ShopModule::ShopProduct(id=7))\n![Image](https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/cr08rbN.png?img_w=680&img_h=382&)\n\n\n* Unordered 1\n* Unordered 2\n\n\n1. Ordered 1\n2. Ordered 2\n\n\n## H2\n\n### H3",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-02-10 15:30:35+01:00",
+                "category_type_id": 8,
+                "slug": "iphone-accessories",
+                "parent_id": 8,
+                "order": 0,
+                "translatable_id": 49,
+                "object_instance_id": 151,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 8,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2020-01-29 10:39:05+01:00"
+                },
+                "category_tree": {
+                    "category_id": 10,
+                    "is_leaf": false,
+                    "is_root": false,
+                    "direct_children": [
+                        11
+                    ],
+                    "path": [
+                        2,
+                        8,
+                        9
+                    ],
+                    "level": 3
+                },
+                "translatable": {
+                    "id": 50,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-10 15:30:51+01:00",
+                    "backref": "BlogModule::Category(id=10)",
+                    "translatable_type_id": 7
+                },
+                "id": 10,
+                "title": "Voeding en kabels",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-02-10 15:30:51+01:00",
+                "category_type_id": 8,
+                "slug": "voeding-en-kabels",
+                "parent_id": 9,
+                "order": 0,
+                "translatable_id": 50,
+                "object_instance_id": 152,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 8,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2020-01-29 10:39:05+01:00"
+                },
+                "category_tree": {
+                    "category_id": 11,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2,
+                        8,
+                        9,
+                        10
+                    ],
+                    "level": 4
+                },
+                "translatable": {
+                    "id": 51,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-17 14:28:40+01:00",
+                    "backref": "BlogModule::Category(id=11)",
+                    "translatable_type_id": 7
+                },
+                "id": 11,
+                "title": "Lightning kabels",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-02-17 14:28:40+01:00",
+                "category_type_id": 8,
+                "slug": "lightning-kabels",
+                "parent_id": 10,
+                "order": 0,
+                "translatable_id": 51,
+                "object_instance_id": 156,
+                "protected": false
+            }
+        ],
+        "total": 4,
+        "count": 4
+    },
+    "_type": "moduleFunction",
+    "time_ms": 972.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-24T15:00:38+00:00"
+}

@@ -1,0 +1,201 @@
+{
+    "success": true,
+    "call_id": "5e4bf0cb3baf9",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "category_type\/alias__=",
+                "val": "Label"
+            },
+            {
+                "name": "category_type\/module_name__=",
+                "val": "ProductsModule"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "category_type": {
+                    "id": 9,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2020-01-23 09:41:06+01:00"
+                },
+                "category_tree": {
+                    "category_id": 4,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 26,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::Category(id=4)",
+                    "translatable_type_id": 7
+                },
+                "id": 4,
+                "title": "Uitgelicht",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "category_type_id": 9,
+                "slug": "storekeeper-special-featured",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 26,
+                "object_instance_id": 88,
+                "protected": true
+            },
+            {
+                "category_type": {
+                    "id": 9,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2020-01-23 09:41:06+01:00"
+                },
+                "category_tree": {
+                    "category_id": 5,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 27,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::Category(id=5)",
+                    "translatable_type_id": 7
+                },
+                "id": 5,
+                "title": "Nieuw",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "category_type_id": 9,
+                "slug": "storekeeper-special-new",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 27,
+                "object_instance_id": 89,
+                "protected": true
+            },
+            {
+                "category_type": {
+                    "id": 9,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2020-01-23 09:41:06+01:00"
+                },
+                "category_tree": {
+                    "category_id": 6,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 28,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::Category(id=6)",
+                    "translatable_type_id": 7
+                },
+                "id": 6,
+                "title": "Sale",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "category_type_id": 9,
+                "slug": "storekeeper-special-sale",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 28,
+                "object_instance_id": 90,
+                "protected": true
+            },
+            {
+                "category_type": {
+                    "id": 9,
+                    "module_name": "ProductsModule",
+                    "alias": "Label",
+                    "date_created": "2020-01-23 09:41:06+01:00"
+                },
+                "category_tree": {
+                    "category_id": 10,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 37,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-01 12:54:45+01:00",
+                    "backref": "BlogModule::Category(id=10)",
+                    "translatable_type_id": 7
+                },
+                "id": 10,
+                "title": "Label",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-02-01 12:54:45+01:00",
+                "category_type_id": 9,
+                "slug": "label",
+                "parent_id": 2,
+                "order": 0,
+                "translatable_id": 37,
+                "object_instance_id": 91,
+                "protected": false
+            }
+        ],
+        "total": 4,
+        "count": 4
+    },
+    "_type": "moduleFunction",
+    "time_ms": 286.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-18T14:12:27+00:00"
+}

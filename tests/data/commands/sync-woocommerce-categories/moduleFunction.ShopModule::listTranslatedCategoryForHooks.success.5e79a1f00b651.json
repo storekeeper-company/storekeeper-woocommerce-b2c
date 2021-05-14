@@ -1,0 +1,225 @@
+{
+    "success": true,
+    "call_id": "5e79a1f00b651",
+    "module_name": "ShopModule",
+    "function": "listTranslatedCategoryForHooks",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "parent_id__notnull",
+                "val": "1"
+            },
+            {
+                "name": "category_type\/alias__=",
+                "val": "Product"
+            },
+            {
+                "name": "category_type\/module_name__=",
+                "val": "ProductsModule"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "category_type": {
+                    "id": 7,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2019-11-07 10:44:08+01:00"
+                },
+                "category_tree": {
+                    "category_id": 7,
+                    "is_leaf": false,
+                    "is_root": false,
+                    "direct_children": [
+                        8
+                    ],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 25,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-11-07 10:56:26+01:00",
+                    "backref": "BlogModule::Category(id=7)",
+                    "translatable_type_id": 7
+                },
+                "id": 7,
+                "title": "iPhone",
+                "summary": "[![Apple Airpod Pro](https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/images_1_.png?img_w=735&img_h=389&)](backref:\/\/ShopModule::ShopProduct(id=44))\n\nKrijg tot € 490 korting op een nieuwe iPhone.\nMet Apple Trade In kun je korting krijgen op een nieuwe iPhone als je een in aanmerking komende smart­phone inruilt.** Dat is goed voor jou en goed voor de planeet. **",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-11-07 10:56:26+01:00",
+                "category_type_id": 7,
+                "slug": "iphone",
+                "parent_id": 2,
+                "order": 0,
+                "image_url": "",
+                "translatable_id": 25,
+                "description": "![Banner](https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/images_1__szp.png?img_w=736&img_h=392&)\n\nKrijg tot € 490 korting op een nieuwe iPhone.\nMet Apple Trade In kun je korting krijgen op een nieuwe iPhone als je een in aanmerking komende smart­phone inruilt.** Dat is goed voor jou en goed voor de planeet. **",
+                "object_instance_id": 100,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 7,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2019-11-07 10:44:08+01:00"
+                },
+                "category_tree": {
+                    "category_id": 8,
+                    "is_leaf": false,
+                    "is_root": false,
+                    "direct_children": [
+                        9,
+                        34
+                    ],
+                    "path": [
+                        2,
+                        7
+                    ],
+                    "level": 2
+                },
+                "translatable": {
+                    "id": 26,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-11-07 10:57:04+01:00",
+                    "backref": "BlogModule::Category(id=8)",
+                    "translatable_type_id": 7
+                },
+                "id": 8,
+                "title": "iPhone-accessoires",
+                "summary": "",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-11-07 10:57:04+01:00",
+                "category_type_id": 7,
+                "slug": "iphone-accessoires",
+                "parent_id": 7,
+                "order": 0,
+                "translatable_id": 26,
+                "object_instance_id": 101,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 7,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2019-11-07 10:44:08+01:00"
+                },
+                "category_tree": {
+                    "category_id": 9,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2,
+                        7,
+                        8
+                    ],
+                    "level": 3
+                },
+                "translatable": {
+                    "id": 27,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2019-11-07 10:58:41+01:00",
+                    "backref": "BlogModule::Category(id=9)",
+                    "translatable_type_id": 7
+                },
+                "id": 9,
+                "title": "Voeding en kabels",
+                "summary": "[![power-cables](https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/power-cables-accessories-201810.png?img_w=1315&img_h=272&)](backref:\/\/ShopModule::ShopProduct(id=4))\n\n## Voeding en kabels",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2019-11-07 10:58:41+01:00",
+                "category_type_id": 7,
+                "slug": "voeding-en-kabels",
+                "parent_id": 8,
+                "order": 0,
+                "translatable_id": 27,
+                "description": "[![power-cables](https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/power-cables-accessories-201810.png?img_w=1315&img_h=272&)](backref:\/\/ShopModule::ShopProduct(id=4))\n\n![](https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/Vini_Vici_vs_Jean_Marie_ft_Hilight_Tribe_-_Moyoni.png)",
+                "object_instance_id": 102,
+                "protected": false
+            },
+            {
+                "category_type": {
+                    "id": 7,
+                    "module_name": "ProductsModule",
+                    "alias": "Product",
+                    "date_created": "2019-11-07 10:44:08+01:00"
+                },
+                "category_tree": {
+                    "category_id": 284,
+                    "is_leaf": true,
+                    "is_root": false,
+                    "direct_children": [],
+                    "path": [
+                        2
+                    ],
+                    "level": 1
+                },
+                "translatable": {
+                    "id": 8312,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-03-24 06:20:16+01:00",
+                    "backref": "BlogModule::Category(id=284)",
+                    "translatable_type_id": 7
+                },
+                "id": 284,
+                "title": "Image Test",
+                "summary": "Samenvatting",
+                "published": true,
+                "relation_data_id": 2,
+                "date_created": "2020-03-24 06:20:16+01:00",
+                "category_type_id": 7,
+                "slug": "image-test",
+                "parent_id": 2,
+                "order": 0,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/logo-blue.png?img_w=73&img_h=73&",
+                "translatable_id": 8312,
+                "description": "Omschrijving",
+                "seo_title": "SEO titel",
+                "seo_keywords": "SEO,zoekwoorden",
+                "seo_description": "SEO omschrijving",
+                "object_instance_id": 12814,
+                "protected": false
+            }
+        ],
+        "total": 4,
+        "count": 4
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1047.0,
+    "_version": "1.0",
+    "_timestamp": "2020-03-24T06:00:17+00:00"
+}

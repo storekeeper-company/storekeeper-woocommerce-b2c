@@ -1,0 +1,63 @@
+{
+  "name": "storekeeper/storekeeper-woocommerce-b2c",
+  "description": "Backoffice connection extension for WooCommerce",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Ian Wijma",
+      "email": "ian@storekeeper.nl"
+    },
+    {
+      "name": "Szymon Lukaszczyk",
+      "email": "szymon@storekeeper.nl"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "StoreKeeper": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-0": {
+      "StoreKeeper\\ApiWrapperDev": "vendor/storekeeper/api-wrapper/lib/",
+      "StoreKeeper\\ApiWrapper\\Test": "vendor/storekeeper/api-wrapper/tests/",
+      "StoreKeeper\\ApiWrapperDev\\Test": "vendor/storekeeper/api-wrapper/tests/"
+    },
+    "psr-4": {
+      "StoreKeeper\\WooCommerce\\B2C\\UnitTest\\": "tests/unit/",
+      "StoreKeeper\\WooCommerce\\B2C\\TestLib\\": "tests/lib/"
+    }
+  },
+  "require": {
+    "php": "^7.3",
+    "ext-json": "*",
+    "ext-mysqli": "*",
+    "symfony/process": "^4.0",
+    "erusev/parsedown": "^1.7",
+    "monolog/monolog": "^2.0",
+    "adbario/php-dot-notation": "^2.2",
+    "ext-zip": "*",
+    "ext-bcmath": "*",
+    "desarrolla2/cache": "^3.0",
+    "aura/sqlquery": "^2.7.1",
+    "ext-openssl": "*",
+    "storekeeper/api-wrapper": "^5.0"
+  },
+  "config": {
+    "platform": {
+      "php": "7.3",
+      "ext-mysqli": "7.3",
+      "ext-filter": "7.3"
+    }
+  },
+  "require-dev": {
+    "wp-cli/wp-cli": "^2.1",
+    "mockery/mockery": "^1.3",
+    "phpunit/phpunit": "^7.0",
+    "symfony/dotenv": "^4.0",
+    "fzaninotto/faker": "^1.9",
+    "phpoffice/phpspreadsheet": "^1.15",
+    "friendsofphp/php-cs-fixer": "^2.18"
+  }
+}

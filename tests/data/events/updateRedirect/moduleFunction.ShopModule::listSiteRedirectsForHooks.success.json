@@ -1,0 +1,40 @@
+{
+    "success": true,
+    "call_id": "5e4fe2cf498ec",
+    "module_name": "ShopModule",
+    "function": "listSiteRedirectsForHooks",
+    "params": [
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__=",
+                "val": 2
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "id": 2,
+                "object_instance_id": 99,
+                "site_id": 1,
+                "from_url": "\/Cheese",
+                "to_url": "https:\/\/www.reddit.com\/r\/Cheese\/",
+                "http_status_code": "302"
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 297.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-21T14:01:51+00:00"
+}

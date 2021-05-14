@@ -1,0 +1,36 @@
+{
+    "success": true,
+    "call_id": "5ebe1d9306dab",
+    "request": {
+        "headers": {
+            "host": [
+                "localhost:8888"
+            ],
+            "user_agent": [
+                "GuzzleHttp\/6.5.1 curl\/7.64.0 PHP\/7.3.9-1~deb10u1"
+            ],
+            "content_type": [
+                "application\/json"
+            ],
+            "upxhooktoken": [
+                "0862e6f221be3390e79676d843437f1aa00bb9aba8b2a5438a38724cf162657e"
+            ],
+            "content_length": [
+                "645"
+            ]
+        },
+        "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2020-05-15 06:38:57+02\",\"backref\":\"ShopModule::ShopProduct(id=6)\",\"events\":{\"38\":{\"id\":38,\"event\":\"updated\",\"date\":\"2020-05-15 06:38:39+02\"},\"40\":{\"id\":40,\"event\":\"updated\",\"date\":\"2020-05-15 06:38:42+02\"},\"51\":{\"id\":51,\"event\":\"updated\",\"date\":\"2020-05-15 06:38:57+02\"},\"50\":{\"id\":50,\"event\":\"updated\",\"date\":\"2020-05-15 06:38:55+02\"},\"39\":{\"id\":39,\"event\":\"updated\",\"date\":\"2020-05-15 06:38:41+02\"},\"49\":{\"id\":49,\"event\":\"updated\",\"date\":\"2020-05-15 06:38:53+02\"},\"30\":{\"id\":30,\"event\":\"activated\",\"date\":\"2020-05-15 06:37:43+02\"},\"48\":{\"id\":48,\"event\":\"updated\",\"date\":\"2020-05-15 06:38:51+02\"}}}}",
+        "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+        "method": "POST",
+        "query_params": {
+            "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+        },
+        "file_params": []
+    },
+    "hook_action": "events",
+    "return": true,
+    "_type": "hook",
+    "time_ms": 241.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-15T04:41:55+00:00"
+}

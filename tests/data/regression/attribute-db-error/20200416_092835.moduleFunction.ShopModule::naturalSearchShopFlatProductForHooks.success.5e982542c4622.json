@@ -1,0 +1,629 @@
+{
+    "success": true,
+    "call_id": "5e982542c4622",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "flat_product\/product\/type__in_list",
+                "multi_val": [
+                    "simple",
+                    "configurable",
+                    "configurable_assign"
+                ]
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 256,
+                    "product_id": 234,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-07 14:47:03+02:00",
+                    "date_updated": "2020-04-07 14:47:03+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 256,
+                    "product_id": 234,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-07 14:47:03+02:00",
+                    "date_updated": "2020-04-07 14:47:03+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 234,
+                    "product_id": 234,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-04-08 03:19:40+02:00",
+                    "title": "Sync Product Test Want Sjoerd Wil Liever Echte Product Namen",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 234,
+                    "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 234,
+                        "date_created": "2020-04-07 14:47:03+02:00",
+                        "date_updated": "2020-04-08 03:19:40+02:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 405,
+                        "sku": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen",
+                        "type": "configurable",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 256,
+                        "object_instance_id": 1114,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen",
+                            "translatable_id": 635
+                        },
+                        "product_stock": {
+                            "id": 234,
+                            "product_id": 234,
+                            "value": 1,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-04-07 14:47:03+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Brand",
+                            "attribute_id": 2,
+                            "attribute_option_id": 1,
+                            "value_label": "myawesomeshop",
+                            "name": "brand",
+                            "value": "myawesomeshop",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "is OEM",
+                            "attribute_id": 14,
+                            "name": "is-oem",
+                            "value": "1",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Portion",
+                            "attribute_id": 17,
+                            "attribute_option_id": 19,
+                            "value_label": "Large",
+                            "name": "portion",
+                            "value": "large",
+                            "attribute_published": true
+                        }
+                    ],
+                    "main_category": {
+                        "id": 19,
+                        "title": "Sauzen",
+                        "slug": "sauzen"
+                    },
+                    "categories": [
+                        {
+                            "id": 19,
+                            "title": "Sauzen",
+                            "slug": "sauzen",
+                            "published": true
+                        },
+                        {
+                            "id": 18,
+                            "title": "Snacks",
+                            "slug": "snacks",
+                            "published": true
+                        }
+                    ]
+                },
+                "id": 129,
+                "product_id": 234,
+                "product_price_id": 256,
+                "date_created": "2020-04-07 14:47:03+02:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 1115,
+                "date_updated": "2020-04-07 14:47:03+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 256
+            },
+            {
+                "product_price": {
+                    "id": 257,
+                    "product_id": 235,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 1.44,
+                    "ppu_wt": 1.75,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-07 14:47:25+02:00",
+                    "date_updated": "2020-04-07 14:48:19+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 257,
+                    "product_id": 235,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 1.44,
+                    "ppu_wt": 1.75,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-07 14:47:25+02:00",
+                    "date_updated": "2020-04-07 14:48:19+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 235,
+                    "product_id": 235,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-04-08 03:20:59+02:00",
+                    "title": "Sync Product Test Want Sjoerd Wil Liever Echte Product Namensync-product-test-want-sjoerd-wil-liever-echte-product-namenRode MiTo",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 235,
+                    "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namensync-product-test-want-sjoerd-wil-liever-echte-product-namenrode-mito",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 235,
+                        "date_created": "2020-04-07 14:47:25+02:00",
+                        "date_updated": "2020-04-07 14:48:19+02:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 406,
+                        "sku": "sync-product-test-want-sjoerd-wil-liever-echte-product-namenrode-mito",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 257,
+                        "object_instance_id": 1117,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namensync-product-test-want-sjoerd-wil-liever-echte-product-namenrode-mito",
+                            "translatable_id": 636
+                        },
+                        "product_stock": {
+                            "id": 235,
+                            "product_id": 235,
+                            "value": 50,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-04-07 14:47:33+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Sync Kleur",
+                            "attribute_id": 19,
+                            "attribute_option_id": 21,
+                            "value_label": "Rode MiTo",
+                            "name": "sync-kleur",
+                            "value": "rode-mito",
+                            "attribute_option_image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/alfa-romeo-mito-veloce-1280x799.png?img_w=188&img_h=150&",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Gewicht",
+                            "attribute_id": 7,
+                            "name": "unit_weight_in_g",
+                            "value": "5",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Hoeveelheid in pakket",
+                            "attribute_id": 10,
+                            "name": "in_package_qty",
+                            "value": "5",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Kleur",
+                            "attribute_id": 13,
+                            "attribute_option_id": 6,
+                            "value_label": "Zwart",
+                            "name": "kleur",
+                            "value": "zwart",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Sync Maat",
+                            "attribute_id": 20,
+                            "name": "sync-maat",
+                            "value": "Heel erg groot",
+                            "attribute_published": true
+                        }
+                    ]
+                },
+                "id": 130,
+                "product_id": 235,
+                "product_price_id": 257,
+                "date_created": "2020-04-07 14:47:25+02:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 1118,
+                "date_updated": "2020-04-07 14:47:46+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 257
+            },
+            {
+                "product_price": {
+                    "id": 258,
+                    "product_id": 236,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-08 13:22:30+02:00",
+                    "date_updated": "2020-04-08 13:22:30+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 258,
+                    "product_id": 236,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-08 13:22:30+02:00",
+                    "date_updated": "2020-04-08 13:22:30+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 236,
+                    "product_id": 236,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-04-16 10:34:27+02:00",
+                    "title": "Sync Product Test Want Sjoerd Wil Liever Echte Product Namen v2",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 236,
+                    "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 236,
+                        "date_created": "2020-04-08 13:22:30+02:00",
+                        "date_updated": "2020-04-16 10:34:27+02:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 407,
+                        "sku": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2",
+                        "type": "configurable",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 258,
+                        "object_instance_id": 1132,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2",
+                            "translatable_id": 637
+                        },
+                        "product_stock": {
+                            "id": 236,
+                            "product_id": 236,
+                            "value": 1,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-04-08 13:22:30+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Sauce",
+                            "attribute_id": 16,
+                            "attribute_option_id": 10,
+                            "value_label": "Satay sauce",
+                            "name": "sauce",
+                            "value": "satay-sauce",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Brand",
+                            "attribute_id": 2,
+                            "attribute_option_id": 1,
+                            "value_label": "myawesomeshop",
+                            "name": "brand",
+                            "value": "myawesomeshop",
+                            "attribute_published": true
+                        }
+                    ]
+                },
+                "id": 131,
+                "product_id": 236,
+                "product_price_id": 258,
+                "date_created": "2020-04-08 13:22:31+02:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 1133,
+                "date_updated": "2020-04-08 13:22:31+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 258
+            },
+            {
+                "product_price": {
+                    "id": 259,
+                    "product_id": 237,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-08 13:22:37+02:00",
+                    "date_updated": "2020-04-08 13:22:37+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 259,
+                    "product_id": 237,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-08 13:22:37+02:00",
+                    "date_updated": "2020-04-08 13:22:37+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 237,
+                    "product_id": 237,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-04-16 10:43:34+02:00",
+                    "title": "Sync Product Test Want Sjoerd Wil Liever Echte Product Namen v2sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2Rode MiTo",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 237,
+                    "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2rode-mito",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 237,
+                        "date_created": "2020-04-08 13:22:37+02:00",
+                        "date_updated": "2020-04-16 10:43:34+02:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 408,
+                        "sku": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2rode-mito",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 259,
+                        "object_instance_id": 1135,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2rode-mito",
+                            "translatable_id": 638
+                        },
+                        "product_stock": {
+                            "id": 237,
+                            "product_id": 237,
+                            "value": 50,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-04-08 13:22:47+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Sync Kleur",
+                            "attribute_id": 19,
+                            "attribute_option_id": 21,
+                            "value_label": "Rode MiTo",
+                            "name": "sync-kleur",
+                            "value": "rode-mito",
+                            "attribute_option_image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/alfa-romeo-mito-veloce-1280x799.png?img_w=188&img_h=150&",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Brand",
+                            "attribute_id": 2,
+                            "attribute_option_id": 1,
+                            "value_label": "myawesomeshop",
+                            "name": "brand",
+                            "value": "myawesomeshop",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "is OEM",
+                            "attribute_id": 14,
+                            "name": "is-oem",
+                            "value": "1",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Sauce",
+                            "attribute_id": 16,
+                            "attribute_option_id": 14,
+                            "value_label": "Oorlog sauce with onion",
+                            "name": "sauce",
+                            "value": "oorlog-sauce-with-onion",
+                            "attribute_published": true
+                        }
+                    ]
+                },
+                "id": 132,
+                "product_id": 237,
+                "product_price_id": 259,
+                "date_created": "2020-04-08 13:22:37+02:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 1136,
+                "date_updated": "2020-04-16 10:43:24+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 259
+            },
+            {
+                "product_price": {
+                    "id": 261,
+                    "product_id": 247,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-16 10:33:09+02:00",
+                    "date_updated": "2020-04-16 10:33:09+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 261,
+                    "product_id": 247,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-16 10:33:09+02:00",
+                    "date_updated": "2020-04-16 10:33:09+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 247,
+                    "product_id": 247,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-04-16 10:35:53+02:00",
+                    "title": "Sync Product Test Want Sjoerd Wil Liever Echte Product Namen v2sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2Bléu",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 247,
+                    "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2blu",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 247,
+                        "date_created": "2020-04-16 10:33:09+02:00",
+                        "date_updated": "2020-04-16 10:33:45+02:00",
+                        "relation_data_id": 4,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 418,
+                        "sku": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2bleu",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 261,
+                        "object_instance_id": 1198,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2sync-product-test-want-sjoerd-wil-liever-echte-product-namen-v2blu",
+                            "translatable_id": 654
+                        },
+                        "product_stock": {
+                            "id": 247,
+                            "product_id": 247,
+                            "value": 32,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-04-16 10:33:45+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Sync Kleur",
+                            "attribute_id": 19,
+                            "attribute_option_id": 22,
+                            "value_label": "Bléu",
+                            "name": "sync-kleur",
+                            "value": "bleu",
+                            "attribute_option_image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/blue.png?img_w=416&img_h=333&",
+                            "attribute_published": true
+                        }
+                    ]
+                },
+                "id": 142,
+                "product_id": 247,
+                "product_price_id": 261,
+                "date_created": "2020-04-16 10:33:09+02:00",
+                "active": true,
+                "discount_dirty": false,
+                "object_instance_id": 1199,
+                "date_updated": "2020-04-16 10:33:09+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 261
+            }
+        ],
+        "total": 5,
+        "count": 5
+    },
+    "_type": "moduleFunction",
+    "time_ms": 415.0,
+    "_version": "1.0",
+    "_timestamp": "2020-04-16T09:28:35+00:00"
+}

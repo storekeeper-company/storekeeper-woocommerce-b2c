@@ -1,0 +1,261 @@
+{
+    "success": true,
+    "call_id": "5e554f41543b0",
+    "module_name": "ShopModule",
+    "function": "getConfigurableShopProductOptions",
+    "params": [
+        12
+    ],
+    "return": {
+        "configurable_product": {
+            "product_id": 18,
+            "configurable_product_kind_id": 1,
+            "date_created": "2020-02-19 14:00:16+01:00",
+            "price_modifier_with_vat": true,
+            "configurable_product_kind": {
+                "id": 1,
+                "configuration_id": 1,
+                "name": "kleur",
+                "configurable_attribute_ids": [
+                    13
+                ],
+                "sku_pattern": "{{sku}}-{{content_vars[\"kleur\"][\"value\"]}}",
+                "title_pattern": "{{title}} {{content_vars[\"kleur\"][\"value_label\"]}}",
+                "custom_images": false,
+                "custom_descriptions": false,
+                "date_created": "2020-02-19 13:55:34+01:00",
+                "date_updated": "2020-02-19 13:55:34+01:00",
+                "default_attribute_option_ids": [
+                    6,
+                    7
+                ],
+                "alias": "kleur"
+            }
+        },
+        "configurable_shop_product": {
+            "shop_product": {
+                "id": 11,
+                "product_id": 18,
+                "product_price_id": 33,
+                "date_created": "2020-02-19 14:00:17+01:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 168,
+                "date_updated": "2020-02-19 14:00:17+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 33
+            },
+            "shop_product_id": 11,
+            "configurable_product_id": 18,
+            "price_dirty": false
+        },
+        "configurable_associated_shop_products": [
+            {
+                "shop_product": {
+                    "id": 12,
+                    "product_id": 19,
+                    "product_price_id": 34,
+                    "date_created": "2020-02-19 14:01:37+01:00",
+                    "active": true,
+                    "discount_dirty": false,
+                    "object_instance_id": 174,
+                    "date_updated": "2020-02-19 14:01:37+01:00",
+                    "configuration_id": 1,
+                    "relation_limited": false,
+                    "product_default_price_id": 34,
+                    "product": {
+                        "id": 19,
+                        "date_created": "2020-02-19 14:01:37+01:00",
+                        "date_updated": "2020-02-19 14:02:03+01:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 75,
+                        "sku": "HN7V2Z\/A-wit",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 34,
+                        "object_instance_id": 173,
+                        "has_addons": false,
+                        "is_system": false,
+                        "product_stock": {
+                            "id": 19,
+                            "product_id": 19,
+                            "value": 100,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-02-19 14:02:03+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "product_price": {
+                        "id": 34,
+                        "product_id": 19,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 33.02,
+                        "ppu_wt": 39.95,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-02-19 14:01:37+01:00",
+                        "date_updated": "2020-02-19 14:01:37+01:00",
+                        "product_price_type_id": 1
+                    },
+                    "product_default_price": {
+                        "id": 34,
+                        "product_id": 19,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 33.02,
+                        "ppu_wt": 39.95,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-02-19 14:01:37+01:00",
+                        "date_updated": "2020-02-19 14:01:37+01:00",
+                        "product_price_type_id": 1
+                    }
+                },
+                "configurable_associated_product": {
+                    "configurable_product_id": 18,
+                    "product_id": 19,
+                    "attribute_option_ids": [
+                        7
+                    ],
+                    "date_created": "2020-02-19 14:01:37+01:00",
+                    "price_dirty": false
+                },
+                "shop_product_id": 12,
+                "configurable_product_id": 18,
+                "price_dirty": false
+            },
+            {
+                "shop_product": {
+                    "id": 13,
+                    "product_id": 20,
+                    "product_price_id": 35,
+                    "date_created": "2020-02-19 14:01:43+01:00",
+                    "active": true,
+                    "discount_dirty": false,
+                    "object_instance_id": 177,
+                    "date_updated": "2020-02-19 14:01:43+01:00",
+                    "configuration_id": 1,
+                    "relation_limited": false,
+                    "product_default_price_id": 35,
+                    "product": {
+                        "id": 20,
+                        "date_created": "2020-02-19 14:01:43+01:00",
+                        "date_updated": "2020-02-19 14:02:12+01:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 76,
+                        "sku": "HN7V2Z\/A-zwart",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 35,
+                        "object_instance_id": 176,
+                        "has_addons": false,
+                        "is_system": false,
+                        "product_stock": {
+                            "id": 20,
+                            "product_id": 20,
+                            "value": 29,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-02-19 14:02:12+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "product_price": {
+                        "id": 35,
+                        "product_id": 20,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 33.02,
+                        "ppu_wt": 39.95,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-02-19 14:01:43+01:00",
+                        "date_updated": "2020-02-19 14:01:43+01:00",
+                        "product_price_type_id": 1
+                    },
+                    "product_default_price": {
+                        "id": 35,
+                        "product_id": 20,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 33.02,
+                        "ppu_wt": 39.95,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-02-19 14:01:43+01:00",
+                        "date_updated": "2020-02-19 14:01:43+01:00",
+                        "product_price_type_id": 1
+                    }
+                },
+                "configurable_associated_product": {
+                    "configurable_product_id": 18,
+                    "product_id": 20,
+                    "attribute_option_ids": [
+                        6
+                    ],
+                    "date_created": "2020-02-19 14:01:43+01:00",
+                    "price_dirty": false
+                },
+                "shop_product_id": 13,
+                "configurable_product_id": 18,
+                "price_dirty": false
+            }
+        ],
+        "attribute_options": [
+            {
+                "id": 6,
+                "attribute_id": 13,
+                "name": "zwart",
+                "label": "Zwart",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-02-10 10:51:51+01:00",
+                "translatable_id": 31,
+                "date_updated": "2020-02-10 10:51:51+01:00"
+            },
+            {
+                "id": 7,
+                "attribute_id": 13,
+                "name": "wit",
+                "label": "Wit",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-02-10 10:51:51+01:00",
+                "translatable_id": 34,
+                "date_updated": "2020-02-10 10:51:53+01:00"
+            }
+        ],
+        "attributes": [
+            {
+                "id": 13,
+                "name": "kleur",
+                "label": "Kleur",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-02-10 10:48:12+01:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 30,
+                "date_updated": "2020-02-10 10:48:12+01:00",
+                "unique": false,
+                "order": 0
+            }
+        ]
+    },
+    "_type": "moduleFunction",
+    "time_ms": 219.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-25T16:45:53+00:00"
+}

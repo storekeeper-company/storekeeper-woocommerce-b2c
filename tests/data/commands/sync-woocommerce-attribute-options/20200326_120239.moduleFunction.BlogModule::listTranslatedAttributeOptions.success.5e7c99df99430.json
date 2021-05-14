@@ -1,0 +1,247 @@
+{
+    "success": true,
+    "call_id": "5e7c99df99430",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributeOptions",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        []
+    ],
+    "return": {
+        "data": [
+            {
+                "attribute": {
+                    "id": 2,
+                    "name": "brand",
+                    "label": "Brand"
+                },
+                "translatable": {
+                    "id": 11,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::AttributeOption(id=1)",
+                    "translatable_type_id": 4
+                },
+                "id": 1,
+                "attribute_id": 2,
+                "name": "stijndev3",
+                "label": "stijndev3",
+                "order": 0,
+                "is_default": true,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "translatable_id": 11,
+                "date_updated": "2020-01-23 09:41:29+01:00"
+            },
+            {
+                "attribute": {
+                    "id": 3,
+                    "name": "needs_description_on_kassa",
+                    "label": "Vereist beschrijving bij de kassa"
+                },
+                "translatable": {
+                    "id": 13,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::AttributeOption(id=2)",
+                    "translatable_type_id": 4
+                },
+                "id": 2,
+                "attribute_id": 3,
+                "name": "0",
+                "label": "Nee",
+                "order": 0,
+                "is_default": true,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "translatable_id": 13,
+                "date_updated": "2020-01-23 09:41:29+01:00"
+            },
+            {
+                "attribute": {
+                    "id": 3,
+                    "name": "needs_description_on_kassa",
+                    "label": "Vereist beschrijving bij de kassa"
+                },
+                "translatable": {
+                    "id": 14,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::AttributeOption(id=3)",
+                    "translatable_type_id": 4
+                },
+                "id": 3,
+                "attribute_id": 3,
+                "name": "1",
+                "label": "Ja",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "translatable_id": 14,
+                "date_updated": "2020-01-23 09:41:29+01:00"
+            },
+            {
+                "attribute": {
+                    "id": 4,
+                    "name": "needs_weight_on_kassa",
+                    "label": "Vereist gewicht bij de kassa"
+                },
+                "translatable": {
+                    "id": 16,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::AttributeOption(id=4)",
+                    "translatable_type_id": 4
+                },
+                "id": 4,
+                "attribute_id": 4,
+                "name": "0",
+                "label": "Nee",
+                "order": 0,
+                "is_default": true,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "translatable_id": 16,
+                "date_updated": "2020-01-23 09:41:29+01:00"
+            },
+            {
+                "attribute": {
+                    "id": 4,
+                    "name": "needs_weight_on_kassa",
+                    "label": "Vereist gewicht bij de kassa"
+                },
+                "translatable": {
+                    "id": 17,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::AttributeOption(id=5)",
+                    "translatable_type_id": 4
+                },
+                "id": 5,
+                "attribute_id": 4,
+                "name": "1",
+                "label": "Ja",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "translatable_id": 17,
+                "date_updated": "2020-01-23 09:41:29+01:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "kleur"
+                },
+                "translatable": {
+                    "id": 42,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-19 14:30:11+01:00",
+                    "backref": "BlogModule::AttributeOption(id=6)",
+                    "translatable_type_id": 4
+                },
+                "id": 6,
+                "attribute_id": 14,
+                "name": "rood",
+                "label": "Rood",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-02-19 14:30:11+01:00",
+                "translatable_id": 42,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/stijndev3\/FileModule\/stijndev3\/main\/unnamed.png?img_w=342&img_h=273&",
+                "date_updated": "2020-02-19 14:30:11+01:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "kleur"
+                },
+                "translatable": {
+                    "id": 43,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-19 14:30:33+01:00",
+                    "backref": "BlogModule::AttributeOption(id=7)",
+                    "translatable_type_id": 4
+                },
+                "id": 7,
+                "attribute_id": 14,
+                "name": "groen",
+                "label": "groen",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-02-19 14:30:33+01:00",
+                "translatable_id": 43,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/stijndev3\/FileModule\/stijndev3\/main\/210.png?img_w=272&img_h=272&",
+                "date_updated": "2020-02-19 14:30:50+01:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "kleur"
+                },
+                "translatable": {
+                    "id": 44,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-19 14:36:37+01:00",
+                    "backref": "BlogModule::AttributeOption(id=8)",
+                    "translatable_type_id": 4
+                },
+                "id": 8,
+                "attribute_id": 14,
+                "name": "paars",
+                "label": "paars",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-02-19 14:36:37+01:00",
+                "translatable_id": 44,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/stijndev3\/FileModule\/stijndev3\/main\/333-1.png?img_w=341&img_h=273&",
+                "date_updated": "2020-02-19 14:36:37+01:00"
+            }
+        ],
+        "total": 8,
+        "count": 8
+    },
+    "_type": "moduleFunction",
+    "time_ms": 250.0,
+    "_version": "1.0",
+    "_timestamp": "2020-03-26T12:02:39+00:00"
+}

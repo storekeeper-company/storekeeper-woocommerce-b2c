@@ -1,0 +1,40 @@
+.storekeeper-status {
+    display: flex;
+    align-content: center;
+}
+
+.storekeeper-status .storekeeper-status-success {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background: #8cc46e;
+}
+
+.storekeeper-status .storekeeper-status-danger {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #e65e5e;
+    margin-right: 10px;
+}
+
+.storekeeper-pagination {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    float: right;
+}
+
+.storekeeper-page .storekeeper-tab .storekeeper-pagination > * {
+    margin-right: 5px;
+}
+
+.storekeeper-page .storekeeper-tab .storekeeper-resolve {
+    margin-top: 10px;
+}
+
+.storekeeper-body.storekeeper-body-body {
+    max-width: 50vw;
+}

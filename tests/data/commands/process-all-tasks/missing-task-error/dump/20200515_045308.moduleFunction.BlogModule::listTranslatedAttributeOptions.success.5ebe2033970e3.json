@@ -1,0 +1,237 @@
+{
+    "success": true,
+    "call_id": "5ebe2033970e3",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributeOptions",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__in_list",
+                "multi_val": [
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ]
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "Kleur"
+                },
+                "translatable": {
+                    "id": 43,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-15 06:23:20+02:00",
+                    "backref": "BlogModule::AttributeOption(id=6)",
+                    "translatable_type_id": 4
+                },
+                "id": 6,
+                "attribute_id": 14,
+                "name": "rood",
+                "label": "Rood",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-05-15 06:23:20+02:00",
+                "translatable_id": 43,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/rood.png?img_w=798&img_h=638&",
+                "date_updated": "2020-05-15 06:23:20+02:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "Kleur"
+                },
+                "translatable": {
+                    "id": 44,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-15 06:24:57+02:00",
+                    "backref": "BlogModule::AttributeOption(id=7)",
+                    "translatable_type_id": 4
+                },
+                "id": 7,
+                "attribute_id": 14,
+                "name": "geel",
+                "label": "Geel",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-05-15 06:24:57+02:00",
+                "translatable_id": 44,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/geel.png?img_w=826&img_h=660&",
+                "date_updated": "2020-05-15 06:24:57+02:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "Kleur"
+                },
+                "translatable": {
+                    "id": 45,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-15 06:25:41+02:00",
+                    "backref": "BlogModule::AttributeOption(id=8)",
+                    "translatable_type_id": 4
+                },
+                "id": 8,
+                "attribute_id": 14,
+                "name": "blauw",
+                "label": "Blauw",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-05-15 06:25:41+02:00",
+                "translatable_id": 45,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/blauw.png?img_w=822&img_h=657&",
+                "date_updated": "2020-05-15 06:25:41+02:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "Kleur"
+                },
+                "translatable": {
+                    "id": 46,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-15 06:26:27+02:00",
+                    "backref": "BlogModule::AttributeOption(id=9)",
+                    "translatable_type_id": 4
+                },
+                "id": 9,
+                "attribute_id": 14,
+                "name": "paars",
+                "label": "Paars",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-05-15 06:26:27+02:00",
+                "translatable_id": 46,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/paars.png?img_w=995&img_h=796&",
+                "date_updated": "2020-05-15 06:26:27+02:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "Kleur"
+                },
+                "translatable": {
+                    "id": 47,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-15 06:27:11+02:00",
+                    "backref": "BlogModule::AttributeOption(id=10)",
+                    "translatable_type_id": 4
+                },
+                "id": 10,
+                "attribute_id": 14,
+                "name": "groen",
+                "label": "Groen",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-05-15 06:27:11+02:00",
+                "translatable_id": 47,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/groen.png?img_w=890&img_h=712&",
+                "date_updated": "2020-05-15 06:27:11+02:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "Kleur"
+                },
+                "translatable": {
+                    "id": 48,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-15 06:27:48+02:00",
+                    "backref": "BlogModule::AttributeOption(id=11)",
+                    "translatable_type_id": 4
+                },
+                "id": 11,
+                "attribute_id": 14,
+                "name": "oranje",
+                "label": "Oranje",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-05-15 06:27:48+02:00",
+                "translatable_id": 48,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/oranje.png?img_w=798&img_h=638&",
+                "date_updated": "2020-05-15 06:27:48+02:00"
+            },
+            {
+                "attribute": {
+                    "id": 14,
+                    "name": "kleur",
+                    "label": "Kleur"
+                },
+                "translatable": {
+                    "id": 49,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-15 06:28:53+02:00",
+                    "backref": "BlogModule::AttributeOption(id=12)",
+                    "translatable_type_id": 4
+                },
+                "id": 12,
+                "attribute_id": 14,
+                "name": "roze",
+                "label": "Roze",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-05-15 06:28:53+02:00",
+                "translatable_id": 49,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/roze.png?img_w=597&img_h=477&",
+                "date_updated": "2020-05-15 06:28:53+02:00"
+            }
+        ],
+        "total": 7,
+        "count": 7
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1122.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-15T04:53:08+00:00"
+}

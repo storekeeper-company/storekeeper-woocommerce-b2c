@@ -1,0 +1,28 @@
+.storekeeper-page-storekeeper-dashboard .dashboard-text {
+    line-height: 27px;
+    font-size: 25px;
+}
+
+.storekeeper-page-storekeeper-dashboard .dashboard-text:first-child {
+    margin-top: 0;
+}
+
+.storekeeper-page-storekeeper-dashboard .dashboard-status {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    line-height: 32px;
+    font-weight: bold;
+    color: white;
+    font-size: 25px;
+    margin-right: 20px;
+}
+
+
+.storekeeper-page-storekeeper-dashboard .dashboard-status.circle-success {
+    background: #8cc46e;
+}
+
+.storekeeper-page-storekeeper-dashboard .dashboard-status.circle-danger {
+    background: #e65e5e;
+}

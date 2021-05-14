@@ -1,0 +1,40 @@
+{
+    "success": true,
+    "call_id": "5e4fd644cb13f",
+    "module_name": "ShopModule",
+    "function": "listSiteRedirectsForHooks",
+    "params": [
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__=",
+                "val": 2
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "id": 2,
+                "object_instance_id": 99,
+                "site_id": 1,
+                "from_url": "\/beerporn",
+                "to_url": "https:\/\/www.reddit.com\/r\/beerporn\/",
+                "http_status_code": "301"
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 275.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-21T13:08:21+00:00"
+}

@@ -1,0 +1,142 @@
+{
+    "success": true,
+    "call_id": "5e554f3b89c5b",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        0,
+        null,
+        [
+            {
+                "name": "id__in_list",
+                "multi_val": [
+                    17
+                ]
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 39,
+                    "product_id": 24,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 82.6,
+                    "ppu_wt": 99.95,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-02-24 15:59:38+01:00",
+                    "date_updated": "2020-02-24 15:59:37+01:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 39,
+                    "product_id": 24,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 82.6,
+                    "ppu_wt": 99.95,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-02-24 15:59:38+01:00",
+                    "date_updated": "2020-02-24 15:59:37+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 24,
+                    "product_id": 24,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-02-24 16:00:24+01:00",
+                    "title": "Mophie powerstation draadloze XL 10K-batterij",
+                    "summary": "Met de mophie powerstation wireless XL 10K-batterij kun je je iPhone gewoon onderweg opladen. Deze superbatterij met een capaciteit van 10.000 mAH levert tot wel 34 uur extra gebruikstijd voor je iPhone X. Leg je iPhone of een ander voor Qi geschikt device op de powerstation wireless XL en druk op de knop. Het device wordt direct draaloos opgeladen. De batterij heeft ook nog een poort van 10 W, waarmee je je iPad en andere bedrade devices kunt opladen.",
+                    "body": "Met de mophie powerstation wireless XL 10K-batterij kun je je iPhone gewoon onderweg opladen. Deze superbatterij met een capaciteit van 10.000 mAH levert tot wel 34 uur extra gebruikstijd voor je iPhone X. Leg je iPhone of een ander voor Qi geschikt device op de powerstation wireless XL en druk op de knop. Het device wordt direct draaloos opgeladen. De batterij heeft ook nog een poort van 10 W, waarmee je je iPad en andere bedrade devices kunt opladen.\n\n- Externe batterij van 10.000 mAh waarmee je bepaalde iPhone-modellen draadloos kunt opladen\n- Lightning-connector voor het opladen van het powerstation wireless XL\n- USB‑A-poort van 10 W om een iPad of ander bekabeld device op te laden\n- Led-stroomindicator\n- Duurzame TPU en prettig aanvoelende, strakke afwerking\n- Licht en compact ontwerp, zodat je hem makkelijk mee kunt nemen\n\nOpmerking: De beperkte garantie van Apple van één jaar heeft geen betrekking op niet-Apple producten, zelfs niet als deze samen met een Apple product in één verpakking zijn geleverd of samen met Apple producten zijn verkocht. Voor niet-Apple producten geldt mogelijk de garantie van de fabrikant. Raadpleeg hiervoor de verpakking en eventuele andere documentatie bij of over het product. De voordelen die je conform de garantie van de fabrikant hebt, vormen een aanvulling op de rechten die je volgens de consumentenwetgeving geniet. Voor meer informatie klik je hier.\n\n",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 24,
+                    "slug": "mophie-powerstation-draadloze-xl-10k-batterij",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 24,
+                        "date_created": "2020-02-24 15:59:38+01:00",
+                        "date_updated": "2020-02-24 15:59:39+01:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 81,
+                        "sku": "HM8W2ZM\/B",
+                        "type": "simple",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 39,
+                        "object_instance_id": 220,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "small_image_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_small_image.jpeg?img_w=200&img_h=200&",
+                            "big_image_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_big_image.jpeg?img_w=1500&img_h=1500&",
+                            "slug": "mophie-powerstation-draadloze-xl-10k-batterij",
+                            "translatable_id": 58
+                        },
+                        "product_stock": {
+                            "id": 24,
+                            "product_id": 24,
+                            "value": 10,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-02-24 15:59:37+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Barcode",
+                            "attribute_id": 1,
+                            "name": "barcode",
+                            "value": "848467078213",
+                            "attribute_published": true
+                        }
+                    ],
+                    "main_image": {
+                        "id": 55,
+                        "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_small_image.jpeg?img_w=200&img_h=200&",
+                        "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_big_image.jpeg?img_w=1500&img_h=1500&"
+                    },
+                    "product_images": [
+                        {
+                            "id": 55,
+                            "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_small_image.jpeg?img_w=200&img_h=200&",
+                            "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_big_image.jpeg?img_w=1500&img_h=1500&"
+                        }
+                    ]
+                },
+                "id": 17,
+                "product_id": 24,
+                "product_price_id": 39,
+                "date_created": "2020-02-24 15:59:38+01:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 221,
+                "date_updated": "2020-02-24 15:59:37+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 39
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 253.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-25T16:45:47+00:00"
+}

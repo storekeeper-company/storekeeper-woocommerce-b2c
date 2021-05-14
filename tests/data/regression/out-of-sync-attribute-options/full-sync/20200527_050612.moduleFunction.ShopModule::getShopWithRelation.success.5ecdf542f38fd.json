@@ -1,0 +1,114 @@
+{
+    "success": true,
+    "call_id": "5ecdf542f38fd",
+    "module_name": "ShopModule",
+    "function": "getShopWithRelation",
+    "params": [],
+    "return": {
+        "id": 5,
+        "configuration_id": 1,
+        "site_id": 2,
+        "category_id": 2,
+        "is_default": false,
+        "date_created": "2020-05-13 07:39:20+02:00",
+        "date_updated": "2020-05-13 07:39:20+02:00",
+        "alias": "5ebb8808-0861-4333-9c18-3a9150ccf16e",
+        "relation_data_id": 2,
+        "published": true,
+        "hook_id": 3,
+        "name": "localhost:8888",
+        "shop_type_id": 5,
+        "order_prefix": "LOCAL1",
+        "deleted": false,
+        "address_id": 9,
+        "visible": true,
+        "is_default_for_activate_products": false,
+        "relation_data": {
+            "business_data": {
+                "id": 2,
+                "date_created": "2020-05-13 06:08:26+02:00",
+                "deleted": false,
+                "coc_number": "76724050",
+                "name": "Profes B.V.",
+                "vat_validated": false,
+                "country_iso2": "NL",
+                "date_updated": "2020-05-15 08:51:47+02:00",
+                "logo_url": "\/download\/public\/profes\/FileModule\/profes\/main\/Dare_Iced_Coffee_sgz.png?img_w=450&img_h=337&",
+                "logo_black_white_url": "\/download\/public\/profes\/FileModule\/profes\/main\/Dare_Iced_Coffee_vbd.png?img_w=453&img_h=338&",
+                "relation_data_id": 2
+            },
+            "contact_set": {
+                "id": 2,
+                "relation_data_id": 2,
+                "date_created": "2020-05-13 06:08:26+02:00",
+                "deleted": false,
+                "email": "ian@storekeeper.nl",
+                "date_updated": "2020-05-13 06:08:26+02:00"
+            },
+            "contact_address": {
+                "id": 9,
+                "relation_data_id": 2,
+                "date_created": "2020-05-13 07:39:22+02:00",
+                "deleted": false,
+                "date_updated": "2020-05-13 07:39:22+02:00",
+                "country_iso2": "NL",
+                "published": false
+            },
+            "address_billing": {
+                "id": 9,
+                "relation_data_id": 2,
+                "date_created": "2020-05-13 07:39:22+02:00",
+                "deleted": false,
+                "date_updated": "2020-05-13 07:39:22+02:00",
+                "country_iso2": "NL",
+                "published": false
+            },
+            "contact_person": {
+                "id": 2,
+                "relation_data_id": 2,
+                "date_created": "2020-05-13 06:08:26+02:00",
+                "deleted": false,
+                "ismale": true,
+                "date_updated": "2020-05-13 06:08:26+02:00"
+            },
+            "subaccount": {
+                "id": 2,
+                "name": "profes",
+                "active": true
+            },
+            "bank_number": {
+                "id": 2,
+                "relation_data_id": 2,
+                "number": "",
+                "bank_number_type_id": 1,
+                "date_updated": "2020-05-13 06:08:26+02:00",
+                "bank_number_type": {
+                    "id": 1,
+                    "alias": "other",
+                    "module_name": "RelationsModule",
+                    "date_created": "2020-05-13 06:08:05+02:00"
+                }
+            },
+            "id": 2,
+            "isprivate": false,
+            "business_data_id": 2,
+            "address_id": 2,
+            "person_id": 2,
+            "contact_set_id": 2,
+            "deleted": false,
+            "subaccount_id": 2,
+            "system": false,
+            "name": "Profes B.V.",
+            "shortname": "profes",
+            "date_created": "2020-05-13 06:08:26+02:00",
+            "parent_id": 1,
+            "bank_number_id": 2,
+            "image_url": "\/download\/public\/profes\/FileModule\/profes\/main\/Dare_Iced_Coffee_sgz.png?img_w=450&img_h=337&",
+            "object_instance_id": 5
+        }
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1659.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-27T05:06:12+00:00"
+}

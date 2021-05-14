@@ -1,0 +1,63 @@
+{
+    "success": true,
+    "call_id": "5e982546a1003",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributeOptions",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__in_list",
+                "multi_val": [
+                    22
+                ]
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "attribute": {
+                    "id": 19,
+                    "name": "sync-kleur",
+                    "label": "Sync Kleur"
+                },
+                "translatable": {
+                    "id": 653,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-04-16 10:32:50+02:00",
+                    "backref": "BlogModule::AttributeOption(id=22)",
+                    "translatable_type_id": 4
+                },
+                "id": 22,
+                "attribute_id": 19,
+                "name": "bleu",
+                "label": "Bléu",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-04-16 10:32:50+02:00",
+                "translatable_id": 653,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/blue.png?img_w=416&img_h=333&",
+                "date_updated": "2020-04-16 10:32:50+02:00"
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 170.0,
+    "_version": "1.0",
+    "_timestamp": "2020-04-16T09:28:38+00:00"
+}

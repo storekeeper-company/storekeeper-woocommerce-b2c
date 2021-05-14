@@ -1,0 +1,111 @@
+{
+    "success": true,
+    "call_id": "5e32ca4e58ce5",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        0,
+        0,
+        1,
+        null,
+        [
+            {
+                "name": "flat_product\/product\/sku__=",
+                "val": "DUMMY SKU"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 128352,
+                    "product_id": 130969,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-01-14 16:11:37+01:00",
+                    "date_updated": "2020-01-14 16:11:37+01:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 128352,
+                    "product_id": 130969,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-01-14 16:11:37+01:00",
+                    "date_updated": "2020-01-14 16:11:37+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 159063,
+                    "product_id": 130969,
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-01-30 13:18:53+01:00",
+                    "title": "simple attribute option test",
+                    "body": "Description change",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 180071,
+                    "slug": "simple-attribute-option-test",
+                    "product": {
+                        "id": 130969,
+                        "date_created": "2020-01-14 16:11:37+01:00",
+                        "date_updated": "2020-01-30 13:18:53+01:00",
+                        "relation_data_id": 20669,
+                        "published": false,
+                        "configuration_id": 1,
+                        "content_id": 136336,
+                        "sku": "DUMMY SKU",
+                        "type": "simple",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 128352,
+                        "object_instance_id": 559292,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "simple-attribute-option-test"
+                        },
+                        "product_stock": {
+                            "id": 130968,
+                            "product_id": 130969,
+                            "value": 0,
+                            "in_stock": false,
+                            "unlimited": false,
+                            "date_updated": "2020-01-14 16:11:37+01:00",
+                            "unique_stock_items": false
+                        }
+                    }
+                },
+                "id": 116611,
+                "product_id": 130969,
+                "product_price_id": 128352,
+                "date_created": "2020-01-14 16:11:37+01:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 559293,
+                "date_updated": "2020-01-14 17:38:19+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 128352
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 888.0,
+    "_version": "1.0",
+    "_timestamp": "2020-01-30T12:21:35+00:00"
+}

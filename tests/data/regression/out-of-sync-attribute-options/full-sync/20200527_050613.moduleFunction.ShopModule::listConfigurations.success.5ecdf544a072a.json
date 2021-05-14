@@ -1,0 +1,89 @@
+{
+    "success": true,
+    "call_id": "5ecdf544a072a",
+    "module_name": "ShopModule",
+    "function": "listConfigurations",
+    "params": [
+        0,
+        1,
+        null,
+        [
+            {
+                "name": "is_default__=",
+                "val": "1"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "relation_data": {
+                    "id": 2,
+                    "isprivate": false,
+                    "business_data_id": 2,
+                    "address_id": 2,
+                    "person_id": 2,
+                    "contact_set_id": 2,
+                    "deleted": false,
+                    "subaccount_id": 2,
+                    "system": false,
+                    "name": "Profes B.V.",
+                    "shortname": "profes",
+                    "date_created": "2020-05-13 06:08:26+02:00",
+                    "parent_id": 1,
+                    "bank_number_id": 2,
+                    "image_url": "\/download\/public\/profes\/FileModule\/profes\/main\/Dare_Iced_Coffee_sgz.png?img_w=450&img_h=337&",
+                    "object_instance_id": 5
+                },
+                "group": {
+                    "id": 1,
+                    "name": "Main group for profes",
+                    "published": true,
+                    "all_subrelations": true,
+                    "relation_data_id": 1,
+                    "date_created": "2020-05-13 06:08:26+02:00",
+                    "member_total": 8,
+                    "is_open": false,
+                    "is_main": true,
+                    "object_instance_id": 4
+                },
+                "product": {
+                    "id": 17,
+                    "product_type_id": 20,
+                    "alias": "main",
+                    "published": true,
+                    "relation_data_id": 2,
+                    "group_id": 18,
+                    "date_created": "2020-05-13 06:08:26+02:00"
+                },
+                "id": 1,
+                "relation_data_id": 2,
+                "group_id": 1,
+                "published": true,
+                "is_default": true,
+                "alias": "main",
+                "date_created": "2020-05-13 06:08:26+02:00",
+                "tax_rate_default_id": 55,
+                "currency_iso3": "EUR",
+                "product_id": 17,
+                "provider_id": 1,
+                "shipping_configuration_id": 1,
+                "backorder_enabled": true,
+                "registration_enabled": true,
+                "tax_rate_default_shipment_id": 55,
+                "tax_rate_default_payment_id": 55,
+                "default_product_category_id": 2,
+                "gift_card_product_id": 2,
+                "member_card_product_id": 1,
+                "emballage_product_id": 4,
+                "gift_card_balance_product_id": 3
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 410.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-27T05:06:13+00:00"
+}

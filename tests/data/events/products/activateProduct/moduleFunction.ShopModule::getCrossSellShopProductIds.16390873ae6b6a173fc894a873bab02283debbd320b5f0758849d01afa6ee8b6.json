@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "call_id": "5e56b0be5b57b",
+    "module_name": "ShopModule",
+    "function": "getCrossSellShopProductIds",
+    "params": [
+        9
+    ],
+    "return": [],
+    "_type": "moduleFunction",
+    "time_ms": 157.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-26T17:54:06+00:00"
+}

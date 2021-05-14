@@ -1,0 +1,63 @@
+{
+    "success": true,
+    "call_id": "5e9825446c8f6",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributeOptions",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__in_list",
+                "multi_val": [
+                    21
+                ]
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "attribute": {
+                    "id": 19,
+                    "name": "sync-kleur",
+                    "label": "Sync Kleur"
+                },
+                "translatable": {
+                    "id": 632,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-04-07 14:36:00+02:00",
+                    "backref": "BlogModule::AttributeOption(id=21)",
+                    "translatable_type_id": 4
+                },
+                "id": 21,
+                "attribute_id": 19,
+                "name": "rode-mito",
+                "label": "Rode MiTo",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-04-07 14:36:00+02:00",
+                "translatable_id": 632,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/alfa-romeo-mito-veloce-1280x799.png?img_w=188&img_h=150&",
+                "date_updated": "2020-04-07 14:36:00+02:00"
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 162.0,
+    "_version": "1.0",
+    "_timestamp": "2020-04-16T09:28:36+00:00"
+}

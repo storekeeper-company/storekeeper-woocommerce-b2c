@@ -1,0 +1,188 @@
+{
+    "success": true,
+    "call_id": "5ecdf5530a21d",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "flat_product\/product\/type__in_list",
+                "multi_val": [
+                    "simple",
+                    "configurable",
+                    "configurable_assign"
+                ]
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 6,
+                    "product_id": 5,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 5.7,
+                    "ppu_wt": 6.9,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-05-13 06:17:05+02:00",
+                    "date_updated": "2020-05-13 06:17:04+02:00",
+                    "product_price_type_id": 6
+                },
+                "product_default_price": {
+                    "id": 5,
+                    "product_id": 5,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 11.05,
+                    "ppu_wt": 13.37,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-05-13 06:17:03+02:00",
+                    "date_updated": "2020-05-13 06:17:04+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 5,
+                    "product_id": 5,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-05-27 07:04:36+02:00",
+                    "title": "Een Simple Product",
+                    "body": " ",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 5,
+                    "slug": "een-simple-product",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 5,
+                        "date_created": "2020-05-13 06:17:03+02:00",
+                        "date_updated": "2020-05-27 06:22:34+02:00",
+                        "relation_data_id": 3,
+                        "published": false,
+                        "configuration_id": 1,
+                        "content_id": 7,
+                        "sku": "een-simple-product",
+                        "type": "simple",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_discount_price_id": 6,
+                        "product_price_id": 5,
+                        "object_instance_id": 67,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "small_image_url": "\/download\/public\/profes\/FileModule\/profes\/main\/1200px-Rainbow-diagram-ROYGBIV.svg_small_image.png?img_w=200&img_h=200&",
+                            "big_image_url": "\/download\/public\/profes\/FileModule\/profes\/main\/1200px-Rainbow-diagram-ROYGBIV.svg_big_image.png?img_w=1500&img_h=1500&",
+                            "slug": "een-simple-product",
+                            "translatable_id": 32
+                        },
+                        "product_stock": {
+                            "id": 5,
+                            "product_id": 5,
+                            "value": 99,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-05-13 07:51:51+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Barcode",
+                            "attribute_id": 1,
+                            "name": "barcode",
+                            "value": "2220000000005",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Brand",
+                            "attribute_id": 2,
+                            "attribute_option_id": 1,
+                            "value_label": "Profes B.V.",
+                            "name": "brand",
+                            "value": "profes_b.v.",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Kleur",
+                            "attribute_id": 14,
+                            "attribute_option_id": 11,
+                            "value_label": "Oranje",
+                            "name": "kleur",
+                            "value": "oranje",
+                            "attribute_option_image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/profes\/FileModule\/profes\/main\/oranje.png?img_w=798&img_h=638&",
+                            "attribute_published": true
+                        }
+                    ],
+                    "main_image": {
+                        "id": 1,
+                        "url": "\/download\/public\/profes\/FileModule\/profes\/main\/1200px-Rainbow-diagram-ROYGBIV.svg_small_image.png?img_w=200&img_h=200&",
+                        "big_url": "\/download\/public\/profes\/FileModule\/profes\/main\/1200px-Rainbow-diagram-ROYGBIV.svg_big_image.png?img_w=1500&img_h=1500&"
+                    },
+                    "product_images": [
+                        {
+                            "id": 1,
+                            "url": "\/download\/public\/profes\/FileModule\/profes\/main\/1200px-Rainbow-diagram-ROYGBIV.svg_small_image.png?img_w=200&img_h=200&",
+                            "big_url": "\/download\/public\/profes\/FileModule\/profes\/main\/1200px-Rainbow-diagram-ROYGBIV.svg_big_image.png?img_w=1500&img_h=1500&"
+                        }
+                    ],
+                    "main_category": {
+                        "id": 5,
+                        "title": "Nieuw",
+                        "slug": "storekeeper-special-new"
+                    },
+                    "categories": [
+                        {
+                            "id": 5,
+                            "title": "Nieuw",
+                            "slug": "storekeeper-special-new",
+                            "published": true
+                        }
+                    ]
+                },
+                "shop_product_stats": {
+                    "shop_product_id": 5,
+                    "total_times_sold": 1,
+                    "date_created": "2020-05-13 07:54:08+02:00",
+                    "date_updated": "2020-05-13 07:54:08+02:00"
+                },
+                "id": 5,
+                "product_id": 5,
+                "product_price_id": 6,
+                "date_created": "2020-05-13 06:17:03+02:00",
+                "active": true,
+                "backorder_enabled": true,
+                "product_discount_price_id": 6,
+                "discount_dirty": false,
+                "object_instance_id": 68,
+                "date_updated": "2020-05-13 06:17:42+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 5
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1155.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-27T05:06:28+00:00"
+}

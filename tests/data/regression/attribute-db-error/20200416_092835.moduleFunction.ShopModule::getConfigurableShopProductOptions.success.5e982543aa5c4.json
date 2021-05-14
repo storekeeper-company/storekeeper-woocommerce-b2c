@@ -1,0 +1,175 @@
+{
+    "success": true,
+    "call_id": "5e982543aa5c4",
+    "module_name": "ShopModule",
+    "function": "getConfigurableShopProductOptions",
+    "params": [
+        129,
+        {
+            "lang": "en"
+        }
+    ],
+    "return": {
+        "configurable_product": {
+            "product_id": 234,
+            "configurable_product_kind_id": 5,
+            "date_created": "2020-04-07 14:47:03+02:00",
+            "price_modifier_with_vat": true,
+            "configurable_product_kind": {
+                "id": 5,
+                "configuration_id": 1,
+                "name": "Sync Blauwdruk v3",
+                "configurable_attribute_ids": [
+                    19
+                ],
+                "sku_pattern": "{{sku}}{{content_vars[\"sync-kleur\"][\"value\"]}}",
+                "title_pattern": "{{title}}{{sku}}{{content_vars[\"sync-kleur\"][\"value_label\"]}}",
+                "custom_images": false,
+                "custom_descriptions": false,
+                "date_created": "2020-04-07 14:46:35+02:00",
+                "date_updated": "2020-04-07 14:46:35+02:00",
+                "default_attribute_option_ids": [
+                    21
+                ],
+                "alias": "sync-blauwdruk-v3"
+            }
+        },
+        "configurable_shop_product": {
+            "shop_product": {
+                "id": 129,
+                "product_id": 234,
+                "product_price_id": 256,
+                "date_created": "2020-04-07 14:47:03+02:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 1115,
+                "date_updated": "2020-04-07 14:47:03+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 256
+            },
+            "shop_product_id": 129,
+            "configurable_product_id": 234,
+            "price_dirty": false
+        },
+        "configurable_associated_shop_products": [
+            {
+                "shop_product": {
+                    "id": 130,
+                    "product_id": 235,
+                    "product_price_id": 257,
+                    "date_created": "2020-04-07 14:47:25+02:00",
+                    "active": true,
+                    "backorder_enabled": false,
+                    "discount_dirty": false,
+                    "object_instance_id": 1118,
+                    "date_updated": "2020-04-07 14:47:46+02:00",
+                    "configuration_id": 1,
+                    "relation_limited": false,
+                    "product_default_price_id": 257,
+                    "product": {
+                        "id": 235,
+                        "date_created": "2020-04-07 14:47:25+02:00",
+                        "date_updated": "2020-04-07 14:48:19+02:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 406,
+                        "sku": "sync-product-test-want-sjoerd-wil-liever-echte-product-namenrode-mito",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 257,
+                        "object_instance_id": 1117,
+                        "has_addons": false,
+                        "is_system": false,
+                        "product_stock": {
+                            "id": 235,
+                            "product_id": 235,
+                            "value": 50,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-04-07 14:47:33+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "product_price": {
+                        "id": 257,
+                        "product_id": 235,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 1.44,
+                        "ppu_wt": 1.75,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-04-07 14:47:25+02:00",
+                        "date_updated": "2020-04-07 14:48:19+02:00",
+                        "product_price_type_id": 1
+                    },
+                    "product_default_price": {
+                        "id": 257,
+                        "product_id": 235,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 1.44,
+                        "ppu_wt": 1.75,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-04-07 14:47:25+02:00",
+                        "date_updated": "2020-04-07 14:48:19+02:00",
+                        "product_price_type_id": 1
+                    }
+                },
+                "configurable_associated_product": {
+                    "configurable_product_id": 234,
+                    "product_id": 235,
+                    "attribute_option_ids": [
+                        21
+                    ],
+                    "date_created": "2020-04-07 14:47:25+02:00",
+                    "price_dirty": false
+                },
+                "shop_product_id": 130,
+                "configurable_product_id": 234,
+                "price_dirty": false
+            }
+        ],
+        "attribute_options": [
+            {
+                "id": 21,
+                "attribute_id": 19,
+                "name": "rode-mito",
+                "label": "Rode MiTo",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-04-07 14:36:00+02:00",
+                "translatable_id": 632,
+                "image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/alfa-romeo-mito-veloce-1280x799.png?img_w=188&img_h=150&",
+                "date_updated": "2020-04-07 14:36:00+02:00"
+            }
+        ],
+        "attributes": [
+            {
+                "id": 19,
+                "name": "sync-kleur",
+                "label": "Sync Kleur",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-04-07 14:34:17+02:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 631,
+                "date_updated": "2020-04-07 14:34:17+02:00",
+                "unique": false,
+                "order": 0
+            }
+        ]
+    },
+    "_type": "moduleFunction",
+    "time_ms": 251.0,
+    "_version": "1.0",
+    "_timestamp": "2020-04-16T09:28:35+00:00"
+}

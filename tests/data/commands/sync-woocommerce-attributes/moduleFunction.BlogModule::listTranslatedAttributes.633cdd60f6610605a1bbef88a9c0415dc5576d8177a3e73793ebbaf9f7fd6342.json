@@ -1,0 +1,168 @@
+{
+    "success": true,
+    "call_id": "5e4bdf8c481ec",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributes",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "is_options__=",
+                "val": "1"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "translatable": {
+                    "id": 10,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-29 10:53:53+01:00",
+                    "backref": "BlogModule::Attribute(id=2)",
+                    "translatable_type_id": 6
+                },
+                "id": 2,
+                "name": "brand",
+                "label": "Brand",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-01-29 10:53:53+01:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 10,
+                "date_updated": "2020-01-29 10:53:53+01:00",
+                "unique": false,
+                "order": 0
+            },
+            {
+                "translatable": {
+                    "id": 12,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-29 10:53:53+01:00",
+                    "backref": "BlogModule::Attribute(id=3)",
+                    "translatable_type_id": 6
+                },
+                "id": 3,
+                "name": "needs_description_on_kassa",
+                "label": "Vereist beschrijving bij de kassa",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-01-29 10:53:53+01:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 12,
+                "date_updated": "2020-01-29 10:53:53+01:00",
+                "unique": false,
+                "order": 0
+            },
+            {
+                "translatable": {
+                    "id": 15,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-29 10:53:53+01:00",
+                    "backref": "BlogModule::Attribute(id=4)",
+                    "translatable_type_id": 6
+                },
+                "id": 4,
+                "name": "needs_weight_on_kassa",
+                "label": "Vereist gewicht bij de kassa",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-01-29 10:53:53+01:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 15,
+                "date_updated": "2020-01-29 10:53:53+01:00",
+                "unique": false,
+                "order": 0
+            },
+            {
+                "translatable": {
+                    "id": 21,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-29 10:53:53+01:00",
+                    "backref": "BlogModule::Attribute(id=8)",
+                    "translatable_type_id": 6
+                },
+                "id": 8,
+                "name": "sales_unit",
+                "label": "Verkoop eenheid",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-01-29 10:53:53+01:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 21,
+                "date_updated": "2020-01-29 10:53:53+01:00",
+                "unique": false,
+                "order": 0
+            },
+            {
+                "translatable": {
+                    "id": 30,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-10 10:48:12+01:00",
+                    "backref": "BlogModule::Attribute(id=13)",
+                    "translatable_type_id": 6
+                },
+                "id": 13,
+                "name": "kleur",
+                "label": "Kleur",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-02-10 10:48:12+01:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 30,
+                "date_updated": "2020-02-10 10:48:12+01:00",
+                "unique": false,
+                "order": 0
+            }
+        ],
+        "total": 5,
+        "count": 5
+    },
+    "_type": "moduleFunction",
+    "time_ms": 5295.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-18T12:58:57+00:00"
+}

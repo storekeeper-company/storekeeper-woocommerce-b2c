@@ -1,0 +1,62 @@
+{
+    "success": true,
+    "call_id": "5e554f408617d",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributeOptions",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__in_list",
+                "multi_val": [
+                    6
+                ]
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "attribute": {
+                    "id": 13,
+                    "name": "kleur",
+                    "label": "Kleur"
+                },
+                "translatable": {
+                    "id": 31,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-10 10:51:51+01:00",
+                    "backref": "BlogModule::AttributeOption(id=6)",
+                    "translatable_type_id": 4
+                },
+                "id": 6,
+                "attribute_id": 13,
+                "name": "zwart",
+                "label": "Zwart",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-02-10 10:51:51+01:00",
+                "translatable_id": 31,
+                "date_updated": "2020-02-10 10:51:51+01:00"
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 206.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-25T16:45:52+00:00"
+}

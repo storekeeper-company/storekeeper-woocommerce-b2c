@@ -1,0 +1,48 @@
+{
+    "success": true,
+    "call_id": "5e7c99df99430",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributeOptions",
+    "params": [
+        0,
+        0,
+        1
+    ],
+    "return": {
+        "data": [
+            {
+                "attribute": {
+                    "id": 2,
+                    "name": "brand",
+                    "label": "Brand"
+                },
+                "translatable": {
+                    "id": 11,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-01-23 09:41:29+01:00",
+                    "backref": "BlogModule::AttributeOption(id=1)",
+                    "translatable_type_id": 4
+                },
+                "id": 1,
+                "attribute_id": 2,
+                "name": "stijndev3",
+                "label": "stijndev3",
+                "order": 0,
+                "is_default": true,
+                "date_created": "2020-01-23 09:41:29+01:00",
+                "translatable_id": 11,
+                "date_updated": "2020-01-23 09:41:29+01:00"
+            }
+        ],
+        "total": 8,
+        "count": 8
+    },
+    "_type": "moduleFunction",
+    "time_ms": 250.0,
+    "_version": "1.0",
+    "_timestamp": "2020-03-26T12:02:39+00:00"
+}

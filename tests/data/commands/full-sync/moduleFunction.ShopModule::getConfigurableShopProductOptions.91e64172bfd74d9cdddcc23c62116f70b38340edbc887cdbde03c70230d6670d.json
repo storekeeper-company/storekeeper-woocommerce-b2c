@@ -1,0 +1,445 @@
+{
+    "success": true,
+    "call_id": "5e32b744bd6e6",
+    "module_name": "ShopModule",
+    "function": "getConfigurableShopProductOptions",
+    "params": [
+        116618
+    ],
+    "return": {
+        "configurable_product": {
+            "product_id": 130971,
+            "configurable_product_kind_id": 1116,
+            "date_created": "2020-01-14 16:17:42+01:00",
+            "price_modifier_with_vat": true,
+            "configurable_product_kind": {
+                "id": 1116,
+                "configuration_id": 1,
+                "name": "Attribute test",
+                "configurable_attribute_ids": [
+                    16192
+                ],
+                "sku_pattern": "{{sku}}{{content_vars[\"wp-option-test\"][\"value\"]}}",
+                "title_pattern": "{{title}}{{content_vars[\"wp-option-test\"][\"value_label\"]}}",
+                "custom_images": false,
+                "custom_descriptions": false,
+                "date_created": "2020-01-14 16:17:11+01:00",
+                "date_updated": "2020-01-14 16:17:11+01:00",
+                "default_attribute_option_ids": [
+                    30861,
+                    30862
+                ],
+                "alias": "attribute-test"
+            }
+        },
+        "configurable_shop_product": {
+            "shop_product": {
+                "id": 116613,
+                "product_id": 130971,
+                "product_price_id": 128354,
+                "date_created": "2020-01-14 16:17:43+01:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 559299,
+                "date_updated": "2020-01-14 17:38:25+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 128354
+            },
+            "shop_product_id": 116613,
+            "configurable_product_id": 130971,
+            "price_dirty": false
+        },
+        "configurable_associated_shop_products": [
+            {
+                "shop_product": {
+                    "id": 116614,
+                    "product_id": 130972,
+                    "product_price_id": 128355,
+                    "date_created": "2020-01-14 16:17:51+01:00",
+                    "active": true,
+                    "discount_dirty": false,
+                    "object_instance_id": 559302,
+                    "date_updated": "2020-01-14 17:40:06+01:00",
+                    "configuration_id": 1,
+                    "relation_limited": false,
+                    "product_default_price_id": 128355,
+                    "product": {
+                        "id": 130972,
+                        "date_created": "2020-01-14 16:17:51+01:00",
+                        "date_updated": "2020-01-14 19:23:17+01:00",
+                        "relation_data_id": 20669,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 136339,
+                        "sku": "attribute-test-configurable10-mm",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 128355,
+                        "object_instance_id": 559301,
+                        "has_addons": false,
+                        "is_system": false,
+                        "product_stock": {
+                            "id": 130971,
+                            "product_id": 130972,
+                            "value": 10,
+                            "in_stock": true,
+                            "unlimited": false,
+                            "date_updated": "2020-01-14 19:23:17+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "product_price": {
+                        "id": 128355,
+                        "product_id": 130972,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 0.83,
+                        "ppu_wt": 1,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-01-14 16:17:51+01:00",
+                        "date_updated": "2020-01-14 16:17:51+01:00",
+                        "product_price_type_id": 1
+                    },
+                    "product_default_price": {
+                        "id": 128355,
+                        "product_id": 130972,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 0.83,
+                        "ppu_wt": 1,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-01-14 16:17:51+01:00",
+                        "date_updated": "2020-01-14 16:17:51+01:00",
+                        "product_price_type_id": 1
+                    }
+                },
+                "configurable_associated_product": {
+                    "configurable_product_id": 130971,
+                    "product_id": 130972,
+                    "attribute_option_ids": [
+                        30861
+                    ],
+                    "date_created": "2020-01-14 16:17:51+01:00",
+                    "price_dirty": false
+                },
+                "shop_product_id": 116614,
+                "configurable_product_id": 130971,
+                "price_dirty": false
+            },
+            {
+                "shop_product": {
+                    "id": 116615,
+                    "product_id": 130973,
+                    "product_price_id": 128356,
+                    "date_created": "2020-01-14 16:17:53+01:00",
+                    "active": true,
+                    "discount_dirty": false,
+                    "object_instance_id": 559305,
+                    "date_updated": "2020-01-14 17:40:08+01:00",
+                    "configuration_id": 1,
+                    "relation_limited": false,
+                    "product_default_price_id": 128356,
+                    "product": {
+                        "id": 130973,
+                        "date_created": "2020-01-14 16:17:53+01:00",
+                        "date_updated": "2020-01-14 17:40:08+01:00",
+                        "relation_data_id": 20669,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 136340,
+                        "sku": "attribute-test-configurable10-mm-",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 128356,
+                        "object_instance_id": 559304,
+                        "has_addons": false,
+                        "is_system": false,
+                        "product_stock": {
+                            "id": 130972,
+                            "product_id": 130973,
+                            "value": 0,
+                            "in_stock": false,
+                            "unlimited": false,
+                            "date_updated": "2020-01-14 16:17:53+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "product_price": {
+                        "id": 128356,
+                        "product_id": 130973,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 0.83,
+                        "ppu_wt": 1,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-01-14 16:17:53+01:00",
+                        "date_updated": "2020-01-14 16:17:53+01:00",
+                        "product_price_type_id": 1
+                    },
+                    "product_default_price": {
+                        "id": 128356,
+                        "product_id": 130973,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 0.83,
+                        "ppu_wt": 1,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-01-14 16:17:53+01:00",
+                        "date_updated": "2020-01-14 16:17:53+01:00",
+                        "product_price_type_id": 1
+                    }
+                },
+                "configurable_associated_product": {
+                    "configurable_product_id": 130971,
+                    "product_id": 130973,
+                    "attribute_option_ids": [
+                        30862
+                    ],
+                    "date_created": "2020-01-14 16:17:53+01:00",
+                    "price_dirty": false
+                },
+                "shop_product_id": 116615,
+                "configurable_product_id": 130971,
+                "price_dirty": false
+            },
+            {
+                "shop_product": {
+                    "id": 116617,
+                    "product_id": 130975,
+                    "product_price_id": 128358,
+                    "date_created": "2020-01-14 16:18:05+01:00",
+                    "active": true,
+                    "discount_dirty": false,
+                    "object_instance_id": 559311,
+                    "date_updated": "2020-01-14 17:40:11+01:00",
+                    "configuration_id": 1,
+                    "relation_limited": false,
+                    "product_default_price_id": 128358,
+                    "product": {
+                        "id": 130975,
+                        "date_created": "2020-01-14 16:18:05+01:00",
+                        "date_updated": "2020-01-14 17:40:12+01:00",
+                        "relation_data_id": 20669,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 136342,
+                        "sku": "attribute-test-configurable-1",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 128358,
+                        "object_instance_id": 559310,
+                        "has_addons": false,
+                        "is_system": false,
+                        "product_stock": {
+                            "id": 130974,
+                            "product_id": 130975,
+                            "value": 0,
+                            "in_stock": false,
+                            "unlimited": false,
+                            "date_updated": "2020-01-14 16:18:05+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "product_price": {
+                        "id": 128358,
+                        "product_id": 130975,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 0.83,
+                        "ppu_wt": 1,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-01-14 16:18:05+01:00",
+                        "date_updated": "2020-01-14 16:18:05+01:00",
+                        "product_price_type_id": 1
+                    },
+                    "product_default_price": {
+                        "id": 128358,
+                        "product_id": 130975,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 0.83,
+                        "ppu_wt": 1,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-01-14 16:18:05+01:00",
+                        "date_updated": "2020-01-14 16:18:05+01:00",
+                        "product_price_type_id": 1
+                    }
+                },
+                "configurable_associated_product": {
+                    "configurable_product_id": 130971,
+                    "product_id": 130975,
+                    "attribute_option_ids": [
+                        30860
+                    ],
+                    "date_created": "2020-01-14 16:18:05+01:00",
+                    "price_dirty": false
+                },
+                "shop_product_id": 116617,
+                "configurable_product_id": 130971,
+                "price_dirty": false
+            },
+            {
+                "shop_product": {
+                    "id": 116618,
+                    "product_id": 130976,
+                    "product_price_id": 128359,
+                    "date_created": "2020-01-14 19:12:45+01:00",
+                    "active": true,
+                    "discount_dirty": false,
+                    "object_instance_id": 559314,
+                    "date_updated": "2020-01-14 19:16:23+01:00",
+                    "configuration_id": 1,
+                    "relation_limited": false,
+                    "product_default_price_id": 128359,
+                    "product": {
+                        "id": 130976,
+                        "date_created": "2020-01-14 19:12:45+01:00",
+                        "date_updated": "2020-01-14 19:16:24+01:00",
+                        "relation_data_id": 20669,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 136343,
+                        "sku": "attribute-test-configurable1",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 128359,
+                        "object_instance_id": 559313,
+                        "has_addons": false,
+                        "is_system": false,
+                        "product_stock": {
+                            "id": 130975,
+                            "product_id": 130976,
+                            "value": 0,
+                            "in_stock": false,
+                            "unlimited": false,
+                            "date_updated": "2020-01-14 19:12:45+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "product_price": {
+                        "id": 128359,
+                        "product_id": 130976,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 0.83,
+                        "ppu_wt": 1,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-01-14 19:12:45+01:00",
+                        "date_updated": "2020-01-14 19:12:45+01:00",
+                        "product_price_type_id": 1
+                    },
+                    "product_default_price": {
+                        "id": 128359,
+                        "product_id": 130976,
+                        "default": false,
+                        "currency_iso3": "EUR",
+                        "ppu": 0.83,
+                        "ppu_wt": 1,
+                        "tax": 0.21,
+                        "tax_rate_id": 55,
+                        "date_created": "2020-01-14 19:12:45+01:00",
+                        "date_updated": "2020-01-14 19:12:45+01:00",
+                        "product_price_type_id": 1
+                    }
+                },
+                "configurable_associated_product": {
+                    "configurable_product_id": 130971,
+                    "product_id": 130976,
+                    "attribute_option_ids": [
+                        30859
+                    ],
+                    "date_created": "2020-01-14 19:12:45+01:00",
+                    "price_dirty": false
+                },
+                "shop_product_id": 116618,
+                "configurable_product_id": 130971,
+                "price_dirty": false
+            }
+        ],
+        "attribute_options": [
+            {
+                "id": 30859,
+                "attribute_id": 16192,
+                "name": "1",
+                "label": "1",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-01-14 14:57:10+01:00",
+                "translatable_id": 241656,
+                "image_url": "",
+                "date_updated": "2020-01-14 14:57:10+01:00"
+            },
+            {
+                "id": 30860,
+                "attribute_id": 16192,
+                "name": "-1",
+                "label": "-1",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-01-14 14:57:14+01:00",
+                "translatable_id": 241657,
+                "image_url": "",
+                "date_updated": "2020-01-14 14:57:14+01:00"
+            },
+            {
+                "id": 30861,
+                "attribute_id": 16192,
+                "name": "10-mm",
+                "label": "10 mm",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-01-14 14:57:55+01:00",
+                "translatable_id": 241658,
+                "image_url": "",
+                "date_updated": "2020-01-14 14:57:55+01:00"
+            },
+            {
+                "id": 30862,
+                "attribute_id": 16192,
+                "name": "10-mm-",
+                "label": "10 mm",
+                "order": 0,
+                "is_default": false,
+                "date_created": "2020-01-14 14:58:07+01:00",
+                "translatable_id": 241659,
+                "image_url": "",
+                "date_updated": "2020-01-14 14:58:07+01:00"
+            }
+        ],
+        "attributes": [
+            {
+                "id": 16192,
+                "name": "wp-option-test",
+                "label": "Wp option test",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-01-14 14:56:55+01:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 241655,
+                "date_updated": "2020-01-14 14:56:55+01:00",
+                "unique": false,
+                "order": 0
+            }
+        ]
+    },
+    "_type": "moduleFunction",
+    "time_ms": 670.0,
+    "_version": "1.0",
+    "_timestamp": "2020-01-30T11:00:21+00:00"
+}

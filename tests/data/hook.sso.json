@@ -1,0 +1,38 @@
+{
+    "success": false,
+    "call_id": "5e2f08ec12627",
+    "request": {
+        "headers": {
+            "host": [
+                "localhost:8888"
+            ],
+            "user_agent": [
+                "GuzzleHttp\/6.4.1 curl\/7.52.1 PHP\/7.0.33-0+deb9u6"
+            ],
+            "content_type": [
+                "application\/json"
+            ],
+            "upxhooktoken": [
+                "88b31ecd2978524b....92fdcdafa42a6c814"
+            ],
+            "content_length": [
+                "135"
+            ]
+        },
+        "body": "{\"action\":\"sso\",\"payload\":{\"shortname\":\"5cd539e1-11a5-4af0-96c1-c2d9615ce1b4\",\"name\":\"Szymon Luki\",\"role\":\"admin\",\"expiration\":60}}",
+        "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+        "method": "POST",
+        "query_params": {
+            "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+        },
+        "file_params": []
+    },
+    "hook_action": "sso",
+    "exception_class": "StoreKeeper\\WooCommerce\\B2C\\Exceptions\\WpRestException",
+    "exception": "Request is not valid",
+    "exception_trace": "#0 \/app\/src\/wp-content\/plugins\/storekeeper-woocommerce-b2c\/src\/StoreKeeper\/WooCommerce\/B2C\/Endpoints\/Webhooks\/WebhookPostEndpoint.php(27): StoreKeeper\\WooCommerce\\B2C\\Tools\\EndpointRequestValidator->isValid()",
+    "_type": "hook",
+    "time_ms": 123.0,
+    "_version": "1.0",
+    "_timestamp": "2020-01-27T15:59:40+00:00"
+}
