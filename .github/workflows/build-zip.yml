@@ -30,3 +30,10 @@ jobs:
         with:
           filename: 'storekeeper-woocommerce-b2c.zip'
           exclusions: '*.git* /tests/* /*docker* /*docs/* /*Docker* phpunit.xml Makefile /.php* /.env*'
+
+      - name: Upload Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "storekeeper-woocommerce-b2c.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease:  ${{ ! startsWith( 'refs/tags/', github.ref ) }}
