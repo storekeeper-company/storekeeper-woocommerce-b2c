@@ -31,11 +31,11 @@ jobs:
         run: composer install --ignore-platform-reqs --prefer-dist --no-dev --optimize-autoloader
 
       - name: Apply version with build
-        if: ${{ ! startsWith( 'refs/tags/', github.ref ) }}
+        if: ${{ ! startsWith( github.ref, 'refs/tags/' ) }}
         run: php dev-tools/set-version.php ${{ steps.previoustag.outputs.tag }}-b$GITHUB_RUN_ID storekeeper-woocommerce-b2c.php
 
       - name: Set release version
-        if: ${{ startsWith( 'refs/tags/', github.ref ) }}
+        if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
         run: php dev-tools/set-version.php ${{ steps.previoustag.outputs.tag }} storekeeper-woocommerce-b2c.php
 
       - name: Put all in directory
@@ -60,7 +60,7 @@ jobs:
 
       - name: Release
         uses: ncipollo/release-action@v1
-        if: ${{ startsWith( 'refs/tags/', github.ref ) }}
+        if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
         with:
           artifacts: "storekeeper-woocommerce-b2c"
           token: ${{ secrets.GITHUB_TOKEN }}
