@@ -68,7 +68,7 @@ jobs:
           name: storekeeper-woocommerce-b2c
 
       - name: Release
-        uses: "marvinpinto/action-automatic-releases@1"
+        uses: marvinpinto/action-automatic-releases@v1.2.0
         with:
           prerelease: true
           automatic_release_tag: "latest"
@@ -86,7 +86,7 @@ jobs:
           name: storekeeper-woocommerce-b2c
 
       - name: Release
-        uses: "marvinpinto/action-automatic-releases@1"
+        uses: marvinpinto/action-automatic-releases@v1.2.0
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: |
