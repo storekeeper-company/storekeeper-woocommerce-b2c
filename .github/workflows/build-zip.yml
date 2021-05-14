@@ -41,7 +41,7 @@ jobs:
       - name: Put all in directory
         run: |
           mkdir storekeeper-woocommerce-b2c
-          ls -a | grep -v  '^storekeeper-woocommerce-b2c$' | xargs mv -t  storekeeper-woocommerce-b2c
+          ls -a | grep -v  '^storekeeper-woocommerce-b2c$' | grep -v '^\.*$' | xargs mv -t  storekeeper-woocommerce-b2c
 
       - uses: actions/upload-artifact@v2
         with:
