@@ -7,7 +7,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          path: 'storekeeper-woocommerce-b2c'
           fetch-depth: 0
 
       - name: 'Get Previous tag'
@@ -15,7 +14,6 @@ jobs:
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
         with:
           fallback: 0.0.1
-          working-directory: ./storekeeper-woocommerce-b2c
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -30,18 +28,18 @@ jobs:
           composer --version
 
       - name: Install packages
-        working-directory: ./storekeeper-woocommerce-b2c
         run: composer install --ignore-platform-reqs --prefer-dist --no-dev --optimize-autoloader
 
       - name: Apply version with build
         if: ${{ ! startsWith( 'refs/tags/', github.ref ) }}
-        working-directory: ./storekeeper-woocommerce-b2c
         run: php dev-tools/set-version.php ${{ steps.previoustag.outputs.tag }}-b$GITHUB_RUN_ID storekeeper-woocommerce-b2c.php
 
       - name: Set release version
         if: ${{ startsWith( 'refs/tags/', github.ref ) }}
-        working-directory: ./storekeeper-woocommerce-b2c
         run: php dev-tools/set-version.php ${{ steps.previoustag.outputs.tag }} storekeeper-woocommerce-b2c.php
+
+      - name: Put all in directory
+        run: mkdir storekeeper-woocommerce-b2c && mv ./* storekeeper-woocommerce-b2c
 
       - uses: actions/upload-artifact@v2
         with:
