@@ -1,10 +1,11 @@
-name: Create Archive
+name: Release latest
 on:
   push:
     branches:
       - "master"
 jobs:
-  build:
+  release-latest:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
