@@ -1,7 +1,7 @@
 # based on https://github.com/woocommerce/woocommerce/blob/trunk/.github/workflows/pr-unit-tests.yml
 name: Run unit tests on PR
 on:
-  push
+  pull_request
 jobs:
   test:
     name: PHP ${{ matrix.php }} WP ${{ matrix.wp }}
