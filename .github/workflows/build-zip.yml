@@ -6,6 +6,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          path: 'storekeeper-woocommerce-b2c'
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -20,19 +22,20 @@ jobs:
           composer --version
 
       - name: Install packages
-        run: composer install --ignore-platform-reqs --prefer-dist --no-dev --optimize-autoloader
+        run: cd storekeeper-woocommerce-b2c && composer install --ignore-platform-reqs --prefer-dist --no-dev --optimize-autoloader
 
       - name: Apply version
-        run: php dev-tools/add-build-to-version.php $GITHUB_RUN_ID storekeeper-woocommerce-b2c.php
-
-      - name: Archive Release
-        uses: thedoctor0/zip-release@master
-        with:
-          filename: 'storekeeper-woocommerce-b2c.zip'
-          exclusions: '*.git* /tests/* /*docker* /*docs/* /*Docker* phpunit.xml Makefile /.php* /.env*'
+        run: php storekeeper-woocommerce-b2c/dev-tools/add-build-to-version.php $GITHUB_RUN_ID storekeeper-woocommerce-b2c/storekeeper-woocommerce-b2c.php
 
       - uses: actions/upload-artifact@v2
         with:
           name: storekeeper-woocommerce-b2c
-          path: storekeeper-woocommerce-b2c.zip
           if-no-files-found: error
+          path: |
+            storekeeper-woocommerce-b2c/exports/**
+            storekeeper-woocommerce-b2c/i18n/**
+            storekeeper-woocommerce-b2c/scripts/**
+            storekeeper-woocommerce-b2c/src/**
+            storekeeper-woocommerce-b2c/composer*
+            storekeeper-woocommerce-b2c/*.php
+            storekeeper-woocommerce-b2c/Readme.txt
