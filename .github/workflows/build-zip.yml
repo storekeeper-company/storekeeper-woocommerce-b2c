@@ -39,7 +39,9 @@ jobs:
         run: php dev-tools/set-version.php ${{ steps.previoustag.outputs.tag }} storekeeper-woocommerce-b2c.php
 
       - name: Put all in directory
-        run: mkdir storekeeper-woocommerce-b2c && mv !(storekeeper-woocommerce-b2c) storekeeper-woocommerce-b2c
+        run: |
+          mkdir storekeeper-woocommerce-b2c
+          ls -a | grep -v  '^storekeeper-woocommerce-b2c$' | xargs mv -t  storekeeper-woocommerce-b2c
 
       - uses: actions/upload-artifact@v2
         with:
