@@ -62,4 +62,9 @@ jobs:
         run: ./tests/bin/install.sh woo_test root root 127.0.0.1 ${{ matrix.wp }}
 
       - name: Run tests
+        env:
+          WORDPRESS_DB_HOST: localhost
+          WORDPRESS_DB_USER: root
+          WORDPRESS_DB_PASSWORD: root
+          WORDPRESS_DB_NAME: woo_test
         run: ./vendor/bin/phpunit -c ./phpunit.xml
