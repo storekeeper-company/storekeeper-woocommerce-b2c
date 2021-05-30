@@ -14,11 +14,12 @@ if ('cli' == php_sapi_name()) {
     // Getting and manipulating lines
     $lines = file_get_contents($file);
     $lines = preg_replace(
-        '/^(.*define.*STOREKEEPER_WOOCOMMERCE_B2C_VERSION.*\')([\w\.]+)(\'.*)$/m',
+        '/^(.*define.*STOREKEEPER_WOOCOMMERCE_B2C_VERSION.*\')([\d\.]+)(\'.*)$/m',
         '${1}'.$build.'$3',
         $lines
     );
-    $lines = preg_replace('/^([\s\*]*Version:\s*)([\w\.]+)\s*$/m', '${1}'.$build, $lines);
+    $lines = preg_replace('/^([\s\*]*Version:\s*)([\d\.]+)\s*$/m', '${1}'.$build, $lines);
+    $lines = preg_replace('/^([\s\*]*Stable Tag:\s*)([\d\.]+)\s*$/m', '${1}'.$build, $lines);
 
     if (empty($lines)) {
         throw new \Exception('Plugin entry file is empty is empty');
