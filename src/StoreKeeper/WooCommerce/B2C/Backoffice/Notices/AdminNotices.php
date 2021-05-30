@@ -350,7 +350,7 @@ class AdminNotices
             );
 
             $path = esc_html(ABSPATH);
-            $plugin_dir= esc_html(plugin_dir_path().'/storekeeper-woocommerce-b2c/');
+            $plugin_dir = esc_html(plugin_dir_path().'/storekeeper-woocommerce-b2c/');
             $description = <<<HTML
 <p style="white-space: pre-line;">* * * * * php {$plugin_dir}/scripts/process-tasks.php
 * * * * * php {$plugin_dir}/scripts/maybe-wp-cron.php >/dev/null 2>&1

@@ -9,7 +9,8 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExport;
 
 abstract class AbstractFileExport implements IFileExport
 {
-    static function getExportDir(){
+    public static function getExportDir()
+    {
         return WP_CONTENT_DIR.'/uploads/storekeeper-exports';
     }
 
