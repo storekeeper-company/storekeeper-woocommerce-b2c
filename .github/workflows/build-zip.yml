@@ -32,7 +32,9 @@ jobs:
 
       - name: Apply version with build
         if: ${{ ! startsWith( github.ref, 'refs/tags/' ) }}
-        run: php dev-tools/set-version.php ${{ steps.version.outputs.LAST_VERSION_TAG }}-b$GITHUB_RUN_ID storekeeper-woocommerce-b2c.php
+        run: |
+          php dev-tools/set-version.php ${{ steps.version.outputs.LAST_VERSION_TAG }}-b$GITHUB_RUN_ID storekeeper-woocommerce-b2c.php
+          php dev-tools/set-version.php ${{ steps.version.outputs.LAST_VERSION_TAG }}-b$GITHUB_RUN_ID Readme.txt
 
       - name: Set release version
         if: ${{ startsWith( github.ref, 'refs/tags/' ) }}

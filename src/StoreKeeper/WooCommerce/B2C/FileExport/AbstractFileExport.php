@@ -9,7 +9,9 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExport;
 
 abstract class AbstractFileExport implements IFileExport
 {
-    const EXPORT_DIR = ABSPATH.'wp-content/uploads/storekeeper-exports';
+    static function getExportDir(){
+        return WP_CONTENT_DIR.'uploads/storekeeper-exports';
+    }
 
     /**
      * @var string
@@ -21,14 +23,15 @@ abstract class AbstractFileExport implements IFileExport
      */
     private function setFilePath()
     {
-        if (!file_exists(self::EXPORT_DIR)) {
-            if (!mkdir(self::EXPORT_DIR, 0777, true)) {
-                throw new Exception('Failed to create export dir @ '.self::EXPORT_DIR);
+        $export_dir = self::getExportDir();
+        if (!file_exists($export_dir)) {
+            if (!mkdir($export_dir, 0777, true)) {
+                throw new Exception('Failed to create export dir @ '.$export_dir);
             }
         }
 
         $filename = $this->getType().'-'.time().'.'.$this->getFileType();
-        $this->filePath = self::EXPORT_DIR.'/'.$filename;
+        $this->filePath = $export_dir.'/'.$filename;
     }
 
     protected function getFileType()
@@ -72,7 +75,7 @@ abstract class AbstractFileExport implements IFileExport
     public function getDownloadUrl(): string
     {
         $filename = basename($this->filePath);
-        $wpContentPath = ABSPATH.'/wp-content';
+        $wpContentPath = WP_CONTENT_DIR;
         $relativePath = substr(dirname($this->filePath), strlen($wpContentPath));
 
         return content_url("$relativePath/$filename");

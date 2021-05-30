@@ -350,9 +350,10 @@ class AdminNotices
             );
 
             $path = esc_html(ABSPATH);
+            $plugin_dir= esc_html(plugin_dir_path().'/storekeeper-woocommerce-b2c/');
             $description = <<<HTML
-<p style="white-space: pre-line;">* * * * * php {$path}wp-content/plugins/storekeeper-woocommerce-b2c/scripts/process-tasks.php
-* * * * * php {$path}wp-content/plugins/storekeeper-woocommerce-b2c/scripts/maybe-wp-cron.php >/dev/null 2>&1
+<p style="white-space: pre-line;">* * * * * php {$plugin_dir}/scripts/process-tasks.php
+* * * * * php {$plugin_dir}/scripts/maybe-wp-cron.php >/dev/null 2>&1
 0 3 * * * /usr/local/bin/wp sk sync-issue-check --path={$path} --skip-plugins=wp-optimize
 </p>
 HTML;
