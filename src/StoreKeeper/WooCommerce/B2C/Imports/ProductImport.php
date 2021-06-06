@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 use Adbar\Dot;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Cache\StoreKeeperIdCache;
+use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
@@ -733,7 +734,7 @@ SQL;
         );
         $parentData = $parentResponse['data'];
         if (count($parentData) <= 0) {
-            throw new Exception('Could not fetch parent product with id '.$parentShopProductId);
+            throw new CannotFetchShopProductException($parentShopProductId);
         }
 
         return new Dot($parentData[0]);
@@ -746,7 +747,7 @@ SQL;
      *
      * @throws WordpressException
      */
-    protected function processAssignedProduct($dotObject, array $log_data)
+    protected function processAssignedProduct(Dot $dotObject, array $log_data)
     {
         // getting the assigned product.
         $productCheck = $this->getAssignedProduct($dotObject);
@@ -775,7 +776,21 @@ SQL;
         $parentProductCheck = self::getItem($parentShopProductId);
         if (false === $parentProductCheck) {
             // We need to fetch the parents data to get it by SKU.
-            $parentProductObject = $this->getParentProductObject($parentShopProductId);
+            try {
+                $parentProductObject = $this->getParentProductObject($parentShopProductId);
+            } catch (CannotFetchShopProductException $e){
+                $this->debug(
+                    'Parent product is not visible -> import product as it was simple',
+                    $log_data + [
+                        'parentShopProductId' => $parentShopProductId
+                    ]
+                );
+                return $this->processSimpleAndConfigurableProduct(
+                    $dotObject, $log_data,
+                    [],
+                    'simple'
+                );
+            }
             if ($parentProductObject->has('flat_product.product.sku')) {
                 $parentProductCheck = self::getItemBySku($parentProductObject->get('flat_product.product.sku'));
             }
