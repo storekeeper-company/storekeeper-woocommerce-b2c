@@ -59,7 +59,10 @@ class ExportTab extends AbstractTab
     protected function exportAction()
     {
         if (array_key_exists('type', $_REQUEST) && array_key_exists('lang', $_REQUEST)) {
-            $this->handleExport($_REQUEST['type'], $_REQUEST['lang']);
+            $this->handleExport(
+                sanitize_key($_REQUEST['type']),
+                sanitize_key($_REQUEST['lang'])
+            );
         }
         wp_redirect(remove_query_arg(['type', 'action', 'lang']));
     }
@@ -173,7 +176,7 @@ class ExportTab extends AbstractTab
             $data = [];
             foreach (FeaturedAttributeOptions::FEATURED_ATTRIBUTES_ALIASES as $alias) {
                 $constant = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
-                $data[$constant] = $_POST[$constant];
+                $data[$constant] = sanitize_key($_POST[$constant]);
             }
 
             $duplicates = $this->getDuplicateData($data);

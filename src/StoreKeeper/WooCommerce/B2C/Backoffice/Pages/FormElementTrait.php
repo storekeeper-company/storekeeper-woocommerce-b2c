@@ -22,6 +22,7 @@ trait FormElementTrait
         $html = '';
 
         foreach ($_REQUEST as $name => $value) {
+            $value = esc_attr($value);
             $html .= "<input type='hidden' name='$name' value='$value' />";
         }
 

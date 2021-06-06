@@ -42,9 +42,16 @@ abstract class AbstractTab extends AbstractPageLike
 
     private function executeCurrentAction(): void
     {
-        $action = $_REQUEST['action'] ?? '';
+        $action = $this->getRequestAction();
         if (array_key_exists($action, $this->actions)) {
             $this->executeAction($action);
         }
+    }
+
+    private function getRequestAction()
+    {
+        $action = sanitize_key($_REQUEST['action'] ?? '');
+
+        return $action;
     }
 }

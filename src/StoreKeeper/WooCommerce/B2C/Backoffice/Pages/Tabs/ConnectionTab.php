@@ -187,10 +187,14 @@ class ConnectionTab extends AbstractTab
         $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
 
         $data = [
-            $payment => 'on' === $_POST[$payment] ? 'yes' : 'no',
-            $backorder => 'on' === $_POST[$backorder] ? 'yes' : 'no',
-            $mode => $_POST[$mode] ?? StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
+            $payment => 'on' === sanitize_key($_POST[$payment]) ? 'yes' : 'no',
+            $backorder => 'on' === sanitize_key($_POST[$backorder]) ? 'yes' : 'no',
         ];
+        if (!empty($_POST[$mode])) {
+            $data[$mode] = sanitize_key($_POST[$mode]);
+        } else {
+            $data[$mode] = StoreKeeperOptions::SYNC_MODE_FULL_SYNC;
+        }
 
         foreach ($data as $key => $value) {
             update_option($key, $value);

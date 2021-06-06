@@ -25,7 +25,7 @@ abstract class AbstractPage extends AbstractPageLike
 
     private function getCurrentTab(): ?AbstractTab
     {
-        $slug = $_REQUEST['tab'] ?? '';
+        $slug = $this->getRequestTabSlug();
         $tab = array_key_exists($slug, $this->tabs) ?
             $this->tabs[$slug] : current($this->tabs);
 
@@ -80,7 +80,7 @@ abstract class AbstractPage extends AbstractPageLike
 
     final public function render(): void
     {
-        $page = $_REQUEST['page'] ?? '';
+        $page = $this->getRequestPage();
         echo "<div class='storekeeper-page storekeeper-page-$page'>";
 
         $this->renderTitle();
@@ -110,9 +110,9 @@ HTML;
         $tabHtml = '';
 
         if (count($this->tabs) > 1) {
-            $currentSlug = $_REQUEST['tab'] ?? '';
+            $currentSlug = $this->getRequestTabSlug();
             foreach ($this->tabs as $slug => $tab) {
-                $url = add_query_arg('page', $_REQUEST['page'], $pagenow);
+                $url = add_query_arg('page', $this->getRequestPage(), $pagenow);
                 if ('' !== $slug) {
                     $url = add_query_arg('tab', $slug, $url);
                 }
@@ -142,5 +142,19 @@ HTML;
             $text = __('No tabs set for this page', I18N::DOMAIN);
             echo "<h1 style='text-align: center'>$text</h1>";
         }
+    }
+
+    private function getRequestTabSlug(): string
+    {
+        $slug = sanitize_key($_REQUEST['tab'] ?? '');
+
+        return $slug;
+    }
+
+    private function getRequestPage(): string
+    {
+        $page = sanitize_key($_REQUEST['page'] ?? '');
+
+        return $page;
     }
 }

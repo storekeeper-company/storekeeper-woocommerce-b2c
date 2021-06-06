@@ -31,7 +31,7 @@ class OrderSyncMetaBox
 
     public function action($post_id)
     {
-        $nonce = array_key_exists('_wpnonce', $_REQUEST) ? $_REQUEST['_wpnonce'] : null;
+        $nonce = array_key_exists('_wpnonce', $_REQUEST) ? $_REQUEST['_wpnonce'] : null; // no need to escape, wp_verify_nonce compares hash
         if (1 === wp_verify_nonce($nonce, self::ACTION_NAME.'_post_'.$post_id)) {
             if (wc_get_order($post_id)) {
                 $export = new OrderExport(
@@ -48,7 +48,7 @@ class OrderSyncMetaBox
                     }
                     $error = __('Failed to sync order', I18N::DOMAIN).': '.$message;
                     wp_redirect(
-                        get_edit_post_link($post_id, 'url').'&sk_sync_error='.$error
+                        get_edit_post_link($post_id, 'url').'&sk_sync_error='.urlencode($error)
                     );
                     exit();
                 }
@@ -61,19 +61,21 @@ class OrderSyncMetaBox
         // Nonce expired, user can just try again.
         $message = __('Failed to sync order', I18N::DOMAIN).': '.__('Please try again', I18N::DOMAIN);
         wp_redirect(
-            get_edit_post_link($post_id, 'url').'&sk_sync_error='.$message
+            get_edit_post_link($post_id, 'url').'&sk_sync_error='.urlencode($message)
         );
         exit();
     }
 
-    private static function showError(string $message)
+    private static function showPossibleError()
     {
-        $message = esc_html($message);
-        echo <<<HTML
+        if (array_key_exists('sk_sync_error', $_REQUEST)) {
+            $message = esc_html($_REQUEST['sk_sync_error']);
+            echo <<<HTML
         <div class="notice notice-error">
             <h4>$message</h4>
         </div>
 HTML;
+        }
     }
 
     /**
@@ -138,10 +140,7 @@ HTML;
 </style>
 HTML;
 
-        $error = array_key_exists('sk_sync_error', $_REQUEST) ? $_REQUEST['sk_sync_error'] : null;
-        if ($error) {
-            self::showError($error);
-        }
+        self::showPossibleError();
     }
 
     private static function getNonceSyncActionLink(WP_Post $post): string

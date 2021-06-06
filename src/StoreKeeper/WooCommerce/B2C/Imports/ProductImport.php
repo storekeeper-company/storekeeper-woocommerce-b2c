@@ -778,13 +778,14 @@ SQL;
             // We need to fetch the parents data to get it by SKU.
             try {
                 $parentProductObject = $this->getParentProductObject($parentShopProductId);
-            } catch (CannotFetchShopProductException $e){
+            } catch (CannotFetchShopProductException $e) {
                 $this->debug(
                     'Parent product is not visible -> import product as it was simple',
                     $log_data + [
-                        'parentShopProductId' => $parentShopProductId
+                        'parentShopProductId' => $parentShopProductId,
                     ]
                 );
+
                 return $this->processSimpleAndConfigurableProduct(
                     $dotObject, $log_data,
                     [],

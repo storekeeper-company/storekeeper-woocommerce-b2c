@@ -150,7 +150,7 @@ class SynCheckTab extends AbstractTab
 
     public function handleSync()
     {
-        $type = $_REQUEST['type'] ?? null;
+        $type = $this->getRequestType();
         if ($type && $class = self::SYNC_TYPES[$type]) {
             $label = $this->getTypeLabel($type);
 
@@ -206,5 +206,14 @@ class SynCheckTab extends AbstractTab
         /** @var AbstractSyncCommand $class */
         $class = new $className();
         $runner->execute($class::getCommandName());
+    }
+
+    private function getRequestType()
+    {
+        if (isset($_REQUEST['type'])) {
+            return sanitize_key($_REQUEST['type']);
+        }
+
+        return null;
     }
 }

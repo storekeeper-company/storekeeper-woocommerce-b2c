@@ -1,8 +1,6 @@
 <?php
 
-
 namespace StoreKeeper\WooCommerce\B2C\Exceptions;
-
 
 class CannotFetchShopProductException extends BaseException
 {
@@ -10,6 +8,7 @@ class CannotFetchShopProductException extends BaseException
 
     /**
      * ShopProductNotFound constructor.
+     *
      * @param $shop_product_id
      */
     public function __construct($shop_product_id)
@@ -25,5 +24,4 @@ class CannotFetchShopProductException extends BaseException
     {
         return $this->shop_product_id;
     }
-
 }

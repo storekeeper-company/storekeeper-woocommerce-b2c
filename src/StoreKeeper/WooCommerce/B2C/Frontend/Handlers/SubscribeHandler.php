@@ -29,7 +29,11 @@ class SubscribeHandler
     {
         if (isset($_POST['form_id']) && FormShortCode::ID === $_POST['form_id']) {
             if (!empty($_POST['firstname']) && !empty($_POST['lastname']) && !empty($_POST['email'])) {
-                $this->addContact($_POST['firstname'], $lastName = $_POST['lastname'], $_POST['email']);
+                $this->addContact(
+                    sanitize_text_field($_POST['firstname']),
+                    sanitize_text_field($_POST['lastname']),
+                    sanitize_email($_POST['email'])
+                );
             } else {
                 self::stateRedirect('error');
             }

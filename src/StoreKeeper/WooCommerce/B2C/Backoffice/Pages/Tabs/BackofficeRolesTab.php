@@ -56,7 +56,7 @@ class BackofficeRolesTab extends AbstractTab
 
     public function saveAction()
     {
-        $applyExisting = 'on' === $_POST['apply-to-existing'];
+        $applyExisting = 'on' === sanitize_key($_POST['apply-to-existing']);
         $roles = [
             SsoHelper::FALLBACK_SSO_ROLE_NAME,
             SsoHelper::ADMIN_SSO_ROLE_NAME,
@@ -66,10 +66,16 @@ class BackofficeRolesTab extends AbstractTab
 
         foreach ($roles as $role) {
             $name = SsoHelper::formatRoleOptionKey($role);
-            $value = $_POST[$name] ?? null;
+            if (!empty($_POST[$name])) {
+                $value = sanitize_key($_POST[$name]);
+            } else {
+                $value = null;
+            }
             update_option($name, $value);
 
-            $applyExisting && $this->updateExistingUser($role, $value);
+            if ($applyExisting) {
+                $this->updateExistingUser($role, $value);
+            }
         }
 
         wp_redirect(remove_query_arg('action'));

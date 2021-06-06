@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
-use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -31,9 +30,8 @@ class AdminNotices
     private function StoreKeeperNewProduct()
     {
         global $pagenow;
-        $G = new Dot($_GET);
-
-        if ('post-new.php' === $pagenow && 'product' === $G->get('post_type')) {
+        $postType = $this->getRequestPostType();
+        if ('post-new.php' === $pagenow && 'product' === $postType) {
             AdminNotices::showWarning(__('New products are not synced back to StoreKeeper.', I18N::DOMAIN));
         }
     }
@@ -64,10 +62,9 @@ class AdminNotices
     private function StoreKeeperProductCheck()
     {
         global $post_type;
-        $G = new Dot($_GET);
 
-        if ($G->has('post') && 'edit' === $G->get('action') && 'product' === $post_type) {
-            $goid = get_post_meta($G->get('post'), 'storekeeper_id', true);
+        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && 'product' === $post_type) {
+            $goid = get_post_meta((int) $_GET['post'], 'storekeeper_id', true);
             if ($goid) {
                 $this->isSyncedFromBackend(__('product', I18N::DOMAIN));
             }
@@ -76,10 +73,8 @@ class AdminNotices
 
     private function StoreKeeperProductCategoryCheck()
     {
-        $G = new Dot($_GET);
-
-        if ('product_cat' === $G->get('taxonomy') && $G->has('tag_ID')) {
-            $goid = get_term_meta($G->get('tag_ID'), 'storekeeper_id', true);
+        if ($this->isProductCategoryPage()) {
+            $goid = get_term_meta($this->getRequestTagId(), 'storekeeper_id', true);
             if ($goid) {
                 $this->isSyncedFromBackend(__('category', I18N::DOMAIN));
             }
@@ -88,10 +83,8 @@ class AdminNotices
 
     private function StoreKeeperProductTagCheck()
     {
-        $G = new Dot($_GET);
-
-        if ('product_tag' === $G->get('taxonomy') && $G->has('tag_ID')) {
-            $goid = get_term_meta($G->get('tag_ID'), 'storekeeper_id', true);
+        if ($this->isProductTagPage()) {
+            $goid = get_term_meta($this->getRequestTagId(), 'storekeeper_id', true);
             if ($goid) {
                 $this->isSyncedFromBackend(__('tag', I18N::DOMAIN));
             }
@@ -100,10 +93,11 @@ class AdminNotices
 
     private function StoreKeeperProductAttributeCheck()
     {
-        $G = new Dot($_GET);
-
-        if ('product' === $G->get('post_type') && 'product_attributes' === $G->get('page') && $G->has('edit')) {
-            $goid = WooCommerceAttributeMetadata::getMetadata($G->get('edit'), 'storekeeper_id', true);
+        if ('product' === $this->getRequestPostType()
+            && 'product_attributes' === $_GET['page'] ?? ''
+            && isset($_GET['edit'])
+        ) {
+            $goid = WooCommerceAttributeMetadata::getMetadata((int) $_GET['edit'], 'storekeeper_id', true);
             if ($goid) {
                 $this->isSyncedFromBackend(__('attribute', I18N::DOMAIN));
             }
@@ -112,10 +106,8 @@ class AdminNotices
 
     private function StoreKeeperProductAttributeTermCheck()
     {
-        $G = new Dot($_GET);
-
-        if (StringFunctions::startsWith($G->get('taxonomy'), 'pa_') && $G->has('tag_ID')) {
-            $goid = get_term_meta($G->get('tag_ID'), 'storekeeper_id', true);
+        if ($this->isStorekeeperProductAttributePage()) {
+            $goid = get_term_meta($this->getRequestTagId(), 'storekeeper_id', true);
             if ($goid) {
                 $this->isSyncedFromBackend(__('attribute term', I18N::DOMAIN));
             }
@@ -125,10 +117,9 @@ class AdminNotices
     private function StoreKeeperOrderCheck()
     {
         global $post_type;
-        $G = new Dot($_GET);
 
-        if ($G->has('post') && 'edit' === $G->get('action') && 'shop_order' === $post_type) {
-            $id = $G->get('post');
+        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && 'shop_order' === $post_type) {
+            $id = $this->getRequestPostId();
             $goid = get_post_meta($id, 'storekeeper_id', true);
             $order = new \WC_Order($id);
             if ($goid && $order->has_status('completed')) {
@@ -150,35 +141,35 @@ class AdminNotices
     private function StoreKeeperSyncCheck()
     {
         global $post_type, $pagenow;
-        $G = new Dot($_GET);
 
-        if ('product_cat' === $G->get('taxonomy') && $G->has('tag_ID')) {
-            if ($fistLine = $this->taskHasError('category', $G->get('tag_ID'))) {
+        if ($this->isProductCategoryPage()) {
+            if ($fistLine = $this->taskHasError('category', $this->getRequestTagId())) {
                 $this->hasTaskError(__('category', I18N::DOMAIN), $fistLine);
             }
         }
 
-        if ('product_tag' === $G->get('taxonomy') && $G->has('tag_ID')) {
-            if ($fistLine = $this->taskHasError('tag', $G->get('tag_ID'))) {
+        if ($this->isProductTagPage()) {
+            if ($fistLine = $this->taskHasError('tag', $this->getRequestTagId())) {
                 $this->hasTaskError(__('tag', I18N::DOMAIN), $fistLine);
             }
         }
 
-        if ($G->has('post') && 'edit' === $G->get('action') && 'product' === $post_type) {
-            if ($fistLine = $this->taskHasError('product', $G->get('post'))) {
+        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && 'product' === $post_type) {
+            if ($fistLine = $this->taskHasError('product', $this->getRequestPostId())) {
                 $this->hasTaskError(__('product', I18N::DOMAIN), $fistLine);
             }
         }
 
-        if ($G->has('post') && 'edit' === $G->get('action') && 'shop_order' === $post_type) {
-            if ($fistLine = $this->taskHasError('order', $G->get('post'))) {
+        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && 'shop_order' === $post_type) {
+            if ($fistLine = $this->taskHasError('order', $this->getRequestPostId())) {
                 $this->hasTaskError(__('order', I18N::DOMAIN), $fistLine);
             }
         }
 
-        if ('admin.php' === $pagenow && 'wc-settings' === $G->get('page') && 'storekeeper-woocommerce-b2c' === $G->get(
-                'tab'
-            )) {
+        if ('admin.php' === $pagenow
+            && 'wc-settings' === $_GET['page'] ?? ''
+            && 'storekeeper-woocommerce-b2c' === $_GET['tab'] ?? ''
+        ) {
             if ($fistLine = $this->taskHasError('full')) {
                 $this->hasTaskError(__('full', I18N::DOMAIN), $fistLine);
             }
@@ -402,5 +393,61 @@ HTML;
                 }
             }
         }
+    }
+
+    private function getRequestPostType(): ?string
+    {
+        if (array_key_exists('post_type', $_GET)) {
+            return sanitize_key($_GET['post_type']);
+        }
+
+        return null;
+    }
+
+    private function getRequestAction(): ?string
+    {
+        if (array_key_exists('action', $_GET)) {
+            return sanitize_key($_GET['action']);
+        }
+
+        return null;
+    }
+
+    private function isProductCategoryPage(): bool
+    {
+        return isset($_GET['taxonomy']) &&
+            'product_cat' === $_GET['taxonomy']
+            && isset($_GET['tag_ID']);
+    }
+
+    private function isProductTagPage(): bool
+    {
+        return isset($_GET['taxonomy']) &&
+            'product_tag' === $_GET['taxonomy']
+            && isset($_GET['tag_ID']);
+    }
+
+    private function getRequestTagId(): int
+    {
+        return (int) $_GET['tag_ID'];
+    }
+
+    private function isPostPage(): bool
+    {
+        return isset($_GET['post']);
+    }
+
+    private function isStorekeeperProductAttributePage(): bool
+    {
+        return isset($_GET['taxonomy']) &&
+            StringFunctions::startsWith($_GET['taxonomy'], 'pa_')
+            && isset($_GET['tag_ID']);
+    }
+
+    private function getRequestPostId(): int
+    {
+        $id = (int) $_GET['post'];
+
+        return $id;
     }
 }

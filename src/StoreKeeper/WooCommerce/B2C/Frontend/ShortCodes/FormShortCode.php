@@ -53,7 +53,7 @@ class FormShortCode extends AbstractShortCode
         $message = '';
         $scrollScript = '';
         if (isset($_GET['state'])) {
-            $state = self::getMessageByState($_GET['state']);
+            $state = self::getMessageByState(sanitize_key($_GET['state']));
             $className = self::ID.'-'.($state['isError'] ? 'error' : 'notice');
             $message = '<span class="'.$className.'">'.$state['message'].'</span>';
             $target = esc_js($id);

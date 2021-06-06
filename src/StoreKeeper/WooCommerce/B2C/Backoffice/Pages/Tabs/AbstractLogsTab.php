@@ -26,8 +26,8 @@ abstract class AbstractLogsTab extends AbstractTab
 
         /** @var AbstractModel $model */
         $model = new $modelClass();
-        $index = isset($_REQUEST['table-index']) ? $_REQUEST['table-index'] : 0;
-        $limit = isset($_REQUEST['limit']) ? $_REQUEST['limit'] : 20;
+        $index = $this->getRequestTableIndex();
+        $limit = $this->getRequestLimit();
 
         $select = $model->getSelectHelper()
             ->cols(['*'])
@@ -64,8 +64,8 @@ abstract class AbstractLogsTab extends AbstractTab
     protected function renderPagination()
     {
         $count = $this->count;
-        $limit = (int) ($_REQUEST['limit'] ?? 20);
-        $currentIndex = (int) ($_REQUEST['table-index'] ?? 0);
+        $limit = $this->getRequestLimit();
+        $currentIndex = $this->getRequestTableIndex();
         $lastIndex = 0;
         if ($count > $limit) {
             $lastIndex = ceil($count / $limit) - 1;
@@ -127,5 +127,23 @@ HTML;
     <button class="button" disabled>»</button>
 HTML;
         }
+    }
+
+    protected function getRequestTableIndex(): int
+    {
+        if (isset($_REQUEST['table-index'])) {
+            return $_REQUEST['table-index'];
+        }
+
+        return 0;
+    }
+
+    protected function getRequestLimit(): int
+    {
+        if (isset($_REQUEST['limit'])) {
+            return $_REQUEST['limit'];
+        }
+
+        return 20;
     }
 }

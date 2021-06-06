@@ -10,10 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class PaymentGateway
 {
-    const STATUS_PENDING = 'PENDING';
     const STATUS_CANCELED = 'CANCELED';
-    const STATUS_SUCCESS = 'SUCCESS';
-    const STATUS_VERIFY = 'VERIFY';
 
     const db_version = 1.0;
     const STOREKEEPER_PAY_ORDERS_PAYMENTS_TABLE = 'storekeeper_pay_orders_payments';
@@ -98,7 +95,7 @@ SQL;
     public static function displayFlashError()
     {
         $message = __('There was an error during processing of the payment: %s', I18N::DOMAIN);
-        $message = sprintf($message, $_REQUEST['payment_error']);
+        $message = sprintf($message, sanitize_text_field($_REQUEST['payment_error']));
         wc_print_notice($message, 'error');
     }
 
@@ -250,7 +247,7 @@ SQL;
 
         try {
             // Getting the WC order
-            $order = new \WC_Order($_GET['wc-order-id']);
+            $order = new \WC_Order(sanitize_key($_GET['wc-order-id']));
             $payment_id = self::getPaymentId($order->get_id());
 
             // Check payment in the backend

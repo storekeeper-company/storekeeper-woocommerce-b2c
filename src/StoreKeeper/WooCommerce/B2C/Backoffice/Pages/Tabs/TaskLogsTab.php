@@ -30,7 +30,7 @@ class TaskLogsTab extends AbstractLogsTab
         if (array_key_exists('selected', $_GET)) {
             $this->resolveTasks(
                 [
-                    $_GET['selected'],
+                    (int) $_GET['selected'],
                 ]
             );
         }
@@ -40,7 +40,8 @@ class TaskLogsTab extends AbstractLogsTab
     public function resolveTasksAction()
     {
         if (array_key_exists('selected', $_POST)) {
-            $this->resolveTasks($_POST['selected']);
+            $selected = $this->sanitizeIntArray($_POST['selected']);
+            $this->resolveTasks($selected);
         }
         wp_redirect(remove_query_arg(['selected', 'action']));
     }
@@ -49,7 +50,7 @@ class TaskLogsTab extends AbstractLogsTab
     {
         global $wpdb;
 
-        $taskIds = array_map('intval', $taskIds);
+        $taskIds = $this->sanitizeIntArray($taskIds);
         $in = "'".implode("','", $taskIds)."'";
         $update = TaskModel::getUpdateHelper()
             ->cols(['status' => TaskHandler::STATUS_NEW])
@@ -188,24 +189,20 @@ HTML;
         $whereClauses = [];
         $whereValues = [];
 
-        if (
-            isset($_REQUEST['task-status']) &&
-            in_array($_REQUEST['task-status'], TaskHandler::STATUSES)
-        ) {
+        $status = $this->getRequestStatus();
+        if (in_array($status, TaskHandler::STATUSES)) {
             $whereClauses[] = 'status = :status';
-            $whereValues['status'] = $_REQUEST['task-status'];
+            $whereValues['status'] = $status;
         }
 
-        if (
-            isset($_REQUEST['task-type']) &&
-            in_array($_REQUEST['task-type'], TaskHandler::TYPE_GROUPS)
-        ) {
+        $taskType = $this->getRequestTaskType();
+        if (in_array($taskType, TaskHandler::TYPE_GROUPS)) {
             $whereClauses[] = 'type_group = :type_group';
-            $whereValues['type_group'] = $_REQUEST['task-type'];
+            $whereValues['type_group'] = $taskType;
         }
 
-        if (isset($_REQUEST['task-id'])) {
-            $taskId = (int) $_REQUEST['task-id'];
+        $taskId = $this->getRequestTaskId();
+        if ($taskId) {
             $whereClauses[] = "id = $taskId";
         }
 
@@ -214,7 +211,7 @@ HTML;
 
     private function renderTaskSimpleTypeFilter()
     {
-        $currentType = $_REQUEST['task-type'] ?? '';
+        $currentType = $this->getRequestTaskType();
         $optionLabel = esc_html__('Select log type', I18N::DOMAIN);
         $optionHtml = "<option value=''>$optionLabel</option>";
         foreach (TaskHandler::TYPE_GROUPS as $type) {
@@ -237,7 +234,7 @@ HTML;
 
     private function renderTaskStatusFilter()
     {
-        $currentStatus = $_REQUEST['task-status'] ?? '';
+        $currentStatus = $this->getRequestStatus();
         $optionLabel = __('Select log status', I18N::DOMAIN);
         $optionHtml = "<option value=''>$optionLabel</option>";
         foreach (TaskHandler::STATUSES as $status) {
@@ -284,5 +281,39 @@ HTML;
         }
 
         return $html;
+    }
+
+    private function sanitizeIntArray(array $taskIds): array
+    {
+        $taskIds = array_map('intval', $taskIds);
+
+        return $taskIds;
+    }
+
+    private function getRequestStatus(): string
+    {
+        if (isset($_REQUEST['task-status'])) {
+            return sanitize_key($_REQUEST['task-status']);
+        }
+
+        return '';
+    }
+
+    private function getRequestTaskType(): string
+    {
+        if (isset($_REQUEST['task-type'])) {
+            return sanitize_key($_REQUEST['task-type']);
+        }
+
+        return '';
+    }
+
+    private function getRequestTaskId(): ?int
+    {
+        if (isset($_REQUEST['task-id'])) {
+            return (int) $_REQUEST['task-id'];
+        }
+
+        return null;
     }
 }
