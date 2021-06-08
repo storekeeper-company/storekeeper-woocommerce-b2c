@@ -99,7 +99,7 @@ class ConnectionTab extends AbstractTab
         );
 
         echo $this->getFormGroup(
-            __('Webhooks in queue', I18N::DOMAIN),
+            __('Webhooks log count', I18N::DOMAIN),
             WebhookLogModel::count()
         );
 
