@@ -39,8 +39,8 @@ class UpdateCategoryTest extends AbstractTest
     const UPDATE_DATADUMP_DIRECTORY = 'events/updateCategory';
     const UPDATE_DATADUMP_SOURCE_FILE = '20200326_110154.moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.5e7c8ba1ea1bb.json';
 
-    const MARKDOWN_PREFIX = '[sk_markdown] ';
-    const MARKDOWN_SUFFIX = ' [/sk_markdown]';
+    const MARKDOWN_PREFIX = '[sk_markdown]';
+    const MARKDOWN_SUFFIX = '[/sk_markdown]';
 
     const UPLOADS_DIRECTORY = '/app/src/wp-content/uploads/';
 

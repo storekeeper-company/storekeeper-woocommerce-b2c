@@ -16,8 +16,8 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
     const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-categories';
     const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.5e79a1f00b651.json';
 
-    const MARKDOWN_PREFIX = '[sk_markdown] ';
-    const MARKDOWN_SUFFIX = ' [/sk_markdown]';
+    const MARKDOWN_PREFIX = '[sk_markdown]';
+    const MARKDOWN_SUFFIX = '[/sk_markdown]';
 
     const UPLOADS_DIRECTORY = '/app/src/wp-content/uploads/';
 

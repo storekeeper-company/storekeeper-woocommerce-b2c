@@ -38,7 +38,7 @@ abstract class AbstractTest extends WP_UnitTestCase
 
     // Markdown related constants
     const MARKDOWN_PREFIX = '[sk_markdown]';
-    const MARKDOWN_SUFFIX = ' [/sk_markdown]';
+    const MARKDOWN_SUFFIX = '[/sk_markdown]';
 
     // WC product related constants
     const WC_TYPE_SIMPLE = 'simple';
@@ -473,7 +473,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         if (empty($expected_description)) {
             $expected_description = '';
         } else {
-            $expected_description = self::MARKDOWN_PREFIX.' '.$expected_description.self::MARKDOWN_SUFFIX;
+            $expected_description = self::MARKDOWN_PREFIX.$expected_description.self::MARKDOWN_SUFFIX;
         }
         $this->assertEquals(
             $expected_description,
@@ -488,7 +488,7 @@ abstract class AbstractTest extends WP_UnitTestCase
             if (empty($expected_summary)) {
                 $expected_summary = '';
             } else {
-                $expected_summary = self::MARKDOWN_PREFIX.' '.$expected_summary.self::MARKDOWN_SUFFIX;
+                $expected_summary = self::MARKDOWN_PREFIX.$expected_summary.self::MARKDOWN_SUFFIX;
             }
             $this->assertEquals(
                 $expected_summary,

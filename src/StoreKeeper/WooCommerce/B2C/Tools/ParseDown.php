@@ -8,7 +8,7 @@ class ParseDown extends \Parsedown
 {
     public static function wrapContentInShortCode($content)
     {
-        return !empty($content) ? "[sk_markdown] $content [/sk_markdown]" : '';
+        return !empty($content) ? "[sk_markdown]{$content}[/sk_markdown]" : '';
     }
 
     /**
