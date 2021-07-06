@@ -233,3 +233,5 @@ FROM test as dev
 ENV APP_ENV=dev
 ENV WORPRESS_URL=localhost:8888
 ENV WORPRESS_TITLE='WP-DEV'
+
+COPY docker/disable-cononical-url.php /app/src/wp-content/plugins/

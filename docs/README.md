@@ -54,3 +54,11 @@ Configure server to script debug
 
 WP cli debug
 ![WP cli config run](./wp-cli-config.png)
+
+## Setting up the webhook to local docker
+
+Services like ngrok.com or localtunnel.me  can be used
+
+Example: `./ngrok http 8888 --region=eu` or `lt --port 8080 -s lukiwp` 
+
+Then change the `WordPress Address (URL)` and `Site Address (URL)` to the url given out by service.
