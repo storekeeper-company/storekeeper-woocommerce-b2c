@@ -7,7 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Commands\AbstractSyncCommand;
-use StoreKeeper\WooCommerce\B2C\Commands\AdminCommandRunner;
+use StoreKeeper\WooCommerce\B2C\Commands\WebCommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptionPage;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributes;
@@ -195,7 +195,7 @@ class SynCheckTab extends AbstractTab
             [$overlay, 'renderMessage']
         );
 
-        $runner = new AdminCommandRunner();
+        $runner = new WebCommandRunner();
         foreach (self::SYNC_TYPES as $type => $typeClassName) {
             $runner->addCommandClass($typeClassName);
         }

@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 
-class AdminCommandRunner extends CommandRunner
+class WebCommandRunner extends CommandRunner
 {
     public function execute($name, array $arguments = [], array $assoc_arguments = []): int
     {
@@ -15,6 +15,12 @@ class AdminCommandRunner extends CommandRunner
         $command->setRunner($this);
 
         return (int) $command->execute($arguments, $assoc_arguments);
+    }
+
+    public function executeAsSubProcess(string $name, array $arguments = [], array $assoc_arguments = [], int $timeout = 0): int
+    {
+        // web runner cannot execute as subprocess, just a normal execute instead
+        return $this->execute($name,$arguments,$assoc_arguments);
     }
 
     private function prepareExecution()
