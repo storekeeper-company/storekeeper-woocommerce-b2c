@@ -31,6 +31,7 @@ class EndpointLoader
             [
                 'methods' => 'POST',
                 'callback' => [$webhook, 'handleRequest'],
+                'permission_callback' => function() {return true;}
             ]
         );
 
@@ -42,6 +43,7 @@ class EndpointLoader
             [
                 'methods' => 'GET',
                 'callback' => [$webhook, 'handleRequest'],
+                'permission_callback' => function() {return true;}
             ]
         );
     }
