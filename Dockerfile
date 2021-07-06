@@ -162,10 +162,6 @@ ARG WORDPRESS_VERSION
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -q -y install git
 RUN git clone --branch ${WORDPRESS_VERSION} --single-branch git://develop.git.wordpress.org/ /app/
 
-ARG WOOCOMMERCE_VERSION
-RUN mkdir /app/plugins/
-RUN curl -o  /app/plugins/woocommerce.zip -fSL "https://downloads.wordpress.org/plugin/woocommerce.${WOOCOMMERCE_VERSION}.zip"
-
 RUN rmdir /var/www/html/ && ln -s /app/src /var/www/html
 # need to copy from original image, because it's not included in development repo
 COPY --from=wordpress-docker /usr/src/wordpress/wp-config-sample.php /var/www/html
@@ -211,6 +207,10 @@ COPY docker/docker-test-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod 755 /usr/local/bin/docker-entrypoint-distro.sh
 RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 
+ARG WOOCOMMERCE_VERSION
+RUN mkdir /app/plugins/
+RUN curl -o  /app/plugins/woocommerce.zip -fSL "https://downloads.wordpress.org/plugin/woocommerce.${WOOCOMMERCE_VERSION}.zip"
+
 ENTRYPOINT ["docker-entrypoint-distro.sh"]
 CMD ["docker-entrypoint.sh","apache2-foreground"]
 
@@ -234,4 +234,4 @@ ENV APP_ENV=dev
 ENV WORPRESS_URL=localhost:8888
 ENV WORPRESS_TITLE='WP-DEV'
 
-COPY docker/disable-cononical-url.php /app/src/wp-content/plugins/
+COPY docker/disable-canonical-url.php /app/src/wp-content/plugins/
