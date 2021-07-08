@@ -49,6 +49,6 @@ class ParentProductRecalculationTest extends AbstractTest
         // Update task data
         $task = TaskModel::get($task['id']);
 
-        $this->assertEquals(TaskHandler::STATUS_SUCCESS, $task['status'], 'task marked as failed');
+        $this->assertEquals(TaskHandler::STATUS_SUCCESS, $task['status'], 'error: '.json_encode($task));
     }
 }

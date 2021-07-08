@@ -236,3 +236,5 @@ ENV WORPRESS_URL=localhost:8888
 ENV WORPRESS_TITLE='WP-DEV'
 
 COPY docker/disable-canonical-url.php /app/src/wp-content/plugins/
+COPY docker/docker-dev-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
