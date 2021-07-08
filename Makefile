@@ -1,7 +1,7 @@
 .PHONY: format test
 
 format:
-	./vendor/bin/php-cs-fixer fix --config=./.php_cs.dist
+	./vendor/bin/php-cs-fixer fix --config=./.php-cs-fixer.dist.php
 
 test-clean:
 	docker-compose -f docker-compose.test.yml down -v

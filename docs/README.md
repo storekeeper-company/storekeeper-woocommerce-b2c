@@ -63,10 +63,9 @@ Example: `./ngrok http 8888 --region=eu` or `lt --port 8080 -s lukiwp`
 
 Then change the `WordPress Address (URL)` and `Site Address (URL)` to the url given out by service.
 
-You can do it using wp command
+You can now connect using the wp command (where url is the url given back by ngrok)
 ```bash
-docker-compose exec web wp option set home https://ab756f93def8.eu.ngrok.io/
-docker-compose exec web wp option set siteurl https://ab756f93def8.eu.ngrok.io/
+docker-compose exec web wp sk connect-backend https://ab756f93def8.eu.ngrok.io
 ```
 
 You only need if for the initial connection setup, after this you can set it back

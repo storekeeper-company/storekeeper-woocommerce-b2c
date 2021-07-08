@@ -12,12 +12,15 @@ class WooCommerceOptions extends AbstractOptions
     const SUCCESS_SYNC_RUN = 'success-sync-run';
     const ORDER_PREFIX = 'order-prefix';
 
-    public static function getApiKey()
+    public static function getApiKey(string $siteUrl = null)
     {
+        if( empty($siteUrl)){
+            $siteUrl = site_url();
+        }
         $json = json_encode(
             [
                 'token' => self::get(self::WOOCOMMERCE_TOKEN), // Needs to the same over the applications lifespan.
-                'webhook_url' => site_url().'/?rest_route=/storekeeper-woocommerce-b2c/v1/webhook/', // Endpoint
+                'webhook_url' => $siteUrl.'/?rest_route=/storekeeper-woocommerce-b2c/v1/webhook/', // Endpoint
             ]
         );
 

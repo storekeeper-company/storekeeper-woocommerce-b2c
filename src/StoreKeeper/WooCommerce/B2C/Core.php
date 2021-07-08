@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MenuStructure;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
-use StoreKeeper\WooCommerce\B2C\Commands\ConfigurePaynl;
+use StoreKeeper\WooCommerce\B2C\Commands\ConnectBackend;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportAll;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportAttribute;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportAttributeOption;
@@ -62,7 +62,7 @@ class Core
     const COMMANDS = [
         SyncWoocommerceShopInfo::class,
         SyncWoocommerceFullSync::class,
-        ConfigurePaynl::class,
+        ConnectBackend::class,
         SyncIssueCheck::class,
         SyncIssueFixer::class,
         SyncWoocommerceUpsellProducts::class,
