@@ -10,6 +10,8 @@ services:
         - PHP_VERSION
         - WORDPRESS_VERSION
         - WOOCOMMERCE_VERSION
+    depends_on:
+      - db
     ports:
       - 8888:80
     restart: unless-stopped
@@ -42,6 +44,8 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: unless-stopped
+    depends_on:
+      - db
     links:
       - db:db
     ports:
