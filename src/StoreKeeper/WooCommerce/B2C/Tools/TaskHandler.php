@@ -590,7 +590,7 @@ class TaskHandler
             $data = TaskModel::get($task_id);
             if ($data) {
                 $metaData['failed-task-try'] = $data['times_ran'];
-                $generatedMetadata = LoggerFactory::generateMetadata('task-in-queue-failed', $exception, $metaData);
+                $generatedMetadata = LoggerFactory::generateMetadata('task-in-queue-failed', $exception, $data['meta_data']);
                 $data['meta_data'] = $generatedMetadata;
                 TaskModel::update($task_id, $data);
             }

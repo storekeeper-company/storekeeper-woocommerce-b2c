@@ -89,6 +89,10 @@ class TaskLogsTab extends AbstractLogsTab
                     'bodyFunction' => [$this, 'renderSelectTask'],
                 ],
                 [
+                    'title' => __('ID', I18N::DOMAIN),
+                    'key' => 'id',
+                ],
+                [
                     'title' => __('Message', I18N::DOMAIN),
                     'key' => 'title',
                 ],
