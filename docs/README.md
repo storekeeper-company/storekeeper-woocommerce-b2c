@@ -68,7 +68,12 @@ You can now connect using the wp command (where url is the url given back by ngr
 docker-compose exec web wp sk connect-backend https://ab756f93def8.eu.ngrok.io
 ```
 
-You only need if for the initial connection setup, after this you can set it back
+If you want to share the show externally set it's urls to the ngrok url
+```bash
+docker-compose exec web wp option set home https://ab756f93def8.eu.ngrok.io/
+docker-compose exec web wp option set siteurl https://ab756f93def8.eu.ngrok.io/
+```
+After this you can set it back to default.
 ```bash
 docker-compose exec web wp option set home http://localhost:8888/
 docker-compose exec web wp option set siteurl http://localhost:8888/
