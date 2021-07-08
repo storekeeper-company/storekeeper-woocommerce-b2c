@@ -14,7 +14,7 @@ class WooCommerceOptions extends AbstractOptions
 
     public static function getApiKey(string $siteUrl = null)
     {
-        if( empty($siteUrl)){
+        if (empty($siteUrl)) {
             $siteUrl = site_url();
         }
         $json = json_encode(

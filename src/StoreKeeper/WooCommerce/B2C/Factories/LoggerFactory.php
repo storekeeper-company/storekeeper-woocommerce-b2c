@@ -123,10 +123,7 @@ class LoggerFactory
     }
 
     /**
-     * @param string $key
-     * @param \Exception $exception
      * @param $custom_metadata
-     * @return array
      */
     public static function generateMetadata(string $key, \Exception $exception, $custom_metadata): array
     {
@@ -135,11 +132,12 @@ class LoggerFactory
             'exception-message' => $exception->getMessage(),
             'exception-code' => $exception->getCode(),
             'exception-trace' => $exception->getTraceAsString(),
-            'exception-location' => $exception->getFile() . ':' . $exception->getLine(),
+            'exception-location' => $exception->getFile().':'.$exception->getLine(),
             'exception-class' => get_class($exception),
         ];
 
         $full_metadata = array_merge($metadata, $custom_metadata);
+
         return $full_metadata;
     }
 }

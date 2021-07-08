@@ -181,8 +181,8 @@ HTML;
 
     public function renderTaskStatus($value, $task)
     {
-        if ($task['status'] === TaskHandler::STATUS_FAILED) {
-            echo '<a class="dialog-logs" href="javascript:;" data-id="'.$task['id'].'">'. TaskHandler::getStatusLabel($task['status']) .'</a>';
+        if (TaskHandler::STATUS_FAILED === $task['status']) {
+            echo '<a class="dialog-logs" href="javascript:;" data-id="'.$task['id'].'">'.TaskHandler::getStatusLabel($task['status']).'</a>';
             if ($errorOutput = unserialize($task['meta_data'])) {
                 echo '<div id="error-message-'.$task['id'].'" style="display: none">
                         <h3><strong style="color:darkred">'.esc_html($errorOutput['exception-class']).': '.esc_html($errorOutput['exception-message']).'</strong></h3>
