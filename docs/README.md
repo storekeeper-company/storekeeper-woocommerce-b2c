@@ -68,3 +68,9 @@ You can do it using wp command
 docker-compose exec web wp option set home https://ab756f93def8.eu.ngrok.io/
 docker-compose exec web wp option set siteurl https://ab756f93def8.eu.ngrok.io/
 ```
+
+You only need if for the initial connection setup, after this you can set it back
+```bash
+docker-compose exec web wp option set home http://localhost:8888/
+docker-compose exec web wp option set siteurl http://localhost:8888/
+```
