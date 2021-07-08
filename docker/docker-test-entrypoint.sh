@@ -5,6 +5,7 @@ usermod -u $USER_ID www-data
 groupmod -g $GROUP_ID www-data
 
 touch /tmp/xdebug.log && chmod og+wr /tmp/xdebug.log
+mkdir -p /tmp/sk-log  && chmod og+wr /tmp/sk-log
 
 if [ ! -z "$WORPRESS_URL" ]
 then

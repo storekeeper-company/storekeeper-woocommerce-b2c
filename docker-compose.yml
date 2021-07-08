@@ -23,8 +23,8 @@ services:
       WORDPRESS_ADMIN_USER: admin
       WORDPRESS_ADMIN_PASSWORD: examplepass
       PHP_IDE_CONFIG: serverName=docker
-      USER_ID: 1000
-      GROUP_ID: 1000
+      USER_ID: ${USER_ID:-1000}
+      GROUP_ID: ${GROUP_ID:-1000}
     volumes:
       - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - wp-content:/app/src/wp-content
