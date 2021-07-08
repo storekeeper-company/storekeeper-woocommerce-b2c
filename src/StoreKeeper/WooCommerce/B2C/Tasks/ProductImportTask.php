@@ -8,6 +8,8 @@ class ProductImportTask extends AbstractTask
 {
     public function run($task_options = [])
     {
+        throw new \Exception('boom'); // todo remove me
+
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
             $exceptions = [];

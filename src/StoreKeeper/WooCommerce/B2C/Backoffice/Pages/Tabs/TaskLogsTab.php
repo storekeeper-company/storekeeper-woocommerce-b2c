@@ -181,7 +181,19 @@ HTML;
 
     public function renderTaskStatus($value, $task)
     {
-        echo TaskHandler::getStatusLabel($task['status']);
+        if ($task['status'] === TaskHandler::STATUS_FAILED) {
+            echo '<a class="dialog-logs" href="javascript:;" data-id="'.$task['id'].'">'. TaskHandler::getStatusLabel($task['status']) .'</a>';
+            if ($errorOutput = unserialize($task['meta_data'])) {
+                echo '<div id="error-message-'.$task['id'].'" style="display: none">
+                        <h3><strong style="color:darkred">'.esc_html($errorOutput['exception-class']).': '.esc_html($errorOutput['exception-message']).'</strong></h3>
+                        '.__('Stack Trace', I18N::DOMAIN).':
+                        <br>
+                        <pre>'.esc_html($errorOutput['exception-trace']).'</pre>
+                    </div>';
+            }
+        } else {
+            echo TaskHandler::getStatusLabel($task['status']);
+        }
     }
 
     private function getTaskWhereClauses(): array

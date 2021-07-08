@@ -111,16 +111,7 @@ class LoggerFactory
      */
     public static function createErrorTask($key, $exception, $post_id = 0, $custom_metadata = [])
     {
-        $metadata = [
-            'error-key' => $key,
-            'exception-message' => $exception->getMessage(),
-            'exception-code' => $exception->getCode(),
-            'exception-trace' => $exception->getTraceAsString(),
-            'exception-location' => $exception->getFile().':'.$exception->getLine(),
-            'exception-class' => get_class($exception),
-        ];
-
-        $full_metadata = array_merge($metadata, $custom_metadata);
+        $full_metadata = self::generateMetadata($key, $exception, $custom_metadata);
 
         TaskHandler::scheduleTask(
             TaskHandler::REPORT_ERROR,
@@ -129,5 +120,26 @@ class LoggerFactory
             true,
             TaskHandler::STATUS_FAILED
         );
+    }
+
+    /**
+     * @param string $key
+     * @param \Exception $exception
+     * @param $custom_metadata
+     * @return array
+     */
+    public static function generateMetadata(string $key, \Exception $exception, $custom_metadata): array
+    {
+        $metadata = [
+            'error-key' => $key,
+            'exception-message' => $exception->getMessage(),
+            'exception-code' => $exception->getCode(),
+            'exception-trace' => $exception->getTraceAsString(),
+            'exception-location' => $exception->getFile() . ':' . $exception->getLine(),
+            'exception-class' => get_class($exception),
+        ];
+
+        $full_metadata = array_merge($metadata, $custom_metadata);
+        return $full_metadata;
     }
 }
