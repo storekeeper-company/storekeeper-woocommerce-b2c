@@ -62,3 +62,9 @@ Services like ngrok.com or localtunnel.me  can be used
 Example: `./ngrok http 8888 --region=eu` or `lt --port 8080 -s lukiwp` 
 
 Then change the `WordPress Address (URL)` and `Site Address (URL)` to the url given out by service.
+
+You can do it using wp command
+```bash
+docker-compose exec web wp option set home https://ab756f93def8.eu.ngrok.io/
+docker-compose exec web wp option set siteurl https://ab756f93def8.eu.ngrok.io/
+```
