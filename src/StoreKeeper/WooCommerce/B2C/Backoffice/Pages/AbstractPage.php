@@ -78,7 +78,7 @@ abstract class AbstractPage extends AbstractPageLike
         }
     }
 
-    final public function render(): void
+    public function render(): void
     {
         $page = $this->getRequestPage();
         echo "<div class='storekeeper-page storekeeper-page-$page'>";

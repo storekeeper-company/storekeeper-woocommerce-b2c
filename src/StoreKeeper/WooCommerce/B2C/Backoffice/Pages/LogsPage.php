@@ -8,6 +8,27 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class LogsPage extends AbstractPage
 {
+    final public function render(): void
+    {
+        parent::render();
+        $this->renderModal();
+        $this->registerVendors();
+    }
+
+    private function renderModal(): void
+    {
+        echo '<div id="dialog-error-message" title="'.__('Task error details', I18N::DOMAIN).'"></div>';
+    }
+
+    public function registerVendors(): void
+    {
+        // Add jquery ui scripts and styles
+        wp_enqueue_style('wp-jquery-ui-dialog');
+        wp_enqueue_script('jquery-ui-core');
+        wp_enqueue_script('jquery-ui-dialog');
+        wp_enqueue_script('logsScript', plugin_dir_url(__FILE__).'../static/backoffice.pages.logs.js');
+    }
+
     protected function getTabs(): array
     {
         return [

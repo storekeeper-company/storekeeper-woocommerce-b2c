@@ -1,8 +1,6 @@
 <?php
 
-
 namespace StoreKeeper\WooCommerce\B2C\Commands;
-
 
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 
@@ -21,5 +19,4 @@ class ConnectBackend extends AbstractCommand
         echo "Site url: $rootUrl\n";
         echo "Use this key to connect to wordpress:\n$key\n";
     }
-
 }

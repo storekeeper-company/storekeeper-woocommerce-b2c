@@ -111,6 +111,22 @@ class LoggerFactory
      */
     public static function createErrorTask($key, $exception, $post_id = 0, $custom_metadata = [])
     {
+        $full_metadata = self::generateMetadata($key, $exception, $custom_metadata);
+
+        TaskHandler::scheduleTask(
+            TaskHandler::REPORT_ERROR,
+            $post_id,
+            $full_metadata,
+            true,
+            TaskHandler::STATUS_FAILED
+        );
+    }
+
+    /**
+     * @param $custom_metadata
+     */
+    public static function generateMetadata(string $key, \Exception $exception, $custom_metadata): array
+    {
         $metadata = [
             'error-key' => $key,
             'exception-message' => $exception->getMessage(),
@@ -122,12 +138,6 @@ class LoggerFactory
 
         $full_metadata = array_merge($metadata, $custom_metadata);
 
-        TaskHandler::scheduleTask(
-            TaskHandler::REPORT_ERROR,
-            $post_id,
-            $full_metadata,
-            true,
-            TaskHandler::STATUS_FAILED
-        );
+        return $full_metadata;
     }
 }

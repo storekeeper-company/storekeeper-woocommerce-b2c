@@ -114,6 +114,7 @@ class ProcessAllTasks extends AbstractCommand
                 // Update the last run cron to now.
                 $this->ensureSuccessRunTime();
             } catch (Throwable $e) {
+                $task = $this->getTask($task_id);
                 // The task has failed, set the status to failed
                 $this->updateTaskStatus($task, TaskHandler::STATUS_FAILED);
 
