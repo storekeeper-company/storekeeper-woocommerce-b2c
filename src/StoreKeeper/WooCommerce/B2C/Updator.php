@@ -10,7 +10,7 @@ class Updator
     {
         try {
             $this->update();
-        } catch (\Throwable $e){
+        } catch (\Throwable $e) {
             $txt = sprintf(
                 __(
                     'Failed to update \'StoreKeeper for WooCommerce\' plugin to version %s',
@@ -26,8 +26,10 @@ class Updator
 <p>$trace</p>
 </div>
 HTML;
+
             return false;
         }
+
         return true;
     }
 
