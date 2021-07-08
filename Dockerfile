@@ -192,6 +192,11 @@ RUN cp /usr/local/bin/php /usr/local/bin/php-www && \
     chown www-data:www-data  /usr/local/bin/php-www && \
     chmod u+s /usr/local/bin/php-www;
 
+ARG WOOCOMMERCE_VERSION
+RUN mkdir /app/plugins/ /app/themes/
+RUN curl -o  /app/plugins/woocommerce.zip -fSL "https://downloads.wordpress.org/plugin/woocommerce.${WOOCOMMERCE_VERSION}.zip"
+RUN curl -o  /app/themes/storefront.zip -fSL "https://downloads.wordpress.org/theme/storefront.3.7.0.zip"
+
 # set up tests
 COPY docker/phpunit.sh /bin/phpunit
 COPY docker/run-unit-tests.sh /bin/run-unit-tests
@@ -206,10 +211,6 @@ COPY docker/docker-test-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN chmod 755 /usr/local/bin/docker-entrypoint-distro.sh
 RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
-
-ARG WOOCOMMERCE_VERSION
-RUN mkdir /app/plugins/
-RUN curl -o  /app/plugins/woocommerce.zip -fSL "https://downloads.wordpress.org/plugin/woocommerce.${WOOCOMMERCE_VERSION}.zip"
 
 ENTRYPOINT ["docker-entrypoint-distro.sh"]
 CMD ["docker-entrypoint.sh","apache2-foreground"]

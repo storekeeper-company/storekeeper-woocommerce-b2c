@@ -21,9 +21,12 @@ services:
       WORDPRESS_ADMIN_USER: admin
       WORDPRESS_ADMIN_PASSWORD: examplepass
       PHP_IDE_CONFIG: serverName=docker
+      USER_ID: 1000
+      GROUP_ID: 1000
     volumes:
-      - .:/app/src/wp-content/plugins/storekeeper-woocommerce-b2c:ro
       - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - wp-content:/app/src/wp-content
+      - .:/app/src/wp-content/plugins/storekeeper-woocommerce-b2c:ro
 
   db:
     image: mysql:5.7
@@ -49,3 +52,4 @@ services:
 
 volumes:
   db:
+  wp-content:
