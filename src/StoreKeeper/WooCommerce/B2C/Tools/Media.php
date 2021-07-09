@@ -68,20 +68,25 @@ class Media
             return;
         }
 
+        $wp_upload_dir = wp_upload_dir();
+        if (!wp_is_writable($wp_upload_dir['basedir'])) {
+            throw new \Exception('Failed creating attachment, upload directory "'.$wp_upload_dir['basedir'].'" is not writeable.');
+        }
+
         if (!class_exists('WP_Http')) {
             include_once ABSPATH.WPINC.'/class-http.php';
         }
 
         $url = self::fixUrl($original_url);
 
-        $response = self::downloadFile($url);
-        if (200 != $response['response']['code']) {
-            return false;
-        }
+        $response = self::tryDownloadFile($url);
 
-        $upload = wp_upload_bits(basename($url), null, $response['body']);
-        if (!empty($upload['error'])) {
-            return false;
+        $upload = WordpressExceptionThrower::throwExceptionOnWpError(
+            wp_upload_bits(basename($url), null, $response['body'])
+        );
+
+        if (!isset($upload['file'])) {
+            throw new \Exception('Failed moving downloaded file to uploads directory: '.$wp_upload_dir['path']);
         }
 
         $file_path = $upload['file'];
@@ -98,7 +103,6 @@ class Media
         $file_name = basename($file_path);
         $file_type = wp_check_filetype($file_name, null);
         $attachment_title = sanitize_file_name(pathinfo($file_name, PATHINFO_FILENAME));
-        $wp_upload_dir = wp_upload_dir();
 
         $post_info = [
             'guid' => $wp_upload_dir['url'].'/'.$file_name,
@@ -109,13 +113,17 @@ class Media
         ];
 
         // Create the attachment
-        $attach_id = wp_insert_attachment($post_info, $file_path);
+        $attach_id = WordpressExceptionThrower::throwExceptionOnWpError(
+            wp_insert_attachment($post_info, $file_path, 0, true)
+        );
 
         // Include image.php
         require_once ABSPATH.'wp-admin/includes/image.php';
 
         // Define attachment metadata
-        $attach_data = wp_generate_attachment_metadata($attach_id, $file_path);
+        $attach_data = WordpressExceptionThrower::throwExceptionOnWpError(
+            wp_generate_attachment_metadata($attach_id, $file_path)
+        );
 
         // Assign metadata to attachment
         wp_update_attachment_metadata($attach_id, $attach_data);
@@ -164,6 +172,39 @@ class Media
                 if (!file_put_contents($target, $response['body'])) {
                     throw new BaseException("Failed to dump file '$target'");
                 }
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param $url
+     *
+     * @return mixed
+     *
+     * @throws BaseException
+     * @throws WordpressException
+     */
+    public static function tryDownloadFile($url)
+    {
+        $timesTried = 0;
+        while ($timesTried < 3) {
+            ++$timesTried;
+            try {
+                $response = WordpressExceptionThrower::throwExceptionOnWpError(
+                    self::downloadFile($url)
+                );
+
+                if (200 !== $response['response']['code']) {
+                    throw new \Exception('Failed downloading file from "'.$url.'" with status code: '.$response['response']['code']);
+                }
+                break;
+            } catch (\Throwable $error) {
+                if (3 === $timesTried) {
+                    throw $error;
+                }
+                sleep(1);
             }
         }
 
