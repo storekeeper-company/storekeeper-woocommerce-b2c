@@ -19,6 +19,8 @@ class SyncWoocommerceAttributesTest extends AbstractTest
     // Datadump related constants
     const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-attributes';
     const DATADUMP_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.633cdd60f6610605a1bbef88a9c0415dc5576d8177a3e73793ebbaf9f7fd6342.json';
+    const DATADUMP_RESERVED_DIRECTORY = 'commands/sync-woocommerce-reserved-attributes';
+    const DATADUMP_RESERVED_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.reserved.json';
 
     const MAX_LENGTH_ATTRIBUTE_LABEL = 30;
 
@@ -97,6 +99,31 @@ class SyncWoocommerceAttributesTest extends AbstractTest
         }
     }
 
+    public function testReservedAttribute()
+    {
+        // Initialize the test
+        $this->initApiConnection();
+        $this->mockApiCallsFromDirectory(self::DATADUMP_RESERVED_DIRECTORY, true);
+
+        // Read the original data from the data dump
+        $file = $this->getDataDump(self::DATADUMP_RESERVED_DIRECTORY.'/'.self::DATADUMP_RESERVED_SOURCE_FILE);
+        $original_attribute_data = $file->getReturn()['data'];
+
+        // Check if no attributes are there before running the commnand
+        $product_attributes = wc_get_attribute_taxonomies();
+        $this->assertCount(
+            0, $product_attributes, 'Test was not ran in an empty environment'
+        );
+
+        $this->runner->execute(SyncWoocommerceAttributes::getCommandName());
+        $attribute1 = $this->assertReservedAttributes($original_attribute_data, 'Run the attribute import command');
+
+        $this->runner->execute(SyncWoocommerceAttributes::getCommandName());
+        $attribute2 = $this->assertReservedAttributes($original_attribute_data, 'Run second time to check if attribute update fails');
+
+        $this->assertEquals($attribute1->slug, $attribute2->slug, 'Attributes should be the same');
+    }
+
     /**
      * Fetch the Woocommerce attribute object based on the slug.
      *
@@ -144,5 +171,57 @@ SQL;
         }
 
         return null;
+    }
+
+    /**
+     * @param $original_attribute_data
+     */
+    public function assertReservedAttributes($original_attribute_data, string $message): object
+    {
+        // Check if the amount of attributes matches the amount from the data dump
+        $product_attributes = wc_get_attribute_taxonomies();
+        $this->assertSameSize(
+            $original_attribute_data,
+            $product_attributes,
+            $message.': Amount of synchronised attributes doesn\'t match source data'
+        );
+
+        $original = new Dot($original_attribute_data[0]);
+        $wc_attribute = $product_attributes[array_key_first($product_attributes)];
+
+        // StoreKeeper id
+        $storekeeper_id = $this->fetchAttributeStoreKeeperId($wc_attribute->attribute_id);
+        $this->assertEquals(
+            $original->get('id'),
+            $storekeeper_id->meta_value,
+            $message.': The Woocommerce Attribute doesn\'t have the correct StoreKeeper id'
+        );
+
+        // Attribute name
+        $expected_attribute_name = $original->get('name');
+        $this->assertStringContainsStringIgnoringCase(
+            $expected_attribute_name,
+            $wc_attribute->attribute_name,
+            $message.': WooCommerce attribute name doesn\'t match the expected attribute name'
+        );
+
+        // Attribute label
+        $expected_attribute_label = $original->get('label');
+        $this->assertEquals(
+            $expected_attribute_label,
+            $wc_attribute->attribute_label,
+            $message.': WooCommerce attribute label doesn\'t match the expected attribute label'
+        );
+
+        // Attribute type
+        // In case of a new attribute, this will always be the same (StoreKeeper/WooCommerce/B2C/Imports/AttributeImport.php:96)
+        $expected_attribute_type = Attributes::getDefaultType();
+        $this->assertEquals(
+            $expected_attribute_type,
+            $wc_attribute->attribute_type,
+            $message.': WooCommerce attribute type doesn\'t match the expected attribute type'
+        );
+
+        return $wc_attribute;
     }
 }

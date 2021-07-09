@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
+use StoreKeeper\WooCommerce\B2C\Tools\AttributeTranslator;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\WooCommerceAttributeMetadata;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
@@ -76,31 +77,26 @@ class AttributeImport extends AbstractImport
         $slug = $dotObject->get('name');
 
         $attributeCheck = Attributes::getAttribute($dotObject->get('id'));
-        if (!$attributeCheck && $dotObject->has('name')) {
+        if (empty($attributeCheck) && $dotObject->has('name')) {
             $attributeCheck = Attributes::getAttributeBySlug($slug);
         }
 
         $title = $this->getTranslationIfRequired($dotObject, 'label');
 
         if (empty(trim($title))) {
-            return; // todo wtf?
+            // fallback in case if empty
+            $title = $dotObject->get('name');
         }
 
         $update_arguments = [
             'name' => substr($title, 0, 30),
-            'slug' => $slug,
         ];
-
-        // Check if the attribute exists
-        if (false === $attributeCheck) {
-            $update_arguments['type'] = Attributes::getDefaultType();
-        } else {
-            $update_arguments['type'] = $attributeCheck->type;
-        }
 
         // If the slug is set in the update_arguments and if it is not a new attribute,
         // then you need to use the update_attribute function
-        if (array_key_exists('slug', $update_arguments) && false !== $attributeCheck) {
+        if (false !== $attributeCheck) {
+            $update_arguments['type'] = $attributeCheck->type;
+            $update_arguments['slug'] = $attributeCheck->slug;
             $attribute = WordpressExceptionThrower::throwExceptionOnWpError(wc_get_attribute($attributeCheck->id));
             if ($attribute) {
                 $update_arguments['has_archives'] = $attribute->has_archives;
@@ -111,6 +107,8 @@ class AttributeImport extends AbstractImport
                 wc_update_attribute($attributeCheck->id, $update_arguments)
             );
         } else {
+            $update_arguments['type'] = Attributes::getDefaultType();
+            $update_arguments['slug'] = AttributeTranslator::validateAttribute($slug);
             if (!array_key_exists('has_archives', $update_arguments)) {
                 $update_arguments['has_archives'] = Attributes::DEFAULT_ARCHIVED_SETTING; // Activate archives when it is not set
             }
