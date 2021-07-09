@@ -221,7 +221,7 @@ ENV APP_ENV=test \
     WP_TESTS_CONFIG_FILE_PATH=/app/src/wp-config.php \
     WP_TESTS_DIR=/app/tests/phpunit \
     WP_SK_PLUGIN_DIR=/app/src/wp-content/plugins/storekeeper-woocommerce-b2c \
-    STOREKEEPER_WOOCOMMERCE_B2C_DEBUG=true
+    STOREKEEPER_WOOCOMMERCE_B2C_DEBUG=1
 
 FROM test as dev
 ENV APP_ENV=dev \

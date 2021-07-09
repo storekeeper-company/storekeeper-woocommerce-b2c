@@ -183,7 +183,9 @@ class Core
     public static function isDebug(): bool
     {
         return (defined('WP_DEBUG') && WP_DEBUG) ||
-            (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG);
+            (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG) ||
+            !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
+            ;
     }
 
     public static function isDataDump(): bool
