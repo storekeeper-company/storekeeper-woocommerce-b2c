@@ -184,8 +184,7 @@ RUN pecl install xdebug && docker-php-ext-enable xdebug && apt-get clean
 RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y  install curl gnupg && \
     curl -sL https://deb.nodesource.com/setup_12.x  | bash - &&\
     apt-get -y install nodejs;
-RUN cd /app/ && npm install
-RUN cd /app/ && npm run build:dev
+RUN cd /app/ && npm install && npm run build:dev
 
 # make a php version which always run as www-data
 RUN cp /usr/local/bin/php /usr/local/bin/php-www && \
@@ -193,9 +192,9 @@ RUN cp /usr/local/bin/php /usr/local/bin/php-www && \
     chmod u+s /usr/local/bin/php-www;
 
 ARG WOOCOMMERCE_VERSION
-RUN mkdir /app/plugins/ /app/themes/
-RUN curl -o  /app/plugins/woocommerce.zip -fSL "https://downloads.wordpress.org/plugin/woocommerce.${WOOCOMMERCE_VERSION}.zip"
-RUN curl -o  /app/themes/storefront.zip -fSL "https://downloads.wordpress.org/theme/storefront.3.7.0.zip"
+RUN mkdir /app/plugins/ /app/themes/ \
+    && curl -o  /app/plugins/woocommerce.zip -fSL "https://downloads.wordpress.org/plugin/woocommerce.${WOOCOMMERCE_VERSION}.zip" \
+    && curl -o  /app/themes/storefront.zip -fSL "https://downloads.wordpress.org/theme/storefront.3.7.0.zip"
 
 # set up tests
 COPY docker/phpunit.sh /bin/phpunit
@@ -209,31 +208,30 @@ RUN echo 'Defaults env_keep += "APP_ENV"' >> /etc/sudoers &&\
 COPY docker/docker-entrypoint-distro.sh /usr/local/bin/docker-entrypoint-distro.sh
 COPY docker/docker-test-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-RUN chmod 755 /usr/local/bin/docker-entrypoint-distro.sh
-RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
+RUN chmod 755 /usr/local/bin/docker-entrypoint-distro.sh /usr/local/bin/docker-entrypoint.sh
 
 ENTRYPOINT ["docker-entrypoint-distro.sh"]
 CMD ["docker-entrypoint.sh","apache2-foreground"]
 
 # set the envs
-ENV APP_ENV=test
-ENV WORPRESS_TITLE='WP-TEST'
-ENV WORDPRESS_ADMIN_USER='admin'
-ENV WORDPRESS_ADMIN_EMAIL='admin@example.com'
-ENV WORPRESS_URL=localhost:80
-ENV WP_TESTS_DOMAIN=localhost
-ENV WP_TESTS_EMAIL='admin@example.com'
-ENV WP_TESTS_TITLE='WP-TEST'
-ENV WP_PHP_BINARY=php-www
-ENV WP_TESTS_CONFIG_FILE_PATH=/app/src/wp-config.php
-ENV WP_TESTS_DIR=/app/tests/phpunit
-ENV WP_SK_PLUGIN_DIR=/app/src/wp-content/plugins/storekeeper-woocommerce-b2c
-ENV STOREKEEPER_WOOCOMMERCE_B2C_DEBUG=true
+ENV APP_ENV=test \
+    WORPRESS_TITLE='WP-TEST' \
+    WORDPRESS_ADMIN_USER='admin' \
+    WORDPRESS_ADMIN_EMAIL='admin@example.com' \
+    WORPRESS_URL=localhost:80 \
+    WP_TESTS_DOMAIN=localhost \
+    WP_TESTS_EMAIL='admin@example.com' \
+    WP_TESTS_TITLE='WP-TEST' \
+    WP_PHP_BINARY=php-www \
+    WP_TESTS_CONFIG_FILE_PATH=/app/src/wp-config.php \
+    WP_TESTS_DIR=/app/tests/phpunit \
+    WP_SK_PLUGIN_DIR=/app/src/wp-content/plugins/storekeeper-woocommerce-b2c \
+    STOREKEEPER_WOOCOMMERCE_B2C_DEBUG=true
 
 FROM test as dev
-ENV APP_ENV=dev
-ENV WORPRESS_URL=localhost:8888
-ENV WORPRESS_TITLE='WP-DEV'
+ENV APP_ENV=dev \
+    WORPRESS_URL=localhost:8888 \
+    WORPRESS_TITLE='WP-DEV'
 
 COPY docker/disable-canonical-url.php /app/src/wp-content/plugins/
 COPY docker/docker-dev-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
