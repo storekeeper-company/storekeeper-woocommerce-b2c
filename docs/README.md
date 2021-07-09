@@ -121,3 +121,12 @@ Read content of hook data dump to use in the unit test
 ```php
 $file = $this->getHookDataDump( PATH_TO_DATADUMP_SOURCE_FILE );
 ```
+
+## Make a new tagged release
+
+Tagging a commit will trigger a release build on github.
+
+```bash
+git tag 5.2.0
+git push origin 5.2.0
+```
