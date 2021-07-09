@@ -1,0 +1,60 @@
+{
+    "success": true,
+    "call_id": "60e83ba6e5d43",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributes",
+    "params": [
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "is_options__=",
+                "val": "1"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "translatable": {
+                    "id": 37,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2021-07-08 17:40:06+02:00",
+                    "backref": "BlogModule::Attribute(id=14)",
+                    "translatable_type_id": 6
+                },
+                "id": 14,
+                "name": "type",
+                "label": "Type",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2021-07-08 17:40:06+02:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 37,
+                "date_updated": "2021-07-08 17:40:06+02:00",
+                "unique": false,
+                "order": 0
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 973.0,
+    "_version": "1.0",
+    "_timestamp": "2021-07-09T12:05:59+00:00"
+}

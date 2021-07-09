@@ -146,34 +146,9 @@ SQL;
 
         $woocommerce_attribute_slug = $backoffice_attribute_slug;
 
-        // Validate the slug (not reserved and less than 28 characters)
-        if (wc_check_if_attribute_name_is_reserved($woocommerce_attribute_slug) ||
-            strlen($woocommerce_attribute_slug) >= 28) {
-            // Custom attribute slugs are prefixed with ‘pa_’, so an attribute called ‘size’ would be ‘pa_size’
-            if (!StringFunctions::startsWith($woocommerce_attribute_slug, 'pa_')) {
-                $woocommerce_attribute_slug = wc_attribute_taxonomy_name($woocommerce_attribute_slug);
-            }
-
-            // Loop to check for a free taxonomy
-            $correct_taxonomy = false;
-            while (!$correct_taxonomy) {
-                // Get the first 23 characters, since we are appending _attr
-                $woocommerce_attribute_slug = substr($woocommerce_attribute_slug, 0, 23);
-                // Remove any non-alphanumeric characters from the end
-                $woocommerce_attribute_slug = preg_replace(
-                    '/[^a-z0-9]+\Z/i',
-                    '',
-                    $woocommerce_attribute_slug
-                );
-                // Append _[0-9a-z]{4}
-                $woocommerce_attribute_slug = $woocommerce_attribute_slug.'_'.
-                    StringFunctions::generateRandomString(4);
-
-                if (!self::hasTranslatedWoocommerceSlug($woocommerce_attribute_slug)) {
-                    $correct_taxonomy = true;
-                }
-            }
-
+        $validatedSlug = self::validateAttribute($woocommerce_attribute_slug);
+        if ($validatedSlug !== $woocommerce_attribute_slug) {
+            $woocommerce_attribute_slug = $validatedSlug;
             // Store the translation into the database
             self::insertTranslationIntoDatabase($backoffice_attribute_slug, $woocommerce_attribute_slug);
         }
@@ -295,6 +270,38 @@ SQL;
         } else {
             throw new \Exception('Attribute cannot be empty');
         }
+    }
+
+    /**
+     * @return string
+     */
+    public static function validateAttribute(string $woocommerce_attribute_slug)
+    {
+        if (wc_check_if_attribute_name_is_reserved($woocommerce_attribute_slug) ||
+            strlen($woocommerce_attribute_slug) >= 28) {
+            // Custom attribute slugs are prefixed with ‘pa_’, so an attribute called ‘size’ would be ‘pa_size’
+            if (!StringFunctions::startsWith($woocommerce_attribute_slug, 'pa_')) {
+                $woocommerce_attribute_slug = wc_attribute_taxonomy_name($woocommerce_attribute_slug);
+            }
+
+            // Loop to check for a free taxonomy
+            $woocommerce_attribute_slug_base = substr($woocommerce_attribute_slug, 0, 23);
+            $correct_taxonomy = false;
+            while (!$correct_taxonomy) {
+                // Append _[0-9a-z]{4}
+                $woocommerce_attribute_slug = $woocommerce_attribute_slug_base.'_'.StringFunctions::generateRandomString(4);
+
+                if (!self::hasTranslatedWoocommerceSlug($woocommerce_attribute_slug)) {
+                    $correct_taxonomy = true;
+                }
+            }
+
+            // Append _[0-9a-z]{4}
+            return $woocommerce_attribute_slug.'_'.
+                StringFunctions::generateRandomString(4);
+        }
+
+        return $woocommerce_attribute_slug;
     }
 
     //endregion
