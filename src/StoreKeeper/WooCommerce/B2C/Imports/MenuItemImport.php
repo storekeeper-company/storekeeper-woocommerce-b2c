@@ -145,6 +145,7 @@ class MenuItemImport extends AbstractImport
             'menu-item-title' => $title,
             'menu-item-classes' => 'home',
             'menu-item-status' => 'publish',
+            'menu-item-url' => '',
         ];
 
         switch ($type) {

@@ -146,7 +146,7 @@ abstract class AbstractTask
             $exceptions
         );
 
-        throw new Exception(join("\r\n", $issues));
+        throw new Exception(implode("\n", $issues));
     }
 
     protected function setDebug($debug = false)

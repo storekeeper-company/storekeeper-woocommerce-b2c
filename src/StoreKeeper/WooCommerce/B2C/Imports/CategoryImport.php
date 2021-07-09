@@ -185,13 +185,6 @@ class CategoryImport extends AbstractImport
             $this->debug('Got category by slug='.$slug);
         }
 
-        // Todo: This line generates notices since we are trying to get the attribute slug from false. This should be
-        // Todo: fixed after the unit tests are in place.
-        $old_slug = $term->slug;
-        if ($slug != $old_slug) {
-            $this->debug('Changing category slug to='.$slug);
-        }
-
         $isNew = !$term;
 
         $title = $this->getTranslationIfRequired($dotObject, 'title');
@@ -208,6 +201,9 @@ class CategoryImport extends AbstractImport
         ];
         if (!$isNew) {
             $args['name'] = $title;
+            if ($term->slug !== $slug) {
+                $this->debug('Changing category slug to='.$slug);
+            }
         }
 
         if ($dotObject->get('category_tree.level') > 1 && $dotObject->has('parent_id')) {

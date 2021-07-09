@@ -121,7 +121,7 @@ class SyncWoocommerceAttributesTest extends AbstractTest
         $this->runner->execute(SyncWoocommerceAttributes::getCommandName());
         $attribute2 = $this->assertReservedAttributes($original_attribute_data, 'Run second time to check if attribute update fails');
 
-        $this->assertEquals($attribute1->slug, $attribute2->slug, 'Attributes should be the same');
+        $this->assertEquals($attribute1->attribute_name, $attribute2->attribute_name, 'Attributes should be the same');
     }
 
     /**

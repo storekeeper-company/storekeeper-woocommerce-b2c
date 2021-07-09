@@ -639,6 +639,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
                         return [
                             'id' => $sk_order_id,
                             'status' => $getOrderStatus,
+                            'is_paid' => false,
                         ];
                     }
                 );
@@ -815,7 +816,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
     public function assertErrorReportTask()
     {
         $task = TaskHandler::getScheduledTask(TaskHandler::REPORT_ERROR);
-        $taskMetaData = $task['meta_data'];
+        $taskMetaData = $task['meta_data'] ?? [];
         if (array_key_exists('exception-message', $taskMetaData)) {
             $message = $taskMetaData['exception-message'];
             throw new Exception("Report error task found with message: $message");

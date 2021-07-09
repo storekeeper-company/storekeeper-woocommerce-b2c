@@ -147,16 +147,11 @@ SQL;
         global $wpdb;
 
         return false !== $wpdb->update(
-            // table
-                self::getDatabaseTable(),
-                // data
-                ['is_synced' => true],
-                // where
-                ['order_id' => $order_id],
-                // data format
-                ['%d']
-                    // where format
-                ['%d']
+                self::getDatabaseTable(), // table
+                ['is_synced' => true], // data
+                ['order_id' => $order_id], // where
+                ['%d'], // data format
+                ['%d'] // where format
             );
     }
 
@@ -184,7 +179,7 @@ SQL;
                 [
                     '%d',
                     '%d',
-                ]
+                ],
                     // where format
                 ['%d']
             );
