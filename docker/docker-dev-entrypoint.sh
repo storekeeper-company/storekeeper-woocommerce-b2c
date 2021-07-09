@@ -1,17 +1,12 @@
 #!/bin/bash
 set -euox pipefail
 
-usermod -u $USER_ID www-data
-groupmod -g $GROUP_ID www-data
-
 touch /tmp/xdebug.log && chmod og+wr /tmp/xdebug.log
-chown -R www-data:www-data /tmp/sk-log /var/www/.wp-cli /usr/local/bin/php-www
+chown www-data:www-data /tmp/storekeeper-woocommerce-b2c/ /tmp/sk-log/
 
 if [ ! -z "$WORPRESS_URL" ]
 then
   echo "Installing WP"
-
-  chown www-data:www-data /app/src/wp-content || exit 9
 
   cd /app/src/
   wp core install \
@@ -24,8 +19,6 @@ then
   wp config set WP_DEBUG true || exit 11
 
   # install plugins
-  mkdir -p /app/src/wp-content/themes /app/src/wp-content/plugins /app/src/wp-content/uploads \
-   && chown www-data:www-data /app/src/wp-content /app/src/wp-content/themes /app/src/wp-content/plugins /app/src/wp-content/uploads || exit 12
   if [[ ! -d wp-content/plugins/woocommerce ]]
   then
       wp plugin install /app/plugins/woocommerce.zip || exit 13

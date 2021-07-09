@@ -166,10 +166,6 @@ RUN rmdir /var/www/html/ && ln -s /app/src /var/www/html
 # need to copy from original image, because it's not included in development repo
 COPY --from=wordpress-docker /usr/src/wordpress/wp-config-sample.php /var/www/html
 
-# make tmp a volume to preserve the plugin logs
-RUN mkdir /tmp/sk-log/ && touch /tmp/sk-log/.persist  && chown -R www-data:www-data /tmp/sk-log;
-VOLUME /tmp/sk-log/
-
 # Add WP-CLI and sudo so we can easy run it from root
 COPY docker/wp.sh /bin/wp
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -q -y install less sudo &&\
@@ -193,8 +189,7 @@ RUN cp /usr/local/bin/php /usr/local/bin/php-www && \
 
 ARG WOOCOMMERCE_VERSION
 RUN mkdir /app/plugins/ /app/themes/ \
-    && curl -o  /app/plugins/woocommerce.zip -fSL "https://downloads.wordpress.org/plugin/woocommerce.${WOOCOMMERCE_VERSION}.zip" \
-    && curl -o  /app/themes/storefront.zip -fSL "https://downloads.wordpress.org/theme/storefront.3.7.0.zip"
+    && curl -o  /app/plugins/woocommerce.zip -fSL "https://downloads.wordpress.org/plugin/woocommerce.${WOOCOMMERCE_VERSION}.zip"
 
 # set up tests
 COPY docker/phpunit.sh /bin/phpunit
@@ -235,4 +230,26 @@ ENV APP_ENV=dev \
 
 COPY docker/disable-canonical-url.php /app/src/wp-content/plugins/
 COPY docker/docker-dev-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
+
+ARG STOREFRONT_VERSION
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh \
+    && curl -o  /app/themes/storefront.zip -fSL "https://downloads.wordpress.org/theme/storefront.${STOREFRONT_VERSION}.zip"
+
+FROM dev as dev-local
+ARG USER_ID
+ARG GROUP_ID
+
+# rewrite the www-data to user uid
+RUN usermod -u $USER_ID www-data && groupmod -g $GROUP_ID www-data \
+    && grep www-data /etc/passwd && grep www-data /etc/group \
+    && find /app/src /tmp /var /usr/local/bin /run -user 33 -exec chown $USER_ID {} \; \
+    && find /app/src /tmp /var /usr/local/bin /run -group 33 -exec chgrp $GROUP_ID {} \;
+
+RUN mkdir -p /app/src/wp-content/ && touch /app/src/wp-content/.persist  && chown -R www-data:www-data /app/src/wp-content \
+    && mkdir /tmp/storekeeper-woocommerce-b2c/ && touch /tmp/storekeeper-woocommerce-b2c/.persist  \
+    && chown -R www-data:www-data /tmp/storekeeper-woocommerce-b2c \
+    && mkdir /tmp/sk-log/ && touch /tmp/sk-log/.persist  && chown -R www-data:www-data /tmp/sk-log
+
+VOLUME /app/src/wp-content/
+VOLUME /tmp/storekeeper-woocommerce-b2c/
+VOLUME /tmp/sk-log/

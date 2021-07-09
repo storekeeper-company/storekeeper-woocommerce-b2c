@@ -4,12 +4,15 @@ services:
   web:
     build:
       dockerfile: Dockerfile
-      target: dev
+      target: dev-local
       context: .
       args:
-        - PHP_VERSION
-        - WORDPRESS_VERSION
-        - WOOCOMMERCE_VERSION
+        PHP_VERSION: $PHP_VERSION
+        WORDPRESS_VERSION: $WORDPRESS_VERSION
+        WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
+        STOREFRONT_VERSION: $STOREFRONT_VERSION
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
     depends_on:
       - db
     ports:
@@ -23,11 +26,11 @@ services:
       WORDPRESS_ADMIN_USER: admin
       WORDPRESS_ADMIN_PASSWORD: examplepass
       PHP_IDE_CONFIG: serverName=docker
-      USER_ID: ${USER_ID:-1000}
-      GROUP_ID: ${GROUP_ID:-1000}
     volumes:
       - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - wp-content:/app/src/wp-content
+      - ./tmp/sk-log:/tmp/sk-log/:rw
+      - ./tmp/sk-tmp:/tmp/storekeeper-woocommerce-b2c/:rw
       - .:/app/src/wp-content/plugins/storekeeper-woocommerce-b2c:ro
 
   db:
@@ -57,3 +60,5 @@ services:
 volumes:
   db:
   wp-content:
+  sk-log:
+  sk-tmp:

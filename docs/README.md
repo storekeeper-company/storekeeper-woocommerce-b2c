@@ -78,3 +78,46 @@ After this you can set it back to default.
 docker-compose exec web wp option set home http://localhost:8888/
 docker-compose exec web wp option set siteurl http://localhost:8888/
 ```
+
+## Using api/webhook dumps
+
+Each time the api call or a webhook is being fired 
+it will create new json file inside `./tmp/sk-tmp/dumps`. 
+Those files can be used in unit tests in `tests/data`
+
+### Place dump files in project
+
+The dump files should be unified based on their parameters and moved to the correct location in the synchronisation plug-in project. The commands below are an example on how to to this for the sync-woocommerce-products dump files.
+
+Unify the dump files based on the parameters used in the calls
+
+`php tests/rewrite-data-based-on-tests.php tests/data/dumps`
+
+Create the directory where to store the dump files in
+
+`mkdir -p tests/data/commands/sync-woocommerce-products`
+
+Copy the files to the correct directory
+
+`mv tests/data/dumps/* tests/data/commands/sync-woocommerce-products`
+
+Remove unneeded dump files. All dump files that begin with the date/time of creation can be removed from the tests/data dumpfile directory.
+
+### Use dump files in tests
+
+The best way to see how to use the data dump files in any unit test is to go to an existing unit test and see how it's done there. Below I've place the three most important functions.
+
+Use data dump for api calls made by the unit test
+
+`$this->mockApiCallsFromDirectory( DATADUMP_DIRECTORY, true );`
+
+Read content of command datadump to use in the unit test
+
+```php
+$file = $this->getDataDump( PATH_TO_DATADUMP_SOURCE_FILE );
+$data = $file->getReturn()['data'];
+```
+Read content of hook data dump to use in the unit test
+```php
+$file = $this->getHookDataDump( PATH_TO_DATADUMP_SOURCE_FILE );
+```

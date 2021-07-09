@@ -1,5 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
-syntax: glob
 
 # test envs
 .env.test.local
@@ -22,3 +20,5 @@ public/styles/theme/twentyseventeen/parts/*css
 
 *.zip
 *.tar.gz
+
+/tmp/
