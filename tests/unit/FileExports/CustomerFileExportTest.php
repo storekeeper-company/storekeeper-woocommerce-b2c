@@ -17,7 +17,23 @@ class CustomerFileExportTest extends AbstractFileExportTest
         return CustomerFileExport::class;
     }
 
-    public function testUserCreateByRoles()
+    public function dataProviderUserCreateByRoles()
+    {
+        $tests = [];
+        foreach (GOCustomer::VALID_ROLES as $role) {
+            $tests['valid-'.$role] = [$role, $role.'_test'];
+        }
+        foreach (GOCustomer::INVALID_ROLES as $role) {
+            $tests['invalid-'.$role] = [$role, $role.'_test'];
+        }
+
+        return $tests;
+    }
+
+    /**
+     * @dataProvider dataProviderUserCreateByRoles
+     */
+    public function testUserCreateByRoles($role, $role_name): void
     {
         $this->initApiConnection();
         // Setting is_logged_in to true
@@ -38,12 +54,13 @@ class CustomerFileExportTest extends AbstractFileExportTest
             }
         );
 
-        $this->createUsersWithRoles(
-            array_merge(
-                GOCustomer::VALID_ROLES,
-                GOCustomer::INVALID_ROLES,
-            )
-        );
+        wp_insert_user([
+            'first_name' => $role,
+            'nickname' => $role_name,
+            'user_login' => $role_name,
+            'role' => $role,
+            'user_pass' => $role_name,
+        ]);
     }
 
     public function testCustomerExportTest()
@@ -198,18 +215,5 @@ class CustomerFileExportTest extends AbstractFileExportTest
             $mappedRow['contact_address.street'],
             "Customer's shipping street does not matches"
         );
-    }
-
-    private function createUsersWithRoles(array $roles): void
-    {
-        foreach ($roles as $role) {
-            wp_insert_user([
-                'first_name' => $role,
-                'nickname' => $role.'_test',
-                'user_login' => $role.'_test',
-                'role' => $role,
-                'user_pass' => $role.'_test',
-            ]);
-        }
     }
 }
