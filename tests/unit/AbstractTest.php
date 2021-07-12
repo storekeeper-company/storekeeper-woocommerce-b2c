@@ -323,7 +323,7 @@ abstract class AbstractTest extends WP_UnitTestCase
             throw new RuntimeException("Unable to get from from\n-Url:$file_url");
         }
 
-        return md5($file);
+        return md5($file['body']);
     }
 
     /**

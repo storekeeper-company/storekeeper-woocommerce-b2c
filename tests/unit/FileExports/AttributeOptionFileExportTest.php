@@ -84,7 +84,7 @@ class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
     {
         foreach ($termIds as $termId) {
             $term = get_term($termId);
-            $this->assertEmpty($mappedRows["$term->slug::$term->taxonomy"], "$type options should not be exported");
+            $this->assertArrayNotHasKey("$term->slug::$term->taxonomy", $mappedRows, "$type options should not be exported");
         }
     }
 

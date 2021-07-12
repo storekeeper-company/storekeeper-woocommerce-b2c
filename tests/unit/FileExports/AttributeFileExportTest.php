@@ -30,7 +30,7 @@ class AttributeFileExportTest extends AbstractAttributeFileExportTest
             }
         );
 
-        $this->assertEmpty($mappedRows['sa_brand'], 'Brand should not be exported.');
+        $this->assertArrayNotHasKey('sa_brand', $mappedRows, 'Brand should not be exported.');
         $this->assertSystemAttribute($colourAttributeData, $mappedRows['sa_colour'], 'Colour');
         $this->assertSystemAttribute($sizeAttributeData, $mappedRows['sa_size'], 'Size');
         $this->assertProductAttribute(
