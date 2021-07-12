@@ -208,7 +208,7 @@ class EventsHandler
                     $taskData = array_merge(
                         $taskData,
                         [
-                            'code' => $details['code'],
+                            'code' => $details['code'] ?? null,
                         ]
                     );
                     TaskHandler::scheduleTask(TaskHandler::COUPON_CODE_IMPORT, $this->getId(), $taskData);
