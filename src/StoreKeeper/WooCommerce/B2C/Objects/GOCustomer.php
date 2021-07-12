@@ -8,6 +8,30 @@ class GOCustomer extends \WC_Customer
 {
     const CONTEXT_EDIT = 'edit';
 
+    /**
+     * Role names are based on WP user roles.
+     *
+     * @see https://github.com/WordPress/wordpress-develop/blob/master/tests/phpunit/tests/user/capabilities.php
+     */
+    const CUSTOMER_ROLE_NAME = 'customer';
+    const SUBSCRIBER_ROLE_NAME = 'subscriber';
+    const ADMINISTRATOR_ROLE_NAME = 'administrator';
+    const EDITOR_ROLE_NAME = 'editor';
+    const AUTHOR_ROLE_NAME = 'author';
+    const CONTRIBUTOR_ROLE_NAME = 'contributor';
+
+    const VALID_ROLES = [
+        self::CUSTOMER_ROLE_NAME,
+        self::SUBSCRIBER_ROLE_NAME,
+    ];
+
+    const INVALID_ROLES = [
+        self::ADMINISTRATOR_ROLE_NAME,
+        self::EDITOR_ROLE_NAME,
+        self::AUTHOR_ROLE_NAME,
+        self::CONTRIBUTOR_ROLE_NAME,
+    ];
+
     private $go_api;
 
     protected $data = [
@@ -79,9 +103,14 @@ class GOCustomer extends \WC_Customer
         return $exists;
     }
 
+    public static function isRoleValid(string $role): bool
+    {
+        return in_array($role, self::VALID_ROLES);
+    }
+
     public function sync_customer_to_manage()
     {
-        if (!empty($this->has_storekeeper_id())) {
+        if (!empty($this->has_storekeeper_id()) || !self::isRoleValid($this->get_role())) {
             return $this->get_storekeeper_id();
         }
 

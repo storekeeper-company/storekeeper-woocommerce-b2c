@@ -2,9 +2,12 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
+use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\FileExport\AbstractCSVFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\CustomerFileExport;
+use StoreKeeper\WooCommerce\B2C\Objects\GOCustomer;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
+use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WP_User;
 
 class CustomerFileExportTest extends AbstractFileExportTest
@@ -12,6 +15,35 @@ class CustomerFileExportTest extends AbstractFileExportTest
     public function getFileExportClass(): string
     {
         return CustomerFileExport::class;
+    }
+
+    public function testUserCreateByRoles()
+    {
+        $this->initApiConnection();
+        // Setting is_logged_in to true
+        wp_set_current_user(1);
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) {
+                $module->shouldReceive('newShopCustomer')->andReturnUsing(
+                    function ($got) {
+                        $user = $got[0]['relation'];
+                        // Passed firstname as the role in test data
+                        // at self::createUsersWithRoles
+                        $role = $user['contact_person']['firstname'];
+                        $this->assertNotContains($role, GOCustomer::INVALID_ROLES, $role.' should not be returned');
+                        $this->assertContains($role, GOCustomer::VALID_ROLES, $role.' should be returned');
+                    }
+                );
+            }
+        );
+
+        $this->createUsersWithRoles(
+            array_merge(
+                GOCustomer::VALID_ROLES,
+                GOCustomer::INVALID_ROLES,
+            )
+        );
     }
 
     public function testCustomerExportTest()
@@ -166,5 +198,18 @@ class CustomerFileExportTest extends AbstractFileExportTest
             $mappedRow['contact_address.street'],
             "Customer's shipping street does not matches"
         );
+    }
+
+    private function createUsersWithRoles(array $roles): void
+    {
+        foreach ($roles as $role) {
+            wp_insert_user([
+                'first_name' => $role,
+                'nickname' => $role.'_test',
+                'user_login' => $role.'_test',
+                'role' => $role,
+                'user_pass' => $role.'_test',
+            ]);
+        }
     }
 }
