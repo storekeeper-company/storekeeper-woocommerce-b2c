@@ -45,7 +45,6 @@ class CustomerFileExportTest extends AbstractFileExportTest
                     function ($got) {
                         $user = $got[0]['relation'];
                         // Passed firstname as the role in test data
-                        // at self::createUsersWithRoles
                         $role = $user['contact_person']['firstname'];
                         $this->assertNotContains($role, GOCustomer::INVALID_ROLES, $role.' should not be returned');
                         $this->assertContains($role, GOCustomer::VALID_ROLES, $role.' should be returned');
