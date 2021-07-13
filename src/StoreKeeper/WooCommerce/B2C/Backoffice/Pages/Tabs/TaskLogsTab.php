@@ -10,6 +10,8 @@ class TaskLogsTab extends AbstractLogsTab
 {
     const ACTION_RESOLVE = 'action-resolve';
     const ACTION_MASS_RESOLVE = 'action-mass-resolve';
+    const RESOLVE_RETRY_ACTION = 'retry';
+    const RESOLVE_MARK_ACTION = 'mark';
 
     public function __construct(string $title, string $slug = '')
     {
@@ -31,36 +33,50 @@ class TaskLogsTab extends AbstractLogsTab
             $this->resolveTasks(
                 [
                     (int) $_GET['selected'],
-                ]
+                ],
+                $this->getResolveAction(),
             );
         }
-        wp_redirect(remove_query_arg(['selected', 'action']));
+        $this->clearArgs();
     }
 
     public function resolveTasksAction()
     {
-        if (array_key_exists('selected', $_POST)) {
+        if (array_key_exists('selected', $_POST) && array_key_exists('resolveAction', $_POST)) {
+            $resolveAction = $_POST['resolveAction'];
             $selected = $this->sanitizeIntArray($_POST['selected']);
-            $this->resolveTasks($selected);
+            $this->resolveTasks($selected, $resolveAction);
         }
-        wp_redirect(remove_query_arg(['selected', 'action']));
+        $this->clearArgs();
     }
 
-    private function resolveTasks(array $taskIds)
+    private function resolveTasks(array $taskIds, string $resolveAction)
     {
         global $wpdb;
 
-        $taskIds = $this->sanitizeIntArray($taskIds);
-        $in = "'".implode("','", $taskIds)."'";
-        $update = TaskModel::getUpdateHelper()
-            ->cols(['status' => TaskHandler::STATUS_NEW])
-            ->where("id IN ($in)");
+        $status = null;
+        switch ($resolveAction) {
+            case self::RESOLVE_RETRY_ACTION:
+                $status = TaskHandler::STATUS_NEW;
+                break;
+            case self::RESOLVE_MARK_ACTION:
+                $status = TaskHandler::STATUS_SUCCESS;
+                break;
+        }
 
-        $query = TaskModel::prepareQuery($update);
+        if (!is_null($status)) {
+            $taskIds = $this->sanitizeIntArray($taskIds);
+            $in = "'".implode("','", $taskIds)."'";
+            $update = TaskModel::getUpdateHelper()
+                ->cols(['status' => $status])
+                ->where("id IN ($in)");
 
-        $affectedRows = $wpdb->query($query);
+            $query = TaskModel::prepareQuery($update);
 
-        TaskModel::ensureAffectedRows($affectedRows);
+            $affectedRows = $wpdb->query($query);
+
+            TaskModel::ensureAffectedRows($affectedRows);
+        }
     }
 
     public function render(): void
@@ -129,25 +145,25 @@ class TaskLogsTab extends AbstractLogsTab
     public function renderSelectAll()
     {
         echo <<<HTML
-<input type="checkbox" id="select-all">
-<script>
-    (function () {
-        const all = document.getElementById('select-all');
-        all.onclick = function () {
-            document.querySelectorAll('[data-select]')
-                .forEach(element => {element.checked = this.checked});
-        }
-    })()
-</script>
-HTML;
+        <input type="checkbox" id="select-all">
+        <script>
+            (function () {
+                const all = document.getElementById('select-all');
+                all.onclick = function () {
+                    document.querySelectorAll('[data-select]')
+                        .forEach(element => {element.checked = this.checked});
+                }
+            })()
+        </script>
+        HTML;
     }
 
     public function renderSelectTask($value, $task)
     {
         $id = esc_attr($task['id']);
         echo <<<HTML
-<input type="checkbox" value="$id" name="selected[]" data-select>
-HTML;
+        <input type="checkbox" value="$id" name="selected[]" data-select>
+        HTML;
     }
 
     public function renderTaskActions($value, $task)
@@ -158,27 +174,41 @@ HTML;
             case TaskHandler::STATUS_NEW:
             case TaskHandler::STATUS_SUCCESS:
                 echo <<<HTML
-<div class="storekeeper-status">
-    <span class="storekeeper-status-success"></span>
-</div>
-HTML;
+                    <div class="storekeeper-status">
+                        <span class="storekeeper-status-success"></span></center>
+                    </div>
+                    HTML;
                 break;
             case TaskHandler::STATUS_PROCESSING:
             case TaskHandler::STATUS_FAILED:
-                $retry = esc_html__('retry', I18N::DOMAIN);
-                $url = add_query_arg(
-                    'selected',
-                    $id,
+                $retry = esc_html__('Retry', I18N::DOMAIN);
+                $mark = esc_html__('Mark as success', I18N::DOMAIN);
+
+                $retryUrl = add_query_arg([
+                    'selected' => $id,
+                    'resolveAction' => self::RESOLVE_RETRY_ACTION,
+                    ],
                     $this->getActionUrl(self::ACTION_RESOLVE)
                 );
-                $url = esc_attr($url);
+                $retryUrl = esc_attr($retryUrl);
+
+                $markUrl = add_query_arg([
+                    'selected' => $id,
+                    'resolveAction' => self::RESOLVE_MARK_ACTION,
+                    ],
+                    $this->getActionUrl(self::ACTION_RESOLVE)
+                );
+                $markUrl = esc_attr($markUrl);
 
                 echo <<<HTML
-<div class="storekeeper-status">
-    <span class="storekeeper-status-danger"></span>
-    <a href="$url">$retry</a>
-</div>
-HTML;
+                    <div class="storekeeper-status">
+                        <span class="storekeeper-status-danger" style="margin-top:8px"></span>
+                        <div class="button-group">
+                            <a class="button" href="$retryUrl">$retry</a> &nbsp; <a href="$markUrl" class="button button-primary">$mark</a>
+
+                        </div>
+                    </div>
+                    HTML;
                 break;
         }
     }
@@ -240,12 +270,12 @@ HTML;
         $hiddenHtml = $this->getHiddenInputs(['task-type']);
         $filter = esc_html__('filter', I18N::DOMAIN);
         echo <<<HTML
-<form class="actions" style="display: inline;">
-    $hiddenHtml
-    <select name="task-type" id="task-type" class="postform">$optionHtml</select>
-    <button type="submit" class="button">$filter</button>
-</form>
-HTML;
+        <form class="actions" style="display: inline;">
+            $hiddenHtml
+            <select name="task-type" id="task-type" class="postform">$optionHtml</select>
+            <button type="submit" class="button">$filter</button>
+        </form>
+        HTML;
     }
 
     private function renderTaskStatusFilter()
@@ -263,20 +293,32 @@ HTML;
         $hiddenHtml = $this->getHiddenInputs(['task-status']);
         $filter = esc_html__('filter', I18N::DOMAIN);
         echo <<<HTML
-<form class="actions" style="display: inline;">
-    $hiddenHtml
-    <select name="task-status" id="task-status" class="postform">$optionHtml</select>
-    <button type="submit" class="button">$filter</button>
-</form>
-HTML;
+        <form class="actions" style="display: inline;">
+            $hiddenHtml
+            <select name="task-status" id="task-status" class="postform">$optionHtml</select>
+            <button type="submit" class="button">$filter</button>
+        </form>
+        HTML;
     }
 
     private function renderTaskMassAction()
     {
+        $currentAction = $this->getResolveAction();
+        $optionLabel = esc_html__('Select resolve action', I18N::DOMAIN);
+        $optionHtml = "<option value=''>$optionLabel</option>";
+        $resolveActions = [
+            self::RESOLVE_RETRY_ACTION => esc_html__('Retry', I18N::DOMAIN),
+            self::RESOLVE_MARK_ACTION => esc_html__('Mark as success', I18N::DOMAIN),
+        ];
+        foreach ($resolveActions as $value => $label) {
+            $selected = $currentAction === $value ? 'selected' : '';
+            $optionHtml .= "<option value='$value' $selected>$label</option>";
+        }
         $resolve = esc_html__('Resolve selected', I18N::DOMAIN);
         echo <<<HTML
-    <button type="submit" class="button storekeeper-resolve">$resolve</button>
-HTML;
+            <select name="resolveAction" id="resolve-action" class="storekeeper-resolve">$optionHtml</select>
+            <button type="submit" class="button storekeeper-resolve">$resolve</button>
+        HTML;
     }
 
     private function getHiddenInputs(array $exclude = []): string
@@ -331,5 +373,19 @@ HTML;
         }
 
         return null;
+    }
+
+    private function getResolveAction(): ?string
+    {
+        if (isset($_REQUEST['resolveAction'])) {
+            return sanitize_key($_REQUEST['resolveAction']);
+        }
+
+        return '';
+    }
+
+    protected function clearArgs(): void
+    {
+        wp_redirect(remove_query_arg(['selected', 'action', 'resolveAction']));
     }
 }
