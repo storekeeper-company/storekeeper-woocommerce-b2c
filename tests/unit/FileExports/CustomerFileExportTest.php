@@ -20,12 +20,28 @@ class CustomerFileExportTest extends AbstractFileExportTest
     public function dataProviderUserCreateByRoles()
     {
         $tests = [];
+
+        $valid = [];
         foreach (GOCustomer::VALID_ROLES as $role) {
-            $tests['valid-'.$role] = [$role, $role.'_test'];
+            $valid[] = [
+                $role,
+                $role.'_nickname',
+                $role.'_userlogin',
+                $role.'_userpass',
+            ];
         }
+        $tests['valid'] = [$valid];
+
+        $invalid = [];
         foreach (GOCustomer::INVALID_ROLES as $role) {
-            $tests['invalid-'.$role] = [$role, $role.'_test'];
+            $invalid[] = [
+                $role,
+                $role.'_nickname',
+                $role.'_userlogin',
+                $role.'_userpass',
+            ];
         }
+        $tests['invalid'] = [$invalid];
 
         return $tests;
     }
@@ -33,7 +49,7 @@ class CustomerFileExportTest extends AbstractFileExportTest
     /**
      * @dataProvider dataProviderUserCreateByRoles
      */
-    public function testUserCreateByRoles($role, $role_name): void
+    public function testUserCreateByRoles($users): void
     {
         $this->initApiConnection();
         // Setting is_logged_in to true
@@ -46,20 +62,31 @@ class CustomerFileExportTest extends AbstractFileExportTest
                         $user = $got[0]['relation'];
                         // Passed firstname as the role in test data
                         $role = $user['contact_person']['firstname'];
+                        // Assertion to make sure invalid roles never calls ShopModule::newShopCustomer
                         $this->assertNotContains($role, GOCustomer::INVALID_ROLES, $role.' should not be returned');
+
                         $this->assertContains($role, GOCustomer::VALID_ROLES, $role.' should be returned');
                     }
                 );
             }
         );
 
-        wp_insert_user([
-            'first_name' => $role,
-            'nickname' => $role_name,
-            'user_login' => $role_name,
-            'role' => $role,
-            'user_pass' => $role_name,
-        ]);
+        foreach ($users as $user) {
+            $role = $user[0];
+            $userId = wp_insert_user([
+                'first_name' => $role,
+                'nickname' => $user[1],
+                'user_login' => $user[2],
+                'role' => $role,
+                'user_pass' => $user[3],
+            ]);
+
+            $createdUser = get_user_by('id', $userId);
+            // Assertion to check if user is created in database
+            // may it be valid or invalid consumer role
+            $this->assertNotFalse($createdUser);
+            $this->assertEquals($role, $createdUser->roles[0]);
+        }
     }
 
     public function testCustomerExportTest()
