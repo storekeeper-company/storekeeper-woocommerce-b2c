@@ -27,7 +27,7 @@ class CustomerFileExportTest extends AbstractFileExportTest
             ];
         }
         foreach (GOCustomer::INVALID_ROLES as $role) {
-            $invalid[$role] = [
+            $tests[$role] = [
                 $role,
                 false,
             ];
