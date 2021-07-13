@@ -3,17 +3,28 @@
     align-content: center;
 }
 
-.storekeeper-status .storekeeper-status-success {
+.storekeeper-status .storekeeper-status-success,
+.storekeeper-status .storekeeper-status-warning,
+.storekeeper-status .storekeeper-status-danger,
+.storekeeper-status .storekeeper-status-secondary {
     display: inline-block;
     width: 15px;
     height: 15px;
+}
+
+.storekeeper-status .storekeeper-status-success {
     background: #8cc46e;
 }
 
+.storekeeper-status .storekeeper-status-warning {
+    background: #ffc107;
+}
+
+.storekeeper-status .storekeeper-status-secondary {
+    background: #6c757d;
+}
+
 .storekeeper-status .storekeeper-status-danger {
-    display: inline-block;
-    width: 15px;
-    height: 15px;
     border-radius: 50%;
     background: #e65e5e;
     margin-right: 10px;
