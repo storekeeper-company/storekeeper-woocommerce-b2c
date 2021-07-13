@@ -314,10 +314,10 @@ class TaskLogsTab extends AbstractLogsTab
             $selected = $currentAction === $value ? 'selected' : '';
             $optionHtml .= "<option value='$value' $selected>$label</option>";
         }
-        $resolve = esc_html__('Apply', I18N::DOMAIN);
+        $apply = esc_html__('Apply', I18N::DOMAIN);
         echo <<<HTML
-            <select name="rowAction" id="row-action" class="storekeeper-resolve">$optionHtml</select>
-            <button type="submit" class="button storekeeper-resolve">$resolve</button>
+            <select name="rowAction" id="row-action" class="storekeeper-apply">$optionHtml</select>
+            <button type="submit" class="button storekeeper-apply">$apply</button>
         HTML;
     }
 
