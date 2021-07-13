@@ -2,9 +2,12 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
+use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\FileExport\AbstractCSVFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\CustomerFileExport;
+use StoreKeeper\WooCommerce\B2C\Objects\GOCustomer;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
+use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WP_User;
 
 class CustomerFileExportTest extends AbstractFileExportTest
@@ -12,6 +15,56 @@ class CustomerFileExportTest extends AbstractFileExportTest
     public function getFileExportClass(): string
     {
         return CustomerFileExport::class;
+    }
+
+    public function dataProviderUserCreateByRoles()
+    {
+        $tests = [];
+        foreach (GOCustomer::VALID_ROLES as $role) {
+            $tests[$role] = [
+                $role,
+                true,
+            ];
+        }
+        foreach (GOCustomer::INVALID_ROLES as $role) {
+            $tests[$role] = [
+                $role,
+                false,
+            ];
+        }
+
+        return $tests;
+    }
+
+    /**
+     * @dataProvider dataProviderUserCreateByRoles
+     */
+    public function testUserCreateByRoles($role, $expect): void
+    {
+        $wasCalled = false;
+        $this->initApiConnection();
+        // Setting is_logged_in to true
+        wp_set_current_user(1);
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use (&$wasCalled) {
+                $module->shouldReceive('newShopCustomer')->andReturnUsing(
+                    function () use (&$wasCalled) {
+                        $wasCalled = true;
+                    }
+                );
+            }
+        );
+
+        wp_insert_user([
+            'first_name' => $role.'_first_name',
+            'nickname' => $role.'_nickname',
+            'user_login' => $role.'_userlogin',
+            'role' => $role,
+            'user_pass' => $role.'_userpass',
+        ]);
+
+        $this->assertEquals($expect, $wasCalled, 'ShopModule::newShopCustomer call status');
     }
 
     public function testCustomerExportTest()
