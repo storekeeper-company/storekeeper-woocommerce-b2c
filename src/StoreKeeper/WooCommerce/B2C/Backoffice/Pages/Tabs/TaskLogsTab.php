@@ -10,8 +10,8 @@ class TaskLogsTab extends AbstractLogsTab
 {
     const ACTION_RESOLVE = 'action-resolve';
     const ACTION_MASS_RESOLVE = 'action-mass-resolve';
-    const RESOLVE_RETRY_ACTION = 'retry';
-    const RESOLVE_MARK_ACTION = 'mark';
+    const RETRY_ACTION = 'retry';
+    const MARK_ACTION = 'mark';
 
     public function __construct(string $title, string $slug = '')
     {
@@ -34,7 +34,7 @@ class TaskLogsTab extends AbstractLogsTab
                 [
                     (int) $_GET['selected'],
                 ],
-                $this->getResolveAction(),
+                $this->getRowAction(),
             );
         }
         $this->clearArgs();
@@ -42,24 +42,24 @@ class TaskLogsTab extends AbstractLogsTab
 
     public function resolveTasksAction()
     {
-        if (array_key_exists('selected', $_POST) && array_key_exists('resolveAction', $_POST)) {
-            $resolveAction = $_POST['resolveAction'];
+        if (array_key_exists('selected', $_POST) && array_key_exists('rowAction', $_POST)) {
+            $rowAction = $_POST['rowAction'];
             $selected = $this->sanitizeIntArray($_POST['selected']);
-            $this->resolveTasks($selected, $resolveAction);
+            $this->resolveTasks($selected, $rowAction);
         }
         $this->clearArgs();
     }
 
-    private function resolveTasks(array $taskIds, string $resolveAction)
+    private function resolveTasks(array $taskIds, string $rowAction)
     {
         global $wpdb;
 
         $status = null;
-        switch ($resolveAction) {
-            case self::RESOLVE_RETRY_ACTION:
+        switch ($rowAction) {
+            case self::RETRY_ACTION:
                 $status = TaskHandler::STATUS_NEW;
                 break;
-            case self::RESOLVE_MARK_ACTION:
+            case self::MARK_ACTION:
                 $status = TaskHandler::STATUS_SUCCESS;
                 break;
         }
@@ -175,7 +175,7 @@ class TaskLogsTab extends AbstractLogsTab
             case TaskHandler::STATUS_SUCCESS:
                 echo <<<HTML
                     <div class="storekeeper-status">
-                        <span class="storekeeper-status-success"></span></center>
+                        <span class="storekeeper-status-success"></span>
                     </div>
                     HTML;
                 break;
@@ -186,7 +186,7 @@ class TaskLogsTab extends AbstractLogsTab
 
                 $retryUrl = add_query_arg([
                     'selected' => $id,
-                    'resolveAction' => self::RESOLVE_RETRY_ACTION,
+                    'rowAction' => self::RETRY_ACTION,
                     ],
                     $this->getActionUrl(self::ACTION_RESOLVE)
                 );
@@ -194,7 +194,7 @@ class TaskLogsTab extends AbstractLogsTab
 
                 $markUrl = add_query_arg([
                     'selected' => $id,
-                    'resolveAction' => self::RESOLVE_MARK_ACTION,
+                    'rowAction' => self::MARK_ACTION,
                     ],
                     $this->getActionUrl(self::ACTION_RESOLVE)
                 );
@@ -303,20 +303,20 @@ class TaskLogsTab extends AbstractLogsTab
 
     private function renderTaskMassAction()
     {
-        $currentAction = $this->getResolveAction();
+        $currentAction = $this->getRowAction();
         $optionLabel = esc_html__('Select resolve action', I18N::DOMAIN);
         $optionHtml = "<option value=''>$optionLabel</option>";
-        $resolveActions = [
-            self::RESOLVE_RETRY_ACTION => esc_html__('Retry', I18N::DOMAIN),
-            self::RESOLVE_MARK_ACTION => esc_html__('Mark as success', I18N::DOMAIN),
+        $rowActions = [
+            self::RETRY_ACTION => esc_html__('Retry', I18N::DOMAIN),
+            self::MARK_ACTION => esc_html__('Mark as success', I18N::DOMAIN),
         ];
-        foreach ($resolveActions as $value => $label) {
+        foreach ($rowActions as $value => $label) {
             $selected = $currentAction === $value ? 'selected' : '';
             $optionHtml .= "<option value='$value' $selected>$label</option>";
         }
         $resolve = esc_html__('Resolve selected', I18N::DOMAIN);
         echo <<<HTML
-            <select name="resolveAction" id="resolve-action" class="storekeeper-resolve">$optionHtml</select>
+            <select name="rowAction" id="resolve-action" class="storekeeper-resolve">$optionHtml</select>
             <button type="submit" class="button storekeeper-resolve">$resolve</button>
         HTML;
     }
@@ -375,10 +375,10 @@ class TaskLogsTab extends AbstractLogsTab
         return null;
     }
 
-    private function getResolveAction(): ?string
+    private function getRowAction(): ?string
     {
-        if (isset($_REQUEST['resolveAction'])) {
-            return sanitize_key($_REQUEST['resolveAction']);
+        if (isset($_REQUEST['rowAction'])) {
+            return sanitize_key($_REQUEST['rowAction']);
         }
 
         return '';
@@ -386,6 +386,6 @@ class TaskLogsTab extends AbstractLogsTab
 
     protected function clearArgs(): void
     {
-        wp_redirect(remove_query_arg(['selected', 'action', 'resolveAction']));
+        wp_redirect(remove_query_arg(['selected', 'action', 'rowAction']));
     }
 }
