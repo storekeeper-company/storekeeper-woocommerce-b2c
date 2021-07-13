@@ -95,7 +95,7 @@ class ConnectionTab extends AbstractTab
 
         echo $this->getFormGroup(
             __('Tasks in queue', I18N::DOMAIN),
-            TaskModel::count(['status != :status'], ['status' => TaskHandler::STATUS_SUCCESS])
+            TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW])
         );
 
         echo $this->getFormGroup(
