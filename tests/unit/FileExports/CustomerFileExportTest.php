@@ -20,28 +20,18 @@ class CustomerFileExportTest extends AbstractFileExportTest
     public function dataProviderUserCreateByRoles()
     {
         $tests = [];
-
-        $valid = [];
         foreach (GOCustomer::VALID_ROLES as $role) {
-            $valid[] = [
+            $tests[$role] = [
                 $role,
-                $role.'_nickname',
-                $role.'_userlogin',
-                $role.'_userpass',
+                true,
             ];
         }
-        $tests['valid'] = [$valid];
-
-        $invalid = [];
         foreach (GOCustomer::INVALID_ROLES as $role) {
-            $invalid[] = [
+            $invalid[$role] = [
                 $role,
-                $role.'_nickname',
-                $role.'_userlogin',
-                $role.'_userpass',
+                false,
             ];
         }
-        $tests['invalid'] = [$invalid];
 
         return $tests;
     }
@@ -49,44 +39,32 @@ class CustomerFileExportTest extends AbstractFileExportTest
     /**
      * @dataProvider dataProviderUserCreateByRoles
      */
-    public function testUserCreateByRoles($users): void
+    public function testUserCreateByRoles($role, $expect): void
     {
+        $wasCalled = false;
         $this->initApiConnection();
         // Setting is_logged_in to true
         wp_set_current_user(1);
         StoreKeeperApi::$mockAdapter->withModule(
             'ShopModule',
-            function (MockInterface $module) {
+            function (MockInterface $module) use (&$wasCalled) {
                 $module->shouldReceive('newShopCustomer')->andReturnUsing(
-                    function ($got) {
-                        $user = $got[0]['relation'];
-                        // Passed firstname as the role in test data
-                        $role = $user['contact_person']['firstname'];
-                        // Assertion to make sure invalid roles never calls ShopModule::newShopCustomer
-                        $this->assertNotContains($role, GOCustomer::INVALID_ROLES, $role.' should not be returned');
-
-                        $this->assertContains($role, GOCustomer::VALID_ROLES, $role.' should be returned');
+                    function () use (&$wasCalled) {
+                        $wasCalled = true;
                     }
                 );
             }
         );
 
-        foreach ($users as $user) {
-            $role = $user[0];
-            $userId = wp_insert_user([
-                'first_name' => $role,
-                'nickname' => $user[1],
-                'user_login' => $user[2],
-                'role' => $role,
-                'user_pass' => $user[3],
-            ]);
+        wp_insert_user([
+            'first_name' => $role.'_first_name',
+            'nickname' => $role.'_nickname',
+            'user_login' => $role.'_userlogin',
+            'role' => $role,
+            'user_pass' => $role.'_userpass',
+        ]);
 
-            $createdUser = get_user_by('id', $userId);
-            // Assertion to check if user is created in database
-            // may it be valid or invalid consumer role
-            $this->assertNotFalse($createdUser);
-            $this->assertEquals($role, $createdUser->roles[0]);
-        }
+        $this->assertEquals($expect, $wasCalled, 'ShopModule::newShopCustomer call status');
     }
 
     public function testCustomerExportTest()
