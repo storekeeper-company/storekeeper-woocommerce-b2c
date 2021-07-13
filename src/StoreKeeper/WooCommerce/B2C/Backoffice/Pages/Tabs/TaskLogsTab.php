@@ -8,59 +8,75 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class TaskLogsTab extends AbstractLogsTab
 {
-    const ACTION_RESOLVE = 'action-resolve';
-    const ACTION_MASS_RESOLVE = 'action-mass-resolve';
+    const DO_SINGLE_ACTION = 'do-single-action';
+    const DO_MULTIPLE_ACTIONS = 'do-multiple-actions';
+    const RETRY_ACTION = 'retry';
+    const MARK_ACTION = 'mark';
 
     public function __construct(string $title, string $slug = '')
     {
         parent::__construct($title, $slug);
 
         $this->addAction(
-            self::ACTION_RESOLVE,
-            [$this, 'resolveTaskAction']
+            self::DO_SINGLE_ACTION,
+            [$this, 'singleRowAction']
         );
         $this->addAction(
-            self::ACTION_MASS_RESOLVE,
-            [$this, 'resolveTasksAction']
+            self::DO_MULTIPLE_ACTIONS,
+            [$this, 'multipleRowsAction']
         );
     }
 
-    public function resolveTaskAction()
+    public function singleRowAction()
     {
         if (array_key_exists('selected', $_GET)) {
-            $this->resolveTasks(
+            $this->doRowAction(
                 [
                     (int) $_GET['selected'],
-                ]
+                ],
+                $this->getRowAction(),
             );
         }
-        wp_redirect(remove_query_arg(['selected', 'action']));
+        $this->clearArgs();
     }
 
-    public function resolveTasksAction()
+    public function multipleRowsAction()
     {
-        if (array_key_exists('selected', $_POST)) {
+        if (array_key_exists('selected', $_POST) && array_key_exists('rowAction', $_POST)) {
+            $rowAction = $_POST['rowAction'];
             $selected = $this->sanitizeIntArray($_POST['selected']);
-            $this->resolveTasks($selected);
+            $this->doRowAction($selected, $rowAction);
         }
-        wp_redirect(remove_query_arg(['selected', 'action']));
+        $this->clearArgs();
     }
 
-    private function resolveTasks(array $taskIds)
+    private function doRowAction(array $taskIds, string $rowAction)
     {
         global $wpdb;
 
-        $taskIds = $this->sanitizeIntArray($taskIds);
-        $in = "'".implode("','", $taskIds)."'";
-        $update = TaskModel::getUpdateHelper()
-            ->cols(['status' => TaskHandler::STATUS_NEW])
-            ->where("id IN ($in)");
+        $status = null;
+        switch ($rowAction) {
+            case self::RETRY_ACTION:
+                $status = TaskHandler::STATUS_NEW;
+                break;
+            case self::MARK_ACTION:
+                $status = TaskHandler::STATUS_SUCCESS;
+                break;
+        }
 
-        $query = TaskModel::prepareQuery($update);
+        if (!is_null($status)) {
+            $taskIds = $this->sanitizeIntArray($taskIds);
+            $in = "'".implode("','", $taskIds)."'";
+            $update = TaskModel::getUpdateHelper()
+                ->cols(['status' => $status])
+                ->where("id IN ($in)");
 
-        $affectedRows = $wpdb->query($query);
+            $query = TaskModel::prepareQuery($update);
 
-        TaskModel::ensureAffectedRows($affectedRows);
+            $affectedRows = $wpdb->query($query);
+
+            TaskModel::ensureAffectedRows($affectedRows);
+        }
     }
 
     public function render(): void
@@ -72,7 +88,7 @@ class TaskLogsTab extends AbstractLogsTab
         $this->renderTaskSimpleTypeFilter();
         $this->renderTaskStatusFilter();
 
-        $url = $this->getActionUrl(self::ACTION_MASS_RESOLVE);
+        $url = $this->getActionUrl(self::DO_MULTIPLE_ACTIONS);
         $url = esc_attr($url);
         echo "<form action='$url' method='post'>";
 
@@ -129,25 +145,25 @@ class TaskLogsTab extends AbstractLogsTab
     public function renderSelectAll()
     {
         echo <<<HTML
-<input type="checkbox" id="select-all">
-<script>
-    (function () {
-        const all = document.getElementById('select-all');
-        all.onclick = function () {
-            document.querySelectorAll('[data-select]')
-                .forEach(element => {element.checked = this.checked});
-        }
-    })()
-</script>
-HTML;
+        <input type="checkbox" id="select-all">
+        <script>
+            (function () {
+                const all = document.getElementById('select-all');
+                all.onclick = function () {
+                    document.querySelectorAll('[data-select]')
+                        .forEach(element => {element.checked = this.checked});
+                }
+            })()
+        </script>
+        HTML;
     }
 
     public function renderSelectTask($value, $task)
     {
         $id = esc_attr($task['id']);
         echo <<<HTML
-<input type="checkbox" value="$id" name="selected[]" data-select>
-HTML;
+        <input type="checkbox" value="$id" name="selected[]" data-select>
+        HTML;
     }
 
     public function renderTaskActions($value, $task)
@@ -158,27 +174,41 @@ HTML;
             case TaskHandler::STATUS_NEW:
             case TaskHandler::STATUS_SUCCESS:
                 echo <<<HTML
-<div class="storekeeper-status">
-    <span class="storekeeper-status-success"></span>
-</div>
-HTML;
+                    <div class="storekeeper-status">
+                        <span class="storekeeper-status-success"></span>
+                    </div>
+                    HTML;
                 break;
             case TaskHandler::STATUS_PROCESSING:
             case TaskHandler::STATUS_FAILED:
-                $retry = esc_html__('retry', I18N::DOMAIN);
-                $url = add_query_arg(
-                    'selected',
-                    $id,
-                    $this->getActionUrl(self::ACTION_RESOLVE)
+                $retry = esc_html__('Retry', I18N::DOMAIN);
+                $mark = esc_html__('Mark as success', I18N::DOMAIN);
+
+                $retryUrl = add_query_arg([
+                    'selected' => $id,
+                    'rowAction' => self::RETRY_ACTION,
+                    ],
+                    $this->getActionUrl(self::DO_SINGLE_ACTION)
                 );
-                $url = esc_attr($url);
+                $retryUrl = esc_attr($retryUrl);
+
+                $markUrl = add_query_arg([
+                    'selected' => $id,
+                    'rowAction' => self::MARK_ACTION,
+                    ],
+                    $this->getActionUrl(self::DO_SINGLE_ACTION)
+                );
+                $markUrl = esc_attr($markUrl);
 
                 echo <<<HTML
-<div class="storekeeper-status">
-    <span class="storekeeper-status-danger"></span>
-    <a href="$url">$retry</a>
-</div>
-HTML;
+                    <div class="storekeeper-status">
+                        <span class="storekeeper-status-danger" style="margin-top:8px"></span>
+                        <div class="button-group">
+                            <a class="button" href="$retryUrl">$retry</a> &nbsp; <a href="$markUrl" class="button button-primary">$mark</a>
+
+                        </div>
+                    </div>
+                    HTML;
                 break;
         }
     }
@@ -240,12 +270,12 @@ HTML;
         $hiddenHtml = $this->getHiddenInputs(['task-type']);
         $filter = esc_html__('filter', I18N::DOMAIN);
         echo <<<HTML
-<form class="actions" style="display: inline;">
-    $hiddenHtml
-    <select name="task-type" id="task-type" class="postform">$optionHtml</select>
-    <button type="submit" class="button">$filter</button>
-</form>
-HTML;
+        <form class="actions" style="display: inline;">
+            $hiddenHtml
+            <select name="task-type" id="task-type" class="postform">$optionHtml</select>
+            <button type="submit" class="button">$filter</button>
+        </form>
+        HTML;
     }
 
     private function renderTaskStatusFilter()
@@ -263,20 +293,32 @@ HTML;
         $hiddenHtml = $this->getHiddenInputs(['task-status']);
         $filter = esc_html__('filter', I18N::DOMAIN);
         echo <<<HTML
-<form class="actions" style="display: inline;">
-    $hiddenHtml
-    <select name="task-status" id="task-status" class="postform">$optionHtml</select>
-    <button type="submit" class="button">$filter</button>
-</form>
-HTML;
+        <form class="actions" style="display: inline;">
+            $hiddenHtml
+            <select name="task-status" id="task-status" class="postform">$optionHtml</select>
+            <button type="submit" class="button">$filter</button>
+        </form>
+        HTML;
     }
 
     private function renderTaskMassAction()
     {
-        $resolve = esc_html__('Resolve selected', I18N::DOMAIN);
+        $currentAction = $this->getRowAction();
+        $optionLabel = esc_html__('Select action', I18N::DOMAIN);
+        $optionHtml = "<option value=''>$optionLabel</option>";
+        $rowActions = [
+            self::RETRY_ACTION => esc_html__('Retry', I18N::DOMAIN),
+            self::MARK_ACTION => esc_html__('Mark as success', I18N::DOMAIN),
+        ];
+        foreach ($rowActions as $value => $label) {
+            $selected = $currentAction === $value ? 'selected' : '';
+            $optionHtml .= "<option value='$value' $selected>$label</option>";
+        }
+        $apply = esc_html__('Apply', I18N::DOMAIN);
         echo <<<HTML
-    <button type="submit" class="button storekeeper-resolve">$resolve</button>
-HTML;
+            <select name="rowAction" id="row-action" class="storekeeper-apply">$optionHtml</select>
+            <button type="submit" class="button storekeeper-apply">$apply</button>
+        HTML;
     }
 
     private function getHiddenInputs(array $exclude = []): string
@@ -331,5 +373,19 @@ HTML;
         }
 
         return null;
+    }
+
+    private function getRowAction(): ?string
+    {
+        if (isset($_REQUEST['rowAction'])) {
+            return sanitize_key($_REQUEST['rowAction']);
+        }
+
+        return '';
+    }
+
+    protected function clearArgs(): void
+    {
+        wp_redirect(remove_query_arg(['selected', 'action', 'rowAction']));
     }
 }
