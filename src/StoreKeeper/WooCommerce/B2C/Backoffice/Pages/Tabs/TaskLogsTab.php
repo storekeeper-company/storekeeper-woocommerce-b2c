@@ -8,8 +8,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class TaskLogsTab extends AbstractLogsTab
 {
-    const ACTION_RESOLVE = 'action-resolve';
-    const ACTION_MASS_RESOLVE = 'action-mass-resolve';
+    const DO_SINGLE_ACTION = 'do-single-action';
+    const DO_MULTIPLE_ACTIONS = 'do-multiple-actions';
     const RETRY_ACTION = 'retry';
     const MARK_ACTION = 'mark';
 
@@ -18,19 +18,19 @@ class TaskLogsTab extends AbstractLogsTab
         parent::__construct($title, $slug);
 
         $this->addAction(
-            self::ACTION_RESOLVE,
-            [$this, 'resolveTaskAction']
+            self::DO_SINGLE_ACTION,
+            [$this, 'singleRowAction']
         );
         $this->addAction(
-            self::ACTION_MASS_RESOLVE,
-            [$this, 'resolveTasksAction']
+            self::DO_MULTIPLE_ACTIONS,
+            [$this, 'multipleRowsAction']
         );
     }
 
-    public function resolveTaskAction()
+    public function singleRowAction()
     {
         if (array_key_exists('selected', $_GET)) {
-            $this->resolveTasks(
+            $this->doRowAction(
                 [
                     (int) $_GET['selected'],
                 ],
@@ -40,17 +40,17 @@ class TaskLogsTab extends AbstractLogsTab
         $this->clearArgs();
     }
 
-    public function resolveTasksAction()
+    public function multipleRowsAction()
     {
         if (array_key_exists('selected', $_POST) && array_key_exists('rowAction', $_POST)) {
             $rowAction = $_POST['rowAction'];
             $selected = $this->sanitizeIntArray($_POST['selected']);
-            $this->resolveTasks($selected, $rowAction);
+            $this->doRowAction($selected, $rowAction);
         }
         $this->clearArgs();
     }
 
-    private function resolveTasks(array $taskIds, string $rowAction)
+    private function doRowAction(array $taskIds, string $rowAction)
     {
         global $wpdb;
 
@@ -88,7 +88,7 @@ class TaskLogsTab extends AbstractLogsTab
         $this->renderTaskSimpleTypeFilter();
         $this->renderTaskStatusFilter();
 
-        $url = $this->getActionUrl(self::ACTION_MASS_RESOLVE);
+        $url = $this->getActionUrl(self::DO_MULTIPLE_ACTIONS);
         $url = esc_attr($url);
         echo "<form action='$url' method='post'>";
 
@@ -188,7 +188,7 @@ class TaskLogsTab extends AbstractLogsTab
                     'selected' => $id,
                     'rowAction' => self::RETRY_ACTION,
                     ],
-                    $this->getActionUrl(self::ACTION_RESOLVE)
+                    $this->getActionUrl(self::DO_SINGLE_ACTION)
                 );
                 $retryUrl = esc_attr($retryUrl);
 
@@ -196,7 +196,7 @@ class TaskLogsTab extends AbstractLogsTab
                     'selected' => $id,
                     'rowAction' => self::MARK_ACTION,
                     ],
-                    $this->getActionUrl(self::ACTION_RESOLVE)
+                    $this->getActionUrl(self::DO_SINGLE_ACTION)
                 );
                 $markUrl = esc_attr($markUrl);
 
@@ -304,7 +304,7 @@ class TaskLogsTab extends AbstractLogsTab
     private function renderTaskMassAction()
     {
         $currentAction = $this->getRowAction();
-        $optionLabel = esc_html__('Select resolve action', I18N::DOMAIN);
+        $optionLabel = esc_html__('Select action', I18N::DOMAIN);
         $optionHtml = "<option value=''>$optionLabel</option>";
         $rowActions = [
             self::RETRY_ACTION => esc_html__('Retry', I18N::DOMAIN),
@@ -314,9 +314,9 @@ class TaskLogsTab extends AbstractLogsTab
             $selected = $currentAction === $value ? 'selected' : '';
             $optionHtml .= "<option value='$value' $selected>$label</option>";
         }
-        $resolve = esc_html__('Resolve selected', I18N::DOMAIN);
+        $resolve = esc_html__('Apply', I18N::DOMAIN);
         echo <<<HTML
-            <select name="rowAction" id="resolve-action" class="storekeeper-resolve">$optionHtml</select>
+            <select name="rowAction" id="row-action" class="storekeeper-resolve">$optionHtml</select>
             <button type="submit" class="button storekeeper-resolve">$resolve</button>
         HTML;
     }
