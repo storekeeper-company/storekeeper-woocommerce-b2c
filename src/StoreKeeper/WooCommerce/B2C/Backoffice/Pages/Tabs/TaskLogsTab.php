@@ -171,16 +171,19 @@ class TaskLogsTab extends AbstractLogsTab
     {
         $id = $task['id'];
         $status = $task['status'];
+
+        echo '<div class="storekeeper-status">';
         switch ($status) {
-            case TaskHandler::STATUS_NEW:
             case TaskHandler::STATUS_SUCCESS:
                 echo <<<HTML
-                    <div class="storekeeper-status">
-                        <span class="storekeeper-status-success"></span>
-                    </div>
+                    <span class="storekeeper-status-success"></span>
                     HTML;
                 break;
             case TaskHandler::STATUS_PROCESSING:
+                echo <<<HTML
+                    <span class="storekeeper-status-warning"></span>
+                    HTML;
+                break;
             case TaskHandler::STATUS_FAILED:
                 $retry = esc_html__('Retry', I18N::DOMAIN);
                 $mark = esc_html__('Mark as success', I18N::DOMAIN);
@@ -202,16 +205,21 @@ class TaskLogsTab extends AbstractLogsTab
                 $markUrl = esc_attr($markUrl);
 
                 echo <<<HTML
-                    <div class="storekeeper-status">
-                        <span class="storekeeper-status-danger" style="margin-top:8px"></span>
-                        <div class="button-group">
-                            <a class="button" href="$retryUrl">$retry</a> &nbsp; <a href="$markUrl" class="button button-primary">$mark</a>
-
-                        </div>
+                    <span class="storekeeper-status-danger" style="margin-top:8px"></span>
+                    <div class="button-group">
+                        <a class="button" href="$retryUrl">$retry</a>
+                        <a href="$markUrl" class="button button-primary">$mark</a>
                     </div>
                     HTML;
                 break;
+            default:
+                echo <<<HTML
+                    <span class="storekeeper-status-secondary"></span>
+                    HTML;
+                break;
         }
+
+        echo '</div>';
     }
 
     public function renderTaskStatus($value, $task)
