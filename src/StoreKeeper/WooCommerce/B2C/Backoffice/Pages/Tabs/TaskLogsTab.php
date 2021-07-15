@@ -85,8 +85,7 @@ class TaskLogsTab extends AbstractLogsTab
         $this->items = $this->fetchData(TaskModel::class, $whereClauses, $whereValues);
         $this->count = TaskModel::count($whereClauses, $whereValues);
 
-        $this->renderTaskSimpleTypeFilter();
-        $this->renderTaskStatusFilter();
+        $this->renderTaskFilter();
 
         $url = $this->getActionUrl(self::DO_MULTIPLE_ACTIONS);
         $url = esc_attr($url);
@@ -158,7 +157,7 @@ class TaskLogsTab extends AbstractLogsTab
         HTML;
     }
 
-    public function renderSelectTask($value, $task)
+    public function renderSelectTask($value, $task): void
     {
         $id = esc_attr($task['id']);
         echo <<<HTML
@@ -166,7 +165,7 @@ class TaskLogsTab extends AbstractLogsTab
         HTML;
     }
 
-    public function renderTaskActions($value, $task)
+    public function renderTaskActions($value, $task): void
     {
         $id = $task['id'];
         $status = $task['status'];
@@ -263,7 +262,27 @@ class TaskLogsTab extends AbstractLogsTab
         return [$whereClauses, $whereValues];
     }
 
-    private function renderTaskSimpleTypeFilter()
+    private function renderTaskFilter()
+    {
+        $taskTypeSelect = $this->generateTaskTypeSelect();
+        $taskStatusSelect = $this->generateTaskStatusSelect();
+
+        $hiddenTypeHtml = $this->getHiddenInputs(['task-type']);
+        $hiddenStatusHtml = $this->getHiddenInputs(['task-status']);
+
+        $filter = esc_html__('Apply filter', I18N::DOMAIN);
+        echo <<<HTML
+        <form class="actions" style="display: inline;">
+            $hiddenTypeHtml
+            $hiddenStatusHtml
+            $taskTypeSelect
+            $taskStatusSelect
+            <button type="submit" class="button">$filter</button>
+        </form>
+        HTML;
+    }
+
+    private function generateTaskTypeSelect(): string
     {
         $currentType = $this->getRequestTaskType();
         $optionLabel = esc_html__('Select log type', I18N::DOMAIN);
@@ -275,18 +294,12 @@ class TaskLogsTab extends AbstractLogsTab
             $optionHtml .= "<option value='$type' $selected>$label</option>";
         }
 
-        $hiddenHtml = $this->getHiddenInputs(['task-type']);
-        $filter = esc_html__('filter', I18N::DOMAIN);
-        echo <<<HTML
-        <form class="actions" style="display: inline;">
-            $hiddenHtml
-            <select name="task-type" id="task-type" class="postform">$optionHtml</select>
-            <button type="submit" class="button">$filter</button>
-        </form>
-        HTML;
+        return <<<HTML
+                    <select name="task-type" id="task-type" class="postform">$optionHtml</select>
+               HTML;
     }
 
-    private function renderTaskStatusFilter()
+    private function generateTaskStatusSelect(): string
     {
         $currentStatus = $this->getRequestStatus();
         $optionLabel = __('Select log status', I18N::DOMAIN);
@@ -298,15 +311,9 @@ class TaskLogsTab extends AbstractLogsTab
             $optionHtml .= "<option value='$status' $selected>$label</option>";
         }
 
-        $hiddenHtml = $this->getHiddenInputs(['task-status']);
-        $filter = esc_html__('filter', I18N::DOMAIN);
-        echo <<<HTML
-        <form class="actions" style="display: inline;">
-            $hiddenHtml
-            <select name="task-status" id="task-status" class="postform">$optionHtml</select>
-            <button type="submit" class="button">$filter</button>
-        </form>
-        HTML;
+        return <<<HTML
+                    <select name="task-status" id="task-status" class="postform">$optionHtml</select>
+               HTML;
     }
 
     private function renderTaskMassAction()
