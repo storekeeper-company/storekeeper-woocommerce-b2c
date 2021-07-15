@@ -168,8 +168,8 @@ abstract class AbstractLogsTab extends AbstractTab
 
     protected function getRequestSort(): string
     {
-        if (isset($_REQUEST['sort']) && in_array(strtolower($_REQUEST['sort']), ['asc', 'desc'])) {
-            return $_REQUEST['sort'];
+        if (isset($_REQUEST['sort']) && 'asc' === strtolower($_REQUEST['sort'])) {
+            return 'asc';
         }
 
         return 'desc';
