@@ -114,6 +114,7 @@ class TaskLogsTab extends AbstractLogsTab
                 [
                     'title' => __('Date', I18N::DOMAIN),
                     'key' => 'date_created',
+                    'headerFunction' => [$this, 'renderDateCreated'],
                 ],
                 [
                     'title' => __('Log type', I18N::DOMAIN),
