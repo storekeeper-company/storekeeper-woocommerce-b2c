@@ -28,11 +28,12 @@ abstract class AbstractLogsTab extends AbstractTab
         $model = new $modelClass();
         $index = $this->getRequestTableIndex();
         $limit = $this->getRequestLimit();
+        $sort = $this->getRequestSort();
 
         $select = $model->getSelectHelper()
             ->cols(['*'])
             ->offset($index * $limit)
-            ->orderBy(['date_created'])
+            ->orderBy(['date_created '.strtoupper($sort)])
             ->limit($limit);
 
         foreach ($whereClauses as $whereClause) {
@@ -84,13 +85,31 @@ abstract class AbstractLogsTab extends AbstractTab
             )
         );
         echo <<<HTML
-<div class="storekeeper-pagination">
-    <span>{$this->count} $results</span>
-    $previousNavigation
-    <span>$pageInfo</span>
-    $nextNavigation
-</div>
-HTML;
+        <div class="storekeeper-pagination">
+            <span>{$this->count} $results</span>
+            $previousNavigation
+            <span>$pageInfo</span>
+            $nextNavigation
+        </div>
+        HTML;
+    }
+
+    public function renderDateCreated()
+    {
+        $sort = $this->getRequestSort();
+        // Caret up character
+        $caret = '&#9650;';
+        esc_attr(remove_query_arg('sort'));
+        $url = esc_attr(add_query_arg('sort', 'asc'));
+        if ('asc' === $sort) {
+            $url = esc_attr(add_query_arg('sort', 'desc'));
+            // Caret down character
+            $caret = '&#9660;';
+        }
+        $dateString = __('Date', I18N::DOMAIN);
+        echo <<<HTML
+            $dateString <a href="$url">$caret</a>
+            HTML;
     }
 
     private function getPreviousNavigation($currentIndex): string
@@ -100,14 +119,14 @@ HTML;
             $previousUrl = esc_attr(add_query_arg('table-index', $currentIndex - 1));
 
             return <<<HTML
-    <a href="$firstUrl" class="button">«</a>
-    <a href="$previousUrl" class="button">‹</a>
-HTML;
+                        <a href="$firstUrl" class="button">«</a>
+                        <a href="$previousUrl" class="button">‹</a>
+                    HTML;
         } else {
             return <<<HTML
-    <button class="button" disabled>«</button>
-    <button class="button" disabled>‹</button>
-HTML;
+                        <button class="button" disabled>«</button>
+                        <button class="button" disabled>‹</button>
+                    HTML;
         }
     }
 
@@ -118,14 +137,14 @@ HTML;
             $lastUrl = esc_attr(add_query_arg('table-index', $lastIndex));
 
             return <<<HTML
-    <a href="$nextUrl" class="button">›</a>
-    <a href="$lastUrl" class="button">»</a>
-HTML;
+                        <a href="$nextUrl" class="button">›</a>
+                        <a href="$lastUrl" class="button">»</a>
+                    HTML;
         } else {
             return <<<HTML
-    <button class="button" disabled>›</button>
-    <button class="button" disabled>»</button>
-HTML;
+                        <button class="button" disabled>›</button>
+                        <button class="button" disabled>»</button>
+                    HTML;
         }
     }
 
@@ -145,5 +164,14 @@ HTML;
         }
 
         return 20;
+    }
+
+    protected function getRequestSort(): string
+    {
+        if (isset($_REQUEST['sort']) && 'asc' === strtolower($_REQUEST['sort'])) {
+            return 'asc';
+        }
+
+        return 'desc';
     }
 }
