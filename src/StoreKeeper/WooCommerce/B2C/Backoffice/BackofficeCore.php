@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
+use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 
@@ -28,6 +29,7 @@ class BackofficeCore
         $this->settings();
         $this->adminNotices();
         $this->orderSyncMetaBoxes();
+        $this->productSyncMetaBoxes();
     }
 
     private function settings()
@@ -45,6 +47,12 @@ class BackofficeCore
     public function run()
     {
         $this->loader->run();
+    }
+
+    private function productSyncMetaBoxes()
+    {
+        $metaBox = new ProductSyncMetaBox();
+        $this->loader->add_action('add_meta_boxes', $metaBox, 'register');
     }
 
     private function orderSyncMetaBoxes()
