@@ -9,7 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class OrderSyncMetaBox extends AbstractMetaBox
 {
-    const ACTION_NAME = 'sk_sync';
+    const ACTION_NAME = 'sk_sync_order';
 
     final public function register(): void
     {
@@ -40,7 +40,7 @@ class OrderSyncMetaBox extends AbstractMetaBox
 
         $skId = $this->getPostMeta($theorder->get_id(), 'storekeeper_id', false);
         $idLabel = esc_html__('Backoffice ID', I18N::DOMAIN);
-        $idValue = esc_html($skId ? $skId : '-');
+        $idValue = esc_html($skId ?: '-');
 
         $dateLabel = esc_html__('Last sync', I18N::DOMAIN);
         $dateValue = esc_html($this->getPostMeta($theorder->get_id(), 'storekeeper_sync_date', '-'));
@@ -90,14 +90,21 @@ class OrderSyncMetaBox extends AbstractMetaBox
         $this->showPossibleError();
     }
 
-    public function action($post_id)
+    /**
+     * Function to sync order from wordpress to storekeeper backoffice.
+     *
+     * @param int $postId
+     *
+     * @throws \Exception
+     */
+    final public function doSync($postId): void
     {
         $nonce = array_key_exists('_wpnonce', $_REQUEST) ? $_REQUEST['_wpnonce'] : null; // no need to escape, wp_verify_nonce compares hash
-        if (1 === wp_verify_nonce($nonce, self::ACTION_NAME.'_post_'.$post_id)) {
-            if (wc_get_order($post_id)) {
+        if (1 === wp_verify_nonce($nonce, self::ACTION_NAME.'_post_'.$postId)) {
+            if (wc_get_order($postId)) {
                 $export = new OrderExport(
                     [
-                        'id' => $post_id,
+                        'id' => $postId,
                     ]
                 );
                 $exception = current($export->run());
@@ -109,20 +116,20 @@ class OrderSyncMetaBox extends AbstractMetaBox
                     }
                     $error = __('Failed to sync order', I18N::DOMAIN).': '.$message;
                     wp_redirect(
-                        get_edit_post_link($post_id, 'url').'&sk_sync_error='.urlencode($error)
+                        get_edit_post_link($postId, 'url').'&sk_sync_error='.urlencode($error)
                     );
                     exit();
                 }
             }
 
-            wp_redirect(get_edit_post_link($post_id, 'url'));
+            wp_redirect(get_edit_post_link($postId, 'url'));
             exit();
         }
 
         // Nonce expired, user can just try again.
         $message = __('Failed to sync order', I18N::DOMAIN).': '.__('Please try again', I18N::DOMAIN);
         wp_redirect(
-            get_edit_post_link($post_id, 'url').'&sk_sync_error='.urlencode($message)
+            get_edit_post_link($postId, 'url').'&sk_sync_error='.urlencode($message)
         );
         exit();
     }

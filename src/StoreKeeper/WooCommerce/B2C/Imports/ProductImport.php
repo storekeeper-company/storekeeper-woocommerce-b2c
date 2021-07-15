@@ -988,6 +988,9 @@ SQL;
         }
 
         update_post_meta($newProduct->get_id(), 'storekeeper_id', $dotObject->get('id'));
+
+        // Add last sync date meta for products
+        update_post_meta($newProduct->get_id(), 'storekeeper_sync_date', date('Y-m-d H:i:s'));
         $this->debug('storekeeper_id added to post.', $log_data);
 
         if ($dotObject->has('flat_product.content_vars')) {

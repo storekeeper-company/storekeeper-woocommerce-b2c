@@ -2,12 +2,15 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 
+use StoreKeeper\WooCommerce\B2C\Commands\ProcessSingleTask;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class ProductSyncMetaBox extends AbstractMetaBox
 {
-    const ACTION_NAME = 'sk_sync';
+    const ACTION_NAME = 'sk_sync_product';
     const POST_TYPE = 'product';
 
     final public function register(): void
@@ -81,5 +84,76 @@ class ProductSyncMetaBox extends AbstractMetaBox
             HTML;
 
         $this->showPossibleError();
+        $this->showPossibleSuccess();
+    }
+
+    /**
+     * Function to sync product from storekeeper backoffice to wordpress.
+     *
+     * @throws \Exception
+     */
+    final public function doSync(int $postId): void
+    {
+        $nonce = array_key_exists('_wpnonce', $_REQUEST) ? $_REQUEST['_wpnonce'] : null; // no need to escape, wp_verify_nonce compares hash
+        if (1 === wp_verify_nonce($nonce, self::ACTION_NAME.'_post_'.$postId)) {
+            if (wc_get_product($postId)) {
+                $product = wc_get_product($postId);
+                $storekeeperId = $this->getPostMeta($product->get_id(), 'storekeeper_id', false);
+                $tasks = $this->getTasks($storekeeperId);
+
+                if (empty($tasks)) {
+                    $noUpdateMessage = __('Product is in sync and no updates were found.', I18N::DOMAIN);
+                    wp_redirect(
+                        get_edit_post_link($postId, 'url').'&sk_sync_success='.urlencode($noUpdateMessage)
+                    );
+                    exit();
+                }
+
+                $processor = new ProcessSingleTask();
+                try {
+                    foreach ($tasks as $task) {
+                        $processor->execute([
+                            $task['id'],
+                        ], []);
+
+                        $task['status'] = TaskHandler::STATUS_SUCCESS;
+
+                        TaskModel::update($task['id'], $task);
+                    }
+                } catch (\Throwable $throwable) {
+                    $errorMessage = $throwable->getMessage();
+                    $message = __('Something went wrong while syncing product', I18N::DOMAIN).': '.$errorMessage;
+                    wp_redirect(
+                        get_edit_post_link($postId, 'url').'&sk_sync_error='.urlencode($message)
+                    );
+                    exit();
+                }
+
+                $successMessage = __('Product was synced successfully.', I18N::DOMAIN);
+                wp_redirect(
+                    get_edit_post_link($postId, 'url').'&sk_sync_success='.urlencode($successMessage)
+                );
+                exit();
+            }
+        }
+
+        // Nonce expired, user can just try again.
+        $message = __('Failed to sync product', I18N::DOMAIN).': '.__('Please try again', I18N::DOMAIN);
+        wp_redirect(
+            get_edit_post_link($postId, 'url').'&sk_sync_error='.urlencode($message)
+        );
+        exit();
+    }
+
+    private function getTasks(int $storekeeperId): array
+    {
+        if (!is_null($storekeeperId)) {
+            try {
+                return TaskHandler::getTasksByStorekeeperId($storekeeperId);
+            } catch (\Throwable $throwable) {
+            }
+        }
+
+        return [];
     }
 }
