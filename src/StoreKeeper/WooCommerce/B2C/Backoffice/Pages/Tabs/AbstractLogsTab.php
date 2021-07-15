@@ -106,9 +106,9 @@ abstract class AbstractLogsTab extends AbstractTab
             // Caret down character
             $caret = '&#9660;';
         }
-
+        $dateString = __('Date', I18N::DOMAIN);
         echo <<<HTML
-            Date <a href="$url">$caret</a>
+            $dateString <a href="$url">$caret</a>
             HTML;
     }
 
@@ -168,8 +168,8 @@ abstract class AbstractLogsTab extends AbstractTab
 
     protected function getRequestSort(): string
     {
-        if (isset($_REQUEST['sort'])) {
-            return in_array($_REQUEST['sort'], ['asc', 'desc']) ? $_REQUEST['sort'] : 'desc';
+        if (isset($_REQUEST['sort']) && in_array(strtolower($_REQUEST['sort']), ['asc', 'desc'])) {
+            return $_REQUEST['sort'];
         }
 
         return 'desc';
