@@ -40,5 +40,4 @@ class SyncWoocommerceSingleProduct extends SyncWoocommerceProductPage
             ]
         );
     }
-
 }

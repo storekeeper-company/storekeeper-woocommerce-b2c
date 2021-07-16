@@ -82,8 +82,6 @@ class OrderSyncMetaBox extends AbstractMetaBox
     /**
      * Function to sync order from wordpress to storekeeper backoffice.
      *
-     * @param int $postId
-     *
      * @throws Exception
      */
     final public function doSync(int $postId): void
