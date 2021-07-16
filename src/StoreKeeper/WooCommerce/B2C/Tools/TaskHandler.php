@@ -603,7 +603,7 @@ class TaskHandler
     /**
      * Get all new tasks by storekeeper id.
      */
-    public static function getTasksByStorekeeperId(int $storekeeperId): array
+    public static function getTasksByStorekeeperId(int $storekeeperId): ?array
     {
         global $wpdb;
 
