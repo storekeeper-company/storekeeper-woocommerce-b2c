@@ -148,10 +148,7 @@ class ProductSyncMetaBox extends AbstractMetaBox
     private function getTasks(int $storekeeperId): array
     {
         if (!is_null($storekeeperId)) {
-            try {
-                return TaskHandler::getTasksByStorekeeperId($storekeeperId);
-            } catch (\Throwable $throwable) {
-            }
+            return TaskHandler::getTasksByStorekeeperId($storekeeperId) ?? [];
         }
 
         return [];
