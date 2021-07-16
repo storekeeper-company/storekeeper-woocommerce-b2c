@@ -8,7 +8,7 @@ class FullProductImportWithSelectiveIds extends ProductImport
 
     protected $shop_product_ids = [];
 
-    protected $createProductVariations = true;
+    protected $syncProductVariations = true;
 
     /**
      * ProductImportWithSelectiveIds constructor.

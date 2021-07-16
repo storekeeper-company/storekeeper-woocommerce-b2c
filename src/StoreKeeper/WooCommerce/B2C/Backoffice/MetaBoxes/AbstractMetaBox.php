@@ -48,6 +48,13 @@ abstract class AbstractMetaBox
         return wp_nonce_url($syncLink, static::ACTION_NAME.'_post_'.$post->ID);
     }
 
+    protected function isNonceValid(int $postId): bool
+    {
+        $nonce = array_key_exists('_wpnonce', $_REQUEST) ? $_REQUEST['_wpnonce'] : null; // no need to escape, wp_verify_nonce compares hash
+
+        return 1 === wp_verify_nonce($nonce, static::ACTION_NAME.'_post_'.$postId);
+    }
+
     protected function getPostMeta($postId, string $metaKey, $fallback)
     {
         if (metadata_exists('post', $postId, $metaKey)) {

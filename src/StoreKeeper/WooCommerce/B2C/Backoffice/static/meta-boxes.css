@@ -1,0 +1,43 @@
+#poststuff #storekeeper-product-sync .inside,
+#poststuff #storekeeper-order-sync .inside {
+    margin: 0;
+    padding: 0;
+}
+#poststuff #storekeeper-product-sync .inside ul.product_actions li,
+#poststuff #storekeeper-order-sync .inside ul.order_actions li {
+    padding: 6px 10px;
+    box-sizing: border-box;
+}
+#poststuff #storekeeper-product-sync .inside .product_sync_submission,
+#poststuff #storekeeper-order-sync .inside .order_sync_submission {
+    float: right;
+}
+
+/**
+Styles forked from woocommerce/assets/css/admin.css
+ */
+.product_actions {
+    margin: 0;
+    overflow: hidden;
+    zoom: 1;
+}
+
+.product_actions li {
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 6px 0;
+    margin: 0;
+    line-height: 1.6em;
+    float: left;
+    width: 50%;
+    text-align: center;
+}
+
+.product_actions li.wide {
+    width: auto;
+    float: none;
+    clear: both;
+    padding: 6px;
+    text-align: left;
+    overflow: hidden;
+}

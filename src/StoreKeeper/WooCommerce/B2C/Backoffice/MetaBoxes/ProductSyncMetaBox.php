@@ -2,7 +2,9 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 
-use StoreKeeper\WooCommerce\B2C\Commands\ProcessSingleTask;
+use Exception;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceSingleProduct;
+use StoreKeeper\WooCommerce\B2C\Commands\WebCommandRunner;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -42,7 +44,7 @@ class ProductSyncMetaBox extends AbstractMetaBox
         $dateValue = esc_html($this->getPostMeta($product->get_id(), 'storekeeper_sync_date', '-'));
 
         $backoffice = '';
-        if ($storekeeperId && StoreKeeperOptions::isConnected()) {
+        if (0 !== (int) $storekeeperId && StoreKeeperOptions::isConnected()) {
             $backofficeLabel = esc_html__('Open in backoffice', I18N::DOMAIN);
             $backofficeLink = esc_attr(StoreKeeperOptions::getBackofficeUrl()."#products/details/$storekeeperId");
             $backoffice = <<<HTML
@@ -68,21 +70,9 @@ class ProductSyncMetaBox extends AbstractMetaBox
                     $backoffice
                 </li>
             </ul>
-            <style>
-                #poststuff #storekeeper-product-sync .inside {
-                    margin: 0;
-                    padding: 0;
-                } 
-                #poststuff #storekeeper-product-sync .inside ul.product_actions li {
-                    padding: 6px 10px;
-                    box-sizing: border-box;
-                } 
-                #poststuff #storekeeper-product-sync .inside .product_sync_submission {
-                    float: right;
-                } 
-            </style>
             HTML;
 
+        wp_enqueue_style('order-meta-box', plugin_dir_url(__FILE__).'../static/meta-boxes.css');
         $this->showPossibleError();
         $this->showPossibleSuccess();
     }
@@ -90,34 +80,33 @@ class ProductSyncMetaBox extends AbstractMetaBox
     /**
      * Function to sync product from storekeeper backoffice to wordpress.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     final public function doSync(int $postId): void
     {
-        $nonce = array_key_exists('_wpnonce', $_REQUEST) ? $_REQUEST['_wpnonce'] : null; // no need to escape, wp_verify_nonce compares hash
-        if (1 === wp_verify_nonce($nonce, self::ACTION_NAME.'_post_'.$postId)) {
-            if (wc_get_product($postId)) {
-                $product = wc_get_product($postId);
+        if ($this->isNonceValid($postId)) {
+            if ($product = wc_get_product($postId)) {
                 $storekeeperId = $this->getPostMeta($product->get_id(), 'storekeeper_id', false);
                 $tasks = $this->getTasks($storekeeperId);
 
-                if (empty($tasks)) {
-                    $noUpdateMessage = __('Product is in sync and no updates were found.', I18N::DOMAIN);
-                    wp_redirect(
-                        get_edit_post_link($postId, 'url').'&sk_sync_success='.urlencode($noUpdateMessage)
-                    );
-                    exit();
+                if ($product->is_type('variable')) {
+                    $variationPostIds = $product->get_children();
+                    // Get all tasks related to variations and add to tasks
+                    foreach ($variationPostIds as $variationPostId) {
+                        $variationStorekeeperId = $this->getPostMeta($variationPostId, 'storekeeper_id', false);
+                        $taskMerger = $tasks;
+                        $tasks = array_merge($taskMerger, $this->getTasks($variationStorekeeperId));
+                    }
                 }
 
-                $processor = new ProcessSingleTask();
                 try {
+                    $runner = new WebCommandRunner();
+                    $runner->addCommandClass(SyncWoocommerceSingleProduct::class);
+                    $runner->execute(SyncWoocommerceSingleProduct::getCommandName(), [], [
+                        'storekeeper_id' => $storekeeperId,
+                    ]);
                     foreach ($tasks as $task) {
-                        $processor->execute([
-                            $task['id'],
-                        ], []);
-
                         $task['status'] = TaskHandler::STATUS_SUCCESS;
-
                         TaskModel::update($task['id'], $task);
                     }
                 } catch (\Throwable $throwable) {
@@ -148,7 +137,7 @@ class ProductSyncMetaBox extends AbstractMetaBox
     private function getTasks(int $storekeeperId): array
     {
         if (!is_null($storekeeperId)) {
-            return TaskHandler::getTasksByStorekeeperId($storekeeperId) ?? [];
+            return TaskHandler::getNewTasksByStorekeeperId($storekeeperId) ?? [];
         }
 
         return [];
