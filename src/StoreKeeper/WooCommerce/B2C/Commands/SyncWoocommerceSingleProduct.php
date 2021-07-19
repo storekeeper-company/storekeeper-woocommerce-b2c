@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
-use StoreKeeper\WooCommerce\B2C\Imports\FullProductImportWithSelectiveIds;
+use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class SyncWoocommerceSingleProduct extends SyncWoocommerceProductPage
@@ -30,8 +30,9 @@ class SyncWoocommerceSingleProduct extends SyncWoocommerceProductPage
      */
     public function runSync($assoc_arguments): void
     {
-        $import = new FullProductImportWithSelectiveIds($assoc_arguments);
+        $import = new ProductImport($assoc_arguments);
         $import->setLogger($this->logger);
+        $import->setSyncProductVariations(true);
         $import->setTaskHandler(new TaskHandler());
         $import->run(
             [

@@ -35,7 +35,7 @@ class ProductSyncMetaBox extends AbstractMetaBox
     {
         $product = wc_get_product($post->ID);
         $syncUrl = esc_attr($this->getNonceSyncActionLink($post));
-        $storekeeperId = $this->getPostMeta($product->get_id(), 'storekeeper_id', false);
+        $storekeeperId = (int) $this->getPostMeta($product->get_id(), 'storekeeper_id', 0);
 
         $idLabel = esc_html__('Backoffice ID', I18N::DOMAIN);
         $idValue = esc_html($storekeeperId ?: '-');
@@ -44,7 +44,7 @@ class ProductSyncMetaBox extends AbstractMetaBox
         $dateValue = esc_html($this->getPostMeta($product->get_id(), 'storekeeper_sync_date', '-'));
 
         $backoffice = '';
-        if (0 !== (int) $storekeeperId && StoreKeeperOptions::isConnected()) {
+        if (0 !== $storekeeperId && StoreKeeperOptions::isConnected()) {
             $backofficeLabel = esc_html__('Open in backoffice', I18N::DOMAIN);
             $backofficeLink = esc_attr(StoreKeeperOptions::getBackofficeUrl()."#products/details/$storekeeperId");
             $backoffice = <<<HTML
@@ -94,8 +94,10 @@ class ProductSyncMetaBox extends AbstractMetaBox
                     // Get all tasks related to variations and add to tasks
                     foreach ($variationPostIds as $variationPostId) {
                         $variationStorekeeperId = $this->getPostMeta($variationPostId, 'storekeeper_id', false);
-                        $taskMerger = $tasks;
-                        $tasks = array_merge($taskMerger, $this->getTasks($variationStorekeeperId));
+
+                        foreach ($this->getTasks($variationStorekeeperId) as $task) {
+                            $tasks[] = $task;
+                        }
                     }
                 }
 

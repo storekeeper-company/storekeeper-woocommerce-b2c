@@ -39,7 +39,7 @@ class OrderSyncMetaBox extends AbstractMetaBox
 
         $syncUrl = esc_attr($this->getNonceSyncActionLink($post));
 
-        $storekeeperId = $this->getPostMeta($theorder->get_id(), 'storekeeper_id', false);
+        $storekeeperId = (int) $this->getPostMeta($theorder->get_id(), 'storekeeper_id', 0);
         $idLabel = esc_html__('Backoffice ID', I18N::DOMAIN);
         $idValue = esc_html($storekeeperId ?: '-');
 
@@ -47,7 +47,7 @@ class OrderSyncMetaBox extends AbstractMetaBox
         $dateValue = esc_html($this->getPostMeta($theorder->get_id(), 'storekeeper_sync_date', '-'));
 
         $backoffice = '';
-        if (0 !== (int) $storekeeperId && StoreKeeperOptions::isConnected()) {
+        if (0 !== $storekeeperId && StoreKeeperOptions::isConnected()) {
             $backofficeLabel = esc_html__('Open in backoffice', I18N::DOMAIN);
             $backofficeLink = esc_attr(StoreKeeperOptions::getBackofficeUrl()."#order/details/$storekeeperId");
             $backoffice = <<<HTML

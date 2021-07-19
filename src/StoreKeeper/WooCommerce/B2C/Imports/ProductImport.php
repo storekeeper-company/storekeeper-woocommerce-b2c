@@ -1175,7 +1175,7 @@ SQL;
         $variationPostIds = $parentProduct->get_children();
         // Check if id no longer exist in the associated products and delete the post object
         foreach ($variationPostIds as $variationPostId) {
-            $variationStorekeeperId = $this->getPostMeta($variationPostId, 'storekeeper_id', false);
+            $variationStorekeeperId = $this->getPostMeta($variationPostId, 'storekeeper_id', 0);
             if (!in_array($variationStorekeeperId, $backofficeVariationStorekeeperIds)) {
                 wp_trash_post($variationPostId);
             }
@@ -1624,5 +1624,15 @@ SQL;
         }
 
         return $fallback;
+    }
+
+    public function setSyncProductVariations(bool $isProductVariable): void
+    {
+        $this->syncProductVariations = $isProductVariable;
+    }
+
+    public function getSyncProductVariations()
+    {
+        return $this->syncProductVariations;
     }
 }
