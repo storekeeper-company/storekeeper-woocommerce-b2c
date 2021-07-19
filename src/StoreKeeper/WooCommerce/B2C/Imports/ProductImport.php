@@ -22,7 +22,7 @@ use WC_Product_Variation;
 
 class ProductImport extends AbstractProductImport
 {
-    protected $createProductVariations = false;
+    protected $syncProductVariations = false;
 
     /**
      * @param $StoreKeeperId
@@ -982,12 +982,15 @@ SQL;
             $log_data['post_id'] = $post_id;
             $this->debug('Configurable product saved', $log_data);
 
-            if ($this->createProductVariations) {
-                $this->createProductVariations($newProduct, $optionsConfig, $log_data);
+            if ($this->syncProductVariations) {
+                $this->syncProductVariations($newProduct, $optionsConfig, $log_data);
             }
         }
 
         update_post_meta($newProduct->get_id(), 'storekeeper_id', $dotObject->get('id'));
+
+        // Add last sync date meta for products
+        update_post_meta($newProduct->get_id(), 'storekeeper_sync_date', date('Y-m-d H:i:s'));
         $this->debug('storekeeper_id added to post.', $log_data);
 
         if ($dotObject->has('flat_product.content_vars')) {
@@ -1160,13 +1163,23 @@ SQL;
      *
      * @throws WordpressException
      */
-    private function createProductVariations($parentProduct, $optionsConfig, $log_data)
+    private function syncProductVariations($parentProduct, $optionsConfig, $log_data)
     {
         // Sorting?
         $data_store = $parentProduct->get_data_store();
         $data_store->sort_all_product_variations($parentProduct->get_id());
 
         $associatedShopProducts = $optionsConfig->get('configurable_associated_shop_products', false);
+        $backofficeVariationStorekeeperIds = array_column($associatedShopProducts, 'shop_product_id');
+
+        $variationPostIds = $parentProduct->get_children();
+        // Check if id no longer exist in the associated products and delete the post object
+        foreach ($variationPostIds as $variationPostId) {
+            $variationStorekeeperId = $this->getPostMeta($variationPostId, 'storekeeper_id', 0);
+            if (!in_array($variationStorekeeperId, $backofficeVariationStorekeeperIds)) {
+                wp_trash_post($variationPostId);
+            }
+        }
 
         $log_data['assigned_shop_count'] = count($associatedShopProducts);
         $this->debug('Assigned product found', $log_data);
@@ -1602,5 +1615,24 @@ SQL;
         if ($variationProduct->get_stock_status() !== $stock_status) {
             $props['stock_status'] = $stock_status;
         }
+    }
+
+    protected function getPostMeta($postId, string $metaKey, $fallback)
+    {
+        if (metadata_exists('post', $postId, $metaKey)) {
+            return get_post_meta($postId, $metaKey, true);
+        }
+
+        return $fallback;
+    }
+
+    public function setSyncProductVariations(bool $isProductVariable): void
+    {
+        $this->syncProductVariations = $isProductVariable;
+    }
+
+    public function getSyncProductVariations()
+    {
+        return $this->syncProductVariations;
     }
 }

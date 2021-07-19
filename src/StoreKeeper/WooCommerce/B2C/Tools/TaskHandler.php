@@ -599,4 +599,22 @@ class TaskHandler
         // Create an error task in the task queue
         LoggerFactory::createErrorTask('task-in-queue-failed', $exception, $task_id, $metaData);
     }
+
+    /**
+     * Get all new tasks by storekeeper id.
+     */
+    public static function getNewTasksByStorekeeperId(int $storekeeperId): ?array
+    {
+        global $wpdb;
+
+        $select = TaskModel::getSelectHelper()
+            ->cols(['*'])
+            ->where('status = :status')
+            ->where('storekeeper_id = :storekeeper_id')
+            ->bindValue('status', self::STATUS_NEW)
+            ->bindValue('storekeeper_id', $storekeeperId)
+            ->orderBy(['date_created DESC']);
+
+        return $wpdb->get_results(TaskModel::prepareQuery($select), ARRAY_A);
+    }
 }

@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
+use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 
@@ -27,7 +28,7 @@ class BackofficeCore
 
         $this->settings();
         $this->adminNotices();
-        $this->orderSyncMetaBoxes();
+        $this->metaBoxes();
     }
 
     private function settings()
@@ -47,11 +48,18 @@ class BackofficeCore
         $this->loader->run();
     }
 
-    private function orderSyncMetaBoxes()
+    private function metaBoxes(): void
     {
-        $metaBox = new OrderSyncMetaBox();
-        $this->loader->add_action('post_action_'.OrderSyncMetaBox::ACTION_NAME, $metaBox, 'action');
-        $this->loader->add_action('add_meta_boxes', $metaBox, 'register');
+        $orderSyncMetaBox = new OrderSyncMetaBox();
+        $productSyncMetaBox = new ProductSyncMetaBox();
+
+        // Order sync meta box
+        $this->loader->add_action('add_meta_boxes', $orderSyncMetaBox, 'register');
+        $this->loader->add_action('post_action_'.OrderSyncMetaBox::ACTION_NAME, $orderSyncMetaBox, 'doSync');
+
+        // Product sync meta box
+        $this->loader->add_action('add_meta_boxes', $productSyncMetaBox, 'register');
+        $this->loader->add_action('post_action_'.ProductSyncMetaBox::ACTION_NAME, $productSyncMetaBox, 'doSync');
     }
 
     private function loadStorekeeperMenu()
