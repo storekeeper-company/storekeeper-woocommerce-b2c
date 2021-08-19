@@ -5,6 +5,8 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
+use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 
 class BackofficeCore
@@ -29,6 +31,7 @@ class BackofficeCore
         $this->settings();
         $this->adminNotices();
         $this->metaBoxes();
+        $this->cron();
     }
 
     private function settings()
@@ -60,6 +63,16 @@ class BackofficeCore
         // Product sync meta box
         $this->loader->add_action('add_meta_boxes', $productSyncMetaBox, 'register');
         $this->loader->add_action('post_action_'.ProductSyncMetaBox::ACTION_NAME, $productSyncMetaBox, 'doSync');
+    }
+
+    private function cron()
+    {
+        $registrar = new CronRegistrar();
+        $this->loader->add_filter('cron_schedules', $registrar, 'addCustomCronInterval');
+        $this->loader->add_action('admin_init', $registrar, 'register');
+
+        $processTask = new ProcessTaskCron();
+        $this->loader->add_action(CronRegistrar::HOOK_PROCESS_TASK, $processTask, 'execute');
     }
 
     private function loadStorekeeperMenu()

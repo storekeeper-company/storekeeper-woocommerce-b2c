@@ -185,6 +185,10 @@ msgstr ""
 msgid "Webhooks"
 msgstr ""
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:18
+msgid "Scheduler"
+msgstr ""
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:19
 msgid "Connection"
 msgstr ""
