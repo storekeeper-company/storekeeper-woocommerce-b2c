@@ -219,8 +219,12 @@ class OrderExport extends AbstractExport
                 update_post_meta($WpObject->get_id(), 'storekeeper_id', $storekeeper_id)
             );
         }
+
+        // Add last sync date meta for orders
+        // Time will be based on user's selected timezone on wordpress
+        $date = current_time('mysql');
         WordpressExceptionThrower::throwExceptionOnWpError(
-            update_post_meta($WpObject->get_id(), 'storekeeper_sync_date', date('Y-m-d H:i:s'))
+            update_post_meta($WpObject->get_id(), 'storekeeper_sync_date', $date)
         );
         $this->debug('Saved order data', $storekeeper_id);
 

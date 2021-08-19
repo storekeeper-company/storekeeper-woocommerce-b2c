@@ -46,7 +46,7 @@ class ProductSyncMetaBox extends AbstractMetaBox
         $backoffice = '';
         if (0 !== $storekeeperId && StoreKeeperOptions::isConnected()) {
             $backofficeLabel = esc_html__('Open in backoffice', I18N::DOMAIN);
-            $backofficeLink = esc_attr(StoreKeeperOptions::getBackofficeUrl()."#products/details/$storekeeperId");
+            $backofficeLink = esc_attr(StoreKeeperOptions::getBackofficeUrl()."#shop-products/details/$storekeeperId");
             $backoffice = <<<HTML
                         <a href="$backofficeLink" class="product_backoffice_link" target="_blank">$backofficeLabel</a>
                         HTML;
