@@ -65,9 +65,10 @@ jobs:
 
       - name: Release latest
         uses: marvinpinto/action-automatic-releases@v1.2.0
+        if: github.ref == 'refs/heads/master'
         with:
           prerelease: true
-          automatic_release_tag: "latest"
+          automatic_release_tag: "development"
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: |
             storekeeper-woocommerce-b2c.zip
