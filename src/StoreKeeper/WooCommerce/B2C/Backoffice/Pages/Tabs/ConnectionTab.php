@@ -10,6 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
 
 class ConnectionTab extends AbstractTab
 {
@@ -89,13 +90,22 @@ class ConnectionTab extends AbstractTab
 
     private function renderStatistics()
     {
+        $hourAgo = date('Y-m-d H:i:s', strtotime('-1 hours'));
+        $now = date('Y-m-d H:i:s');
+        $tasks = TaskModel::getTasksByCreatedDateTimeRange($hourAgo, $now, 0, 'ASC');
+
+        $calculator = new TaskRateCalculator($tasks);
+        $incomingRate = $calculator->calculateIncoming($now);
+        $processedRate = $calculator->calculateProcessed();
         echo $this->getFormStart();
 
         echo $this->getFormHeader(__('Sync statistics', I18N::DOMAIN));
 
         echo $this->getFormGroup(
             __('Tasks in queue', I18N::DOMAIN),
-            TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW])
+            TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]).
+            " (new: {$incomingRate} p/h, processed: {$processedRate} p/h)"
+
         );
 
         echo $this->getFormGroup(

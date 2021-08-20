@@ -153,6 +153,35 @@ SQL;
         return TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_SUCCESS]);
     }
 
+    public static function getTasksByCreatedDateTimeRange($start, $end, $limit, $order = 'DESC')
+    {
+        global $wpdb;
+
+        $select = static::getSelectHelper()
+            ->cols(['id', 'date_created', 'meta_data'])
+            ->where('date_created >= :start')
+            ->where('date_created <= :end')
+            ->bindValue('start', $start)
+            ->bindValue('end', $end)
+            ->orderBy(['date_created '.$order])
+            ->limit($limit);
+
+        $query = static::prepareQuery($select);
+
+        $results = $wpdb->get_results($query, ARRAY_N);
+
+        return array_map(
+            function ($value) {
+                return [
+                    'id' => (int) $value[0],
+                    'date_created' => $value[1],
+                    'meta_data' => $value[2],
+                ];
+            },
+            $results
+        );
+    }
+
     private static function getLastThousandSuccessfulTaskIds()
     {
         global $wpdb;
