@@ -9,6 +9,17 @@ use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractTest;
 
 class TaskRateCalculatorTest extends AbstractTest
 {
+    public function testEmptyTasks()
+    {
+        $now = '1970-01-01 02:00:00';
+        $calculator = new TaskRateCalculator([], $now, 60); // Ensure 60 minutes/1 hour range
+        $incomingRate = $calculator->calculateIncoming();
+        $processedRate = $calculator->calculateProcessed();
+
+        $this->assertEquals(0, $incomingRate, 'Should not return error but 0');
+        $this->assertEquals(0, $processedRate, 'Should not return error but 0');
+    }
+
     public function testTaskIncomingRate()
     {
         // make a task
