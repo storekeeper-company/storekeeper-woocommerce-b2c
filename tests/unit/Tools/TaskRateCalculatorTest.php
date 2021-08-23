@@ -53,7 +53,6 @@ class TaskRateCalculatorTest extends AbstractTest
             true
         );
 
-        // Adjust created date to 30 mins before now date
         $task['date_created'] = $createdDate;
         TaskModel::update($task['id'], $task);
 
