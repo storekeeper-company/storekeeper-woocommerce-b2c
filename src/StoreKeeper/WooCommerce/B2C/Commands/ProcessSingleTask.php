@@ -55,7 +55,7 @@ class ProcessSingleTask extends AbstractCommand
 
         $task['meta_data']['pre_execution'] = $preExecutionDateTime;
         $task['meta_data']['post_execution'] = $postExecutionDateTime;
-        $task['meta_data']['execution_duration_ms'] = $executionDuration;
+        $task['execution_duration'] = $executionDuration;
         TaskModel::update($task_id, $task);
     }
 }

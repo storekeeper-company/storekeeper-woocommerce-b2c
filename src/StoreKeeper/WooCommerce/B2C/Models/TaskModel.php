@@ -20,6 +20,7 @@ class TaskModel extends AbstractModel implements IModelPurge
             'type' => true,
             'type_group' => true,
             'storekeeper_id' => true,
+            'execution_duration' => false,
             'meta_data' => false,
             'error_output' => false,
             'date_created' => false,
@@ -42,6 +43,7 @@ class TaskModel extends AbstractModel implements IModelPurge
         `type_group` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
         `storekeeper_id` INT(10) COLLATE utf8mb4_unicode_ci NOT NULL,
         `meta_data` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
+        `execution_duration` TEXT COLLATE utf8mb4_unicode_ci,
         `error_output` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
         `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
         `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
@@ -158,7 +160,7 @@ SQL;
         global $wpdb;
 
         $select = static::getSelectHelper()
-            ->cols(['id', 'date_created', 'meta_data'])
+            ->cols(['id', 'date_created'])
             ->where('date_created >= :start')
             ->where('date_created <= :end')
             ->bindValue('start', $start)
@@ -175,11 +177,26 @@ SQL;
                 return [
                     'id' => (int) $value[0],
                     'date_created' => $value[1],
-                    'meta_data' => $value[2],
                 ];
             },
             $results
         );
+    }
+
+    public static function getExecutionDurationSumByCreatedDateTimeRange($start, $end)
+    {
+        global $wpdb;
+
+        $select = static::getSelectHelper()
+            ->cols(['SUM(execution_duration) AS duration_total'])
+            ->where('date_created >= :start')
+            ->where('date_created <= :end')
+            ->bindValue('start', $start)
+            ->bindValue('end', $end);
+
+        $query = static::prepareQuery($select);
+
+        return $wpdb->get_row($query);
     }
 
     private static function getLastThousandSuccessfulTaskIds()

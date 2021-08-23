@@ -1,0 +1,62 @@
+<?php
+
+namespace StoreKeeper\WooCommerce\B2C\UnitTest\Tools;
+
+use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
+use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractTest;
+
+class TaskRateCalculatorTest extends AbstractTest
+{
+    public function testTaskIncomingRate()
+    {
+        // make a task
+        $this->createTaskWithCreatedDate(1, '1970-01-01 01:30:00');
+        $now = '1970-01-01 02:00:00';
+        $hourAgo = date('Y-m-d H:i:s', strtotime("{$now} -1 hours"));
+        $tasks = TaskModel::getTasksByCreatedDateTimeRange($hourAgo, $now, 0, 'ASC');
+
+        $calculator = new TaskRateCalculator($tasks, $now, 60); // Ensure 60 minutes/1 hour range
+        $incomingRate = $calculator->calculateIncoming();
+
+        $this->assertEquals(2.0, $incomingRate, 'Expected 2 incoming rate per hour for 1 task every 30 minutes');
+    }
+
+    public function testTaskProcessedRate()
+    {
+        $task1 = $this->createTaskWithCreatedDate(1, '1970-01-01 01:30:00');
+        $task2 = $this->createTaskWithCreatedDate(2, '1970-01-01 01:45:00');
+
+        $task1['execution_duration'] = 1.00; // 1 second execution
+        TaskModel::update($task1['id'], $task1);
+
+        $task2['execution_duration'] = 1.00; // 1 second execution
+        TaskModel::update($task2['id'], $task2);
+
+        $now = '1970-01-01 02:00:00';
+        $hourAgo = date('Y-m-d H:i:s', strtotime("{$now} -1 hours"));
+        $tasks = TaskModel::getTasksByCreatedDateTimeRange($hourAgo, $now, 0, 'ASC');
+
+        $calculator = new TaskRateCalculator($tasks, $now, 60); // Ensure 60 minutes/1 hour range
+        $processedRate = $calculator->calculateProcessed();
+
+        $this->assertEquals(3600.0, $processedRate, 'Expected 3600 processing rate per hour for 2 tasks with 1 second execution');
+    }
+
+    public function createTaskWithCreatedDate($id, string $createdDate)
+    {
+        $task = TaskHandler::scheduleTask(
+            TaskHandler::PRODUCT_IMPORT,
+            $id,
+            ['storekeeper_id' => $id],
+            true
+        );
+
+        // Adjust created date to 30 mins before now date
+        $task['date_created'] = $createdDate;
+        TaskModel::update($task['id'], $task);
+
+        return $task;
+    }
+}

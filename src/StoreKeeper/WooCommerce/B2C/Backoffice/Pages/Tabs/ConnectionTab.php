@@ -94,8 +94,8 @@ class ConnectionTab extends AbstractTab
         $now = date('Y-m-d H:i:s');
         $tasks = TaskModel::getTasksByCreatedDateTimeRange($hourAgo, $now, 0, 'ASC');
 
-        $calculator = new TaskRateCalculator($tasks);
-        $incomingRate = $calculator->calculateIncoming($now);
+        $calculator = new TaskRateCalculator($tasks, $now);
+        $incomingRate = $calculator->calculateIncoming();
         $processedRate = $calculator->calculateProcessed();
         echo $this->getFormStart();
 
@@ -104,8 +104,14 @@ class ConnectionTab extends AbstractTab
         echo $this->getFormGroup(
             __('Tasks in queue', I18N::DOMAIN),
             TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]).
-            " (new: {$incomingRate} p/h, processed: {$processedRate} p/h)"
-
+            sprintf(
+                __(
+                    ' (new: %s p/h, processed: %s p/h)',
+                    I18N::DOMAIN
+                ),
+                $incomingRate,
+                $processedRate
+            )
         );
 
         echo $this->getFormGroup(

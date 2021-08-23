@@ -2,26 +2,35 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
+use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
+
 class TaskRateCalculator
 {
     private $tasks;
     private $minuteMetrics;
+    private $startDateTime;
+    private $endDateTime;
 
-    public function __construct(array $tasks, $minuteMetrics = 60)
+    public function __construct(array $tasks, $now = null, $minuteMetrics = 60)
     {
-        $this->tasks = $tasks;
+        $this->endDateTime = $now;
+        if (is_null($now)) {
+            $this->endDateTime = date('Y-m-d H:i:s');
+        }
         $this->minuteMetrics = $minuteMetrics;
+        $this->startDateTime = date('Y-m-d H:i:s', strtotime("{$this->endDateTime} -{$minuteMetrics} minutes"));
+        $this->tasks = $tasks;
     }
 
-    public function calculateIncoming($now = null): float
+    public function calculateIncoming(): float
     {
-        if (is_null($now)) {
-            $now = date('Y-m-d H:i:s');
+        $oldestTaskDate = $this->getOldestTaskDateWithinRange();
+
+        if (is_null($oldestTaskDate)) {
+            return 0;
         }
 
-        $oldestTaskDate = $this->getOldestTaskDate();
-
-        $timeDifferenceInMinutes = abs(strtotime($now) - strtotime($oldestTaskDate)) / 60;
+        $timeDifferenceInMinutes = abs(strtotime($this->endDateTime) - strtotime($oldestTaskDate)) / $this->minuteMetrics;
         $taskCount = count($this->tasks);
         $rate = $this->minuteMetrics * $taskCount / $timeDifferenceInMinutes;
 
@@ -32,26 +41,31 @@ class TaskRateCalculator
     {
         $taskCount = count($this->tasks);
 
-        $taskDuration = $this->getTaskDurationSum();
+        $taskDuration = $this->getTaskDurationSumInMinutes();
+
+        if (empty($taskDuration)) {
+            return 0;
+        }
 
         $rate = $this->minuteMetrics * $taskCount / $taskDuration;
 
         return round($rate, 1);
     }
 
-    private function getOldestTaskDate()
+    private function getOldestTaskDateWithinRange()
     {
-        return min(array_map(function ($task) {
-            return $task['date_created'];
-        }, $this->tasks));
+        $dates = TaskModel::getTasksByCreatedDateTimeRange($this->startDateTime, $this->endDateTime, 1, 'ASC');
+
+        return $dates[0]['date_created'] ?? null;
     }
 
-    private function getTaskDurationSum()
+    private function getTaskDurationSumInMinutes()
     {
-        $duration = array_sum(array_map(function ($task) {
-            $metadata = unserialize($task['meta_data']);
-            return $metadata['execution_duration_ms'] ?? 0;
-        }, $this->tasks));
-        return $duration > 0 ? $duration : 1;
+        $duration = TaskModel::getExecutionDurationSumByCreatedDateTimeRange($this->startDateTime, $this->endDateTime);
+        if (empty($duration)) {
+            return 0;
+        }
+
+        return $duration->duration_total / 60;
     }
 }
