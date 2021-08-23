@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MenuStructure;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\ConnectBackend;
@@ -133,6 +134,7 @@ class Core
         $this->loadEndpoints();
         $this->registerPaymentGateway();
         $this->versionChecks();
+        $this->incompatibilityCheck();
     }
 
     /**
@@ -177,6 +179,26 @@ class Core
             );
 
             throw new BootError($txt);
+        }
+    }
+
+    private function incompatibilityCheck()
+    {
+        $this->loader->add_action('admin_notices', $this, 'wooCommerceProductSearchCheck');
+    }
+
+    public function wooCommerceProductSearchCheck(): void
+    {
+        $activePlugins = apply_filters('active_plugins', get_option('active_plugins'));
+        if (in_array('woocommerce-product-search/woocommerce-product-search.php', $activePlugins, true)) {
+            $txt = sprintf(
+                __(
+                    'WooCommerce Product Search plugin is not compatible with %s, which could cause unexpected behaviour.',
+                    I18N::DOMAIN
+                ),
+                STOREKEEPER_WOOCOMMERCE_B2C_NAME
+            );
+            AdminNotices::showError($txt);
         }
     }
 
