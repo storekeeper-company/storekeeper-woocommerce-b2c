@@ -66,6 +66,7 @@ class TaskRateCalculator
             return 0;
         }
 
+        // Seconds / 60 = Minutes
         return $duration->duration_total / 60;
     }
 }
