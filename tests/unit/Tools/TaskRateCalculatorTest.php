@@ -12,8 +12,8 @@ class TaskRateCalculatorTest extends AbstractTest
     public function testEmptyTasks()
     {
         $now = '1970-01-01 02:00:00';
-        $calculator = new TaskRateCalculator([], $now, 60); // Ensure 60 minutes/1 hour range
-        $incomingRate = $calculator->calculateIncoming();
+        $calculator = new TaskRateCalculator($now);
+        $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
 
         $this->assertEquals(0, $incomingRate, 'Should not return error but 0');
@@ -24,14 +24,13 @@ class TaskRateCalculatorTest extends AbstractTest
     {
         // make a task
         $this->createTaskWithCreatedDate(1, '1970-01-01 01:30:00');
+        $this->createTaskWithCreatedDate(2, '1970-01-01 01:45:00');
         $now = '1970-01-01 02:00:00';
-        $hourAgo = date('Y-m-d H:i:s', strtotime("{$now} -1 hours"));
-        $tasks = TaskModel::getTasksByCreatedDateTimeRange($hourAgo, $now, 0, 'ASC');
 
-        $calculator = new TaskRateCalculator($tasks, $now, 60); // Ensure 60 minutes/1 hour range
-        $incomingRate = $calculator->calculateIncoming();
+        $calculator = new TaskRateCalculator($now);
+        $incomingRate = $calculator->countIncoming();
 
-        $this->assertEquals(2.0, $incomingRate, 'Expected 2 incoming rate per hour for 1 task every 30 minutes');
+        $this->assertEquals(2, $incomingRate, 'Expected 2 incoming rate per hour for 2 task within 1 hour');
     }
 
     public function testTaskProcessedRate()
@@ -46,10 +45,8 @@ class TaskRateCalculatorTest extends AbstractTest
         TaskModel::update($task2['id'], $task2);
 
         $now = '1970-01-01 02:00:00';
-        $hourAgo = date('Y-m-d H:i:s', strtotime("{$now} -1 hours"));
-        $tasks = TaskModel::getTasksByCreatedDateTimeRange($hourAgo, $now, 0, 'ASC');
 
-        $calculator = new TaskRateCalculator($tasks, $now, 60); // Ensure 60 minutes/1 hour range
+        $calculator = new TaskRateCalculator($now);
         $processedRate = $calculator->calculateProcessed();
 
         $this->assertEquals(3600.0, $processedRate, 'Expected 3600 processing rate per hour for 2 tasks with 1 second execution');

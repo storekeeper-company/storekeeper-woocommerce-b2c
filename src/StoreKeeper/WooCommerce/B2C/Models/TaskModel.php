@@ -2,12 +2,14 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Models;
 
+use Aura\SqlQuery\Common\SelectInterface;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class TaskModel extends AbstractModel implements IModelPurge
 {
     const TABLE_NAME = 'storekeeper_tasks';
+    const TABLE_VERSION = '1.1.0';
 
     public static function getFields(): array
     {
@@ -53,6 +55,22 @@ class TaskModel extends AbstractModel implements IModelPurge
 SQL;
 
         return static::querySql($tableQuery);
+    }
+
+    public static function alterTable(): void
+    {
+        global $wpdb;
+
+        $fields = array_keys(static::getFields());
+        $tableColumns = $wpdb->get_results("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '".static::getTableName()."'", ARRAY_A);
+        $tableColumns = array_column($tableColumns, 'column_name');
+
+        $difference = array_diff($fields, $tableColumns);
+
+        /* @since 5.3.2 */
+        if (in_array('execution_duration', $difference, true)) {
+            $wpdb->query('ALTER TABLE '.static::getTableName().' ADD execution_duration TEXT COLLATE utf8mb4_unicode_ci');
+        }
     }
 
     public static function newTask(
@@ -155,48 +173,37 @@ SQL;
         return TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_SUCCESS]);
     }
 
-    public static function getTasksByCreatedDateTimeRange($start, $end, $limit, $order = 'DESC')
+    private static function prepareCreatedDateTimeRangeSelect($start, $end): SelectInterface
     {
-        global $wpdb;
-
-        $select = static::getSelectHelper()
-            ->cols(['id', 'date_created'])
-            ->where('date_created >= :start')
-            ->where('date_created <= :end')
-            ->bindValue('start', $start)
-            ->bindValue('end', $end)
-            ->orderBy(['date_created '.$order])
-            ->limit($limit);
-
-        $query = static::prepareQuery($select);
-
-        $results = $wpdb->get_results($query, ARRAY_N);
-
-        return array_map(
-            function ($value) {
-                return [
-                    'id' => (int) $value[0],
-                    'date_created' => $value[1],
-                ];
-            },
-            $results
-        );
-    }
-
-    public static function getExecutionDurationSumByCreatedDateTimeRange($start, $end)
-    {
-        global $wpdb;
-
-        $select = static::getSelectHelper()
-            ->cols(['SUM(execution_duration) AS duration_total'])
+        return static::getSelectHelper()
             ->where('date_created >= :start')
             ->where('date_created <= :end')
             ->bindValue('start', $start)
             ->bindValue('end', $end);
+    }
+
+    public static function getExecutionDurationSumByCreatedDateTimeRange($start, $end): ?float
+    {
+        global $wpdb;
+
+        $select = static::prepareCreatedDateTimeRangeSelect($start, $end);
+        $select->cols(['SUM(execution_duration) AS duration_total']);
 
         $query = static::prepareQuery($select);
 
-        return $wpdb->get_row($query);
+        return $wpdb->get_row($query)->duration_total;
+    }
+
+    public static function countTasksByCreatedDateTimeRange($start, $end): ?int
+    {
+        global $wpdb;
+
+        $select = static::prepareCreatedDateTimeRangeSelect($start, $end);
+        $select->cols(['COUNT(id) AS tasks_count']);
+
+        $query = static::prepareQuery($select);
+
+        return $wpdb->get_row($query)->tasks_count;
     }
 
     private static function getLastThousandSuccessfulTaskIds()

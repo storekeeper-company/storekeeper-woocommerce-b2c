@@ -90,12 +90,9 @@ class ConnectionTab extends AbstractTab
 
     private function renderStatistics()
     {
-        $hourAgo = date('Y-m-d H:i:s', strtotime('-1 hours'));
         $now = date('Y-m-d H:i:s');
-        $tasks = TaskModel::getTasksByCreatedDateTimeRange($hourAgo, $now, 0, 'ASC');
-
-        $calculator = new TaskRateCalculator($tasks, $now);
-        $incomingRate = $calculator->calculateIncoming();
+        $calculator = new TaskRateCalculator($now);
+        $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
         echo $this->getFormStart();
 

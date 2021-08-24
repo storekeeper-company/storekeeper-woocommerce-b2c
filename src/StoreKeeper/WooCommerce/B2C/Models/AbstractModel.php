@@ -63,9 +63,17 @@ abstract class AbstractModel implements IModel
             }
 
             return false;
+        } elseif (static::isTableOutdated()) {
+            static::alterTable();
+            static::setTableVersion();
         }
 
         return true;
+    }
+
+    protected static function isTableOutdated(): bool
+    {
+        return static::getTableVersion() !== static::TABLE_VERSION;
     }
 
     public static function validateData(array $data, $isUpdate = false): void
