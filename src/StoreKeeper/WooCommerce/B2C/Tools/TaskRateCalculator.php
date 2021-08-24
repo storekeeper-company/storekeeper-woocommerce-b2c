@@ -19,7 +19,7 @@ class TaskRateCalculator
         $this->startDateTime = date('Y-m-d H:i:s', strtotime("{$this->endDateTime} -".self::MINUTE_METRICS.' minutes'));
     }
 
-    public function countIncoming(): float
+    public function countIncoming(): int
     {
         return TaskModel::countTasksByCreatedDateTimeRange($this->startDateTime, $this->endDateTime);
     }

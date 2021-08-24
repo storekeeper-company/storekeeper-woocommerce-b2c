@@ -194,7 +194,7 @@ SQL;
         return $wpdb->get_row($query)->duration_total;
     }
 
-    public static function countTasksByCreatedDateTimeRange($start, $end): ?int
+    public static function countTasksByCreatedDateTimeRange($start, $end): int
     {
         global $wpdb;
 
@@ -203,7 +203,9 @@ SQL;
 
         $query = static::prepareQuery($select);
 
-        return $wpdb->get_row($query)->tasks_count;
+        $tasksCount = $wpdb->get_row($query)->tasks_count;
+
+        return !is_null($tasksCount) ? $tasksCount : 0;
     }
 
     private static function getLastThousandSuccessfulTaskIds()
