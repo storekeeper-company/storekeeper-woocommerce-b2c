@@ -106,6 +106,8 @@ class ProcessAllTasks extends AbstractCommand
                     $this->getRemovedTaskIds($task['id'])
                 );
 
+                $task = $this->getTask($task_id);
+
                 // Mark task as success
                 $this->updateTaskStatus($task, TaskHandler::STATUS_SUCCESS);
 

@@ -108,4 +108,9 @@ SQL;
 
         return (int) $affectedRows;
     }
+
+    public static function alterTable(): void
+    {
+        // No implementation yet.
+    }
 }

@@ -10,6 +10,8 @@ interface IModel
 
     public static function createTable(): bool;
 
+    public static function alterTable(): void;
+
     public static function create(array $data): int;
 
     public static function read($id): ?array;
