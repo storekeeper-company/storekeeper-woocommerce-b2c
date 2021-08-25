@@ -990,7 +990,9 @@ SQL;
         update_post_meta($newProduct->get_id(), 'storekeeper_id', $dotObject->get('id'));
 
         // Add last sync date meta for products
-        update_post_meta($newProduct->get_id(), 'storekeeper_sync_date', date('Y-m-d H:i:s'));
+        // Time will be based on user's selected timezone on wordpress
+        $date = current_time('mysql');
+        update_post_meta($newProduct->get_id(), 'storekeeper_sync_date', $date);
         $this->debug('storekeeper_id added to post.', $log_data);
 
         if ($dotObject->has('flat_product.content_vars')) {

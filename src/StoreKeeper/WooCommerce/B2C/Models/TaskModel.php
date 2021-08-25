@@ -2,12 +2,14 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Models;
 
+use Aura\SqlQuery\Common\SelectInterface;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class TaskModel extends AbstractModel implements IModelPurge
 {
     const TABLE_NAME = 'storekeeper_tasks';
+    const TABLE_VERSION = '1.1.0';
 
     public static function getFields(): array
     {
@@ -20,6 +22,7 @@ class TaskModel extends AbstractModel implements IModelPurge
             'type' => true,
             'type_group' => true,
             'storekeeper_id' => true,
+            'execution_duration' => false,
             'meta_data' => false,
             'error_output' => false,
             'date_created' => false,
@@ -42,6 +45,7 @@ class TaskModel extends AbstractModel implements IModelPurge
         `type_group` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
         `storekeeper_id` INT(10) COLLATE utf8mb4_unicode_ci NOT NULL,
         `meta_data` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
+        `execution_duration` TEXT COLLATE utf8mb4_unicode_ci,
         `error_output` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
         `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
         `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
@@ -51,6 +55,22 @@ class TaskModel extends AbstractModel implements IModelPurge
 SQL;
 
         return static::querySql($tableQuery);
+    }
+
+    public static function alterTable(): void
+    {
+        global $wpdb;
+
+        $fields = array_keys(static::getFields());
+        $tableColumns = $wpdb->get_results("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '".static::getTableName()."'", ARRAY_A);
+        $tableColumns = array_column($tableColumns, 'column_name');
+
+        $difference = array_diff($fields, $tableColumns);
+
+        /* @since 5.3.2 */
+        if (in_array('execution_duration', $difference, true)) {
+            $wpdb->query('ALTER TABLE '.static::getTableName().' ADD execution_duration TEXT COLLATE utf8mb4_unicode_ci');
+        }
     }
 
     public static function newTask(
@@ -151,6 +171,41 @@ SQL;
     public static function countSuccessfulTasks(): int
     {
         return TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_SUCCESS]);
+    }
+
+    private static function prepareCreatedDateTimeRangeSelect($start, $end): SelectInterface
+    {
+        return static::getSelectHelper()
+            ->where('date_created >= :start')
+            ->where('date_created <= :end')
+            ->bindValue('start', $start)
+            ->bindValue('end', $end);
+    }
+
+    public static function getExecutionDurationSumByCreatedDateTimeRange($start, $end): ?float
+    {
+        global $wpdb;
+
+        $select = static::prepareCreatedDateTimeRangeSelect($start, $end);
+        $select->cols(['SUM(execution_duration) AS duration_total']);
+
+        $query = static::prepareQuery($select);
+
+        return $wpdb->get_row($query)->duration_total;
+    }
+
+    public static function countTasksByCreatedDateTimeRange($start, $end): int
+    {
+        global $wpdb;
+
+        $select = static::prepareCreatedDateTimeRangeSelect($start, $end);
+        $select->cols(['COUNT(id) AS tasks_count']);
+
+        $query = static::prepareQuery($select);
+
+        $tasksCount = $wpdb->get_row($query)->tasks_count;
+
+        return !is_null($tasksCount) ? $tasksCount : 0;
     }
 
     private static function getLastThousandSuccessfulTaskIds()

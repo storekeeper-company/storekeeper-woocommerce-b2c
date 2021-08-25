@@ -20,6 +20,8 @@ class ProcessSingleTask extends AbstractCommand
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
+        $preExecutionMicroTime = microtime(true);
+        $preExecutionDateTime = date('Y-m-d H:i:s');
         $this->setupApi();
 
         $task_id = $arguments[0];
@@ -46,6 +48,14 @@ class ProcessSingleTask extends AbstractCommand
 
         // Add the removed tasks to the current task
         $task['meta_data']['removed_task_ids'] = $handler->getTrashedTasks();
+
+        $postExecutionMicroTime = microtime(true);
+        $postExecutionDateTime = date('Y-m-d H:i:s');
+        $executionDuration = $postExecutionMicroTime - $preExecutionMicroTime;
+
+        $task['meta_data']['pre_execution'] = $preExecutionDateTime;
+        $task['meta_data']['post_execution'] = $postExecutionDateTime;
+        $task['execution_duration'] = $executionDuration;
         TaskModel::update($task_id, $task);
     }
 }

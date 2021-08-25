@@ -20,6 +20,7 @@ class PluginConflictCheckerTab extends AbstractTab
      */
     const CONFLICTS = [
         'woocommerce/woocommerce.php' => '<4.1.0',
+        'woocommerce-product-search/woocommerce-product-search.php' => '*',
     ];
 
     protected function getStylePaths(): array
