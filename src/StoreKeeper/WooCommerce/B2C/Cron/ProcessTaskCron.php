@@ -23,7 +23,6 @@ class ProcessTaskCron
         $runner = Core::getCommandRunner();
 
         $runner->setConsoleLogger();
-        $exit = $runner->executeFromInputJson($commands);
-        exit($exit);
+        $runner->executeFromInputJson($commands);
     }
 }

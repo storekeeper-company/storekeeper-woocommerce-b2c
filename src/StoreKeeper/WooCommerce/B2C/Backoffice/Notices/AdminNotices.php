@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
-use StoreKeeper\WooCommerce\B2C\Exceptions\CronRunnerException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -11,6 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StringFunctions;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WooCommerceAttributeMetadata;
+use Throwable;
 
 class AdminNotices
 {
@@ -39,12 +39,12 @@ class AdminNotices
         }
     }
 
-    private function checkCronRunner()
+    private function checkCronRunner(): void
     {
         try {
             CronRegistrar::checkRunnerStatus();
-        } catch (CronRunnerException $exception) {
-            $message = $exception->getMessage();
+        } catch (Throwable $throwable) {
+            $message = $throwable->getMessage();
             self::showError($message);
         }
     }

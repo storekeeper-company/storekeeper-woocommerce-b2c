@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Cron;
 
+use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
+use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CronRunnerException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\AbstractOptions;
@@ -16,11 +18,6 @@ class CronRegistrar
     public const RUNNER_WPCRON = 'wp-cron';
     public const RUNNER_WPCRON_CRONTAB = 'wp-cron-crontab';
     public const RUNNER_CRONTAB_API = 'crontab-api';
-    public const CRON_RUNNERS = [
-        self::RUNNER_WPCRON => 'Wordpress Cron',
-        self::RUNNER_WPCRON_CRONTAB => 'Wordpress Cron (via Crontab)',
-        self::RUNNER_CRONTAB_API => 'Server Crontab (via API call)',
-    ];
     public const CRONTAB_RUNNERS = [
         self::RUNNER_WPCRON_CRONTAB,
         self::RUNNER_CRONTAB_API,
@@ -30,11 +27,7 @@ class CronRegistrar
         self::RUNNER_WPCRON_CRONTAB,
     ];
 
-    public const REQUIRED_EXTENSIONS = [
-        'curl',
-    ];
-
-    public function setup()
+    public function setup(): void
     {
         $cronRunner = StoreKeeperOptions::get(StoreKeeperOptions::CRON_RUNNER, self::RUNNER_WPCRON);
         if (self::RUNNER_WPCRON_CRONTAB === $cronRunner && !defined('DISABLE_WP_CRON')) {
@@ -67,46 +60,8 @@ class CronRegistrar
     {
         $runner = StoreKeeperOptions::get(StoreKeeperOptions::CRON_RUNNER);
 
-        switch ($runner) {
-            case self::RUNNER_WPCRON_CRONTAB:
-                static::checkWpCronStatus(true);
-                static::checkExtensions();
-                static::checkCrontabStatus();
-                break;
-            case self::RUNNER_CRONTAB_API:
-                static::checkExtensions();
-                static::checkCrontabStatus();
-                break;
-            default:
-                static::checkWpCronStatus();
-                break;
-        }
-    }
-
-    /**
-     * @throws CronRunnerException
-     */
-    private static function checkExtensions(): void
-    {
-        $extensions = get_loaded_extensions();
-        $missingExtensions = array_diff(self::REQUIRED_EXTENSIONS, $extensions);
-        if (!empty($missingExtensions)) {
-            throw new CronRunnerException(sprintf(__('The cron may not work properly due to these missing extensions: %s', I18N::DOMAIN), implode(', ', $missingExtensions)));
-        }
-    }
-
-    /**
-     * @throws CronRunnerException
-     */
-    private static function checkCrontabStatus(): void
-    {
-        try {
-            $cronService = shell_exec('service cron status');
-            if (is_null($cronService)) {
-                throw new \Exception(sprintf(__('%s is not installed in the server. Task processing cron may not work.', I18N::DOMAIN), 'Cron'));
-            }
-        } catch (\Throwable $throwable) {
-            throw new CronRunnerException($throwable->getMessage(), $throwable->getCode(), $throwable);
+        if (in_array($runner, self::WP_CRON_RUNNERS, true)) {
+            static::checkWpCronStatus(true);
         }
     }
 
@@ -156,11 +111,11 @@ class CronRegistrar
         $runner = StoreKeeperOptions::get(StoreKeeperOptions::CRON_RUNNER);
 
         $message = __(
-            'Cron is not running:',
+            'Cron may not be running:',
             I18N::DOMAIN
         );
 
-        $description = __('Contact your system administrator to solve this problem', I18N::DOMAIN);
+        $description = __('Contact your system administrator if the problem persists', I18N::DOMAIN);
 
         if (in_array($runner, self::CRONTAB_RUNNERS, true)) {
             $message = __(
@@ -169,22 +124,28 @@ class CronRegistrar
             );
 
             if (self::RUNNER_WPCRON_CRONTAB === $runner) {
-                $siteUrl = site_url('wp-cron.php');
+                $url = site_url('wp-cron.php');
             } else {
-                $siteUrl = site_url('process-tasks');
+                $url = rest_url(EndpointLoader::getFullNamespace().'/'.TaskProcessorEndpoint::ROUTE);
             }
 
-            $path = esc_html(ABSPATH);
             $description = <<<HTML
-            <p style="white-space: pre-line;">*/1 * * * * curl {$siteUrl}
-            0 3 * * * /usr/local/bin/wp sk sync-issue-check --path={$path} --skip-plugins=wp-optimize
-            </p>
+            <p style="white-space: pre-line;">*/1 * * * * curl {$url}</p>
 HTML;
         }
 
         return [
             $message,
             $description,
+        ];
+    }
+
+    public static function getCronRunners(): array
+    {
+        return [
+            self::RUNNER_WPCRON => __('Wordpress Cron', I18N::DOMAIN),
+            self::RUNNER_WPCRON_CRONTAB => __('Wordpress Cron (via Crontab)', I18N::DOMAIN),
+            self::RUNNER_CRONTAB_API => __('Server Crontab (via API call)', I18N::DOMAIN),
         ];
     }
 }

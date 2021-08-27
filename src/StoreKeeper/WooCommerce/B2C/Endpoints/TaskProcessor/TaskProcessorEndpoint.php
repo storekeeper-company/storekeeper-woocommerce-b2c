@@ -12,6 +12,9 @@ class TaskProcessorEndpoint extends AbstractEndpoint
 {
     const ROUTE = 'process-tasks';
 
+    /**
+     * @throws WpRestException
+     */
     public function handle()
     {
         try {
@@ -22,8 +25,7 @@ class TaskProcessorEndpoint extends AbstractEndpoint
             $runner = Core::getCommandRunner();
 
             $runner->setConsoleLogger();
-            $exit = $runner->executeFromInputJson($commands);
-            exit($exit);
+            $runner->executeFromInputJson($commands);
         } catch (\Throwable $throwable) {
             $this->logger->error($throwable->getMessage());
             throw new WpRestException($throwable->getMessage(), 401, $throwable);
