@@ -76,7 +76,7 @@ class SchedulerTab extends AbstractTab
             update_option($key, $value);
         }
 
-        if (CronRegistrar::RUNNER_WPCRON !== $data[$cronRunner]) {
+        if (!in_array($data[$cronRunner], CronRegistrar::WP_CRON_RUNNERS, true)) {
             wp_clear_scheduled_hook(CronRegistrar::HOOK_PROCESS_TASK);
         }
 
