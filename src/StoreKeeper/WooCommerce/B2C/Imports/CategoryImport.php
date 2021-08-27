@@ -179,7 +179,8 @@ class CategoryImport extends AbstractImport
         $this->debug('Processing category', $dotObject->get());
 
         $slug = $dotObject->get('slug');
-        $term = Categories::getCategoryById($dotObject->get('id'));
+        $storekeeperId = $dotObject->get('id');
+        $term = Categories::getCategoryById($storekeeperId);
         if (false === $term) {
             $term = Categories::getCategoryBySlug($slug);
             $this->debug('Got category by slug='.$slug);
@@ -191,8 +192,8 @@ class CategoryImport extends AbstractImport
         $description = $this->getTranslationIfRequired($dotObject, 'description');
         $summary = $this->getTranslationIfRequired($dotObject, 'summary');
 
-        if (empty(trim($title))) {
-            throw new Exception('No title set for category', $dotObject->get());
+        if ('' === trim($title)) {
+            throw new Exception('No title set for category id='.$storekeeperId.' slug='.$slug);
         }
 
         $args = [
@@ -265,7 +266,7 @@ class CategoryImport extends AbstractImport
             $term_id = $term['term_id'];
         }
 
-        update_term_meta($term_id, 'storekeeper_id', $dotObject->get('id'));
+        update_term_meta($term_id, 'storekeeper_id', $storekeeperId);
         // Term summary for at the top of the page.
         update_term_meta($term_id, 'category_summary', ParseDown::wrapContentInShortCode($summary));
         // We store the description also to make sure the html is being preserved.
