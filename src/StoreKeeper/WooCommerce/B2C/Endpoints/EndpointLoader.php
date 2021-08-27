@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Endpoints;
 
 use StoreKeeper\WooCommerce\B2C\Endpoints\Sso\SsoGetEndpoint;
+use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 
@@ -43,6 +44,18 @@ class EndpointLoader
             [
                 'methods' => 'GET',
                 'callback' => [$webhook, 'handleRequest'],
+                'permission_callback' => '__return_true',
+            ]
+        );
+
+        $taskProcessor = new TaskProcessorEndpoint();
+        $taskProcessor->setLogger($logger);
+        register_rest_route(
+            $namespace,
+            TaskProcessorEndpoint::ROUTE,
+            [
+                'methods' => 'GET',
+                'callback' => [$taskProcessor, 'handleRequest'],
                 'permission_callback' => '__return_true',
             ]
         );

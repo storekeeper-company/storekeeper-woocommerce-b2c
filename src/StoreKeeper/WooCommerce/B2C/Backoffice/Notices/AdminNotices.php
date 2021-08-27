@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
+use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Exceptions\CronRunnerException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -17,6 +19,7 @@ class AdminNotices
         $this->connectionCheck();
         $this->StoreKeeperSyncCheck();
         $this->lastCronCheck();
+        $this->checkCronRunner();
 
         $this->StoreKeeperNewProduct();
         $this->StoreKeeperProductCheck();
@@ -33,6 +36,16 @@ class AdminNotices
         $postType = $this->getRequestPostType();
         if ('post-new.php' === $pagenow && 'product' === $postType) {
             AdminNotices::showWarning(__('New products are not synced back to StoreKeeper.', I18N::DOMAIN));
+        }
+    }
+
+    private function checkCronRunner()
+    {
+        try {
+            CronRegistrar::checkRunnerStatus();
+        } catch (CronRunnerException $exception) {
+            $message = $exception->getMessage();
+            self::showError($message);
         }
     }
 
@@ -335,19 +348,10 @@ class AdminNotices
                 AdminNotices::showError($message);
             }
         } else {
-            $message = __(
-                'Please configure as your cron tab:',
-                I18N::DOMAIN
-            );
-
-            $path = esc_html(ABSPATH);
-            $plugin_dir = esc_html(WP_PLUGIN_DIR.'/storekeeper-woocommerce-b2c/');
-            $description = <<<HTML
-<p style="white-space: pre-line;">* * * * * php {$plugin_dir}/scripts/process-tasks.php
-* * * * * php {$plugin_dir}/scripts/maybe-wp-cron.php >/dev/null 2>&1
-0 3 * * * /usr/local/bin/wp sk sync-issue-check --path={$path} --skip-plugins=wp-optimize
-</p>
-HTML;
+            [
+                $message,
+                $description
+            ] = CronRegistrar::buildMessage();
 
             AdminNotices::showError($message, $description);
         }

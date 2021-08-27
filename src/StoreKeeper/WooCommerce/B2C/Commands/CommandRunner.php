@@ -272,7 +272,9 @@ class CommandRunner
 
     public static function loadWpConfig(): void
     {
-        define('ABSPATH', self::getWpRootDir());
+        if (!defined('ABSPATH')) {
+            define('ABSPATH', self::getWpRootDir());
+        }
         // Getting the content of the wp-config file
         $wp_config = file(ABSPATH.'wp-config.php');
         // Getting the important lines of the wp-config file

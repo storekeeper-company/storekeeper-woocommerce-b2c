@@ -46,6 +46,8 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceTags;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProductPage;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
+use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrondendCore;
@@ -128,11 +130,23 @@ class Core
         $this->setOrderHooks();
         $this->setCustomerHooks();
         $this->setCouponHooks();
+        $this->prepareCron();
         $this->registerCommands();
         $this->loadAdditionalCore();
         $this->loadEndpoints();
         $this->registerPaymentGateway();
         $this->versionChecks();
+    }
+
+    private function prepareCron()
+    {
+        $registrar = new CronRegistrar();
+        $registrar->setup();
+        $this->loader->add_filter('cron_schedules', $registrar, 'addCustomCronInterval');
+        $this->loader->add_action('admin_init', $registrar, 'register');
+
+        $processTask = new ProcessTaskCron();
+        $this->loader->add_action(CronRegistrar::HOOK_PROCESS_TASK, $processTask, 'execute');
     }
 
     /**

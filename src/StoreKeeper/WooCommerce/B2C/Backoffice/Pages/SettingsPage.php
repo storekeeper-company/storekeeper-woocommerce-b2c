@@ -15,7 +15,7 @@ class SettingsPage extends AbstractPage
     {
         $tabs = [];
         $tabs[] = new ConnectionTab(__('Connection', I18N::DOMAIN));
-        $tabs[] = new SchedulerTab(__('Scheduler', I18N::DOMAIN), 'scheduler');
+        $tabs[] = new SchedulerTab(__('Scheduler settings', I18N::DOMAIN), 'scheduler');
         if (Core::isDebug()) {
             $tabs[] = new DeveloperSettingsTab(__('Developer settings', I18N::DOMAIN), 'developer-settings');
         }

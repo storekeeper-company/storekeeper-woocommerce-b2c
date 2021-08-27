@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
+use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
@@ -28,6 +29,7 @@ class SchedulerTab extends AbstractTab
     public function render(): void
     {
         $this->renderCronConfiguration();
+        $this->renderAdvancedConfiguration();
     }
 
     private function renderCronConfiguration(): void
@@ -37,9 +39,20 @@ class SchedulerTab extends AbstractTab
 
         echo $this->getFormHeader(__('Cron configuration', I18N::DOMAIN));
 
-        $this->renderEnabler();
-
+        $this->renderHookName();
         $this->renderCustomInterval();
+
+        echo $this->getFormEnd();
+    }
+
+    private function renderAdvancedConfiguration(): void
+    {
+        $url = $this->getActionUrl(self::SAVE_ACTION);
+        echo $this->getFormstart('post', $url);
+
+        echo $this->getFormHeader(__('Advanced configuration', I18N::DOMAIN));
+
+        $this->renderRunner();
 
         echo $this->getFormActionGroup(
             $this->getFormButton(
@@ -53,49 +66,52 @@ class SchedulerTab extends AbstractTab
 
     public function saveAction(): void
     {
-        $isEnabled = StoreKeeperOptions::getConstant(StoreKeeperOptions::CRON_ENABLED);
-        $customInterval = StoreKeeperOptions::getConstant(StoreKeeperOptions::CRON_CUSTOM_INTERVAL);
+        $cronRunner = StoreKeeperOptions::getConstant(StoreKeeperOptions::CRON_RUNNER);
 
         $data = [
-            $isEnabled => 'on' === sanitize_key($_POST[$isEnabled]) ? 'yes' : 'no',
-            $customInterval => (int) $_POST[$customInterval],
+            $cronRunner => $_POST[$cronRunner],
         ];
 
         foreach ($data as $key => $value) {
             update_option($key, $value);
         }
 
-        wp_redirect(remove_query_arg('action'));
-    }
+        if (CronRegistrar::RUNNER_WPCRON !== $data[$cronRunner]) {
+            wp_clear_scheduled_hook(CronRegistrar::HOOK_PROCESS_TASK);
+        }
 
-    private function renderEnabler(): void
-    {
-        $isEnabled = StoreKeeperOptions::getConstant(StoreKeeperOptions::CRON_ENABLED);
-        echo $this->getFormGroup(
-            __('Enable task processing cron', I18N::DOMAIN),
-            $this->getFormCheckbox(
-                $isEnabled,
-                'yes' === StoreKeeperOptions::get($isEnabled)
-            ).' '.__(
-                'When checked, cron for processing of tasks will be enabled.',
-                I18N::DOMAIN
-            )
-        );
+        wp_redirect(remove_query_arg('action'));
     }
 
     private function renderCustomInterval(): void
     {
-        $customInterval = StoreKeeperOptions::getConstant(StoreKeeperOptions::CRON_CUSTOM_INTERVAL);
         echo $this->getFormGroup(
             __('Cron recurrence', I18N::DOMAIN),
-            $this->getFormInput(
-                $customInterval,
-                '',
-                StorekeeperOptions::get($customInterval, 600),
-                '',
-                'number'
-            ).'<br><small>'.__(
-                'Set desired interval of cron in seconds. e.g 600 seconds = 10 minutes.',
+            '60 seconds / 1 minute',
+        );
+    }
+
+    private function renderHookName(): void
+    {
+        echo $this->getFormGroup(
+            __('Hook name', I18N::DOMAIN),
+            CronRegistrar::HOOK_PROCESS_TASK,
+        );
+    }
+
+    private function renderRunner(): void
+    {
+        $cronRunner = StoreKeeperOptions::getConstant(StoreKeeperOptions::CRON_RUNNER);
+
+        $cronRunnerValue = StoreKeeperOptions::get(StoreKeeperOptions::CRON_RUNNER, CronRegistrar::RUNNER_WPCRON);
+        echo $this->getFormGroup(
+            __('Cron runner', I18N::DOMAIN),
+            $this->getFormSelect(
+                $cronRunner,
+                CronRegistrar::CRON_RUNNERS,
+                $cronRunnerValue
+            ).' <br><small>'.__(
+                'Select which cron runner will be used. Please use only if knowledgeable.',
                 I18N::DOMAIN
             ).'</small>'
         );
