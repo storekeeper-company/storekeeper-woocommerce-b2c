@@ -12,7 +12,7 @@ jobs:
       - name: Get latest tag
         id: version
         run: |
-          LAST_VERSION_TAG=`git describe --tags --abbrev=0 --exclude=latest`
+          LAST_VERSION_TAG=`git describe --tags --abbrev=0 --exclude=latest --exclude=development`
           echo ::set-output name=LAST_VERSION_TAG::${LAST_VERSION_TAG}
 
       - name: Setup PHP
