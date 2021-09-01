@@ -271,7 +271,7 @@ HTML;
         return $isValid ? '<span class="dashicons dashicons-yes-alt text-success"></span>' : '<span class="dashicons dashicons-warning text-warning"></span>';
     }
 
-    private function generateHelpContent(bool $isValid, string $link, string $text): ?string
+    private function generateHelpContent(bool $isValid, string $link, string $text): string
     {
         return $isValid ? '<i>N/A</i>' : "<a href='{$link}'>{$text}</a>";
     }
