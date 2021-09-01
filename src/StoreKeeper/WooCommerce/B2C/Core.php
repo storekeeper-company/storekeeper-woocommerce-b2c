@@ -141,7 +141,6 @@ class Core
     private function prepareCron()
     {
         $registrar = new CronRegistrar();
-        $registrar->setup();
         $this->loader->add_filter('cron_schedules', $registrar, 'addCustomCronInterval');
         $this->loader->add_action('admin_init', $registrar, 'register');
 

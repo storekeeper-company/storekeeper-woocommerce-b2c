@@ -46,8 +46,18 @@ class ProcessAllTasks extends AbstractCommand
             ]
         );
 
+        $limit = 0;
+        if (isset($arguments['task_limit'])) {
+            $limit = (int) $arguments['task_limit'];
+            $this->logger->notice(
+                'Limiting process',
+                [
+                    'process_limit_count' => $limit,
+                ]
+            );
+        }
         // Update the last run cron to now.
-        $task_ids = $this->getTaskIds();
+        $task_ids = $this->getTaskIds($limit);
         $task_quantity = count($task_ids);
 
         $this->logger->info(
@@ -98,7 +108,7 @@ class ProcessAllTasks extends AbstractCommand
                 $this->updateTaskStatus($task, TaskHandler::STATUS_PROCESSING);
 
                 // Processing task
-                $this->executeSubCommand(ProcessSingleTask::getCommandName(), [$task_id], [], 600);
+                $this->executeSubCommand(ProcessSingleTask::getCommandName(), [$task_id]);
 
                 // Check if running the tasks remove any of the old tasks
                 $removed_task_ids = array_merge(
@@ -317,7 +327,7 @@ class ProcessAllTasks extends AbstractCommand
         $this->updateTask($task['id'], $task);
     }
 
-    protected function getTaskIds(): array
+    protected function getTaskIds(int $limit = 0): array
     {
         $this->ensureLastRunTime();
 
@@ -351,6 +361,10 @@ class ProcessAllTasks extends AbstractCommand
         );
 
         $task_ids = array_merge($order_task_ids, $non_order_task_ids);
+
+        if (0 !== $limit) {
+            $task_ids = array_slice($task_ids, 0, $limit);
+        }
 
         return $task_ids;
     }

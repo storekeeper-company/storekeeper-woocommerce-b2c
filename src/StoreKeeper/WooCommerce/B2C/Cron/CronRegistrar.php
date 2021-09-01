@@ -27,13 +27,9 @@ class CronRegistrar
         self::RUNNER_WPCRON_CRONTAB,
     ];
 
-    public function setup(): void
-    {
-        $cronRunner = StoreKeeperOptions::get(StoreKeeperOptions::CRON_RUNNER, self::RUNNER_WPCRON);
-        if (self::RUNNER_WPCRON_CRONTAB === $cronRunner && !defined('DISABLE_WP_CRON')) {
-            define('DISABLE_WP_CRON', true);
-        }
-    }
+    public const STATUS_UNEXECUTED = 'unexecuted';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_SUCCESS = 'success';
 
     public function addCustomCronInterval($schedules): array
     {
@@ -100,7 +96,7 @@ class CronRegistrar
         $cronResponse = wp_remote_post($cronRequest['url'], $cronRequest['args']);
 
         if (is_wp_error($cronResponse)) {
-            throw new CronRunnerException(sprintf(esc_html__('WP Cron encountered an error and may not work: %s', I18N::DOMAIN), '</p><p><strong>'.esc_html($cronResponse->get_error_message()).'</strong>'));
+            throw new CronRunnerException(sprintf('WP Cron encountered an error and may not work: %s', I18N::DOMAIN), strip_tags($cronResponse->get_error_message()));
         } elseif (wp_remote_retrieve_response_code($cronResponse) >= 300) {
             throw new CronRunnerException(sprintf(__('WP Cron return an unexpected HTTP response code: %s', I18N::DOMAIN), (int) wp_remote_retrieve_response_code($cronResponse)));
         }
@@ -147,5 +143,19 @@ HTML;
             self::RUNNER_WPCRON_CRONTAB => __('Wordpress Cron (via Crontab)', I18N::DOMAIN),
             self::RUNNER_CRONTAB_API => __('Server Crontab (via API call)', I18N::DOMAIN),
         ];
+    }
+
+    public static function getStatusLabel(string $status): string
+    {
+        switch ($status) {
+            case self::STATUS_UNEXECUTED:
+                return __('Not performed yet.', I18N::DOMAIN);
+            case self::STATUS_SUCCESS:
+                return __('Last cron run was successful.', I18N::DOMAIN);
+            case self::STATUS_FAILED:
+                return __('Last cron run failed.', I18N::DOMAIN);
+            default:
+                return $status;
+        }
     }
 }

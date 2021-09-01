@@ -2,12 +2,15 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use ReflectionClass;
 use StoreKeeper\ApiWrapper\ApiWrapper;
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
@@ -39,7 +42,7 @@ abstract class AbstractCommand implements CommandInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function lock()
     {
@@ -96,13 +99,12 @@ abstract class AbstractCommand implements CommandInterface
     /**
      * @param $name
      *
-     * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException
+     * @throws BaseException
      */
     protected function executeSubCommand(
         $name,
         array $arguments = [],
-        array $assoc_arguments = [],
-        int $timeout = 0
+        array $assoc_arguments = []
     ): int {
         if (Core::isTest()) {
             // for tests we skip all the sub processing,
@@ -110,7 +112,7 @@ abstract class AbstractCommand implements CommandInterface
             $result = $this->runner->execute($name, $arguments, $assoc_arguments);
             $this->logger->warning(__CLASS__.'::'.__FILE__.' timeout option ignored');
         } else {
-            $result = $this->runner->executeAsSubProcess($name, $arguments, $assoc_arguments, $timeout);
+            $result = $this->runner->executeAsSubProcess($name, $arguments, $assoc_arguments);
         }
 
         return $result;
@@ -123,7 +125,7 @@ abstract class AbstractCommand implements CommandInterface
      * @param int    $total_amount The total amount of items to send to the command
      * @param int    $amount       The amount of items to send to the command at once
      *
-     * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException
+     * @throws SubProcessException
      */
     protected function runSubCommandWithPagination($command_name, $total_amount, $amount = self::AMOUNT)
     {

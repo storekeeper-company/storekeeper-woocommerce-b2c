@@ -2,9 +2,11 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use Exception;
 use Monolog\Logger;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
+use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
@@ -73,12 +75,12 @@ class CommandRunner
     /**
      * @param $name
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function getCommandClass($name): string
     {
         if (!array_key_exists($name, $this->commands)) {
-            throw new \Exception("$name command not found");
+            throw new Exception("$name command not found");
         }
 
         return $this->commands[$name];
@@ -87,7 +89,7 @@ class CommandRunner
     /**
      * @param $name
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function execute($name, array $arguments = [], array $assoc_arguments = []): int
     {
@@ -133,31 +135,39 @@ class CommandRunner
     }
 
     /**
-     * @param $name
-     *
-     * @throws SubProcessException
+     * @throws BaseException
      */
     public function executeAsSubProcess(
         string $name,
         array $arguments = [],
-        array $assoc_arguments = [],
-        int $timeout = 0
+        array $assoc_arguments = []
     ): int {
-        $php_script = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.'/scripts/run-command-from-input.php';
         $input = self::getSubProcessInputString($name, $arguments, $assoc_arguments);
-        $process = $this->executePhp(
-            [
-                $php_script,
-            ],
-            $input,
-            $timeout
-        );
 
-        return $process->getExitCode();
+        return static::runCommandWithInput($input);
+    }
+
+    /**
+     * @throws BaseException
+     * @throws Exception
+     */
+    public static function runCommandWithInput($commands): int
+    {
+        $runner = Core::getCommandRunner();
+        $runner->setConsoleLogger();
+        if (!empty($commands)) {
+            $exit = $runner->executeFromInputJson($commands);
+        } else {
+            $exit = $runner->executeFromInputJson();
+        }
+
+        return $exit;
     }
 
     /**
      * @throws SubProcessException
+     *
+     * @deprecated
      */
     protected function executePhp(array $params, string $input = null, int $timeout = 0): Process
     {
@@ -238,22 +248,22 @@ class CommandRunner
     /**
      * @param null $contents uses php://stdin for getting which command to execute if empty
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function executeFromInputJson($contents = null): int
     {
         if (empty($contents)) {
             $contents = file_get_contents('php://stdin');
             if (empty($contents)) {
-                throw new \Exception('No input');
+                throw new Exception('No input');
             }
         }
         $json = json_decode($contents, true);
         if (empty($json)) {
-            throw new \Exception("Failed to decode json from contents: $contents. Error: ".json_last_error_msg());
+            throw new Exception("Failed to decode json from contents: $contents. Error: ".json_last_error_msg());
         }
         if (empty($json['name'])) {
-            throw new \Exception("Name is not set in: $contents");
+            throw new Exception("Name is not set in: $contents");
         }
         $name = $json['name'];
 
@@ -322,7 +332,7 @@ class CommandRunner
     /**
      * @return mixed
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function needsFullWordpress(string $name): bool
     {
