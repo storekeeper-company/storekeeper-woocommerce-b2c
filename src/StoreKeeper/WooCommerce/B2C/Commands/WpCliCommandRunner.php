@@ -12,6 +12,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 class WpCliCommandRunner extends CommandRunner
 {
     const command_prefix = 'sk';
+    const ALLOW_SPAWN = 'allow-spawn';
 
     /**
      * @throws \Exception
@@ -31,6 +32,9 @@ class WpCliCommandRunner extends CommandRunner
         \WP_CLI::add_command(
             self::command_prefix.' '.$name,
             function (array $arguments, array $assoc_arguments) use ($name) {
+                if (isset($assoc_arguments[self::ALLOW_SPAWN])) {
+                    $this->shouldSpawnSubProcess = true;
+                }
                 $this->execute($name, $arguments, $assoc_arguments);
             }
         );

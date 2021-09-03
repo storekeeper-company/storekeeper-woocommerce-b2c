@@ -47,8 +47,8 @@ class ProcessAllTasks extends AbstractCommand
         );
 
         $limit = 0;
-        if (isset($arguments['task_limit'])) {
-            $limit = (int) $arguments['task_limit'];
+        if (isset($assoc_arguments['limit'])) {
+            $limit = (int) $assoc_arguments['limit'];
             $this->logger->notice(
                 'Limiting process',
                 [
@@ -106,7 +106,6 @@ class ProcessAllTasks extends AbstractCommand
             try {
                 // Mark task as processing
                 $this->updateTaskStatus($task, TaskHandler::STATUS_PROCESSING);
-
                 // Processing task
                 $this->executeSubCommand(ProcessSingleTask::getCommandName(), [$task_id]);
 
@@ -367,6 +366,14 @@ class ProcessAllTasks extends AbstractCommand
         }
 
         return $task_ids;
+    }
+
+    public static function countTasks(): int
+    {
+        $orderTasks = self::getOrderTaskIds();
+        $nonOrderTasks = self::getNonOrderTaskIds();
+
+        return count($orderTasks) + count($nonOrderTasks);
     }
 
     private function getTask($id)

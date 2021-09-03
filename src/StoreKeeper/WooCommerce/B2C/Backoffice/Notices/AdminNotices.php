@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
@@ -338,7 +339,7 @@ class AdminNotices
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
             $cronTime = WooCommerceOptions::get(WooCommerceOptions::LAST_SYNC_RUN);
-            $timeAgo = $this->dateDiff($cronTime);
+            $timeAgo = DateTimeHelper::dateDiff($cronTime);
             if ($timeAgo) {
                 $initialMessage = __(
                     'It seems that its been %s ago since the process tasks cron has been running, Contact your system administrator to solve this problem.',
@@ -354,48 +355,6 @@ class AdminNotices
             ] = CronRegistrar::buildMessage();
 
             AdminNotices::showError($message, $description);
-        }
-    }
-
-    public function dateDiff($date)
-    {
-        $mydate = date(DATE_RFC2822);
-
-        $datetime1 = date_create($date);
-        $datetime2 = date_create($mydate);
-        $interval = date_diff($datetime1, $datetime2);
-
-        $min = $interval->format('%i');
-        $minInt = (int) $min;
-        $hour = $interval->format('%h');
-        $mon = $interval->format('%m');
-        $day = $interval->format('%d');
-        $year = $interval->format('%y');
-
-        if ('00000' == $interval->format('%i%h%d%m%y')) {
-            return false;
-        } else {
-            if ('0000' == $interval->format('%h%d%m%y') && $minInt < 15) {
-                return false;
-            } else {
-                if ('0000' == $interval->format('%h%d%m%y')) {
-                    return $min.' '.__('minutes', I18N::DOMAIN);
-                } else {
-                    if ('000' == $interval->format('%d%m%y')) {
-                        return $hour.' '.__('hours', I18N::DOMAIN);
-                    } else {
-                        if ('00' == $interval->format('%m%y')) {
-                            return $day.' '.__('days', I18N::DOMAIN);
-                        } else {
-                            if ('0' == $interval->format('%y')) {
-                                return $mon.' '.__('months', I18N::DOMAIN);
-                            } else {
-                                return $year.' '.__('years', I18N::DOMAIN);
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 

@@ -1,31 +1,22 @@
 <?php
 
-namespace StoreKeeper\WooCommerce\B2C\Cron;
+namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
-use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
-use StoreKeeper\WooCommerce\B2C\Core;
-use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
 use Throwable;
 
-class ProcessTaskCron
+class ScheduledProcessor extends ProcessAllTasks
 {
-    public const TASK_LIMIT = 100;
-
     /**
-     * @throws BaseException
-     * @throws Exception|Throwable
+     * {@inheritDoc}
      */
-    public function execute(): void
+    public function execute(array $arguments, array $assoc_arguments)
     {
         CronOptions::set(CronOptions::LAST_PRE_EXECUTION_DATE, date('Y-m-d H:i:s'));
         $beforeCount = ProcessAllTasks::countTasks();
         try {
-            $runner = Core::getCommandRunner();
-            $runner->execute(ProcessAllTasks::getCommandName(), [], [
-                'limit' => self::TASK_LIMIT,
-            ]);
+            parent::execute($arguments, $assoc_arguments);
             CronOptions::set(CronOptions::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_SUCCESS);
             CronOptions::delete(CronOptions::LAST_POST_EXECUTION_ERROR);
         } catch (Throwable $throwable) {

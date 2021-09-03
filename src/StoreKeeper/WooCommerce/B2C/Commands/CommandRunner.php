@@ -21,6 +21,7 @@ class CommandRunner
      * @var string[]
      */
     private $commands = [];
+    protected $shouldSpawnSubProcess = false;
 
     public function __construct()
     {
@@ -142,9 +143,46 @@ class CommandRunner
         array $arguments = [],
         array $assoc_arguments = []
     ): int {
+        global $argv;
         $input = self::getSubProcessInputString($name, $arguments, $assoc_arguments);
 
+        if ($this->shouldSpawnSubProcess && !is_null($argv)) {
+            // The wp-cli script: /wp-cli/php/boot-fs.php
+            $params = [];
+            $cliBootScript = $argv[0];
+            $params[] = $cliBootScript;
+            $params[] = WpCliCommandRunner::command_prefix;
+            $params[] = $name;
+
+            $params = array_merge($params, self::buildCommandArgs($arguments, $assoc_arguments));
+            $process = $this->spawnSubProcess(
+                $params,
+                null,
+                600
+            );
+
+            return $process->getExitCode();
+        }
+
         return static::runCommandWithInput($input);
+    }
+
+    public static function buildCommandArgs(array $arguments, array $assocArguments): array
+    {
+        $command = [];
+        foreach ($arguments as $argument) {
+            $command[] = $argument;
+        }
+
+        foreach ($assocArguments as $key => $value) {
+            if (true !== $value) {
+                $command[] = '--'.$key.'='.$value;
+            } else {
+                $command[] = '--'.$key;
+            }
+        }
+
+        return $command;
     }
 
     /**
@@ -166,10 +204,8 @@ class CommandRunner
 
     /**
      * @throws SubProcessException
-     *
-     * @deprecated
      */
-    protected function executePhp(array $params, string $input = null, int $timeout = 0): Process
+    protected function spawnSubProcess(array $params, string $input = null, int $timeout = 0): Process
     {
         $phpBinary = PHP_BINARY === '' ? 'php' : PHP_BINARY;
         $command = [$phpBinary];
@@ -183,7 +219,7 @@ class CommandRunner
         $context = [
             'command' => $cmd_string,
         ];
-        $this->logger->debug('executePhp', $context);
+        $this->logger->debug('spawnSubProcess', $context);
         if (!empty($input)) {
             $process->setInput($input);
             $context['input'] = $input;

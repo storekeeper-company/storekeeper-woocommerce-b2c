@@ -27,6 +27,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\WebhookLog\WebhookLogPurg
 use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\WebhookLog\WebhookLogPurgeOld;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessSingleTask;
+use StoreKeeper\WooCommerce\B2C\Commands\ScheduledProcessor;
 use StoreKeeper\WooCommerce\B2C\Commands\StockFixer;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueCheck;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueFixer;
@@ -62,6 +63,7 @@ class Core
     const HIGH_PRIORITY = 9001;
 
     const COMMANDS = [
+        ScheduledProcessor::class,
         SyncWoocommerceShopInfo::class,
         SyncWoocommerceFullSync::class,
         ConnectBackend::class,

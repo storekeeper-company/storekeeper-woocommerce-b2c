@@ -18,9 +18,6 @@ class StoreKeeperOptions extends AbstractOptions
     const SYNC_MODE_FULL_SYNC = 'sync-mode-full-sync';
     const SYNC_MODE_ORDER_ONLY = 'sync-mode-order-only';
 
-    const CRON_RUNNER = 'cron-runner';
-    const CRON_EXECUTION_LAST_STATUS = 'cron-last-status';
-
     /**
      * returns true if the WooCommerce is connected to the StoreKeeper backend.
      */

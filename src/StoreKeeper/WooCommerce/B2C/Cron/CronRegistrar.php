@@ -2,12 +2,14 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Cron;
 
+use StoreKeeper\WooCommerce\B2C\Commands\ScheduledProcessor;
+use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CronRunnerException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\AbstractOptions;
-use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
 
 class CronRegistrar
 {
@@ -16,15 +18,11 @@ class CronRegistrar
     public const SCHEDULES_EVERY_MINUTE_KEY = 'every_minute';
 
     public const RUNNER_WPCRON = 'wp-cron';
-    public const RUNNER_WPCRON_CRONTAB = 'wp-cron-crontab';
     public const RUNNER_CRONTAB_API = 'crontab-api';
+    public const RUNNER_CRONTAB_CLI = 'crontab-cli';
     public const CRONTAB_RUNNERS = [
-        self::RUNNER_WPCRON_CRONTAB,
+        self::RUNNER_CRONTAB_CLI,
         self::RUNNER_CRONTAB_API,
-    ];
-    public const WP_CRON_RUNNERS = [
-        self::RUNNER_WPCRON,
-        self::RUNNER_WPCRON_CRONTAB,
     ];
 
     public const STATUS_UNEXECUTED = 'unexecuted';
@@ -43,8 +41,8 @@ class CronRegistrar
 
     public function register(): void
     {
-        $cronRunner = StoreKeeperOptions::get(StoreKeeperOptions::CRON_RUNNER, self::RUNNER_WPCRON);
-        if (in_array($cronRunner, self::WP_CRON_RUNNERS, true) && !wp_next_scheduled(self::HOOK_PROCESS_TASK)) {
+        $runner = CronOptions::get(CronOptions::RUNNER, self::RUNNER_WPCRON);
+        if (self::RUNNER_WPCRON === $runner && !wp_next_scheduled(self::HOOK_PROCESS_TASK)) {
             wp_schedule_event(time(), self::SCHEDULES_EVERY_MINUTE_KEY, self::HOOK_PROCESS_TASK);
         }
     }
@@ -54,10 +52,10 @@ class CronRegistrar
      */
     public static function checkRunnerStatus(): void
     {
-        $runner = StoreKeeperOptions::get(StoreKeeperOptions::CRON_RUNNER);
+        $runner = CronOptions::get(CronOptions::RUNNER);
 
-        if (in_array($runner, self::WP_CRON_RUNNERS, true)) {
-            static::checkWpCronStatus(true);
+        if (self::RUNNER_WPCRON === $runner) {
+            static::checkWpCronStatus();
         }
     }
 
@@ -68,17 +66,9 @@ class CronRegistrar
      *
      * @throws CronRunnerException
      */
-    private static function checkWpCronStatus(bool $disableCron = false): void
+    private static function checkWpCronStatus(): void
     {
         global $wp_version;
-
-        if (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON !== $disableCron) {
-            throw new CronRunnerException(sprintf(__('The %s constant is set to %s. Task processing cron may experience conflict or not work at all.', I18N::DOMAIN), 'DISABLE_WP_CRON', DISABLE_WP_CRON ? 'true' : 'false'));
-        }
-
-        if (defined('ALTERNATE_WP_CRON') && ALTERNATE_WP_CRON) {
-            throw new CronRunnerException(sprintf(__('The %s constant is set to true.', I18N::DOMAIN), 'ALTERNATE_WP_CRON'));
-        }
 
         $sslVerify = version_compare($wp_version, 4.0, '<');
         $lockTime = sprintf('%.22F', microtime(true));
@@ -104,7 +94,7 @@ class CronRegistrar
 
     public static function buildMessage(): array
     {
-        $runner = StoreKeeperOptions::get(StoreKeeperOptions::CRON_RUNNER);
+        $runner = CronOptions::get(CronOptions::RUNNER);
 
         $message = __(
             'Cron may not be running:',
@@ -119,15 +109,20 @@ class CronRegistrar
                 I18N::DOMAIN
             );
 
-            if (self::RUNNER_WPCRON_CRONTAB === $runner) {
-                $url = site_url('wp-cron.php');
+            if (self::RUNNER_CRONTAB_CLI === $runner) {
+                $pluginPath = ABSPATH;
+                $allowSpawnArg = WpCliCommandRunner::ALLOW_SPAWN;
+                $commandName = ScheduledProcessor::getCommandName();
+                $commandPrefix = WpCliCommandRunner::command_prefix;
+                $description = <<<HTML
+                <p style="white-space: pre-line;">* * * * * wp {$commandPrefix} {$commandName} --path={$pluginPath} --{$allowSpawnArg}</p>
+                HTML;
             } else {
                 $url = rest_url(EndpointLoader::getFullNamespace().'/'.TaskProcessorEndpoint::ROUTE);
+                $description = <<<HTML
+                <p style="white-space: pre-line;">* * * * * curl {$url}</p>
+                HTML;
             }
-
-            $description = <<<HTML
-            <p style="white-space: pre-line;">*/1 * * * * curl {$url}</p>
-HTML;
         }
 
         return [
@@ -139,9 +134,9 @@ HTML;
     public static function getCronRunners(): array
     {
         return [
-            self::RUNNER_WPCRON => __('Wordpress Cron', I18N::DOMAIN),
-            self::RUNNER_WPCRON_CRONTAB => __('Wordpress Cron (via Crontab)', I18N::DOMAIN),
-            self::RUNNER_CRONTAB_API => __('Server Crontab (via API call)', I18N::DOMAIN),
+            self::RUNNER_WPCRON => __('Wordpress Cron (slowest)', I18N::DOMAIN),
+            self::RUNNER_CRONTAB_API => __('Crontab with curl API calls', I18N::DOMAIN),
+            self::RUNNER_CRONTAB_CLI => __('Crontab with wp-cli (fastest)', I18N::DOMAIN),
         ];
     }
 
