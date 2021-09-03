@@ -303,57 +303,11 @@ class CommandRunner
         }
         $name = $json['name'];
 
-        if ($this->needsFullWordpress($name)) {
-            self::loadFullWordpress();
-        } else {
-            self::loadWpConfig();
-        }
-
         return $this->execute(
             $name,
             $json['arguments'] ?? [],
             $json['assoc_arguments'] ?? []
         );
-    }
-
-    public static function loadWpConfig(): void
-    {
-        if (!defined('ABSPATH')) {
-            define('ABSPATH', self::getWpRootDir());
-        }
-        // Getting the content of the wp-config file
-        $wp_config = file(ABSPATH.'wp-config.php');
-        // Getting the important lines of the wp-config file
-        $out = ['<?php', ''];
-        foreach ($wp_config as $line) {
-            if (
-                1 === preg_match('/^\s*(define)/', $line) ||
-                1 === preg_match('/^\s*(\$table_prefix)/', $line)
-            ) {
-                $out[] = trim($line);
-            }
-        }
-
-        // Creating a temp wp-config file and include it
-        $wp_config_file = tempnam(sys_get_temp_dir(), 'wp-config').'.php';
-        try {
-            file_put_contents($wp_config_file, implode(PHP_EOL, $out));
-            // need to define globals here to make sure it get's loaded in global scope
-            global $table_prefix;
-            @require $wp_config_file;
-        } finally {
-            unlink($wp_config_file);
-        }
-    }
-
-    public static function loadFullWordpress(): void
-    {
-        // Load wordpress
-        $_SERVER['PHP_SELF'] = '/wp-admin/index.php';
-        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-        unset($GLOBALS['current_screen']);
-        define('WP_ADMIN', true);
-        require_once self::getWpRootDir().'/wp-load.php';
     }
 
     public static function exitIFNotCli(): void
@@ -363,18 +317,6 @@ class CommandRunner
             http_response_code(403);
             exit;
         }
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function needsFullWordpress(string $name): bool
-    {
-        $class = $this->getCommandClass($name);
-
-        return call_user_func("$class::needsFullWpToExecute");
     }
 
     private function copyEnv(array $env, array $copy_keys): array

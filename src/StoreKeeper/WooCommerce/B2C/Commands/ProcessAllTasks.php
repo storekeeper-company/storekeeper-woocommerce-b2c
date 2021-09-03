@@ -12,11 +12,6 @@ use Throwable;
 
 class ProcessAllTasks extends AbstractCommand
 {
-    public static function needsFullWpToExecute(): bool
-    {
-        return false; // DO NOT activate otherwise will be really slow
-    }
-
     /**
      * @var DatabaseConnection
      */

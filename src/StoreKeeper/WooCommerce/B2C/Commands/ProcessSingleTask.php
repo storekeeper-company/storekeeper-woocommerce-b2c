@@ -8,11 +8,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class ProcessSingleTask extends AbstractCommand
 {
-    public static function needsFullWpToExecute(): bool
-    {
-        return true;
-    }
-
     /**
      * @return mixed|void
      *

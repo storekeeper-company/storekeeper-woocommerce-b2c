@@ -91,11 +91,6 @@ abstract class AbstractCommand implements CommandInterface
         $this->api = StoreKeeperApi::getApiByAuthName();
     }
 
-    public static function needsFullWpToExecute(): bool
-    {
-        return false;
-    }
-
     /**
      * @param $name
      *
