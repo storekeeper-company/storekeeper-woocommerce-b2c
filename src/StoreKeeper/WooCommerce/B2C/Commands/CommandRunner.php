@@ -147,8 +147,8 @@ class CommandRunner
         $input = self::getSubProcessInputString($name, $arguments, $assoc_arguments);
 
         if ($this->shouldSpawnSubProcess && !is_null($argv)) {
-            // The wp-cli script: /wp-cli/php/boot-fs.php
             $params = [];
+            // The wp-cli script: /wp-cli/php/boot-fs.php
             $cliBootScript = $argv[0];
             $params[] = $cliBootScript;
             $params[] = WpCliCommandRunner::command_prefix;
