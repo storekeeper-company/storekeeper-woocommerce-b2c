@@ -305,8 +305,10 @@ class AdminNotices
                 <?php
                 echo $message; ?>
             </h4>
+            <p>
             <?php
             echo trim($description); ?>
+            </p>
         </div>
         <?php
     }

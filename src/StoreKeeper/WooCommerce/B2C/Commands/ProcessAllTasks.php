@@ -363,12 +363,20 @@ class ProcessAllTasks extends AbstractCommand
         return $task_ids;
     }
 
-    public static function countTasks(): int
+    public static function countNewTasks(): int
     {
-        $orderTasks = self::getOrderTaskIds();
-        $nonOrderTasks = self::getNonOrderTaskIds();
+        $db = new DatabaseConnection();
 
-        return count($orderTasks) + count($nonOrderTasks);
+        $select = TaskModel::getSelectHelper()
+            ->cols(['COUNT(id) AS tasks_count'])
+            ->where('status = :status')
+            ->bindValue('status', TaskHandler::STATUS_NEW);
+
+        $query = $db->prepare($select);
+
+        $row = $db->getRow($query);
+
+        return !is_null($row[0]) ? $row[0] : 0;
     }
 
     private function getTask($id)

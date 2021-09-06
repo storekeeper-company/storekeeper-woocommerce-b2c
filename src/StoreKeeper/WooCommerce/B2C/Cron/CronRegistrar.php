@@ -2,11 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Cron;
 
-use StoreKeeper\WooCommerce\B2C\Commands\ScheduledProcessor;
-use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
-use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
-use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CronRunnerException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\InvalidRunnerException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\AbstractOptions;
 use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
@@ -94,36 +91,15 @@ class CronRegistrar
 
     public static function buildMessage(): array
     {
-        $runner = CronOptions::get(CronOptions::RUNNER);
-
         $message = __(
-            'Cron may not be running:',
+            'StoreKeeper task processing is not being executed:',
             I18N::DOMAIN
         );
 
-        $description = __('Contact your system administrator if the problem persists', I18N::DOMAIN);
-
-        if (in_array($runner, self::CRONTAB_RUNNERS, true)) {
-            $message = __(
-                'Please configure as your cron tab:',
-                I18N::DOMAIN
-            );
-
-            if (self::RUNNER_CRONTAB_CLI === $runner) {
-                $pluginPath = ABSPATH;
-                $allowSpawnArg = WpCliCommandRunner::ALLOW_SPAWN;
-                $commandName = ScheduledProcessor::getCommandName();
-                $commandPrefix = WpCliCommandRunner::command_prefix;
-                $description = <<<HTML
-                <p style="white-space: pre-line;">* * * * * wp {$commandPrefix} {$commandName} --path={$pluginPath} --{$allowSpawnArg}</p>
-                HTML;
-            } else {
-                $url = rest_url(EndpointLoader::getFullNamespace().'/'.TaskProcessorEndpoint::ROUTE);
-                $description = <<<HTML
-                <p style="white-space: pre-line;">* * * * * curl {$url}</p>
-                HTML;
-            }
-        }
+        $schedulerSettingsLink = '/wp-admin/admin.php?page=storekeeper-settings&tab=scheduler';
+        $schedulerSettingsText = __('Scheduler settings', I18N::DOMAIN);
+        $description = sprintf(__('To see guide on how to configure cron, navigate to %s.', I18N::DOMAIN), "<a href='{$schedulerSettingsLink}'>{$schedulerSettingsText}</a>")
+            .' '.__('Contact your system administrator if the problem persists.', I18N::DOMAIN);
 
         return [
             $message,
@@ -138,6 +114,23 @@ class CronRegistrar
             self::RUNNER_CRONTAB_API => __('Crontab with curl API calls', I18N::DOMAIN),
             self::RUNNER_CRONTAB_CLI => __('Crontab with wp-cli (fastest)', I18N::DOMAIN),
         ];
+    }
+
+    /**
+     * Validates if the runner that executes the task
+     * processing cron is the one that is configured.
+     *
+     * @throws InvalidRunnerException
+     */
+    public static function validateRunner(string $actualRunner): void
+    {
+        $runner = CronOptions::get(CronOptions::RUNNER, self::RUNNER_WPCRON);
+        $cronRunners = self::getCronRunners();
+        if ($actualRunner !== $runner) {
+            CronOptions::set(CronOptions::INVALID_PREFIX.$actualRunner, time());
+            $message = sprintf(__('Task scheduler is set to [%s], change to [%s] to use this.', I18N::DOMAIN), $cronRunners[$runner], $cronRunners[$actualRunner]);
+            throw new InvalidRunnerException($message);
+        }
     }
 
     public static function getStatusLabel(string $status): string

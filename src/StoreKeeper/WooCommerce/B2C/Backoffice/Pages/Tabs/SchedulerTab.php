@@ -14,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
+use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
 
@@ -23,6 +24,7 @@ class SchedulerTab extends AbstractTab
 
     public const SAVE_ACTION = 'save-action';
     public const DOCS_WPCRON_TASK_SCHEDULER_LINK = 'https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler';
+    public const DOCS_WPCLI_LINK = 'https://wp-cli.org/#installing';
 
     public function __construct(string $title, string $slug = '')
     {
@@ -93,13 +95,6 @@ class SchedulerTab extends AbstractTab
         $this->renderInstructions();
         $this->renderStatistics();
 
-        echo '<br>'.$this->getFormActionGroup(
-            $this->getFormButton(
-                __('Save settings', I18N::DOMAIN),
-                'button-primary'
-            )
-        );
-
         echo $this->getFormEnd();
     }
 
@@ -137,7 +132,10 @@ class SchedulerTab extends AbstractTab
                 $cronRunner,
                 CronRegistrar::getCronRunners(),
                 $cronRunnerValue
-            ).' <br><small>'.__(
+            ).' '.$this->getFormButton(
+                __('Apply', I18N::DOMAIN),
+                'button-primary'
+            ).'<br><small>'.__(
                 'Select which cron runner will be used. Please use only if knowledgeable.',
                 I18N::DOMAIN
             ).'</small>'
@@ -146,15 +144,16 @@ class SchedulerTab extends AbstractTab
 
     private function renderInstructions(): void
     {
+        $documentationText = __('See documentation', I18N::DOMAIN);
         $runner = CronOptions::get(CronOptions::RUNNER, CronRegistrar::RUNNER_WPCRON);
         if (CronRegistrar::RUNNER_CRONTAB_CLI === $runner) {
             $pluginPath = ABSPATH;
-            $allowSpawnArg = WpCliCommandRunner::ALLOW_SPAWN;
             $commandName = ScheduledProcessor::getCommandName();
             $commandPrefix = WpCliCommandRunner::command_prefix;
             $instructions = [
-                __('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN),
-                sprintf(__('Add %s to crontab.', I18N::DOMAIN), "<code>* * * * * wp {$commandPrefix} {$commandName} --path={$pluginPath} --{$allowSpawnArg}</code>"),
+                __('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
+                " <a target='_blank' href='".self::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
+                sprintf(__('Add %s to crontab.', I18N::DOMAIN), "<code>* * * * * wp {$commandPrefix} {$commandName} --path={$pluginPath}</code>"),
                 __('Upon changing runner, please make sure to remove the cron above from crontab.', I18N::DOMAIN),
             ];
         } elseif (CronRegistrar::RUNNER_CRONTAB_API === $runner) {
@@ -165,11 +164,10 @@ class SchedulerTab extends AbstractTab
                 __('Upon changing runner, please make sure to remove the cron above from crontab.', I18N::DOMAIN),
             ];
         } else {
-            $documentationText = __('See documentation', I18N::DOMAIN);
             $instructions = [
                 sprintf(
                     __('You can improve Wordpress Cron performance by using System Task Scheduler. %s', I18N::DOMAIN),
-                    "<a href='".self::DOCS_WPCRON_TASK_SCHEDULER_LINK."'>{$documentationText}</a>"
+                    "<a target='_blank' href='".self::DOCS_WPCRON_TASK_SCHEDULER_LINK."'>{$documentationText}</a>"
                 ),
             ];
         }
@@ -235,14 +233,14 @@ HTML;
     private function generateCommonStatistics(array $data = []): array
     {
         $preExecutionDateTime = CronOptions::get(CronOptions::LAST_PRE_EXECUTION_DATE);
-        $hasProcessed = CronOptions::get(CronOptions::LAST_EXECUTION_HAS_PROCESSED, 'false');
+        $hasProcessed = CronOptions::get(CronOptions::LAST_EXECUTION_HAS_PROCESSED, CronOptions::HAS_PROCESSED_WAITING);
         $postExecutionStatus = CronOptions::get(CronOptions::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_UNEXECUTED);
         $postExecutionError = CronOptions::get(CronOptions::LAST_POST_EXECUTION_ERROR);
 
         $preExecutionValue = '-';
         $isInactive = false;
         if (!is_null($preExecutionDateTime)) {
-            $preExecutionValue = $preExecutionDateTime;
+            $preExecutionValue = wp_date('Y-m-d H:i:s', strtotime($preExecutionDateTime));
             $inactiveTime = DateTimeHelper::dateDiff($preExecutionDateTime, 5);
             if ($inactiveTime) {
                 $isInactive = true;
@@ -251,27 +249,43 @@ HTML;
         }
 
         $data[] = [
-            'description' => __('Pre-execution date and time'),
+            'description' => __('Pre-execution date and time', I18N::DOMAIN),
             'value' => $preExecutionValue,
             'status' => $this->generateStatusContent(!is_null($preExecutionDateTime) && !$isInactive),
         ];
 
         $data[] = [
-            'description' => __('Tasks were processed'),
-            'value' => $hasProcessed,
-            'status' => $this->generateStatusContent('true' === $hasProcessed),
+            'description' => __('Tasks were processed', I18N::DOMAIN),
+            'value' => CronOptions::getHasProcessedLabel($hasProcessed),
+            'status' => $this->generateStatusContent(CronOptions::HAS_PROCESSED_YES === $hasProcessed),
         ];
 
+        $lastSuccessSyncDate = WooCommerceOptions::get(WooCommerceOptions::SUCCESS_SYNC_RUN);
+        if (CronOptions::HAS_PROCESSED_WAITING !== $hasProcessed) {
+            $data[] = [
+                'description' => __('Last processed task date and time', I18N::DOMAIN),
+                'value' => wp_date('Y-m-d H:i:s', strtotime($lastSuccessSyncDate)),
+                'status' => $this->generateStatusContent(true),
+            ];
+        }
+
         $data[] = [
-            'description' => __('Post-execution status'),
+            'description' => __('Post-execution status', I18N::DOMAIN),
             'value' => CronRegistrar::getStatusLabel($postExecutionStatus),
             'status' => $this->generateStatusContent(CronRegistrar::STATUS_SUCCESS === $postExecutionStatus),
         ];
 
         $data[] = [
-            'description' => __('Post-execution error'),
+            'description' => __('Post-execution error', I18N::DOMAIN),
             'value' => !is_null($postExecutionError) ? $postExecutionError : '-',
             'status' => $this->generateStatusContent(is_null($postExecutionError)),
+        ];
+
+        $invalidRunners = CronOptions::getInvalidRunners();
+        $data[] = [
+            'description' => __('Running invalid cron in last 5 minutes', I18N::DOMAIN),
+            'value' => !empty($invalidRunners) ? implode(', ', $invalidRunners) : __('None'),
+            'status' => $this->generateStatusContent(empty($invalidRunners)),
         ];
 
         return $data;

@@ -5,14 +5,16 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 use Monolog\Logger;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Factories\WpCliHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
+use Symfony\Component\Process\Process;
 
 class WpCliCommandRunner extends CommandRunner
 {
     const command_prefix = 'sk';
-    const ALLOW_SPAWN = 'allow-spawn';
+    const SINGLE_PROCESS = 'single-process';
 
     /**
      * @throws \Exception
@@ -32,12 +34,41 @@ class WpCliCommandRunner extends CommandRunner
         \WP_CLI::add_command(
             self::command_prefix.' '.$name,
             function (array $arguments, array $assoc_arguments) use ($name) {
-                if (isset($assoc_arguments[self::ALLOW_SPAWN])) {
-                    $this->shouldSpawnSubProcess = true;
+                if (isset($assoc_arguments[self::SINGLE_PROCESS])) {
+                    $this->shouldSpawnSubProcess = false;
+                } else {
+                    $this->shouldSpawnSubProcess = $this->isSubProcessesAvailable($name);
                 }
                 $this->execute($name, $arguments, $assoc_arguments);
             }
         );
+    }
+
+    private function isSubProcessesAvailable(string $name): bool
+    {
+        try {
+            $testCommand = 'whoami';
+            $testProcess = new Process([$testCommand]);
+            $testProcess->run();
+
+            if (!$testProcess->isSuccessful()) {
+                throw new SubProcessException($testProcess, $testCommand);
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            echo $e->getMessage()."\n";
+            $debug = "=== Exception debug ====\n";
+            $debug .= BaseException::getAsString($e);
+            $this->logger->warning(
+                'Command will not spawn subprocesses:'.$e->getMessage(),
+                [
+                    'name' => $name,
+                    'exception' => $debug,
+                ]);
+
+            return false;
+        }
     }
 
     /**
