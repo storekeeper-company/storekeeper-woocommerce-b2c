@@ -154,6 +154,7 @@ class CommandRunner
             $params[] = WpCliCommandRunner::command_prefix;
             $params[] = $name;
 
+            $assoc_arguments['path'] = ABSPATH;
             $params = array_merge($params, self::buildCommandArgs($arguments, $assoc_arguments));
             $process = $this->spawnSubProcess(
                 $params,
