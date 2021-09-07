@@ -132,7 +132,7 @@ class ProcessAllTasks extends AbstractCommand
             }
         }
         if (0 !== $task_quantity) {
-            set_transient(self::HAS_ERROR_TRANSIENT_KEY, $this->hasError);
+            set_transient(self::HAS_ERROR_TRANSIENT_KEY, $this->hasError, 300); // 5 minutes transient expiry
         }
         $this->deduplicateCron();
     }

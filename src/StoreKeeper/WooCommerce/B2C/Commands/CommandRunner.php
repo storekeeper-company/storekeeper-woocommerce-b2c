@@ -32,11 +32,6 @@ class CommandRunner
         $this->setLogger(new NullLogger());
     }
 
-    private static function getWpRootDir(): string
-    {
-        return STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.'/../../../';
-    }
-
     public function setConsoleLogger(): Logger
     {
         $logger = LoggerFactory::createConsole('ConsoleRunner');
