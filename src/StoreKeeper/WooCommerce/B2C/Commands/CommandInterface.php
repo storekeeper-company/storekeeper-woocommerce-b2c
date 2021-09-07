@@ -12,9 +12,4 @@ interface CommandInterface extends LoggerAwareInterface
     public function execute(array $arguments, array $assoc_arguments);
 
     public static function getCommandName(): string;
-
-    /**
-     * if full wp is needed to execute the task.
-     */
-    public static function needsFullWpToExecute(): bool;
 }

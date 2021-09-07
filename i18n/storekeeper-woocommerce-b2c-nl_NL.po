@@ -200,6 +200,10 @@ msgstr "Taken"
 msgid "Webhooks"
 msgstr "Webhooks"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:18
+msgid "Scheduler"
+msgstr "Planner"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:19
 msgid "Connection"
 msgstr "Verbinding"

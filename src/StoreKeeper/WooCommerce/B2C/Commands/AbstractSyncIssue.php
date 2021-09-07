@@ -6,11 +6,6 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 
 abstract class AbstractSyncIssue extends AbstractCommand
 {
-    public static function needsFullWpToExecute(): bool
-    {
-        return true;
-    }
-
     /**
      * @param $fileName
      * @param $data

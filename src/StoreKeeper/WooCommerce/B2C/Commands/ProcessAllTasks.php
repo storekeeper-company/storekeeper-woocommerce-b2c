@@ -12,11 +12,9 @@ use Throwable;
 
 class ProcessAllTasks extends AbstractCommand
 {
-    public static function needsFullWpToExecute(): bool
-    {
-        return false; // DO NOT activate otherwise will be really slow
-    }
+    const HAS_ERROR_TRANSIENT_KEY = 'process_has_error';
 
+    private $hasError = 'no';
     /**
      * @var DatabaseConnection
      */
@@ -46,8 +44,18 @@ class ProcessAllTasks extends AbstractCommand
             ]
         );
 
+        $limit = 0;
+        if (isset($assoc_arguments['limit'])) {
+            $limit = (int) $assoc_arguments['limit'];
+            $this->logger->notice(
+                'Limiting process',
+                [
+                    'process_limit_count' => $limit,
+                ]
+            );
+        }
         // Update the last run cron to now.
-        $task_ids = $this->getTaskIds();
+        $task_ids = $this->getTaskIds($limit);
         $task_quantity = count($task_ids);
 
         $this->logger->info(
@@ -96,9 +104,8 @@ class ProcessAllTasks extends AbstractCommand
             try {
                 // Mark task as processing
                 $this->updateTaskStatus($task, TaskHandler::STATUS_PROCESSING);
-
                 // Processing task
-                $this->executeSubCommand(ProcessSingleTask::getCommandName(), [$task_id], [], 600);
+                $this->executeSubCommand(ProcessSingleTask::getCommandName(), [$task_id]);
 
                 // Check if running the tasks remove any of the old tasks
                 $removed_task_ids = array_merge(
@@ -116,12 +123,16 @@ class ProcessAllTasks extends AbstractCommand
                 // Update the last run cron to now.
                 $this->ensureSuccessRunTime();
             } catch (Throwable $e) {
+                $this->hasError = 'yes';
                 $task = $this->getTask($task_id);
                 // The task has failed, set the status to failed
                 $this->updateTaskStatus($task, TaskHandler::STATUS_FAILED);
 
                 $this->reportErrorDetails($task_id, $e, $log_context);
             }
+        }
+        if (0 !== $task_quantity) {
+            set_transient(self::HAS_ERROR_TRANSIENT_KEY, $this->hasError, 300); // 5 minutes transient expiry
         }
         $this->deduplicateCron();
     }
@@ -317,7 +328,7 @@ class ProcessAllTasks extends AbstractCommand
         $this->updateTask($task['id'], $task);
     }
 
-    protected function getTaskIds(): array
+    protected function getTaskIds(int $limit = 0): array
     {
         $this->ensureLastRunTime();
 
@@ -352,7 +363,27 @@ class ProcessAllTasks extends AbstractCommand
 
         $task_ids = array_merge($order_task_ids, $non_order_task_ids);
 
+        if (0 !== $limit) {
+            $task_ids = array_slice($task_ids, 0, $limit);
+        }
+
         return $task_ids;
+    }
+
+    public static function countNewTasks(): int
+    {
+        $db = new DatabaseConnection();
+
+        $select = TaskModel::getSelectHelper()
+            ->cols(['COUNT(id) AS tasks_count'])
+            ->where('status = :status')
+            ->bindValue('status', TaskHandler::STATUS_NEW);
+
+        $query = $db->prepare($select);
+
+        $row = $db->getRow($query);
+
+        return !is_null($row[0]) ? $row[0] : 0;
     }
 
     private function getTask($id)

@@ -8,11 +8,6 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class PaymentGatewaySettings extends AbstractCommand
 {
-    public static function needsFullWpToExecute(): bool
-    {
-        return true;
-    }
-
     /**
      * This command allows you to change settings regarding the Payment Gateway.
      *

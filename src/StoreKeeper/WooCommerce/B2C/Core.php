@@ -27,6 +27,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\WebhookLog\WebhookLogPurg
 use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\WebhookLog\WebhookLogPurgeOld;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessSingleTask;
+use StoreKeeper\WooCommerce\B2C\Commands\ScheduledProcessor;
 use StoreKeeper\WooCommerce\B2C\Commands\StockFixer;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueCheck;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueFixer;
@@ -46,6 +47,8 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceTags;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProductPage;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
+use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrondendCore;
@@ -60,6 +63,7 @@ class Core
     const HIGH_PRIORITY = 9001;
 
     const COMMANDS = [
+        ScheduledProcessor::class,
         SyncWoocommerceShopInfo::class,
         SyncWoocommerceFullSync::class,
         ConnectBackend::class,
@@ -128,11 +132,22 @@ class Core
         $this->setOrderHooks();
         $this->setCustomerHooks();
         $this->setCouponHooks();
+        $this->prepareCron();
         $this->registerCommands();
         $this->loadAdditionalCore();
         $this->loadEndpoints();
         $this->registerPaymentGateway();
         $this->versionChecks();
+    }
+
+    private function prepareCron()
+    {
+        $registrar = new CronRegistrar();
+        $this->loader->add_filter('cron_schedules', $registrar, 'addCustomCronInterval');
+        $this->loader->add_action('admin_init', $registrar, 'register');
+
+        $processTask = new ProcessTaskCron();
+        $this->loader->add_action(CronRegistrar::HOOK_PROCESS_TASK, $processTask, 'execute');
     }
 
     /**

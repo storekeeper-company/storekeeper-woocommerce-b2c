@@ -3,24 +3,23 @@
 namespace StoreKeeper\WooCommerce\B2C\Endpoints;
 
 use StoreKeeper\WooCommerce\B2C\Endpoints\Sso\SsoGetEndpoint;
+use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 
 class EndpointLoader
 {
-    private function getNamespace()
+    private const NAMESPACE = 'storekeeper-woocommerce-b2c';
+    private const VERSION = 'v1';
+
+    public static function getFullNamespace(): string
     {
-        return 'storekeeper-woocommerce-b2c';
+        return self::NAMESPACE.'/'.self::VERSION;
     }
 
-    protected function getVersion()
+    public function load(): void
     {
-        return 'v1';
-    }
-
-    public function load()
-    {
-        $namespace = $this->getNamespace().'/'.$this->getVersion();
+        $namespace = static::getFullNamespace();
 
         $logger = LoggerFactory::create('endpoint');
         $webhook = new WebhookPostEndpoint();
@@ -43,6 +42,18 @@ class EndpointLoader
             [
                 'methods' => 'GET',
                 'callback' => [$webhook, 'handleRequest'],
+                'permission_callback' => '__return_true',
+            ]
+        );
+
+        $taskProcessor = new TaskProcessorEndpoint();
+        $taskProcessor->setLogger($logger);
+        register_rest_route(
+            $namespace,
+            TaskProcessorEndpoint::ROUTE,
+            [
+                'methods' => 'GET',
+                'callback' => [$taskProcessor, 'handleRequest'],
                 'permission_callback' => '__return_true',
             ]
         );

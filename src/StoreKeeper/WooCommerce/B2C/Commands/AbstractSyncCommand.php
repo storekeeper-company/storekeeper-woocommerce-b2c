@@ -4,11 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 abstract class AbstractSyncCommand extends AbstractCommand
 {
-    public static function needsFullWpToExecute(): bool
-    {
-        return true;
-    }
-
     /**
      * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException
      */

@@ -17,7 +17,7 @@ class WebCommandRunner extends CommandRunner
         return (int) $command->execute($arguments, $assoc_arguments);
     }
 
-    public function executeAsSubProcess(string $name, array $arguments = [], array $assoc_arguments = [], int $timeout = 0): int
+    public function executeAsSubProcess(string $name, array $arguments = [], array $assoc_arguments = []): int
     {
         // web runner cannot execute as subprocess, just a normal execute instead
         return $this->execute($name, $arguments, $assoc_arguments);
