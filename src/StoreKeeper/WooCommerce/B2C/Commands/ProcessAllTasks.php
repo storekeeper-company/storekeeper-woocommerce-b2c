@@ -12,6 +12,9 @@ use Throwable;
 
 class ProcessAllTasks extends AbstractCommand
 {
+    const HAS_ERROR_TRANSIENT_KEY = 'process_has_error';
+
+    private $hasError = 'no';
     /**
      * @var DatabaseConnection
      */
@@ -120,12 +123,16 @@ class ProcessAllTasks extends AbstractCommand
                 // Update the last run cron to now.
                 $this->ensureSuccessRunTime();
             } catch (Throwable $e) {
+                $this->hasError = 'yes';
                 $task = $this->getTask($task_id);
                 // The task has failed, set the status to failed
                 $this->updateTaskStatus($task, TaskHandler::STATUS_FAILED);
 
                 $this->reportErrorDetails($task_id, $e, $log_context);
             }
+        }
+        if (0 !== $task_quantity) {
+            set_transient(self::HAS_ERROR_TRANSIENT_KEY, $this->hasError);
         }
         $this->deduplicateCron();
     }

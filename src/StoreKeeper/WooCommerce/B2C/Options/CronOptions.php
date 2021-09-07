@@ -43,15 +43,18 @@ class CronOptions extends AbstractOptions
         static::delete(self::API_INVALID_RUN_TIMESTAMP);
     }
 
-    public static function updateHasProcessed(int $beforeCount): void
+    public static function updateHasProcessed(): void
     {
-        if (0 !== $beforeCount) {
-            $afterCount = ProcessAllTasks::countNewTasks();
-            if ($beforeCount !== $afterCount) {
+        $hasError = get_transient(ProcessAllTasks::HAS_ERROR_TRANSIENT_KEY);
+
+        if (false !== $hasError) {
+            if ('no' === $hasError) {
                 self::set(self::LAST_EXECUTION_HAS_PROCESSED, self::HAS_PROCESSED_YES);
             } else {
                 self::set(self::LAST_EXECUTION_HAS_PROCESSED, self::HAS_PROCESSED_NO);
             }
+
+            delete_transient(ProcessAllTasks::HAS_ERROR_TRANSIENT_KEY);
         }
     }
 
@@ -69,14 +72,17 @@ class CronOptions extends AbstractOptions
 
     public static function getInvalidRunners(): array
     {
+        $selectedRunner = self::get(self::RUNNER, CronRegistrar::RUNNER_WPCRON);
         $runners = CronRegistrar::getCronRunners();
         $invalidRunners = [];
         foreach (self::INVALID_TIMESTAMPS as $option => $runner) {
-            $timestamp = self::get($option);
-            if (!is_null($timestamp)) {
-                $minutesAgo = (time() - $timestamp) / 60;
-                if ($minutesAgo <= 5) {
-                    $invalidRunners[] = $runners[$runner];
+            if ($runner !== $selectedRunner) {
+                $timestamp = self::get($option);
+                if (!is_null($timestamp)) {
+                    $minutesAgo = (time() - $timestamp) / 60;
+                    if ($minutesAgo <= 5) {
+                        $invalidRunners[] = $runners[$runner];
+                    }
                 }
             }
         }

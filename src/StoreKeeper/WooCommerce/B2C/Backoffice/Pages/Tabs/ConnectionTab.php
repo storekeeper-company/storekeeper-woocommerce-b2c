@@ -90,7 +90,7 @@ class ConnectionTab extends AbstractTab
 
     private function renderStatistics()
     {
-        $now = date('Y-m-d H:i:s');
+        $now = current_time('mysql');
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();

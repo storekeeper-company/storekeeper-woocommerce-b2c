@@ -7,10 +7,14 @@ use Monolog\Logger;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\InvalidRunnerException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
+use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 class CommandRunner
 {
@@ -201,6 +205,32 @@ class CommandRunner
         }
 
         return $exit;
+    }
+
+    /**
+     * @throws InvalidRunnerException
+     */
+    public static function withCronCheck(string $runner, $callback, $catch, $invalid = null): void
+    {
+        try {
+            CronRegistrar::validateRunner($runner);
+            CronOptions::set(CronOptions::LAST_PRE_EXECUTION_DATE, date(DATE_RFC2822));
+
+            $callback();
+
+            CronOptions::updateSuccessfulExecution();
+        } catch (InvalidRunnerException $invalidRunnerException) {
+            if (!is_null($invalid)) {
+                $invalid($invalidRunnerException);
+            } else {
+                throw $invalidRunnerException;
+            }
+        } catch (Throwable $throwable) {
+            CronOptions::updateFailedExecution($throwable);
+            $catch($throwable);
+        } finally {
+            CronOptions::updateHasProcessed();
+        }
     }
 
     /**

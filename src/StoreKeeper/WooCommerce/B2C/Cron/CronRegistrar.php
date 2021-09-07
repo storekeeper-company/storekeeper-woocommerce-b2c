@@ -49,7 +49,7 @@ class CronRegistrar
      */
     public static function checkRunnerStatus(): void
     {
-        $runner = CronOptions::get(CronOptions::RUNNER);
+        $runner = CronOptions::get(CronOptions::RUNNER, self::RUNNER_WPCRON);
 
         if (self::RUNNER_WPCRON === $runner) {
             static::checkWpCronStatus();
