@@ -294,7 +294,8 @@ class Attributes
                 $attribute_option_id,
                 $attribute_option_slug,
                 $attribute_option_name,
-                $attribute_option_image
+                $attribute_option_image,
+                null,
             );
         }
 
@@ -532,7 +533,8 @@ SQL
         $attribute_option_id,
         $attribute_option_slug,
         $attribute_option_name,
-        $attribute_option_image
+        $attribute_option_image,
+        $attribute_option_order
     ) {
         self::registerAttributeTemporary($attribute_slug, $attribute_name);
 
@@ -568,6 +570,10 @@ SQL
         }
 
         update_term_meta($term_id, 'storekeeper_id', $attribute_option_id);
+
+        if (0 !== $attribute_option_order && !is_null($attribute_option_order)) {
+            update_term_meta($term_id, 'order', $attribute_option_order);
+        }
 
         if ($attribute_option_image) {
             self::setAttributeOptionImage($term_id, $attribute_option_image);

@@ -126,13 +126,12 @@ SQL;
     /**
      * @param $attribute_id
      * @param $meta_key
-     * @param bool $single
      *
      * @return mixed
      *
      * @throws \Exception
      */
-    public static function getMetadata($attribute_id, $meta_key, $single = true)
+    public static function getMetadata($attribute_id, $meta_key, bool $single = true, $order = 'ASC')
     {
         self::databaseTableExistsCheck();
         if (!is_null(wc_get_attribute($attribute_id))) {
@@ -143,15 +142,19 @@ SQL;
             FROM `$table_name` 
             WHERE `attribute_id` = %d 
             AND `meta_key` = %s
+            ORDER BY meta_id $order
 SQL;
 
             $sqlPrepared = $wpdb->prepare($sql, $attribute_id, $meta_key);
+            $row = $wpdb->get_row($sqlPrepared);
 
-            if ($single) {
-                return current($wpdb->get_row($sqlPrepared));
+            if (!is_null($row)) {
+                if ($single) {
+                    return current($row);
+                }
+
+                return $row;
             }
-
-            return $wpdb->get_row($sqlPrepared);
         }
 
         return null;

@@ -118,5 +118,6 @@ class AttributeImport extends AbstractImport
         }
 
         WooCommerceAttributeMetadata::setMetadata($attribute_id, 'storekeeper_id', $dotObject->get('id'));
+        WooCommerceAttributeMetadata::setMetadata($attribute_id, 'weight', $dotObject->get('order'));
     }
 }

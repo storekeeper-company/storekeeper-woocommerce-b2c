@@ -86,6 +86,7 @@ class AttributeOptionImport extends AbstractImport
         $attribute_option_name = substr($title, 0, 30);
         $attribute_option_slug = Attributes::sanitizeOptionSlug($attribute_option_id, $dotObject->get('name'));
         $attribute_option_image = $dotObject->get('image_url', false);
+        $attribute_option_order = $dotObject->get('order', false);
 
         Attributes::updateAttributeOption(
             $attribute_slug,
@@ -93,7 +94,8 @@ class AttributeOptionImport extends AbstractImport
             $attribute_option_id,
             $attribute_option_slug,
             $attribute_option_name,
-            $attribute_option_image
+            $attribute_option_image,
+            $attribute_option_order
         );
     }
 }

@@ -14,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\ParseDown;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
+use StoreKeeper\WooCommerce\B2C\Tools\WooCommerceAttributeMetadata;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use WC_Meta_Box_Product_Data;
 use WC_Product_Simple;
@@ -647,7 +648,9 @@ SQL;
                 } else {
                     $attributeData['attribute_names'][$index] = $contentVar->get('label');
                 }
-                $attributeData['attribute_position'][$index] = count($attributeData['attribute_position']);
+
+                $weight = WooCommerceAttributeMetadata::getMetadata($attribute->id, 'weight', true, 'DESC') ?? 1;
+                $attributeData['attribute_position'][$index] = (int) $weight;
                 if ($contentVar->get('attribute_published')) {
                     $attributeData['attribute_visibility'][$index] = 1;
                 }
@@ -1187,7 +1190,7 @@ SQL;
         $this->debug('Assigned product found', $log_data);
 
         if (false !== $associatedShopProducts && count($associatedShopProducts) > 0) {
-            foreach ($associatedShopProducts as $index => $associatedShopProductData) {
+            foreach ($associatedShopProducts as $associatedShopProductData) {
                 $assigned_debug_log = [];
                 $associatedShopProduct = new Dot($associatedShopProductData);
 
@@ -1197,7 +1200,6 @@ SQL;
                         $associatedShopProduct->get('shop_product.product.sku')
                     ) : $variationCheck;
                 }
-
                 $assigned_debug_log['assigned_shop_id'] = $associatedShopProduct->get('shop_product_id');
                 $this->debug('Assigned product added', $assigned_debug_log);
 
@@ -1206,6 +1208,18 @@ SQL;
                     $variation_id = $variationCheck->ID;
                 }
                 $variation = new WC_Product_Variation($variation_id);
+
+                $attributes = $variation->get_attributes();
+                $optionId = Attributes::getAttributeOptionTermIdByAttributeOptionId(
+                    $associatedShopProduct->get('configurable_associated_product.attribute_option_ids')[0],
+                    key($attributes),
+                );
+
+                $optionMeta = get_term_meta($optionId);
+                $menuOrder = 0;
+                if (isset($optionMeta['order'])) {
+                    $menuOrder = $optionMeta['order'][0] ?? 0;
+                }
 
                 $assigned_debug_log['variation_id'] = $variation_id;
                 $this->debug('variation post_id', $assigned_debug_log);
@@ -1221,7 +1235,7 @@ SQL;
                 $props = [
                     'parent_id' => $parentProduct->get_id(),
                     'status' => $associatedShopProduct->get('shop_product.active') ? 'publish' : 'private',
-                    'menu_order' => wc_clean($index),
+                    'menu_order' => wc_clean($menuOrder),
                     'regular_price' => wc_clean(
                         $associatedShopProduct->get('shop_product.product_default_price.ppu_wt')
                     ),
