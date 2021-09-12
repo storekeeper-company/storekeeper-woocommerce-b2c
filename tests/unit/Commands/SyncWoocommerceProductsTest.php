@@ -5,12 +5,15 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceSingleProduct;
 
 class SyncWoocommerceProductsTest extends AbstractTest
 {
     // Datadump related constants
     const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products';
     const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.72e551759ae4651bdb99611a255078af300eb8b787c2a8b9a216b800b8818b06.json';
+    const DATADUMP_SOURCE_SINGLE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.613db2c03f849.json';
+    const DATADUMP_CONFIGURABLE_OPTIONS_FILE = 'moduleFunction.ShopModule::getConfigurableShopProductOptions.5e20566c4b0dd01fa60732d6968bc565b60fbda96451d989d00e35cc6d46e04a.json';
 
     /**
      * Initialize the tests by following these steps:
@@ -21,7 +24,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
      *
      * @throws \Throwable
      */
-    protected function initializeTest()
+    protected function initializeTest($storekeeperId = null)
     {
         // Initialize the test
         $this->initApiConnection();
@@ -36,8 +39,17 @@ class SyncWoocommerceProductsTest extends AbstractTest
             'Test was not ran in an empty environment'
         );
 
-        // Run the product import command
-        $this->runner->execute(SyncWoocommerceProducts::getCommandName());
+        if (!is_null($storekeeperId)) {
+            $this->runner->addCommandClass(SyncWoocommerceSingleProduct::class);
+            $this->runner->execute(SyncWoocommerceSingleProduct::getCommandName(), [
+            ], [
+                'storekeeper_id' => $storekeeperId,
+            ]);
+        } else {
+            // Run the product import command
+            $this->runner->execute(SyncWoocommerceProducts::getCommandName());
+        }
+
         // Process all the tasks that get spawned by the product import command
         $this->runner->execute(ProcessAllTasks::getCommandName());
     }
@@ -45,10 +57,14 @@ class SyncWoocommerceProductsTest extends AbstractTest
     /**
      * Fetch the data from the datadump source file.
      */
-    protected function getReturnData(): array
+    protected function getReturnData($isSingle = false): array
     {
-        // Read the original data from the data dump
-        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_FILE);
+        if ($isSingle) {
+            $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_SINGLE_FILE);
+        } else {
+            // Read the original data from the data dump
+            $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_FILE);
+        }
 
         return $file->getReturn()['data'];
     }
@@ -100,6 +116,73 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
             $this->assertProduct($original, $wc_simple_product);
         }
+    }
+
+    public function testAttributesAndOptionsOrder()
+    {
+        $productStorekeeperId = 21;
+        $this->initializeTest($productStorekeeperId);
+        $originalProductData = $this->getReturnData(true);
+        $attributeOptionsFile = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
+        $attributeOptionsData = $attributeOptionsFile->getReturn();
+        $expectedAttributeOptions = $attributeOptionsData['attribute_options'];
+        // Get the configurable products from the data dump
+        $configurableProducts = $this->getProductsByTypeFromDataDump(
+            $originalProductData,
+            self::SK_TYPE_CONFIGURABLE
+        );
+
+        $expectedAttributesPosition = $this->getAttributeWithPositions($configurableProducts);
+
+        // Create a collection with all of the variations of configurable products from WooCommerce
+        $actualAttributesPosition = [];
+        $wooCommerceConfigurableProducts = wc_get_products(['type' => self::WC_TYPE_CONFIGURABLE]);
+        foreach ($wooCommerceConfigurableProducts as $wooCommerceConfigurableProduct) {
+            $parentProduct = new \WC_Product_Variable($wooCommerceConfigurableProduct->get_id());
+            $wooCommerceAttributes = $parentProduct->get_attributes();
+            foreach ($wooCommerceAttributes as $wooCommerceAttribute) {
+                $attributeName = $this->cleanAttributeName($wooCommerceAttribute->get_name());
+                $actualAttributesPosition[$attributeName] = $wooCommerceAttribute->get_position();
+            }
+
+            foreach ($parentProduct->get_visible_children() as $childId) {
+                $variationProduct = new \WC_Product_Variation($childId);
+                $variationAttributes = $variationProduct->get_attributes();
+                $optionTerm = get_term_by('slug', reset($variationAttributes), key($variationAttributes));
+
+                $optionMeta = get_term_meta($optionTerm->term_id);
+                $storekeeperId = (int) $optionMeta['storekeeper_id'][0];
+                $actualAttributeOptionPosition = $variationProduct->get_menu_order();
+                $attributeOptionIndex = array_search($storekeeperId, array_column($expectedAttributeOptions, 'id'), true);
+                $expectedAttributeOptionPosition = $expectedAttributeOptions[$attributeOptionIndex]['order'];
+                $this->assertEquals($expectedAttributeOptionPosition, $actualAttributeOptionPosition);
+            }
+        }
+
+        $this->assertEquals($expectedAttributesPosition, $actualAttributesPosition);
+    }
+
+    public function cleanAttributeName($name)
+    {
+        $name = str_replace(['attribute_', 'pa_'], '', $name);
+
+        return strtolower(trim($name));
+    }
+
+    public function getAttributeWithPositions($products)
+    {
+        $positions = [];
+        foreach ($products as $product) {
+            $dot = new Dot($product);
+            $contentVars = $dot->get('flat_product.content_vars');
+            foreach ($contentVars as $data) {
+                $contentVar = new Dot($data);
+                $attributeName = $this->cleanAttributeName($contentVar->get('name'));
+                $positions[$attributeName] = $contentVar->get('attribute_order');
+            }
+        }
+
+        return $positions;
     }
 
     public function testConfigurableProductImport()

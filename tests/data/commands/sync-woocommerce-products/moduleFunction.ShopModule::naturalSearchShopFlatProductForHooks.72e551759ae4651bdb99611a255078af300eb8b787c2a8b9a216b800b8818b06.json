@@ -110,7 +110,9 @@
                             "attribute_id": 1,
                             "name": "barcode",
                             "value": "885909627653",
-                            "attribute_published": true
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 2
                         },
                         {
                             "label": "Kleur",
@@ -119,7 +121,9 @@
                             "value_label": "Wit",
                             "name": "kleur",
                             "value": "wit",
-                            "attribute_published": true
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 3
                         }
                     ],
                     "main_image": {
@@ -261,7 +265,9 @@
                             "attribute_id": 1,
                             "name": "barcode",
                             "value": "2220000000021",
-                            "attribute_published": true
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 2
                         }
                     ],
                     "main_image": {
@@ -372,7 +378,9 @@
                             "value_label": "Zwart",
                             "name": "kleur",
                             "value": "zwart",
-                            "attribute_published": true
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 3
                         }
                     ],
                     "main_image": {
@@ -482,7 +490,9 @@
                             "value_label": "Wit",
                             "name": "kleur",
                             "value": "wit",
-                            "attribute_published": true
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 3
                         }
                     ],
                     "main_image": {
@@ -592,7 +602,9 @@
                             "attribute_id": 1,
                             "name": "barcode",
                             "value": "848467078213",
-                            "attribute_published": true
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 2
                         }
                     ],
                     "main_image": {
