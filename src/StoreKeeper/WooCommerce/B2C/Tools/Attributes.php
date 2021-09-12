@@ -13,9 +13,9 @@ use StoreKeeper\WooCommerce\B2C\Imports\AttributeOptionImport;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
-use WC_Product_Variation;
 use function wc_create_attribute;
 use function wc_get_attribute;
+use WC_Product_Variation;
 use function wc_update_attribute;
 
 class Attributes
