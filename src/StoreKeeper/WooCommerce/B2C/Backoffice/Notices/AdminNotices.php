@@ -53,11 +53,11 @@ class AdminNotices
     private function connectionCheck()
     {
         if (!StoreKeeperOptions::isConnected()) {
-            $message = esc_html__(
+            $message = __(
                 'The StoreKeeper synchronization plugin extension is not connected, thus nothing is synchronized. please click configure to do so.',
                 I18N::DOMAIN
             );
-            $configure = esc_html__('Configure StoreKeeper synchronization plugin', I18N::DOMAIN); ?>
+            $configure = __('Configure StoreKeeper synchronization plugin', I18N::DOMAIN); ?>
             <div class="notice notice-error">
                 <p style="display:flex;justify-content:space-between;align-items:center;">
                     <?php
@@ -137,7 +137,7 @@ class AdminNotices
             $goid = get_post_meta($id, 'storekeeper_id', true);
             $order = new \WC_Order($id);
             if ($goid && $order->has_status('completed')) {
-                $message = esc_html__(
+                $message = __(
                     'This order is marked as completed, any changes might not be synced to the backoffice',
                     I18N::DOMAIN
                 ); ?>
