@@ -2,10 +2,12 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
+use Adbar\Dot;
 use Exception;
 use Psr\Log\LoggerAwareTrait;
 use stdClass;
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exceptions\AttributeTranslatorException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeImport;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeOptionImport;
@@ -14,6 +16,7 @@ use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use function wc_create_attribute;
 use function wc_get_attribute;
+use WC_Product_Variation;
 use function wc_update_attribute;
 
 class Attributes
@@ -264,10 +267,14 @@ class Attributes
      */
     public static function updateAttributeAndOptionFromContentVar($content_var)
     {
-        // If there is no attribute_options_id its should to be stores as an attribute within the system,
+        $attribute_id = $content_var['attribute_id'];
+        // Set the attributes' order/weight even if there is no attribute option id
+        if (array_key_exists('attribute_order', $content_var)) {
+            WooCommerceAttributeMetadata::setMetadata($attribute_id, 'attribute_order', $content_var['attribute_order']);
+        }
+        // If there is no attribute_options_id it should to be stored as an attribute within the system,
         // But it should be set on the product its self. so it can be skipped here.
         if (array_key_exists('attribute_option_id', $content_var)) {
-            $attribute_id = $content_var['attribute_id'];
             $attribute_slug = $content_var['name'];
             $attribute_name = substr($content_var['label'], 0, 30);
 
@@ -287,6 +294,7 @@ class Attributes
             $attribute_option_slug = $content_var['value'];
             $attribute_option_image = array_key_exists('attribute_option_image_url', $content_var)
                 ? $content_var['attribute_option_image_url'] : false;
+            $attribute_option_order = array_key_exists('attribute_option_order', $content_var) ? $content_var['attribute_option_order'] : 0;
 
             return self::updateAttributeOption(
                 $attribute_slug,
@@ -294,7 +302,8 @@ class Attributes
                 $attribute_option_id,
                 $attribute_option_slug,
                 $attribute_option_name,
-                $attribute_option_image
+                $attribute_option_image,
+                $attribute_option_order,
             );
         }
 
@@ -445,10 +454,17 @@ SQL;
         );
     }
 
+    /**
+     * @throws AttributeTranslatorException
+     */
     public static function createWooCommerceAttributeName($tax_name)
     {
-        // Get the correct attribute name
-        $tax_name = AttributeTranslator::setTranslation($tax_name);
+        try {
+            // Get the correct attribute name
+            $tax_name = AttributeTranslator::setTranslation($tax_name);
+        } catch (\Throwable $throwable) {
+            throw new AttributeTranslatorException($throwable->getMessage(), 0, $throwable);
+        }
 
         // Change format when needed
         if (strlen($tax_name) > 32) {
@@ -532,7 +548,8 @@ SQL
         $attribute_option_id,
         $attribute_option_slug,
         $attribute_option_name,
-        $attribute_option_image
+        $attribute_option_image,
+        $attribute_option_order
     ) {
         self::registerAttributeTemporary($attribute_slug, $attribute_name);
 
@@ -568,6 +585,7 @@ SQL
         }
 
         update_term_meta($term_id, 'storekeeper_id', $attribute_option_id);
+        static::updateAttributeOptionOrder($term_id, $attribute_option_order);
 
         if ($attribute_option_image) {
             self::setAttributeOptionImage($term_id, $attribute_option_image);
@@ -576,6 +594,11 @@ SQL
         }
 
         return $term_id;
+    }
+
+    public static function updateAttributeOptionOrder(int $optionTermId, int $attributeOptionOrder): void
+    {
+        update_term_meta($optionTermId, 'order', $attributeOptionOrder);
     }
 
     public static function getProductAttributesAtIndex(int $index): ?array
@@ -591,5 +614,30 @@ SQL
         }
 
         return null;
+    }
+
+    /**
+     * @return int|mixed
+     */
+    public static function getOptionOrder(WC_Product_Variation $variation, Dot $associatedShopProduct): int
+    {
+        $attributes = $variation->get_attributes();
+
+        try {
+            $optionOrder = 0;
+            $optionId = self::getAttributeOptionTermIdByAttributeOptionId(
+                $associatedShopProduct->get('configurable_associated_product.attribute_option_ids')[0],
+                key($attributes),
+            );
+
+            $optionMeta = get_term_meta($optionId);
+            if (isset($optionMeta['order'])) {
+                $optionOrder = $optionMeta['order'][0] ?? 0;
+            }
+
+            return $optionOrder;
+        } catch (AttributeTranslatorException $attributeTranslatorException) {
+            return 0;
+        }
     }
 }

@@ -647,7 +647,13 @@ SQL;
                 } else {
                     $attributeData['attribute_names'][$index] = $contentVar->get('label');
                 }
-                $attributeData['attribute_position'][$index] = count($attributeData['attribute_position']);
+
+                $attributeOrder = 0;
+                if ($contentVar->has('attribute_order')) {
+                    $attributeOrder = $contentVar->get('attribute_order');
+                }
+                $attributeData['attribute_position'][$index] = (int) $attributeOrder;
+
                 if ($contentVar->get('attribute_published')) {
                     $attributeData['attribute_visibility'][$index] = 1;
                 }
@@ -984,6 +990,8 @@ SQL;
 
             if ($this->syncProductVariations) {
                 $this->syncProductVariations($newProduct, $optionsConfig, $log_data);
+            } else {
+                $this->reorderProductVariations($optionsConfig);
             }
         }
 
@@ -1139,6 +1147,9 @@ SQL;
                     $attribute_option['id']
                 );
 
+                $attributeOptionsOrder = $attribute_option['order'] ?? 0;
+                Attributes::updateAttributeOptionOrder($attribute_options_id, $attributeOptionsOrder);
+
                 if ($attribute_options_id) {
                     $configurable_attribute_array[$term_name][] = $attribute_options_id;
                 }
@@ -1146,9 +1157,14 @@ SQL;
         }
 
         foreach ($configurable_attribute_array as $attribute_name => $attribute_values) {
-            $index = count($attribute_data['attribute_position']) + 1;
+            $index = array_search($attribute_name, $attribute_data['attribute_names'], true);
+
+            if (false === $index) {
+                $index = count($attribute_data['attribute_position']) + 1;
+                $attribute_data['attribute_position'][$index] = count($attribute_data['attribute_position']);
+            }
+
             $attribute_data['attribute_names'][$index] = $attribute_name;
-            $attribute_data['attribute_position'][$index] = count($attribute_data['attribute_position']);
             $attribute_data['attribute_visibility'][$index] = 1;
 
             $attribute_data['attribute_values'][$index] = $attribute_values;
@@ -1187,24 +1203,11 @@ SQL;
         $this->debug('Assigned product found', $log_data);
 
         if (false !== $associatedShopProducts && count($associatedShopProducts) > 0) {
-            foreach ($associatedShopProducts as $index => $associatedShopProductData) {
+            foreach ($associatedShopProducts as $associatedShopProductData) {
                 $assigned_debug_log = [];
                 $associatedShopProduct = new Dot($associatedShopProductData);
 
-                $variationCheck = $this->getProductVariation($associatedShopProduct->get('shop_product_id'));
-                if (false === $variationCheck && $associatedShopProduct->has('shop_product.product.sku')) {
-                    $variationCheck = (false === $variationCheck) ? $this->getProductVariationBySku(
-                        $associatedShopProduct->get('shop_product.product.sku')
-                    ) : $variationCheck;
-                }
-
-                $assigned_debug_log['assigned_shop_id'] = $associatedShopProduct->get('shop_product_id');
-                $this->debug('Assigned product added', $assigned_debug_log);
-
-                $variation_id = 0;
-                if (false !== $variationCheck) {
-                    $variation_id = $variationCheck->ID;
-                }
+                $variation_id = $this->getVariationId($associatedShopProduct, $assigned_debug_log);
                 $variation = new WC_Product_Variation($variation_id);
 
                 $assigned_debug_log['variation_id'] = $variation_id;
@@ -1221,7 +1224,6 @@ SQL;
                 $props = [
                     'parent_id' => $parentProduct->get_id(),
                     'status' => $associatedShopProduct->get('shop_product.active') ? 'publish' : 'private',
-                    'menu_order' => wc_clean($index),
                     'regular_price' => wc_clean(
                         $associatedShopProduct->get('shop_product.product_default_price.ppu_wt')
                     ),
@@ -1244,8 +1246,6 @@ SQL;
                     $props['sale_price'] = $sale_price;
                 }
 
-                WordpressExceptionThrower::throwExceptionOnWpError($variation->set_props($props));
-
                 $this->setAssignedAttributes(
                     $variation,
                     $optionsConfig,
@@ -1253,6 +1253,11 @@ SQL;
                         'configurable_associated_product.attribute_option_ids'
                     )
                 );
+
+                $menuOrder = Attributes::getOptionOrder($variation, $associatedShopProduct);
+                $props['menu_order'] = wc_clean($menuOrder);
+
+                WordpressExceptionThrower::throwExceptionOnWpError($variation->set_props($props));
 
                 $post_id = $variation->save();
 
@@ -1268,6 +1273,41 @@ SQL;
                 $this->scheduleVariationActionTask($parentProduct->get_id());
 
                 $this->debug('variation saved after action', $assigned_debug_log);
+            }
+        }
+    }
+
+    /**
+     * @throws WordpressException
+     */
+    private function reorderProductVariations($optionsConfig): void
+    {
+        $associatedShopProducts = $optionsConfig->get('configurable_associated_shop_products', false);
+        if (false !== $associatedShopProducts && count($associatedShopProducts) > 0) {
+            foreach ($associatedShopProducts as $associatedShopProductData) {
+                $assigned_debug_log = [];
+                $associatedShopProduct = new Dot($associatedShopProductData);
+
+                $variation_id = $this->getVariationId($associatedShopProduct, $assigned_debug_log);
+                if (0 !== $variation_id && !is_null($variation_id)) {
+                    $variation = new WC_Product_Variation($variation_id);
+
+                    $menuOrder = Attributes::getOptionOrder($variation, $associatedShopProduct);
+
+                    $assigned_debug_log['variation_id'] = $variation_id;
+                    $this->debug('variation post_id', $assigned_debug_log);
+
+                    $props = [
+                        'menu_order' => wc_clean($menuOrder),
+                    ];
+
+                    WordpressExceptionThrower::throwExceptionOnWpError($variation->set_props($props));
+
+                    $post_id = $variation->save();
+
+                    $assigned_debug_log['variation_saved_id'] = $post_id;
+                    $this->debug('variation reordered', $assigned_debug_log);
+                }
             }
         }
     }
@@ -1636,5 +1676,27 @@ SQL;
     public function getSyncProductVariations()
     {
         return $this->syncProductVariations;
+    }
+
+    /**
+     * @throws WordpressException
+     */
+    private function getVariationId(Dot $associatedShopProduct, array &$assigned_debug_log): int
+    {
+        $variationCheck = $this->getProductVariation($associatedShopProduct->get('shop_product_id'));
+        if (false === $variationCheck && $associatedShopProduct->has('shop_product.product.sku')) {
+            $variationCheck = (false === $variationCheck) ? $this->getProductVariationBySku(
+                $associatedShopProduct->get('shop_product.product.sku')
+            ) : $variationCheck;
+        }
+        $assigned_debug_log['assigned_shop_id'] = $associatedShopProduct->get('shop_product_id');
+        $this->debug('Assigned product added', $assigned_debug_log);
+
+        $variationId = 0;
+        if (false !== $variationCheck) {
+            $variationId = $variationCheck->ID;
+        }
+
+        return $variationId;
     }
 }

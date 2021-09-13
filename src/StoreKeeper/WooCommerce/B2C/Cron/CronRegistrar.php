@@ -83,7 +83,7 @@ class CronRegistrar
         $cronResponse = wp_remote_post($cronRequest['url'], $cronRequest['args']);
 
         if (is_wp_error($cronResponse)) {
-            throw new CronRunnerException(sprintf('WP Cron encountered an error and may not work: %s', I18N::DOMAIN), strip_tags($cronResponse->get_error_message()));
+            throw new CronRunnerException(sprintf(__('WP Cron encountered an error and may not work: %s', I18N::DOMAIN), strip_tags($cronResponse->get_error_message())));
         } elseif (wp_remote_retrieve_response_code($cronResponse) >= 300) {
             throw new CronRunnerException(sprintf(__('WP Cron return an unexpected HTTP response code: %s', I18N::DOMAIN), (int) wp_remote_retrieve_response_code($cronResponse)));
         }
