@@ -14,7 +14,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\ParseDown;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
-use StoreKeeper\WooCommerce\B2C\Tools\WooCommerceAttributeMetadata;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use WC_Meta_Box_Product_Data;
 use WC_Product_Simple;
@@ -649,10 +648,9 @@ SQL;
                     $attributeData['attribute_names'][$index] = $contentVar->get('label');
                 }
 
+                $attributeOrder = 0;
                 if ($contentVar->has('attribute_order')) {
                     $attributeOrder = $contentVar->get('attribute_order');
-                } else {
-                    $attributeOrder = WooCommerceAttributeMetadata::getMetadata($attribute->id, 'attribute_order', true, 'DESC') ?? 0;
                 }
                 $attributeData['attribute_position'][$index] = (int) $attributeOrder;
 
