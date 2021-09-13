@@ -7,6 +7,7 @@ use Exception;
 use Psr\Log\LoggerAwareTrait;
 use stdClass;
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exceptions\AttributeTranslatorException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeImport;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeOptionImport;
@@ -453,10 +454,17 @@ SQL;
         );
     }
 
+    /**
+     * @throws AttributeTranslatorException
+     */
     public static function createWooCommerceAttributeName($tax_name)
     {
-        // Get the correct attribute name
-        $tax_name = AttributeTranslator::setTranslation($tax_name);
+        try {
+            // Get the correct attribute name
+            $tax_name = AttributeTranslator::setTranslation($tax_name);
+        } catch (\Throwable $throwable) {
+            throw new AttributeTranslatorException($throwable->getMessage(), 0, $throwable);
+        }
 
         // Change format when needed
         if (strlen($tax_name) > 32) {
@@ -628,7 +636,7 @@ SQL
             }
 
             return $optionOrder;
-        } catch (\Throwable $throwable) {
+        } catch (AttributeTranslatorException $attributeTranslatorException) {
             return 0;
         }
     }
