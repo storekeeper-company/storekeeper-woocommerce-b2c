@@ -61,10 +61,10 @@ class SchedulerTab extends AbstractTab
         );
         echo $this->getFormGroup(
             __('Last cron execution status', I18N::DOMAIN),
-            $executionStatus
+            esc_html($executionStatus)
         );
 
-        $now = current_time('mysql');
+        $now = current_time('mysql', 1);
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
@@ -104,7 +104,7 @@ class SchedulerTab extends AbstractTab
         $cronLastStatus = CronOptions::getConstant(CronOptions::LAST_EXECUTION_STATUS);
 
         $data = [
-            $cronRunner => $_POST[$cronRunner],
+            $cronRunner => sanitize_key($_POST[$cronRunner]),
             $cronLastStatus => CronRegistrar::STATUS_UNEXECUTED,
         ];
 

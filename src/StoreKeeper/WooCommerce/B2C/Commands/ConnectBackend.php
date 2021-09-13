@@ -16,6 +16,7 @@ class ConnectBackend extends AbstractCommand
         $rootUrl = $arguments[0] ?? site_url();
         $key = WooCommerceOptions::getApiKey($rootUrl);
 
+        $rootUrl = esc_url($rootUrl);
         echo "Site url: $rootUrl\n";
         echo "Use this key to connect to wordpress:\n$key\n";
     }

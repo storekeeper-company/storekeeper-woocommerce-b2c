@@ -1,7 +1,7 @@
 === StoreKeeper synchronization plugin ===
 Tags: woocommerce,e-commerce, woo,sales,store
 Requires at least: 5.0
-Tested up to: 5.7.2
+Tested up to: 5.8.1
 Requires PHP: 7.2
 Stable Tag: 0.0.1
 License: GNU General Public License v2.0

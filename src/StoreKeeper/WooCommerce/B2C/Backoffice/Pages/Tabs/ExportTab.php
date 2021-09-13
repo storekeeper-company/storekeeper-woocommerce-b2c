@@ -94,7 +94,7 @@ class ExportTab extends AbstractTab
             $this->getFormInput(
                 'lang',
                 __('Overwrite language (iso2)', I18N::DOMAIN),
-                Language::getSiteLanguageIso2()
+                esc_html(Language::getSiteLanguageIso2())
             )
         );
 

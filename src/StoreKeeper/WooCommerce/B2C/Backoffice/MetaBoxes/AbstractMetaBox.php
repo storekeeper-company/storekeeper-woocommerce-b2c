@@ -15,7 +15,7 @@ abstract class AbstractMetaBox
     protected function showPossibleError(): void
     {
         if (array_key_exists('sk_sync_error', $_REQUEST)) {
-            $message = esc_html($_REQUEST['sk_sync_error']);
+            $message = sanitize_text_field($_REQUEST['sk_sync_error']);
             echo <<<HTML
                     <div class="notice notice-error">
                         <h4>$message</h4>
@@ -27,7 +27,7 @@ abstract class AbstractMetaBox
     protected function showPossibleSuccess(): void
     {
         if (array_key_exists('sk_sync_success', $_REQUEST)) {
-            $message = esc_html($_REQUEST['sk_sync_success']);
+            $message = sanitize_text_field($_REQUEST['sk_sync_success']);
             echo <<<HTML
                     <div class="notice notice-success">
                         <h4>$message</h4>

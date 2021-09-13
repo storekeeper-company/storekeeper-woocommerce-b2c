@@ -99,14 +99,15 @@ abstract class AbstractLogsTab extends AbstractTab
         $sort = $this->getRequestSort();
         // Caret up character
         $caret = '&#9650;';
-        esc_attr(remove_query_arg('sort'));
-        $url = esc_attr(add_query_arg('sort', 'asc'));
+        esc_url(remove_query_arg('sort'));
+        $url = esc_url(add_query_arg('sort', 'asc'));
         if ('asc' === $sort) {
-            $url = esc_attr(add_query_arg('sort', 'desc'));
+            $url = esc_url(add_query_arg('sort', 'desc'));
             // Caret down character
             $caret = '&#9660;';
         }
-        $dateString = __('Date', I18N::DOMAIN);
+        $caret = esc_html($caret);
+        $dateString = esc_html__('Date', I18N::DOMAIN);
         echo <<<HTML
             $dateString <a href="$url">$caret</a>
             HTML;
@@ -115,8 +116,8 @@ abstract class AbstractLogsTab extends AbstractTab
     private function getPreviousNavigation($currentIndex): string
     {
         if ($currentIndex > 0) {
-            $firstUrl = esc_attr(remove_query_arg('table-index'));
-            $previousUrl = esc_attr(add_query_arg('table-index', $currentIndex - 1));
+            $firstUrl = esc_url(remove_query_arg('table-index'));
+            $previousUrl = esc_url(add_query_arg('table-index', $currentIndex - 1));
 
             return <<<HTML
                         <a href="$firstUrl" class="button">«</a>
@@ -133,8 +134,8 @@ abstract class AbstractLogsTab extends AbstractTab
     private function getNextNavigation($currentIndex, $lastIndex): string
     {
         if ($currentIndex < $lastIndex) {
-            $nextUrl = esc_attr(add_query_arg('table-index', $currentIndex + 1));
-            $lastUrl = esc_attr(add_query_arg('table-index', $lastIndex));
+            $nextUrl = esc_url(add_query_arg('table-index', $currentIndex + 1));
+            $lastUrl = esc_url(add_query_arg('table-index', $lastIndex));
 
             return <<<HTML
                         <a href="$nextUrl" class="button">›</a>
@@ -151,7 +152,7 @@ abstract class AbstractLogsTab extends AbstractTab
     protected function getRequestTableIndex(): int
     {
         if (isset($_REQUEST['table-index'])) {
-            return $_REQUEST['table-index'];
+            return (int) $_REQUEST['table-index'];
         }
 
         return 0;
@@ -160,7 +161,7 @@ abstract class AbstractLogsTab extends AbstractTab
     protected function getRequestLimit(): int
     {
         if (isset($_REQUEST['limit'])) {
-            return $_REQUEST['limit'];
+            return (int) $_REQUEST['limit'];
         }
 
         return 20;

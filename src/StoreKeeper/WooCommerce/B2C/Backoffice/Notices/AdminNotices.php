@@ -53,20 +53,20 @@ class AdminNotices
     private function connectionCheck()
     {
         if (!StoreKeeperOptions::isConnected()) {
-            $message = __(
+            $message = esc_html__(
                 'The StoreKeeper synchronization plugin extension is not connected, thus nothing is synchronized. please click configure to do so.',
                 I18N::DOMAIN
             );
-            $configure = __('Configure StoreKeeper synchronization plugin', I18N::DOMAIN); ?>
+            $configure = esc_html__('Configure StoreKeeper synchronization plugin', I18N::DOMAIN); ?>
             <div class="notice notice-error">
                 <p style="display:flex;justify-content:space-between;align-items:center;">
                     <?php
-                    echo $message; ?>
+                    echo esc_html($message); ?>
                 </p>
                 <p>
                     <a href="/wp-admin/admin.php?page=storekeeper-settings"
                        class="button-primary woocommerce-save-button"><?php
-                        echo $configure; ?></a>
+                        echo esc_html($configure); ?></a>
                 </p>
             </div>
             <?php
@@ -137,14 +137,14 @@ class AdminNotices
             $goid = get_post_meta($id, 'storekeeper_id', true);
             $order = new \WC_Order($id);
             if ($goid && $order->has_status('completed')) {
-                $message = __(
+                $message = esc_html__(
                     'This order is marked as completed, any changes might not be synced to the backoffice',
                     I18N::DOMAIN
                 ); ?>
                 <div class="notice notice-warning">
                     <h4>
                         <?php
-                        echo $message; ?>
+                        echo esc_html($message); ?>
                     </h4>
                 </div>
                 <?php
@@ -291,7 +291,7 @@ class AdminNotices
         <div class="notice notice-warning">
             <h4>
                 <?php
-                echo $message; ?>
+                echo esc_html($message); ?>
             </h4>
         </div>
         <?php
@@ -303,11 +303,11 @@ class AdminNotices
         <div class="notice notice-error">
             <h4>
                 <?php
-                echo $message; ?>
+                echo esc_html(message); ?>
             </h4>
             <p>
             <?php
-            echo trim($description); ?>
+            echo esc_html(trim($description)); ?>
             </p>
         </div>
         <?php
@@ -319,7 +319,7 @@ class AdminNotices
         <div class="notice notice-info">
             <h4>
                 <?php
-                echo $message; ?>
+                echo esc_html($message); ?>
             </h4>
         </div>
         <?php
@@ -331,7 +331,7 @@ class AdminNotices
         <div class="notice notice-success">
             <h4>
                 <?php
-                echo $message; ?>
+                echo esc_html($message); ?>
             </h4>
         </div>
         <?php

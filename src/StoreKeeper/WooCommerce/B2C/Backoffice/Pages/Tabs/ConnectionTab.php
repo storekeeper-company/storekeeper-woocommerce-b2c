@@ -53,7 +53,7 @@ class ConnectionTab extends AbstractTab
         $api = StoreKeeperOptions::get(StoreKeeperOptions::API_URL);
         echo $this->getFormGroup(
             __('Currently connected to', I18N::DOMAIN),
-            $api.' '.$this->getFormLink(
+            esc_html($api).' '.$this->getFormLink(
                 $url,
                 __('Disconnect', I18N::DOMAIN),
                 'button-primary'
@@ -67,7 +67,7 @@ class ConnectionTab extends AbstractTab
     {
         echo $this->getFormStart();
 
-        $key = WooCommerceOptions::getApiKey();
+        $key = esc_attr(WooCommerceOptions::getApiKey());
         echo $this->getFormGroup(
             __('Backoffice API key', I18N::DOMAIN),
             "<input type='text' readonly onfocus='this.select()' onclick='this.select()' value='$key' />"
@@ -83,14 +83,14 @@ class ConnectionTab extends AbstractTab
             '4. '.__('Paste your api key into the field that says "Api key" and click connect.', I18n::DOMAIN),
             '5. '.__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
         ];
-        echo $this->getFormGroup('', join('<br/>', $steps));
+        echo $this->getFormGroup('', implode('<br/>', $steps));
 
         echo $this->getFormEnd();
     }
 
     private function renderStatistics()
     {
-        $now = current_time('mysql');
+        $now = current_time('mysql', 1);
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
@@ -113,17 +113,17 @@ class ConnectionTab extends AbstractTab
 
         echo $this->getFormGroup(
             __('Webhooks log count', I18N::DOMAIN),
-            WebhookLogModel::count()
+            esc_html(WebhookLogModel::count())
         );
 
         echo $this->getFormGroup(
             __('Last task processed', I18N::DOMAIN),
-            $this->getLastTaskProcessed()
+            esc_html($this->getLastTaskProcessed())
         );
 
         echo $this->getFormGroup(
             __('Last webhook received', I18N::DOMAIN),
-            $this->getLastWebhookReceived()
+            esc_html($this->getLastWebhookReceived())
         );
 
         echo $this->getFormEnd();
@@ -132,7 +132,7 @@ class ConnectionTab extends AbstractTab
     private function renderSettings()
     {
         $url = $this->getActionUrl(self::SAVE_ACTION);
-        echo $this->getFormstart('post', $url);
+        echo $this->getFormStart('post', $url);
 
         echo $this->getFormHeader(__('Synchronization settings', I18N::DOMAIN));
 

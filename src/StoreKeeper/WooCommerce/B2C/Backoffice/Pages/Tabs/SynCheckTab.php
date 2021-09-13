@@ -143,7 +143,7 @@ class SynCheckTab extends AbstractTab
     private function renderSuccess()
     {
         if (array_key_exists('success-message', $_REQUEST)) {
-            $message = esc_html($_REQUEST['success-message']);
+            $message = sanitize_text_field($_REQUEST['success-message']);
             AdminNotices::showSuccess($message);
         }
     }

@@ -49,12 +49,12 @@ class LogPurgerTab extends AbstractTab
 
         echo $this->getFormGroup(
             __('Total tasks', I18N::DOMAIN),
-            TaskModel::count()
+            esc_html(TaskModel::count())
         );
 
         echo $this->getFormGroup(
             __('Successful tasks', I18N::DOMAIN),
-            TaskModel::countSuccessfulTasks()
+            esc_html(TaskModel::countSuccessfulTasks())
         );
 
         echo $this->getFormNote(
@@ -89,7 +89,7 @@ class LogPurgerTab extends AbstractTab
 
         echo $this->getFormGroup(
             __('Total webhooks', I18N::DOMAIN),
-            WebhookLogModel::count()
+            esc_html(WebhookLogModel::count())
         );
 
         echo $this->getFormNote(
