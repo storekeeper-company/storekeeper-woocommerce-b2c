@@ -17,7 +17,7 @@ class LogsPage extends AbstractPage
 
     private function renderModal(): void
     {
-        echo '<div id="dialog-error-message" title="'.__('Task error details', I18N::DOMAIN).'"></div>';
+        echo '<div id="dialog-error-message" title="'.esc_html__('Task error details', I18N::DOMAIN).'"></div>';
     }
 
     public function registerVendors(): void

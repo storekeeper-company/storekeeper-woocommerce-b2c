@@ -52,13 +52,13 @@ class TableRenderer
         echo '<thead><tr>';
 
         foreach ($this->columns as $column) {
-            $key = esc_html($column['key']);
+            $key = esc_attr($column['key']);
             echo "<th class='storekeeper-header storekeeper-body-$key'>";
 
             if (is_callable($column['headerFunction'])) {
                 call_user_func($column['headerFunction']);
             } else {
-                echo $column['title'] ?? '';
+                echo esc_html($column['title']) ?? '';
             }
 
             echo '</th>';
@@ -76,7 +76,7 @@ class TableRenderer
 
             foreach ($this->columns as $column) {
                 $key = $column['key'];
-                $keyEscaped = esc_html($key);
+                $keyEscaped = esc_attr($key);
                 echo "<td class='storekeeper-body storekeeper-body-$keyEscaped'>";
 
                 if (isset($item["function::$key"]) && is_callable($item["function::$key"])) {

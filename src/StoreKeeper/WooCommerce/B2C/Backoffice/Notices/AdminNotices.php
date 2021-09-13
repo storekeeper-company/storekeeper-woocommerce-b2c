@@ -61,12 +61,12 @@ class AdminNotices
             <div class="notice notice-error">
                 <p style="display:flex;justify-content:space-between;align-items:center;">
                     <?php
-                    echo $message; ?>
+                    echo esc_html($message); ?>
                 </p>
                 <p>
                     <a href="/wp-admin/admin.php?page=storekeeper-settings"
                        class="button-primary woocommerce-save-button"><?php
-                        echo $configure; ?></a>
+                        echo esc_html($configure); ?></a>
                 </p>
             </div>
             <?php
@@ -144,7 +144,7 @@ class AdminNotices
                 <div class="notice notice-warning">
                     <h4>
                         <?php
-                        echo $message; ?>
+                        echo esc_html($message); ?>
                     </h4>
                 </div>
                 <?php
@@ -291,7 +291,7 @@ class AdminNotices
         <div class="notice notice-warning">
             <h4>
                 <?php
-                echo $message; ?>
+                echo esc_html($message); ?>
             </h4>
         </div>
         <?php
@@ -303,11 +303,11 @@ class AdminNotices
         <div class="notice notice-error">
             <h4>
                 <?php
-                echo $message; ?>
+                echo esc_html(message); ?>
             </h4>
             <p>
             <?php
-            echo trim($description); ?>
+            echo esc_html(trim($description)); ?>
             </p>
         </div>
         <?php
@@ -319,7 +319,7 @@ class AdminNotices
         <div class="notice notice-info">
             <h4>
                 <?php
-                echo $message; ?>
+                echo esc_html($message); ?>
             </h4>
         </div>
         <?php
@@ -331,7 +331,7 @@ class AdminNotices
         <div class="notice notice-success">
             <h4>
                 <?php
-                echo $message; ?>
+                echo esc_html($message); ?>
             </h4>
         </div>
         <?php

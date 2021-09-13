@@ -17,7 +17,7 @@ abstract class AbstractTab extends AbstractPageLike
 
     final public function getActionUrl(string $action)
     {
-        return add_query_arg('action', $action);
+        return esc_url(add_query_arg('action', $action));
     }
 
     final private function executeAction(string $action)

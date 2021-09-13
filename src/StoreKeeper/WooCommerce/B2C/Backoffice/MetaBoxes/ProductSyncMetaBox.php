@@ -34,7 +34,7 @@ class ProductSyncMetaBox extends AbstractMetaBox
     final public function renderSyncBox($post): void
     {
         $product = wc_get_product($post->ID);
-        $syncUrl = esc_attr($this->getNonceSyncActionLink($post));
+        $syncUrl = esc_url($this->getNonceSyncActionLink($post));
         $storekeeperId = (int) $this->getPostMeta($product->get_id(), 'storekeeper_id', 0);
 
         $idLabel = esc_html__('Backoffice ID', I18N::DOMAIN);

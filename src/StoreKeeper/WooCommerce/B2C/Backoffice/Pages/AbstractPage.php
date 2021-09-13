@@ -119,10 +119,9 @@ HTML;
 
                 $className = $currentSlug === $slug ? 'nav-tab-active' : '';
                 $title = esc_html($tab->title);
-                $tabHtml .= "<a href='$url' class='nav-tab $className'>$title</a>&nbsp;";
+                $tabHtml .= "<a href='".esc_url($url)."' class='nav-tab ".esc_attr($className)."'>$title</a>&nbsp;";
             }
         }
-
         echo <<<HTML
 <nav class="nav-tab-wrapper woo-nav-tab-wrapper">
     $tabHtml
@@ -133,13 +132,14 @@ HTML;
     private function renderTab(): void
     {
         if ($tab = $this->getCurrentTab()) {
-            echo "<div class='storekeeper-tab storekeeper-tab-$tab->slug'>";
+            $slug = esc_html($tab->slug);
+            echo "<div class='storekeeper-tab storekeeper-tab-$slug'>";
 
             $tab->render();
 
             echo '</div>';
         } else {
-            $text = __('No tabs set for this page', I18N::DOMAIN);
+            $text = esc_html__('No tabs set for this page', I18N::DOMAIN);
             echo "<h1 style='text-align: center'>$text</h1>";
         }
     }

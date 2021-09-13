@@ -61,6 +61,7 @@ class SyncIssueCheck extends AbstractSyncIssue
         $api = StoreKeeperOptions::get(StoreKeeperOptions::API_URL);
 
         //Echo default output + potential extra report output
+        $report_text_output = esc_html($report_text_output);
         echo "=== Description ===
 hostname: $hostname
 user: $user
