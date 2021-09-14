@@ -43,7 +43,7 @@ class TaskLogsTab extends AbstractLogsTab
     public function multipleRowsAction()
     {
         if (array_key_exists('selected', $_POST) && array_key_exists('rowAction', $_POST)) {
-            $rowAction = $_POST['rowAction'];
+            $rowAction = sanitize_key($_POST['rowAction']);
             $selected = $this->sanitizeIntArray($_POST['selected']);
             $this->doRowAction($selected, $rowAction);
         }
@@ -348,7 +348,7 @@ class TaskLogsTab extends AbstractLogsTab
             }
 
             if (isset($_REQUEST[$query])) {
-                $value = esc_attr($_REQUEST[$query]);
+                $value = sanitize_key($_REQUEST[$query]);
                 $query = esc_attr($query);
                 $html .= "<input type='hidden' name='$query' value='$value' />";
             }
