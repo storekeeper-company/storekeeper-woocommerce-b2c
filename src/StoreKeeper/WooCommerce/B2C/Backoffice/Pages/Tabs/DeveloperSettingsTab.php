@@ -18,7 +18,7 @@ class DeveloperSettingsTab extends AbstractTab
 
     public function render(): void
     {
-        echo $this->getFormStart();
+        $this->renderFormStart();
 
         $data = [
             WooCommerceOptions::WOOCOMMERCE_TOKEN => WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_TOKEN),
@@ -44,9 +44,9 @@ class DeveloperSettingsTab extends AbstractTab
         }
 
         foreach ($data as $name => $value) {
-            echo $this->getFormGroup($name, $value);
+            $this->renderFormGroup($name, $value);
         }
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 }

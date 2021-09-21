@@ -28,7 +28,6 @@ use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\WebhookLog\WebhookLogPurg
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessSingleTask;
 use StoreKeeper\WooCommerce\B2C\Commands\ScheduledProcessor;
-use StoreKeeper\WooCommerce\B2C\Commands\StockFixer;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueCheck;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueFixer;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptionPage;
@@ -86,7 +85,6 @@ class Core
         ProcessAllTasks::class,
         ProcessSingleTask::class,
         CleanWoocommerceEnvironment::class,
-        StockFixer::class,
 
         FileExportCategory::class,
         FileExportTag::class,

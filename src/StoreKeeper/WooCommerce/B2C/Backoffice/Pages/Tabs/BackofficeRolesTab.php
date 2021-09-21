@@ -29,29 +29,29 @@ class BackofficeRolesTab extends AbstractTab
     public function render(): void
     {
         $url = $this->getActionUrl(self::SAVE_ACTION);
-        echo $this->getFormStart('post', $url);
+        $this->renderFormStart('post', $url);
 
-        echo $this->getRoleSetting(SsoHelper::FALLBACK_SSO_ROLE_NAME, SsoHelper::DISABLED_SSO_ROLE);
+        $this->renderRoleSetting(SsoHelper::FALLBACK_SSO_ROLE_NAME, SsoHelper::DISABLED_SSO_ROLE);
 
-        echo $this->getRoleSetting(SsoHelper::ADMIN_SSO_ROLE_NAME);
+        $this->renderRoleSetting(SsoHelper::ADMIN_SSO_ROLE_NAME);
 
-        echo $this->getRoleSetting(SsoHelper::MANAGER_SSO_ROLE_NAME);
+        $this->renderRoleSetting(SsoHelper::MANAGER_SSO_ROLE_NAME);
 
-        echo $this->getRoleSetting(SsoHelper::USER_SSO_ROLE_NAME);
+        $this->renderRoleSetting(SsoHelper::USER_SSO_ROLE_NAME);
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Apply to all', I18N::DOMAIN),
             $this->getFormCheckbox('apply-to-existing')
         );
 
-        echo $this->getFormActionGroup(
+        $this->renderFormActionGroup(
             $this->getFormButton(
                 __('Save settings', I18N::DOMAIN),
                 'button-primary'
             )
         );
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     public function saveAction()
@@ -107,14 +107,14 @@ class BackofficeRolesTab extends AbstractTab
         }
     }
 
-    private function getRoleSetting($backofficeRole, $defaultRole = SsoHelper::DEFAULT_SSO_FOR_KNOWN_ROLES)
+    private function renderRoleSetting($backofficeRole, $defaultRole = SsoHelper::DEFAULT_SSO_FOR_KNOWN_ROLES): void
     {
         $options = $this->getRoles();
         $name = SsoHelper::formatRoleOptionKey($backofficeRole);
         $label = $this->getRoleLabel($backofficeRole);
         $value = get_option($name, $defaultRole);
 
-        return $this->getFormGroup(
+        $this->renderFormGroup(
             $label,
             $this->getFormSelect(
                 $name,

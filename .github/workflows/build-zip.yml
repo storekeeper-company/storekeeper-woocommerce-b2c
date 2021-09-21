@@ -49,7 +49,6 @@ jobs:
           zip -r storekeeper-woocommerce-b2c.zip \
             storekeeper-woocommerce-b2c/exports \
             storekeeper-woocommerce-b2c/i18n \
-            storekeeper-woocommerce-b2c/scripts \
             storekeeper-woocommerce-b2c/src \
             storekeeper-woocommerce-b2c/vendor \
             storekeeper-woocommerce-b2c/composer* \

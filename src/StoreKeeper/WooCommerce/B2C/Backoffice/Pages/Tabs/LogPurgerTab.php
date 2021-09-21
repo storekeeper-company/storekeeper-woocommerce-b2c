@@ -39,25 +39,25 @@ class LogPurgerTab extends AbstractTab
 
     private function renderTasks()
     {
-        echo $this->getFormStart();
+        $this->renderFormStart();
 
-        echo $this->getFormHeader(__('Tasks', I18N::DOMAIN));
+        $this->renderFormHeader(__('Tasks', I18N::DOMAIN));
 
-        echo $this->getRequestHiddenInputs();
+        $this->renderRequestHiddenInputs();
 
-        echo $this->getFormHiddenInput('action', self::PURGE_TASKS_ACTION);
+        $this->renderFormHiddenInput('action', self::PURGE_TASKS_ACTION);
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Total tasks', I18N::DOMAIN),
             esc_html(TaskModel::count())
         );
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Successful tasks', I18N::DOMAIN),
             esc_html(TaskModel::countSuccessfulTasks())
         );
 
-        echo $this->getFormNote(
+        $this->renderFormNote(
             sprintf(
                 __(
                     '"%s" only purges items older than 30 days or if there are more than 1000 items, we purge all but the last 1000 items and purge items older than 7 days.',
@@ -68,31 +68,31 @@ class LogPurgerTab extends AbstractTab
             'text-information'
         );
 
-        echo $this->getFormActionGroup(
+        $this->renderFormActionGroup(
             $this->getFormButton(
                 __('Purge successful tasks', I18N::DOMAIN)
             )
         );
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     private function renderWebhooks()
     {
-        echo $this->getFormStart();
+        $this->renderFormStart();
 
-        echo $this->getFormHeader(__('Webhooks', I18N::DOMAIN));
+        $this->renderFormHeader(__('Webhooks', I18N::DOMAIN));
 
-        echo $this->getRequestHiddenInputs();
+        $this->renderRequestHiddenInputs();
 
-        echo $this->getFormHiddenInput('action', self::PURGE_WEBHOOKS_ACTION);
+        $this->renderFormHiddenInput('action', self::PURGE_WEBHOOKS_ACTION);
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Total webhooks', I18N::DOMAIN),
             esc_html(WebhookLogModel::count())
         );
 
-        echo $this->getFormNote(
+        $this->renderFormNote(
             sprintf(
                 __(
                     '"%s" only purges items older than 30 days or if there are more than 1000 items, we purge all but the last 1000 items and purge items older than 7 days.',
@@ -103,13 +103,13 @@ class LogPurgerTab extends AbstractTab
             'text-information'
         );
 
-        echo $this->getFormActionGroup(
+        $this->renderFormActionGroup(
             $this->getFormButton(
                 __('Purge webhooks', I18N::DOMAIN)
             )
         );
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     public function purgeTasks()
