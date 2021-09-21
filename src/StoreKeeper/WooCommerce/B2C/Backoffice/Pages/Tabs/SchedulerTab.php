@@ -47,11 +47,11 @@ class SchedulerTab extends AbstractTab
     private function renderCronConfiguration(): void
     {
         $url = $this->getActionUrl(self::SAVE_ACTION);
-        echo $this->getFormstart('post', $url);
+        $this->renderFormStart('post', $url);
 
-        echo $this->getFormHeader(__('Cron configuration', I18N::DOMAIN));
+        $this->renderFormHeader(__('Cron configuration', I18N::DOMAIN));
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Hook name', I18N::DOMAIN),
             CronRegistrar::HOOK_PROCESS_TASK,
         );
@@ -59,7 +59,7 @@ class SchedulerTab extends AbstractTab
         $executionStatus = CronRegistrar::getStatusLabel(
             CronOptions::get(CronOptions::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_UNEXECUTED)
         );
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Last cron execution status', I18N::DOMAIN),
             esc_html($executionStatus)
         );
@@ -68,7 +68,7 @@ class SchedulerTab extends AbstractTab
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Tasks in queue', I18N::DOMAIN),
             TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]).
             sprintf(
@@ -81,21 +81,21 @@ class SchedulerTab extends AbstractTab
             )
         );
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     private function renderAdvancedConfiguration(): void
     {
         $url = $this->getActionUrl(self::SAVE_ACTION);
-        echo $this->getFormstart('post', $url);
+        $this->renderFormStart('post', $url);
 
-        echo '<br>'.$this->getFormHeader(__('Advanced configuration', I18N::DOMAIN));
+        echo '<br>'.$this->renderFormHeader(__('Advanced configuration', I18N::DOMAIN));
 
         $this->renderRunner();
         $this->renderInstructions();
         $this->renderStatistics();
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     public function saveAction(): void
@@ -126,7 +126,7 @@ class SchedulerTab extends AbstractTab
         $cronRunner = CronOptions::getConstant(CronOptions::RUNNER);
 
         $cronRunnerValue = CronOptions::get(CronOptions::RUNNER, CronRegistrar::RUNNER_WPCRON);
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Cron runner', I18N::DOMAIN),
             $this->getFormSelect(
                 $cronRunner,
@@ -178,7 +178,7 @@ class SchedulerTab extends AbstractTab
                 $instructionsHTML .= '<p style="white-space: pre-line;">'.($key + 1).'. '.$instruction.'</p>';
             }
 
-            echo $this->getFormGroup(
+            $this->renderFormGroup(
                 __('Instructions', I18N::DOMAIN),
                 $instructionsHTML
             );
@@ -187,7 +187,7 @@ class SchedulerTab extends AbstractTab
 
     private function renderStatistics(): void
     {
-        echo $this->getFormHeader(__('Statistics', I18N::DOMAIN));
+        $this->renderFormHeader(__('Statistics', I18N::DOMAIN));
 
         $data = $this->generateCommonStatistics();
 

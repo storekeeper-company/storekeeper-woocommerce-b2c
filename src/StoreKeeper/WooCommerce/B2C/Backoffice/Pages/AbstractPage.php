@@ -6,6 +6,79 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 abstract class AbstractPage extends AbstractPageLike
 {
+    public const ALLOWED_COMMON = [
+        'div' => [
+            'class' => [],
+        ],
+        'label' => [
+            'class' => [],
+        ],
+        'br' => [],
+        'small' => [
+            'class' => [],
+        ],
+        'code' => [],
+        'h2' => [
+            'class' => [],
+        ],
+        'p' => [
+            'class' => [],
+        ],
+    ];
+
+    public const ALLOWED_FORM = [
+        'form' => [
+            'method' => [],
+            'class' => [],
+            'action' => [],
+        ],
+    ] + self::ALLOWED_COMMON;
+
+    public const ALLOWED_SELECT = [
+        'select' => [
+            'class' => [],
+            'name' => [],
+        ],
+        'option' => [
+            'value' => [],
+            'selected' => [],
+        ],
+    ] + self::ALLOWED_COMMON;
+
+    public const ALLOWED_INPUT = [
+        'input' => [
+            'type' => [],
+            'class' => [],
+            'name' => [],
+            'value' => [],
+            'placeholder' => [],
+            'checked' => [],
+        ],
+    ] + self::ALLOWED_COMMON;
+
+    public const ALLOWED_BUTTON = [
+        'button' => [
+            'type' => [],
+            'class' => [],
+            'name' => [],
+            'value' => [],
+        ],
+    ] + self::ALLOWED_COMMON;
+
+    public const ALLOWED_ANCHOR = [
+        'a' => [
+            'href' => [],
+            'class' => [],
+            'target' => [],
+        ],
+    ] + self::ALLOWED_COMMON;
+
+    public const ALLOWED_ALL_KNOWN_INPUT =
+        self::ALLOWED_INPUT +
+        self::ALLOWED_SELECT +
+        self::ALLOWED_BUTTON +
+        self::ALLOWED_ANCHOR;
+
     protected $slug = '';
 
     final public function getSlug(): string

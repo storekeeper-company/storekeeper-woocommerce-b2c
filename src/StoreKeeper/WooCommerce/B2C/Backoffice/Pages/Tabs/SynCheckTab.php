@@ -112,9 +112,9 @@ class SynCheckTab extends AbstractTab
     {
         $this->renderSuccess();
 
-        echo $this->getFormStart();
+        $this->renderFormStart();
 
-        echo $this->getFormNote(
+        $this->renderFormNote(
             __(
                 'Some synchronizations can take up to 24 hours to complete, leave the page open until its done.',
                 I18N::DOMAIN
@@ -122,7 +122,7 @@ class SynCheckTab extends AbstractTab
             'text-information'
         );
 
-        echo $this->getFormHeader(__('Sync controls', I18N::DOMAIN));
+        $this->renderFormHeader(__('Sync controls', I18N::DOMAIN));
 
         $startSync = __('Start sync', I18N::DOMAIN);
         foreach (self::SYNC_TYPES as $type => $class) {
@@ -131,13 +131,13 @@ class SynCheckTab extends AbstractTab
                 $type,
                 $this->getActionUrl(self::SYNC_ACTION)
             );
-            echo $this->getFormGroup(
+            $this->renderFormGroup(
                 $this->getTypeLabel($type),
                 $this->getFormLink($url, $startSync, 'button')
             );
         }
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     private function renderSuccess()

@@ -81,15 +81,15 @@ class ExportTab extends AbstractTab
 
     private function renderExport()
     {
-        echo $this->getFormStart();
+        $this->renderFormStart();
 
-        echo $this->getFormHeader(__('Export', I18N::DOMAIN));
+        $this->renderFormHeader(__('Export', I18N::DOMAIN));
 
-        echo $this->getRequestHiddenInputs();
+        $this->renderRequestHiddenInputs();
 
-        echo $this->getFormHiddenInput('action', self::EXPORT_ACTION);
+        $this->renderFormHiddenInput('action', self::EXPORT_ACTION);
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Overwrite language (iso2)', I18N::DOMAIN),
             $this->getFormInput(
                 'lang',
@@ -110,7 +110,7 @@ class ExportTab extends AbstractTab
         ];
 
         foreach ($exportTypes as $type => $label) {
-            echo $this->getFormGroup(
+            $this->renderFormGroup(
                 $label,
                 $this->getFormButton(
                     __('Export', I18N::DOMAIN),
@@ -121,40 +121,40 @@ class ExportTab extends AbstractTab
             );
         }
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     const NOT_MAPPED_VALUE = '-';
 
     private function renderSettings()
     {
-        echo $this->getFormStart('post');
+        $this->renderFormStart('post');
 
-        echo $this->getFormHeader(__('Featured attribute export settings', I18N::DOMAIN));
+        $this->renderFormHeader(__('Featured attribute export settings', I18N::DOMAIN));
 
-        echo $this->getRequestHiddenInputs();
+        $this->renderRequestHiddenInputs();
 
-        echo $this->getFormHiddenInput('action', self::SAVE_OPTIONS_ACTION);
+        $this->renderFormHiddenInput('action', self::SAVE_OPTIONS_ACTION);
 
         $options = $this->getAttributeOptions();
         foreach (self::FEATURED_ATTRIBUTES_ALIASES as $alias) {
             $name = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
             $label = FeaturedAttributeOptions::getAliasName($alias);
             $value = FeaturedAttributeOptions::get($name, self::NOT_MAPPED_VALUE);
-            echo $this->getFormGroup(
+            $this->renderFormGroup(
                 $label,
                 $this->getFormSelect($name, $options, $value)
             );
         }
 
-        echo $this->getFormActionGroup(
+        $this->renderFormActionGroup(
             $this->getFormButton(
                 __('Save settings', I18N::DOMAIN),
                 'button-primary'
             )
         );
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     private function getAttributeOptions()

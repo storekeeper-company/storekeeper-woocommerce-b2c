@@ -47,11 +47,11 @@ class ConnectionTab extends AbstractTab
 
     private function renderConnected()
     {
-        echo $this->getFormStart();
+        $this->renderFormStart();
 
         $url = $this->getActionUrl(self::DISCONNECT_ACTION);
         $api = StoreKeeperOptions::get(StoreKeeperOptions::API_URL);
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Currently connected to', I18N::DOMAIN),
             esc_html($api).' '.$this->getFormLink(
                 $url,
@@ -60,21 +60,21 @@ class ConnectionTab extends AbstractTab
             )
         );
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     private function renderDisconnected()
     {
-        echo $this->getFormStart();
+        $this->renderFormStart();
 
         $key = esc_attr(WooCommerceOptions::getApiKey());
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Backoffice API key', I18N::DOMAIN),
             "<input type='text' readonly onfocus='this.select()' onclick='this.select()' value='$key' />"
         );
 
         $title = __('Steps', I18N::DOMAIN);
-        echo $this->getFormGroup('', "<b>$title</b>");
+        $this->renderFormGroup('', "<b>$title</b>");
 
         $steps = [
             '1. '.__('Copy the "Backoffice API Key" from the text area.', I18n::DOMAIN),
@@ -83,9 +83,9 @@ class ConnectionTab extends AbstractTab
             '4. '.__('Paste your api key into the field that says "Api key" and click connect.', I18n::DOMAIN),
             '5. '.__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
         ];
-        echo $this->getFormGroup('', implode('<br/>', $steps));
+        $this->renderFormGroup('', implode('<br/>', $steps));
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     private function renderStatistics()
@@ -94,11 +94,11 @@ class ConnectionTab extends AbstractTab
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
-        echo $this->getFormStart();
+        $this->renderFormStart();
 
-        echo $this->getFormHeader(__('Sync statistics', I18N::DOMAIN));
+        $this->renderFormHeader(__('Sync statistics', I18N::DOMAIN));
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Tasks in queue', I18N::DOMAIN),
             TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]).
             sprintf(
@@ -111,30 +111,30 @@ class ConnectionTab extends AbstractTab
             )
         );
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Webhooks log count', I18N::DOMAIN),
             esc_html(WebhookLogModel::count())
         );
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Last task processed', I18N::DOMAIN),
             esc_html($this->getLastTaskProcessed())
         );
 
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Last webhook received', I18N::DOMAIN),
             esc_html($this->getLastWebhookReceived())
         );
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     private function renderSettings()
     {
         $url = $this->getActionUrl(self::SAVE_ACTION);
-        echo $this->getFormStart('post', $url);
+        $this->renderFormStart('post', $url);
 
-        echo $this->getFormHeader(__('Synchronization settings', I18N::DOMAIN));
+        $this->renderFormHeader(__('Synchronization settings', I18N::DOMAIN));
 
         $this->renderSyncModeSetting();
 
@@ -142,14 +142,14 @@ class ConnectionTab extends AbstractTab
 
         $this->renderBackorderSetting();
 
-        echo $this->getFormActionGroup(
+        $this->renderFormActionGroup(
             $this->getFormButton(
                 __('Save settings', I18N::DOMAIN),
                 'button-primary'
             )
         );
 
-        echo $this->getFormEnd();
+        $this->renderFormEnd();
     }
 
     private function getLastTaskProcessed(): string
@@ -240,7 +240,7 @@ HTML;
         $options[StoreKeeperOptions::SYNC_MODE_ORDER_ONLY] = $order;
 
         $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Synchronization mode', I18N::DOMAIN),
             $this->getFormSelect(
                 $name,
@@ -249,13 +249,13 @@ HTML;
             )
         );
 
-        echo $this->getFormGroup('', $description);
+        $this->renderFormGroup('', $description);
     }
 
     private function renderPaymentSetting(): void
     {
         $paymentName = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Activate StoreKeeper payments', I18N::DOMAIN),
             $this->getFormCheckbox(
                 $paymentName,
@@ -270,7 +270,7 @@ HTML;
     private function renderBackorderSetting(): void
     {
         $backorderName = StoreKeeperOptions::getConstant(StoreKeeperOptions::NOTIFY_ON_BACKORDER);
-        echo $this->getFormGroup(
+        $this->renderFormGroup(
             __('Notify when backorderable', I18N::DOMAIN),
             $this->getFormCheckbox(
                 $backorderName,
