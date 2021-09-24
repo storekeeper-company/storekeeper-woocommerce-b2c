@@ -88,7 +88,7 @@ class TaskLogsTab extends AbstractLogsTab
         $this->renderTaskFilter();
 
         $url = $this->getActionUrl(self::DO_MULTIPLE_ACTIONS);
-        $url = esc_attr($url);
+        $url = esc_url($url);
         echo "<form action='$url' method='post'>";
 
         $this->renderTaskMassAction();

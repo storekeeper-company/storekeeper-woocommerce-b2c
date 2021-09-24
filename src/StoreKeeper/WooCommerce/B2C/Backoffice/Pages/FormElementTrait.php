@@ -6,7 +6,7 @@ trait FormElementTrait
 {
     final protected function renderFormStart(string $method = 'get', string $action = null): void
     {
-        $action = esc_attr($action ?? add_query_arg([]));
+        $action = esc_url($action ?? add_query_arg([]));
         $method = esc_attr($method);
 
         echo wp_kses("<form action='$action' method='$method' class='storekeeper-form'>", AbstractPage::ALLOWED_FORM);
@@ -127,7 +127,7 @@ HTML, AbstractPage::ALLOWED_ALL_KNOWN_INPUT);
         string $class = '',
         string $target = '_self'
     ): string {
-        $href = esc_attr($href);
+        $href = esc_url($href);
         $label = esc_html($label);
         $target = esc_attr($target);
 
