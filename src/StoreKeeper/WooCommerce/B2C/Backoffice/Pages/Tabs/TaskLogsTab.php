@@ -11,7 +11,7 @@ class TaskLogsTab extends AbstractLogsTab
     const DO_SINGLE_ACTION = 'do-single-action';
     const DO_MULTIPLE_ACTIONS = 'do-multiple-actions';
     const RETRY_ACTION = 'retry';
-    const MARK_ACTION = 'marks';
+    const MARK_ACTION = 'mark';
 
     public function __construct(string $title, string $slug = '')
     {
