@@ -13,15 +13,15 @@ jobs:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build-zip.yml
           workflow_conclusion: success
-          name: storekeeper-woocommerce-b2c
+          name: storekeeper-for-woocommerce
 
       - name: Prepare directory
         run: |
-          unzip storekeeper-woocommerce-b2c.zip
-          rm storekeeper-woocommerce-b2c.zip
-          mv storekeeper-woocommerce-b2c/* .
-          mv storekeeper-woocommerce-b2c/.[a-z]* .
-          rmdir storekeeper-woocommerce-b2c
+          unzip storekeeper-for-woocommerce.zip
+          rm storekeeper-for-woocommerce.zip
+          mv storekeeper-for-woocommerce/* .
+          mv storekeeper-for-woocommerce/.[a-z]* .
+          rmdir storekeeper-for-woocommerce
 
       - name: WordPress Plugin Deploy
         id: deploy

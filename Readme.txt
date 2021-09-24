@@ -1,4 +1,4 @@
-=== StoreKeeper synchronization plugin ===
+=== StoreKeeper for Woocommerce ===
 Tags: woocommerce,e-commerce, woo,sales,store
 Requires at least: 5.0
 Tested up to: 5.8.1

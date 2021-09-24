@@ -44,24 +44,24 @@ jobs:
 
       - name: Create zip
         run: |
-          mkdir storekeeper-woocommerce-b2c
-          ls -a | grep -v  '^storekeeper-woocommerce-b2c$' | grep -v '^\.*$' | xargs mv -t  storekeeper-woocommerce-b2c
-          zip -r storekeeper-woocommerce-b2c.zip \
-            storekeeper-woocommerce-b2c/exports \
-            storekeeper-woocommerce-b2c/i18n \
-            storekeeper-woocommerce-b2c/src \
-            storekeeper-woocommerce-b2c/vendor \
-            storekeeper-woocommerce-b2c/composer* \
-            storekeeper-woocommerce-b2c/*.php \
-            storekeeper-woocommerce-b2c/Readme.txt \
-            storekeeper-woocommerce-b2c/.distignore
+          mkdir storekeeper-for-woocommerce
+          ls -a | grep -v  '^storekeeper-for-woocommerce$' | grep -v '^\.*$' | xargs mv -t  storekeeper-for-woocommerce
+          zip -r storekeeper-for-woocommerce.zip \
+            storekeeper-for-woocommerce/exports \
+            storekeeper-for-woocommerce/i18n \
+            storekeeper-for-woocommerce/src \
+            storekeeper-for-woocommerce/vendor \
+            storekeeper-for-woocommerce/composer* \
+            storekeeper-for-woocommerce/*.php \
+            storekeeper-for-woocommerce/Readme.txt \
+            storekeeper-for-woocommerce/.distignore
 
       - uses: actions/upload-artifact@v2
         with:
-          name: storekeeper-woocommerce-b2c
+          name: storekeeper-for-woocommerce
           if-no-files-found: error
           path: |
-            storekeeper-woocommerce-b2c.zip
+            storekeeper-for-woocommerce.zip
 
       - name: Release latest
         uses: marvinpinto/action-automatic-releases@v1.2.0
@@ -71,7 +71,7 @@ jobs:
           automatic_release_tag: "development"
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: |
-            storekeeper-woocommerce-b2c.zip
+            storekeeper-for-woocommerce.zip
 
       - name: Release version
         uses: marvinpinto/action-automatic-releases@v1.2.0
@@ -80,4 +80,4 @@ jobs:
           prerelease: true
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: |
-            storekeeper-woocommerce-b2c.zip
+            storekeeper-for-woocommerce.zip
