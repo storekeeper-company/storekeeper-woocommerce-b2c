@@ -103,7 +103,7 @@ class ConnectionTab extends AbstractTab
             TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]).
             sprintf(
                 __(
-                    ' (new: %s p/h, processed: %s p/h)',
+                    ' (new: %s p/h, processing rate: %s p/h)',
                     I18N::DOMAIN
                 ),
                 $incomingRate,
