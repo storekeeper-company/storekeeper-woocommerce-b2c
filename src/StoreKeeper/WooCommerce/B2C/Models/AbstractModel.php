@@ -107,7 +107,7 @@ abstract class AbstractModel implements IModel
 
     protected static function updateDateField(array $data): array
     {
-        $data['date_updated'] = date('Y-m-d H:i:s');
+        $data['date_updated'] = current_time('mysql', 1);
 
         return $data;
     }

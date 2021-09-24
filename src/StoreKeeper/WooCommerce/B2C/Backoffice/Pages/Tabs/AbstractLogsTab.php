@@ -99,13 +99,14 @@ abstract class AbstractLogsTab extends AbstractTab
         $sort = $this->getRequestSort();
         // Caret up character
         $caret = '&#9650;';
-        esc_url(remove_query_arg('sort'));
-        $url = esc_url(add_query_arg('sort', 'asc'));
+        remove_query_arg('sort');
+        $url = add_query_arg('sort', 'asc');
         if ('asc' === $sort) {
-            $url = esc_url(add_query_arg('sort', 'desc'));
+            $url = add_query_arg('sort', 'desc');
             // Caret down character
             $caret = '&#9660;';
         }
+        $url = esc_url($url);
         $caret = esc_html($caret);
         $dateString = esc_html__('Date', I18N::DOMAIN);
         echo <<<HTML

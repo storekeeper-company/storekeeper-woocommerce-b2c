@@ -241,7 +241,7 @@ class ExportTab extends AbstractTab
     private function initializeDownload(string $url)
     {
         $basename = esc_js(basename($url));
-        $url = esc_js($url);
+        $url = esc_url($url);
         echo <<<HTML
 <script>
     (function() {

@@ -54,7 +54,7 @@ class ConnectionTab extends AbstractTab
         $this->renderFormGroup(
             __('Currently connected to', I18N::DOMAIN),
             esc_html($api).' '.$this->getFormLink(
-                $url,
+                esc_url($url),
                 __('Disconnect', I18N::DOMAIN),
                 'button-primary'
             )

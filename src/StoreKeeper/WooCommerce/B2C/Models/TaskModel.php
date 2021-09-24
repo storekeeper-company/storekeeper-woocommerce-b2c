@@ -94,6 +94,8 @@ SQL;
             'meta_data'
         );
         $data['name'] = static::getName($type, $storekeeper_id);
+        $data['date_created'] = current_time('mysql', 1);
+        static::updateDateField($data);
 
         return static::create($data);
     }
