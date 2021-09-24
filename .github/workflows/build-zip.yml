@@ -53,7 +53,7 @@ jobs:
             storekeeper-woocommerce-b2c/vendor \
             storekeeper-woocommerce-b2c/composer* \
             storekeeper-woocommerce-b2c/*.php \
-            storekeeper-woocommerce-b2c/Readme.txt
+            storekeeper-woocommerce-b2c/Readme.txt \
             storekeeper-woocommerce-b2c/.distignore
 
       - uses: actions/upload-artifact@v2
