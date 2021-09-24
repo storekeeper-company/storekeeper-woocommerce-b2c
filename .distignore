@@ -1,4 +1,3 @@
-autoload.php
 composer.json
 composer.lock
 dev-tools
