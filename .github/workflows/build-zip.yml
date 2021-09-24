@@ -54,6 +54,7 @@ jobs:
             storekeeper-woocommerce-b2c/composer* \
             storekeeper-woocommerce-b2c/*.php \
             storekeeper-woocommerce-b2c/Readme.txt
+            storekeeper-woocommerce-b2c/.distignore
 
       - uses: actions/upload-artifact@v2
         with:
@@ -76,15 +77,7 @@ jobs:
         uses: marvinpinto/action-automatic-releases@v1.2.0
         if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
         with:
-          prerelease: false
+          prerelease: true
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           files: |
             storekeeper-woocommerce-b2c.zip
-
-      - name: WordPress Plugin Deploy
-        uses: 10up/action-wordpress-plugin-deploy@stable
-        if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
-        env:
-          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
-          SLUG: storekeeper-for-woocommerce
