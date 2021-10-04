@@ -37,7 +37,7 @@ class IniHelper
 
     private static function doSetInit(string $option, string $value, ?callable $onFailCallback): void
     {
-        if (false === ini_set($option, $value) && is_callable($onFailCallback)) {
+        if (false === @ini_set($option, $value) && is_callable($onFailCallback)) {
             call_user_func(
                 $onFailCallback,
                 sprintf(
