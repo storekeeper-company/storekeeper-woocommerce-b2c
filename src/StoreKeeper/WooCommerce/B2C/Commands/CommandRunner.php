@@ -364,8 +364,7 @@ class CommandRunner
     {
         $env = [];
         $env = $this->setXdebugEnv($xdebug_on, $env);
-        $env = $this->copyEnv($env, ['STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL']);
-
+        $env = $this->copyEnv($env, ['STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL','STOREKEEPER_WOOCOMMERCE_B2C_DEBUG']);
         return $env;
     }
 }
