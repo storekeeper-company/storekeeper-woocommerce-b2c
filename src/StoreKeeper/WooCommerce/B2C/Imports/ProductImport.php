@@ -1220,6 +1220,11 @@ SQL;
                     false
                 ) ? $trueValue : 'no';
 
+                list($in_stock, $manage_stock, $stock_quantity) = $this->getStockProperties(
+                    $associatedShopProduct,
+                    'shop_product',
+                    'shop_product.product.product_stock',
+                );
                 // TODO: use getChangedVariationProps instead of this.
                 $props = [
                     'parent_id' => $parentProduct->get_id(),
@@ -1228,13 +1233,13 @@ SQL;
                         $associatedShopProduct->get('shop_product.product_default_price.ppu_wt')
                     ),
                     'description' => $parentProduct->get_description('edit'),
-                    'manage_stock' => !$associatedShopProduct->get('shop_product.product.product_stock.unlimited'),
+                    'manage_stock' => $manage_stock,
                     'sku' => $associatedShopProduct->get('shop_product.product.sku'),
                     'stock_quantity' => wc_stock_amount(
-                        $associatedShopProduct->get('shop_product.product.product_stock.value')
+                        $stock_quantity
                     ),
                     'backorders' => $backorder_string,
-                    'stock_status' => $associatedShopProduct->get('shop_product.product.product_stock.in_stock') ?
+                    'stock_status' => $in_stock ?
                         self::STOCK_STATUS_IN_STOCK : self::STOCK_STATUS_OUT_OF_STOCK,
                     'image_id' => $parentProduct->get_image_id(),
                     'shipping_class_id' => wc_clean(-1),
@@ -1492,14 +1497,6 @@ SQL;
             $props['description'] = $description;
         }
 
-        // manage_stock
-        $in_stock = $assignedProductData->get('flat_product.product.product_stock.in_stock');
-        // We always manage the stock if the product is out of stock.
-        $manage_stock = !$in_stock ? true : !$assignedProductData->get('flat_product.product.product_stock.unlimited');
-        if ($variationProduct->get_manage_stock(self::EDIT_CONTEXT) != $manage_stock) {
-            $props['manage_stock'] = $manage_stock;
-        }
-
         // sku
         $sku = $assignedProductData->get('flat_product.product.sku');
         if ($variationProduct->get_sku(self::EDIT_CONTEXT) !== $sku) {
@@ -1637,17 +1634,13 @@ SQL;
         WC_Product_Variation $variationProduct,
         Dot $assignedProductData
     ) {
-        $manage_stock = true;
-        $stock_quantity = 0;
-        $stock_status = self::STOCK_STATUS_OUT_OF_STOCK;
-        if ($assignedProductData->get('flat_product.product.product_stock.in_stock')) {
-            $manage_stock = !$assignedProductData->get('flat_product.product.product_stock.unlimited');
-            $stock_quantity = $manage_stock ? $assignedProductData->get(
-                'flat_product.product.product_stock.value'
-            ) : 9999;
-            $stock_status = self::STOCK_STATUS_IN_STOCK;
+        list($in_stock, $manage_stock, $stock_quantity) = $this->getStockProperties(
+            $assignedProductData,
+        );
+        if ($variationProduct->get_manage_stock(self::EDIT_CONTEXT) != $manage_stock) {
+            $props['manage_stock'] = $manage_stock;
         }
-
+        $stock_status = $in_stock ? self::STOCK_STATUS_IN_STOCK : self::STOCK_STATUS_OUT_OF_STOCK;
         if ($variationProduct->get_manage_stock() !== $manage_stock) {
             $props['manage_stock'] = $manage_stock;
         }

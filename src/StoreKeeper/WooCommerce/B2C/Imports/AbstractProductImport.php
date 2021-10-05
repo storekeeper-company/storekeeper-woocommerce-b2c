@@ -118,24 +118,15 @@ abstract class AbstractProductImport extends AbstractImport
 
     protected function setProductStock(WC_Product $product, Dot $dot, array $log_data): array
     {
-        // Check if the product is in stock
-        $log_data['in_stock'] = $dot->get('flat_product.product.product_stock.in_stock');
+        list($in_stock, $manage_stock, $stock_quantity) = $this->getStockProperties($dot);
 
-        if ($dot->get('flat_product.product.product_stock.in_stock')) {
-            //in stock
-            $manage_stock = !$dot->get('flat_product.product.product_stock.unlimited');
-            $stock_quantity = $manage_stock ? $dot->get('flat_product.product.product_stock.value') : 1;
-
-            $product->set_manage_stock($manage_stock);
-            $product->set_stock_quantity($stock_quantity);
-            $product->set_stock_status(self::STOCK_STATUS_IN_STOCK);
-        } else {
-            //out of stock
-            $product->set_manage_stock(true);
-            $product->set_stock_quantity(0);
-            $product->set_stock_status(self::STOCK_STATUS_OUT_OF_STOCK);
-        }
-
+        $product->set_manage_stock($manage_stock);
+        $product->set_stock_quantity($stock_quantity);
+        $product->set_stock_status(
+            $in_stock
+            ? self::STOCK_STATUS_IN_STOCK : self::STOCK_STATUS_OUT_OF_STOCK
+        );
+        $log_data['in_stock'] = $in_stock;
         $log_data['manage_stock'] = $product->get_manage_stock();
         $log_data['stock_quantity'] = $product->get_stock_quantity();
         $log_data['stock_status'] = $product->get_stock_status();
@@ -157,5 +148,40 @@ abstract class AbstractProductImport extends AbstractImport
     protected function getBackorderTrueValue()
     {
         return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::NOTIFY_ON_BACKORDER, 'no') ? 'notify' : 'yes';
+    }
+
+    protected function getStockProperties(
+        Dot $dot,
+        string $shop_product_path = '',
+        string $stock_path = 'flat_product.product.product_stock'
+    ): array {
+        $shop_product_path = rtrim($shop_product_path, '.');
+        $stock_path = rtrim($stock_path, '.');
+        if (!empty($shop_product_path) && !$dot->has($shop_product_path)) {
+            throw new \Exception("No shop_product_path=$shop_product_path path found to get stock properties");
+        }
+        if (!empty($stock_path) && !$dot->has($stock_path)) {
+            throw new \Exception("No stock_path=$stock_path path found to get stock properties");
+        }
+        $in_stock = $dot->get($this->cleanDotPath($stock_path.'.in_stock'));
+        $manage_stock = !$dot->get($this->cleanDotPath($stock_path.'.unlimited'));
+        $stock_quantity = $manage_stock ? $dot->get($this->cleanDotPath($stock_path.'.value'), 9999) : 1;
+        $orderable_stock_path = $this->cleanDotPath($shop_product_path.'.orderable_stock_value');
+        if ($in_stock && $manage_stock && $dot->has($orderable_stock_path)) {
+            // set stock based on orderable stock instead
+            $stock_quantity = $dot->get($orderable_stock_path);
+            $in_stock = $stock_quantity > 0;
+        }
+        if (!$in_stock) {
+            $manage_stock = true;
+            $stock_quantity = 0;
+        }
+
+        return [$in_stock, $manage_stock, $stock_quantity];
+    }
+
+    protected function cleanDotPath(string $shop_product_path): string
+    {
+        return trim($shop_product_path, '.');
     }
 }

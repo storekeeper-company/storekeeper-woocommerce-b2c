@@ -6,6 +6,7 @@ use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceSingleProduct;
+use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 
 class SyncWoocommerceProductsTest extends AbstractTest
 {
@@ -57,14 +58,10 @@ class SyncWoocommerceProductsTest extends AbstractTest
     /**
      * Fetch the data from the datadump source file.
      */
-    protected function getReturnData($isSingle = false): array
+    protected function getReturnData($file = self::DATADUMP_SOURCE_FILE): array
     {
-        if ($isSingle) {
-            $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_SINGLE_FILE);
-        } else {
-            // Read the original data from the data dump
-            $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_FILE);
-        }
+        // Read the original data from the data dump
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.$file);
 
         return $file->getReturn()['data'];
     }
@@ -118,13 +115,85 @@ class SyncWoocommerceProductsTest extends AbstractTest
         }
     }
 
+    public function testOrderableSimpleProductStock()
+    {
+        $productStorekeeperId = 22;
+        $this->initializeTest($productStorekeeperId);
+
+        $wooCommerceProducts = wc_get_products(['type' => self::WC_TYPE_SIMPLE]);
+
+        $this->assertCount(1, $wooCommerceProducts, 'Error in test, multiple products imported');
+        $wooCommerceProduct = $wooCommerceProducts[0];
+        $expected = [
+            'sku' => 'MWVR2ORDERABLE',
+            'manage_stock' => true,
+            'stock_quantity' => 0, // in reality -15, but we force set to 0
+            'stock_status' => 'onbackorder', // because "backorder_enabled": true,
+        ];
+        $actual = [
+            'sku' => $wooCommerceProduct->get_sku(),
+            'manage_stock' => $wooCommerceProduct->get_manage_stock(ProductImport::EDIT_CONTEXT),
+            'stock_quantity' => $wooCommerceProduct->get_stock_quantity(),
+            'stock_status' => $wooCommerceProduct->get_stock_status(),
+        ];
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testOrderableConfigurableProductStock()
+    {
+        $productStorekeeperId = 23;
+        $this->initializeTest($productStorekeeperId);
+
+        $wooCommerceProducts = wc_get_products(['type' => self::WC_TYPE_CONFIGURABLE]);
+
+        $this->assertCount(1, $wooCommerceProducts, 'Error in test, multiple products imported');
+        $wooCommerceProduct = $wooCommerceProducts[0];
+        $expected = [
+            'sku' => 'MWVR2OCONFIG',
+            'manage_stock' => true,
+            'stock_quantity' => 75,
+            'stock_status' => 'instock',
+        ];
+        $actual = [
+            'sku' => $wooCommerceProduct->get_sku(),
+            'manage_stock' => $wooCommerceProduct->get_manage_stock(ProductImport::EDIT_CONTEXT),
+            'stock_quantity' => $wooCommerceProduct->get_stock_quantity(),
+            'stock_status' => $wooCommerceProduct->get_stock_status(),
+        ];
+        $this->assertEquals($expected, $actual, 'stock of configurable product');
+
+        $assigned_stock_expected = [
+            'MWVR2-in-stock-75' => [
+                'manage_stock' => true,
+                'stock_quantity' => 75,
+                'stock_status' => 'instock',
+            ],
+            'MWVR2-out-of-stock' => [
+                'manage_stock' => true,
+                'stock_quantity' => 0, // in reality -10
+                'stock_status' => 'onbackorder', // because "backorder_enabled": true,
+            ],
+        ];
+        $assigned_stock_actual = [];
+        foreach ($wooCommerceProduct->get_visible_children() as $childId) {
+            $variationProduct = new \WC_Product_Variation($childId);
+            $assigned_stock_actual[$variationProduct->get_sku()] = [
+                'manage_stock' => $variationProduct->get_manage_stock(ProductImport::EDIT_CONTEXT),
+                'stock_quantity' => $variationProduct->get_stock_quantity(),
+                'stock_status' => $variationProduct->get_stock_status(),
+            ];
+        }
+        ksort($assigned_stock_actual);
+
+        $this->assertEquals($assigned_stock_expected, $assigned_stock_actual, 'stock of assigned products');
+    }
+
     public function testAttributesAndOptionsOrder()
     {
         $productStorekeeperId = 21;
         $this->initializeTest($productStorekeeperId);
-        $originalProductData = $this->getReturnData(true);
-        $attributeOptionsFile = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
-        $attributeOptionsData = $attributeOptionsFile->getReturn();
+        $originalProductData = $this->getReturnData(self::DATADUMP_SOURCE_SINGLE_FILE);
+        $attributeOptionsData = $this->getReturnData(self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
         $expectedAttributeOptions = $attributeOptionsData['attribute_options'];
         // Get the configurable products from the data dump
         $configurableProducts = $this->getProductsByTypeFromDataDump(
