@@ -240,6 +240,7 @@ class CommandRunner
         $cwd = getcwd() ?? null;
         $env = $this->getSubProcessEnv($xdebug_on);
         $process = new Process($command, $cwd, $env, null, $timeout);
+        $process->setTimeout(0);
 
         $cmd_string = implode(' ', $command);
         $context = [
