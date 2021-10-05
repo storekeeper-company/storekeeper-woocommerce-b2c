@@ -193,7 +193,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $productStorekeeperId = 21;
         $this->initializeTest($productStorekeeperId);
         $originalProductData = $this->getReturnData(self::DATADUMP_SOURCE_SINGLE_FILE);
-        $attributeOptionsData = $this->getReturnData(self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
+        $attributeOptionsFile = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
+        $attributeOptionsData = $attributeOptionsFile->getReturn();
         $expectedAttributeOptions = $attributeOptionsData['attribute_options'];
         // Get the configurable products from the data dump
         $configurableProducts = $this->getProductsByTypeFromDataDump(
