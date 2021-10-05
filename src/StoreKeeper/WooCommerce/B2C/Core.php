@@ -15,6 +15,8 @@ use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportCustomer;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportProduct;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportProductBlueprint;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportTag;
+use StoreKeeper\WooCommerce\B2C\Commands\MarkTasksAsRetry;
+use StoreKeeper\WooCommerce\B2C\Commands\MarkTasksAsSuccess;
 use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\Task\TaskDelete;
 use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\Task\TaskGet;
 use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\Task\TaskList;
@@ -85,6 +87,9 @@ class Core
         ProcessAllTasks::class,
         ProcessSingleTask::class,
         CleanWoocommerceEnvironment::class,
+
+        MarkTasksAsRetry::class,
+        MarkTasksAsSuccess::class,
 
         FileExportCategory::class,
         FileExportTag::class,

@@ -153,7 +153,7 @@ class SchedulerTab extends AbstractTab
             $instructions = [
                 __('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
                 " <a target='_blank' href='".self::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
-                sprintf(__('Add %s to crontab.', I18N::DOMAIN), "<code>* * * * * wp {$commandPrefix} {$commandName} --path={$pluginPath}</code>"),
+                sprintf(__('Add %s to crontab.', I18N::DOMAIN), "<code>* * * * * wp {$commandPrefix} {$commandName} --path={$pluginPath} --quiet</code>"),
                 __('Upon changing runner, please make sure to remove the cron above from crontab.', I18N::DOMAIN),
             ];
         } elseif (CronRegistrar::RUNNER_CRONTAB_API === $runner) {
