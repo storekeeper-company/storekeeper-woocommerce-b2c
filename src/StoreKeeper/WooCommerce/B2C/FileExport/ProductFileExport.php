@@ -343,7 +343,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
 
     private function exportImage(array $lineData, WC_Product $product): array
     {
-        foreach ($this->getProductIds($product) as $index => $imageId) {
+        foreach ($this->getProductImageIds($product) as $index => $imageId) {
             $lineData["product.product_images.$index.download_url"] = wp_get_attachment_url($imageId);
         }
 
@@ -452,14 +452,21 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
         return $lineData;
     }
 
-    private function getProductIds(WC_Product $product): array
+    private function getProductImageIds(WC_Product $product): array
     {
-        $imageIds = array_merge(
-            [
-                $product->get_image_id(),
-            ],
-            $product->get_gallery_image_ids()
-        );
+        $galleryImages = $product->get_gallery_image_ids();
+        $imageId = $product->get_image_id();
+        // Do not put strict in_array comparison, $imageId is string
+        if (in_array($imageId, $galleryImages)) {
+            $imageIds = $galleryImages;
+        } else {
+            $imageIds = array_merge(
+                [
+                    $imageId,
+                ],
+                $galleryImages
+            );
+        }
 
         $imageIds = array_filter(
             $imageIds,
