@@ -455,9 +455,8 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
     private function getProductImageIds(WC_Product $product): array
     {
         $galleryImages = $product->get_gallery_image_ids();
-        $imageId = $product->get_image_id();
-        // Do not put strict in_array comparison, $imageId is string
-        if (in_array($imageId, $galleryImages)) {
+        $imageId = (int) $product->get_image_id();
+        if (in_array($imageId, $galleryImages, true)) {
             $imageIds = $galleryImages;
         } else {
             $imageIds = array_merge(
