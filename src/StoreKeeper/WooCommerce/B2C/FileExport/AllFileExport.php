@@ -45,8 +45,8 @@ class AllFileExport extends AbstractFileExport
             throw new FileExportFailedException('Unable to write to '.$this->filePath);
         }
 
-        foreach ($exports as $export) {
-            $zip->addFile($export, basename($export));
+        foreach ($exports as $i => $export) {
+            $zip->addFile($export, 'step_'.($i + 1).'_'.basename($export));
         }
 
         if (true !== $zip->close()) {

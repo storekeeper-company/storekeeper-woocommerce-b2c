@@ -57,14 +57,15 @@ class AdminNotices
                 'The StoreKeeper synchronization plugin extension is not connected, thus nothing is synchronized. please click configure to do so.',
                 I18N::DOMAIN
             );
-            $configure = __('Configure StoreKeeper synchronization plugin', I18N::DOMAIN); ?>
+            $configure = __('Configure StoreKeeper synchronization plugin', I18N::DOMAIN);
+            $url = admin_url('/wp-admin/admin.php?page=storekeeper-settings'); ?>
             <div class="notice notice-error">
                 <p style="display:flex;justify-content:space-between;align-items:center;">
                     <?php
                     echo esc_html($message); ?>
                 </p>
                 <p>
-                    <a href="/wp-admin/admin.php?page=storekeeper-settings"
+                    <a href="<?php echo $url; ?>"
                        class="button-primary woocommerce-save-button"><?php
                         echo esc_html($configure); ?></a>
                 </p>
@@ -290,6 +291,7 @@ class AdminNotices
         ?>
         <div class="notice notice-warning">
             <h4>
+                StoreKeeper for Woocommerce:
                 <?php
                 echo esc_html($message); ?>
             </h4>
@@ -302,13 +304,15 @@ class AdminNotices
         ?>
         <div class="notice notice-error">
             <h4>
-                <?php
-                echo esc_html(message); ?>
+                StoreKeeper for Woocommerce:
+                <?php echo esc_html($message); ?>
             </h4>
-            <p>
             <?php
-            echo esc_html(trim($description)); ?>
-            </p>
+            if (!empty($description)) {
+                echo '<p>';
+                echo esc_html($description);
+                echo '</p>';
+            } ?>
         </div>
         <?php
     }
@@ -318,6 +322,7 @@ class AdminNotices
         ?>
         <div class="notice notice-info">
             <h4>
+                StoreKeeper for Woocommerce:
                 <?php
                 echo esc_html($message); ?>
             </h4>
@@ -330,6 +335,7 @@ class AdminNotices
         ?>
         <div class="notice notice-success">
             <h4>
+                StoreKeeper for Woocommerce:
                 <?php
                 echo esc_html($message); ?>
             </h4>

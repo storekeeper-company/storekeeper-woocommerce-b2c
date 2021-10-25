@@ -3,13 +3,12 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
-use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
-use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use Throwable;
@@ -19,41 +18,12 @@ class ExportTab extends AbstractTab
     use FormElementTrait;
 
     const EXPORT_ACTION = 'export-action';
-    const SAVE_OPTIONS_ACTION = 'save-options-action';
-
-    const ALIAS_BRAND = 'brand';
-    const ALIAS_BARCODE = 'barcode';
-    const ALIAS_PRINTABLE_SHORTNAME = 'printable_shortname';
-    const ALIAS_NEEDS_WEIGHT_ON_KASSA = 'needs_weight_on_kassa';
-    const ALIAS_NEEDS_DESCRIPTION_ON_KASSA = 'needs_description_on_kassa';
-    const ALIAS_DURATION_IN_SECONDS = 'duration_in_seconds';
-
-    const ALIAS_MINIMAL_ORDER_QTY = 'minimal_order_qty';
-    const ALIAS_IN_PACKAGE_QTY = 'in_package_qty';
-    const ALIAS_IN_BOX_QTY = 'in_box_qty';
-    const ALIAS_IN_OUTER_QTY = 'in_outer_qty';
-    const ALIAS_UNIT_WEIGHT_IN_G = 'unit_weight_in_g';
-
-    const FEATURED_ATTRIBUTES_ALIASES = [
-        self::ALIAS_BRAND,
-        self::ALIAS_BARCODE,
-        self::ALIAS_PRINTABLE_SHORTNAME,
-        self::ALIAS_NEEDS_WEIGHT_ON_KASSA,
-        self::ALIAS_NEEDS_DESCRIPTION_ON_KASSA,
-        self::ALIAS_DURATION_IN_SECONDS,
-        self::ALIAS_MINIMAL_ORDER_QTY,
-        self::ALIAS_IN_PACKAGE_QTY,
-        self::ALIAS_IN_BOX_QTY,
-        self::ALIAS_IN_OUTER_QTY,
-        self::ALIAS_UNIT_WEIGHT_IN_G,
-    ];
 
     public function __construct(string $title, string $slug = '')
     {
         parent::__construct($title, $slug);
 
         $this->addAction(self::EXPORT_ACTION, [$this, 'exportAction']);
-        $this->addAction(self::SAVE_OPTIONS_ACTION, [$this, 'saveOptionsAction']);
     }
 
     protected function exportAction()
@@ -75,31 +45,21 @@ class ExportTab extends AbstractTab
     public function render(): void
     {
         $this->renderExport();
-
-        $this->renderSettings();
     }
 
     private function renderExport()
     {
         $this->renderFormStart();
 
-        $this->renderFormHeader(__('Export', I18N::DOMAIN));
-
         $this->renderRequestHiddenInputs();
 
         $this->renderFormHiddenInput('action', self::EXPORT_ACTION);
 
-        $this->renderFormGroup(
-            __('Overwrite language (iso2)', I18N::DOMAIN),
-            $this->getFormInput(
-                'lang',
-                __('Overwrite language (iso2)', I18N::DOMAIN),
-                esc_html(Language::getSiteLanguageIso2())
-            )
-        );
+        $this->renderInfo();
+        $this->renderSelectedAttributes();
+        $this->renderLanguageSelector();
 
         $exportTypes = [
-            FileExportTypeHelper::ALL => __('Export all'),
             FileExportTypeHelper::CUSTOMER => __('Export customers', I18N::DOMAIN),
             FileExportTypeHelper::TAG => __('Export tags', I18N::DOMAIN),
             FileExportTypeHelper::CATEGORY => __('Export categories', I18N::DOMAIN),
@@ -108,103 +68,37 @@ class ExportTab extends AbstractTab
             FileExportTypeHelper::PRODUCT_BLUEPRINT => __('Export product blueprints', I18N::DOMAIN),
             FileExportTypeHelper::PRODUCT => __('Export products', I18N::DOMAIN),
         ];
-
+        $connected = StoreKeeperOptions::isConnected();
         foreach ($exportTypes as $type => $label) {
-            $this->renderFormGroup(
-                $label,
-                $this->getFormButton(
-                    __('Export', I18N::DOMAIN),
-                    'button',
-                    'type',
-                    $type
-                )
+            $input = $this->getFormButton(
+                __('Download export (csv)', I18N::DOMAIN),
+                'button',
+                'type',
+                $type
             );
+            if ($connected) {
+                $input .= ' '.$this->getFormLink(
+                    $this->getImportExportCenterUrl($type),
+                    __('Go to backoffice import form', I18N::DOMAIN),
+                    'button button-link',
+                    '_blank'
+                );
+            }
+            $this->renderFormGroup($label, $input);
         }
 
-        $this->renderFormEnd();
-    }
-
-    const NOT_MAPPED_VALUE = '-';
-
-    private function renderSettings()
-    {
-        $this->renderFormStart('post');
-
-        $this->renderFormHeader(__('Featured attribute export settings', I18N::DOMAIN));
-
-        $this->renderRequestHiddenInputs();
-
-        $this->renderFormHiddenInput('action', self::SAVE_OPTIONS_ACTION);
-
-        $options = $this->getAttributeOptions();
-        foreach (self::FEATURED_ATTRIBUTES_ALIASES as $alias) {
-            $name = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
-            $label = FeaturedAttributeOptions::getAliasName($alias);
-            $value = FeaturedAttributeOptions::get($name, self::NOT_MAPPED_VALUE);
-            $this->renderFormGroup(
-                $label,
-                $this->getFormSelect($name, $options, $value)
-            );
-        }
-
-        $this->renderFormActionGroup(
+        echo '<hr/>';
+        $this->renderFormGroup(
+            __('Export full package'),
             $this->getFormButton(
-                __('Save settings', I18N::DOMAIN),
-                'button-primary'
+                __('Download export (zip)', I18N::DOMAIN),
+                'button',
+                'type',
+                FileExportTypeHelper::ALL
             )
         );
 
         $this->renderFormEnd();
-    }
-
-    private function getAttributeOptions()
-    {
-        $notMapped = __('Not mapped', I18N::DOMAIN);
-        $options = [];
-        $options[self::NOT_MAPPED_VALUE] = "------ $notMapped ------";
-
-        foreach (Attributes::getAllAttributes() as $attribute) {
-            $options[$attribute['name']] = $attribute['label'];
-        }
-
-        return $options;
-    }
-
-    public function saveOptionsAction()
-    {
-        if (count($_POST) > 0) {
-            $data = [];
-            foreach (FeaturedAttributeOptions::FEATURED_ATTRIBUTES_ALIASES as $alias) {
-                $constant = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
-                $data[$constant] = sanitize_key($_POST[$constant]);
-            }
-
-            $duplicates = $this->getDuplicateData($data);
-            if (count($duplicates) > 0) {
-                $message = __('Attributes can only be used once', I18N::DOMAIN);
-                AdminNotices::showError($message);
-            } else {
-                foreach ($data as $key => $value) {
-                    FeaturedAttributeOptions::set($key, $value);
-                }
-            }
-        }
-    }
-
-    private function getDuplicateData(array $data)
-    {
-        $uniques = [];
-        $duplicates = [];
-
-        foreach ($data as $key => $value) {
-            if (self::NOT_MAPPED_VALUE !== $value && in_array($value, $uniques)) {
-                $duplicates[] = $value;
-            } else {
-                $uniques[] = $value;
-            }
-        }
-
-        return $duplicates;
     }
 
     private function handleExport(string $type, string $lang)
@@ -274,5 +168,112 @@ HTML;
         $export->runExport($lang);
 
         return $export->getDownloadUrl();
+    }
+
+    private function getSelectedAttributes(): array
+    {
+        $selectedAttributes = [];
+        foreach (ExportSettingsTab::FEATURED_ATTRIBUTES_ALIASES as $alias) {
+            $name = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
+            $label = FeaturedAttributeOptions::getAliasName($alias);
+            $value = FeaturedAttributeOptions::get($name);
+            if (!is_null($value) && ExportSettingsTab::NOT_MAPPED_VALUE !== $value) {
+                $selectedAttributes[$label] = $value;
+            }
+        }
+
+        return $selectedAttributes;
+    }
+
+    private function renderInfo()
+    {
+        echo '<div class="notice notice-info">';
+        $title = esc_html__('With the One Time Export you can export all the data from your WooCommerce webshop to your StoreKeeper BackOffice. After completing this export you should import the files into your StoreKeeper BackOffice.', I18N::DOMAIN);
+        echo "<h4>$title</h4>";
+        $import_export = esc_html__('Import & Export Center', I18N::DOMAIN);
+        if (StoreKeeperOptions::isConnected()) {
+            $import_export = sprintf(
+                '<a href="%s" target="_blank">%s</a>',
+                esc_attr($this->getImportExportCenterUrl()),
+                $import_export
+            );
+        }
+        echo '<p>';
+        printf(
+            esc_html__('You should generate all the export files and then go to the "%1$s" of this account.', I18N::DOMAIN),
+            $import_export
+        );
+        echo '</p>';
+        echo '<p>';
+        echo esc_html__('The correct order of importing is the same as export below, so first customers,tags,categories ect.', I18N::DOMAIN);
+        echo '</p>';
+        echo '<p>';
+        echo esc_html__('After you complete the full "One Time Export" procedure, be aware that from this moment on the management of your webshop goes through the StoreKeeper BackOffice.', I18N::DOMAIN);
+        echo '</p>';
+        echo '</div>';
+    }
+
+    private function renderSelectedAttributes()
+    {
+        $selectedAttributes = $this->getSelectedAttributes();
+        $link = esc_html__('Click here to configure them', I18N::DOMAIN);
+        $url = esc_url(admin_url('admin.php?page=storekeeper-tools&tab='.ExportSettingsTab::SLUG));
+
+        if (empty($selectedAttributes)) {
+            $message = esc_html__('Warning: You didn\'t set the settings yet for mapping fields, are you really sure?', I18N::DOMAIN);
+
+            echo <<<HTML
+                    <div class="notice notice-error">
+                        <h4>$message</h4>
+                        <a href="$url">$link</a><br /><br />
+                    </div>
+            HTML;
+        }
+    }
+
+    private function getImportExportCenterUrl(?string $type = null): string
+    {
+        $url = StoreKeeperOptions::getBackofficeUrl().'#import-export/create/import';
+
+        $exportTypes = [
+            FileExportTypeHelper::CUSTOMER => 'customer',
+            FileExportTypeHelper::TAG => 'productLabels',
+            FileExportTypeHelper::CATEGORY => 'productCategory',
+            FileExportTypeHelper::ATTRIBUTE => 'attribute',
+            FileExportTypeHelper::ATTRIBUTE_OPTION => 'attributeOption',
+            FileExportTypeHelper::PRODUCT_BLUEPRINT => 'productKind',
+            FileExportTypeHelper::PRODUCT => 'product',
+        ];
+
+        if (array_key_exists($type, $exportTypes)) {
+            return $url.'/'.$exportTypes[$type];
+        }
+
+        return $url;
+    }
+
+    private function renderLanguageSelector(): void
+    {
+        $siteLanguageIso2 = Language::getSiteLanguageIso2();
+        $options = [
+            'nl' => __('Dutch'),
+            'en' => __('English'),
+            'de' => __('German'),
+        ];
+
+        if (!array_key_exists($siteLanguageIso2, $options)) {
+            $options[$siteLanguageIso2] = sprintf(
+                    __('Site language (%s)', I18N::DOMAIN),
+                    $siteLanguageIso2
+                );
+        }
+        $this->renderFormGroup(
+            __('Export language', I18N::DOMAIN),
+            $this->getFormSelect(
+                'lang',
+                $options,
+                esc_html($siteLanguageIso2)
+            )
+        );
     }
 }
