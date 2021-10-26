@@ -381,6 +381,15 @@
                             "attribute_published": true,
                             "attribute_option_order": 0,
                             "attribute_order": 3
+                        },
+                        {
+                            "label": "Barcode",
+                            "attribute_id": 1,
+                            "name": "barcode",
+                            "value": "2220000153062",
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 2
                         }
                     ],
                     "main_image": {

@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceSingleProduct;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
@@ -31,6 +32,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
+        $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
 
         // Tests whether there are no products before import
         $wc_products = wc_get_products([]);
@@ -225,7 +227,10 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 $actualAttributeOptionPosition = $variationProduct->get_menu_order();
                 $attributeOptionIndex = array_search($storekeeperId, array_column($expectedAttributeOptions, 'id'), true);
                 $expectedAttributeOptionPosition = $expectedAttributeOptions[$attributeOptionIndex]['order'];
-                $this->assertEquals($expectedAttributeOptionPosition, $actualAttributeOptionPosition);
+                $this->assertEquals(
+                    $expectedAttributeOptionPosition,
+                    $actualAttributeOptionPosition,
+                    'Menu order for '.$variationProduct->get_title().' option='.$optionTerm->name);
             }
         }
 

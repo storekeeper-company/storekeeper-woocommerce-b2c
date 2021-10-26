@@ -7,6 +7,7 @@ use Exception;
 use StoreKeeper\WooCommerce\B2C\Cache\StoreKeeperIdCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
@@ -22,6 +23,7 @@ use WC_Product_Variation;
 
 class ProductImport extends AbstractProductImport
 {
+    const STOREKEEPER_BARCODE_META = 'storekeeper_barcode';
     protected $syncProductVariations = false;
 
     /**
@@ -583,6 +585,39 @@ SQL;
         if (count($attribute_data) > 0) {
             $attributes = WC_Meta_Box_Product_Data::prepare_attributes($attribute_data);
             $newProduct->set_attributes($attributes);
+        }
+
+        $this->setBarcodeMeta($newProduct, $product);
+    }
+
+    /**
+     * @param WC_Product_Variation|WC_Product_Simple|WC_Product_Variable $newProduct
+     * @param $product
+     *
+     * @throws Exception
+     */
+    private function setBarcodeMeta($newProduct, $product)
+    {
+        $barcode = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributeOptions::ALIAS_BARCODE);
+        if ($barcode) {
+            $barcode_was_set = false;
+            if ($product->has('flat_product.content_vars')) {
+                foreach ($product->get('flat_product.content_vars') as $cvData) {
+                    $contentVar = new Dot($cvData);
+                    if ($contentVar->get('name') === $barcode) {
+                        $newProduct->add_meta_data(
+                            self::STOREKEEPER_BARCODE_META,
+                            $contentVar->get('value'),
+                            true
+                        );
+                        $barcode_was_set = true;
+                        break;
+                    }
+                }
+            }
+            if (!$barcode_was_set) {
+                $newProduct->delete_meta_data(self::STOREKEEPER_BARCODE_META);
+            }
         }
     }
 
@@ -1173,6 +1208,8 @@ SQL;
 
         $attributes = WC_Meta_Box_Product_Data::prepare_attributes($attribute_data);
         $newProduct->set_attributes($attributes);
+
+        $this->setBarcodeMeta($newProduct, $product);
     }
 
     /**
@@ -1189,6 +1226,7 @@ SQL;
 
         $associatedShopProducts = $optionsConfig->get('configurable_associated_shop_products', false);
         $backofficeVariationStorekeeperIds = array_column($associatedShopProducts, 'shop_product_id');
+        sort($backofficeVariationStorekeeperIds);
 
         $variationPostIds = $parentProduct->get_children();
         // Check if id no longer exist in the associated products and delete the post object
@@ -1203,80 +1241,36 @@ SQL;
         $this->debug('Assigned product found', $log_data);
 
         if (false !== $associatedShopProducts && count($associatedShopProducts) > 0) {
-            foreach ($associatedShopProducts as $associatedShopProductData) {
+            $ShopModule = $this->storekeeper_api->getModule('ShopModule');
+            $response = $ShopModule->naturalSearchShopFlatProductForHooks(
+                0,
+                self::getMainLanguage(),
+                0,
+                0,
+                null,
+                [
+                    [
+                        'name' => 'id__in_list',
+                        'multi_val' => $backofficeVariationStorekeeperIds,
+                    ],
+                ]
+            );
+
+            foreach ($response['data'] as $associatedShopProductData) {
                 $assigned_debug_log = [];
                 $associatedShopProduct = new Dot($associatedShopProductData);
 
-                $variation_id = $this->getVariationId($associatedShopProduct, $assigned_debug_log);
-                $variation = new WC_Product_Variation($variation_id);
-
+                $productCheck = $this->getAssignedProduct($associatedShopProduct);
+                $variation_id = $this->updateAssignedProduct(
+                    $productCheck,
+                    $parentProduct,
+                    $associatedShopProduct,
+                    $optionsConfig
+                );
                 $assigned_debug_log['variation_id'] = $variation_id;
                 $this->debug('variation post_id', $assigned_debug_log);
 
-                /** Backorder */
-                $trueValue = $this->getBackorderTrueValue();
-                $backorder_string = $associatedShopProduct->get(
-                    'shop_product.backorder_enabled',
-                    false
-                ) ? $trueValue : 'no';
-
-                list($in_stock, $manage_stock, $stock_quantity) = $this->getStockProperties(
-                    $associatedShopProduct,
-                    'shop_product',
-                    'shop_product.product.product_stock',
-                );
-                // TODO: use getChangedVariationProps instead of this.
-                $props = [
-                    'parent_id' => $parentProduct->get_id(),
-                    'status' => $associatedShopProduct->get('shop_product.active') ? 'publish' : 'private',
-                    'regular_price' => wc_clean(
-                        $associatedShopProduct->get('shop_product.product_default_price.ppu_wt')
-                    ),
-                    'description' => $parentProduct->get_description('edit'),
-                    'manage_stock' => $manage_stock,
-                    'sku' => $associatedShopProduct->get('shop_product.product.sku'),
-                    'stock_quantity' => wc_stock_amount(
-                        $stock_quantity
-                    ),
-                    'backorders' => $backorder_string,
-                    'stock_status' => $in_stock ?
-                        self::STOCK_STATUS_IN_STOCK : self::STOCK_STATUS_OUT_OF_STOCK,
-                    'image_id' => $parentProduct->get_image_id(),
-                    'shipping_class_id' => wc_clean(-1),
-                    'tax_class' => 'parent',
-                ];
-
-                $sale_price = wc_clean($associatedShopProduct->get('shop_product.product_price.ppu_wt'));
-                if ($props['regular_price'] != $sale_price) {
-                    $props['sale_price'] = $sale_price;
-                }
-
-                $this->setAssignedAttributes(
-                    $variation,
-                    $optionsConfig,
-                    $associatedShopProduct->get(
-                        'configurable_associated_product.attribute_option_ids'
-                    )
-                );
-
-                $menuOrder = Attributes::getOptionOrder($variation, $associatedShopProduct);
-                $props['menu_order'] = wc_clean($menuOrder);
-
-                WordpressExceptionThrower::throwExceptionOnWpError($variation->set_props($props));
-
-                $post_id = $variation->save();
-
-                $assigned_debug_log['variation_saved_id'] = $post_id;
-                $this->debug('variation saved', $assigned_debug_log);
-
-                update_post_meta(
-                    $variation->get_id(),
-                    'storekeeper_id',
-                    $associatedShopProduct->get('shop_product_id')
-                );
-
                 $this->scheduleVariationActionTask($parentProduct->get_id());
-
                 $this->debug('variation saved after action', $assigned_debug_log);
             }
         }
@@ -1386,10 +1380,12 @@ SQL;
         $attributeOptions = $this->idIsKey($optionsConfig->get('attribute_options'));
 
         foreach ($wantedAttributeOptionIds as $wantedId) {
-            $option = $attributeOptions[$wantedId];
-            $attribute = $attributes[$option['attribute_id']];
-            $attrName = wc_variation_attribute_name(Attributes::createWooCommerceAttributeName($attribute['name']));
-            $options[$attrName] = Attributes::sanitizeOptionSlug($option['id'], $option['name']);
+            if (array_key_exists($wantedId, $attributeOptions)) {
+                $option = $attributeOptions[$wantedId];
+                $attribute = $attributes[$option['attribute_id']];
+                $attrName = wc_variation_attribute_name(Attributes::createWooCommerceAttributeName($attribute['name']));
+                $options[$attrName] = Attributes::sanitizeOptionSlug($option['id'], $option['name']);
+            }
         }
 
         $newProduct->set_attributes($options);
@@ -1406,7 +1402,7 @@ SQL;
     }
 
     /**
-     * @param $assignedProductPost \WP_Post
+     * @param $assignedProductPost|int \WP_Post
      * @param $parentProduct WC_Product_Variable
      * @param Dot $assignedProductData
      * @param Dot $configObject
@@ -1418,19 +1414,32 @@ SQL;
     protected function updateAssignedProduct($assignedProductPost, $parentProduct, $assignedProductData, $configObject)
     {
         $variationProduct = new WC_Product_Variation($assignedProductPost);
-
-        $props = $this->getChangedVariationProps($variationProduct, $assignedProductData, $parentProduct);
-        $attribute_option_ids = $this->idIsKey($configObject->get('attribute_options'));
+        $attribute_options_by_id = $this->idIsKey($configObject->get('attribute_options'));
 
         // Update the attributes
         $wanted_configured_attribute_option_ids = [];
+        $firstAttributeId = $configObject->get('attributes.0.id');
+        $menuOrder = 0;
         foreach ($assignedProductData->get('flat_product.content_vars', []) as $content_var) {
             Attributes::updateAttributeAndOptionFromContentVar($content_var);
-            if (array_key_exists('attribute_option_id', $content_var) &&
-                array_key_exists($content_var['attribute_option_id'], $attribute_option_ids)) {
+            if (
+                array_key_exists('attribute_option_id', $content_var) &&
+                array_key_exists($content_var['attribute_option_id'], $attribute_options_by_id)
+            ) {
                 $wanted_configured_attribute_option_ids[] = $content_var['attribute_option_id'];
+                if ($content_var['attribute_id'] == $firstAttributeId) {
+                    $menuOrder = $content_var['attribute_option_order'] ?? 0;
+                }
             }
         }
+
+        $props = $this->getChangedVariationProps($variationProduct, $assignedProductData, $parentProduct);
+        if ($variationProduct->get_menu_order(self::EDIT_CONTEXT) !== $menuOrder) {
+            $props['menu_order'] = wc_clean($menuOrder);
+        }
+
+        $this->setBarcodeMeta($variationProduct, $assignedProductData);
+
         $this->setAssignedAttributes(
             $variationProduct,
             $configObject,

@@ -15,7 +15,9 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Debug\HookDumpFile;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
 use StoreKeeper\WooCommerce\B2C\Imports\CouponCodeImport;
+use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\TestLib\DumpFileHelper;
@@ -619,40 +621,70 @@ abstract class AbstractTest extends WP_UnitTestCase
         }
 
         // Attributes
-        foreach ($original_product->get('flat_product.content_vars') as $content_var_data) {
-            $content_var = new Dot($content_var_data);
+        $isAssigned = self::WC_TYPE_ASSIGNED === $wc_product->get_type();
+        $barcode = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributeOptions::ALIAS_BARCODE);
 
-            $expected_attribute_name = $content_var->get('name');
-            $this->assertNotEmpty(
-                $wc_product->get_attribute($expected_attribute_name),
-                "Attribute $expected_attribute_name does not exist"
-            );
-
-            $expected_attribute_value = $content_var->get('value');
-            if ($content_var->has('attribute_option_id')) {
-                if (self::WC_TYPE_ASSIGNED === $wc_product->get_type()) {
+        if ($barcode) {
+            foreach ($original_product->get('flat_product.content_vars') as $content_var_data) {
+                $content_var = new Dot($content_var_data);
+                if ($content_var->get('name') === $barcode) {
+                    $expected_attribute_value = $content_var->get('value');
+                    $current_attribute_value = $wc_product->get_meta(ProductImport::STOREKEEPER_BARCODE_META);
+                    $this->assertEquals(
+                        $expected_attribute_value,
+                        $current_attribute_value,
+                        "[sku=$sku] WooCommerce barcode meta value doesn't match the expected value"
+                    );
+                }
+            }
+        }
+        if ($isAssigned) {
+            foreach ($original_product->get('flat_product.content_vars') as $content_var_data) {
+                $content_var = new Dot($content_var_data);
+                if ($content_var->has('attribute_option_id')) {
+                    $expected_attribute_name = $content_var->get('name');
+                    $this->assertNotEmpty(
+                        $wc_product->get_attribute($expected_attribute_name),
+                        "Attribute $expected_attribute_name does not exist"
+                    );
                     $expected_attribute_value = Attributes::sanitizeOptionSlug(
                         $content_var->get('attribute_option_id'),
                         $content_var->get('value')
                     );
-                } else {
-                    $expected_attribute_value = $content_var->get('value_label');
+                    $current_attributes = $wc_product->get_attributes();
+                    $current_attribute_value = $current_attributes[Attributes::createWooCommerceAttributeName(
+                        $expected_attribute_name
+                    )];
+
+                    $this->assertEquals(
+                        $expected_attribute_value,
+                        $current_attribute_value,
+                        "[sku=$sku] WooCommerce attribute option value doesn't match the expected value"
+                    );
                 }
             }
+        } else {
+            foreach ($original_product->get('flat_product.content_vars') as $content_var_data) {
+                $content_var = new Dot($content_var_data);
 
-            $current_attribute_value = $wc_product->get_attribute($expected_attribute_name);
-            if (self::WC_TYPE_ASSIGNED === $wc_product->get_type()) {
-                $current_attributes = $wc_product->get_attributes();
-                $current_attribute_value = $current_attributes[Attributes::createWooCommerceAttributeName(
-                    $expected_attribute_name
-                )];
+                $expected_attribute_name = $content_var->get('name');
+                $this->assertNotEmpty(
+                    $wc_product->get_attribute($expected_attribute_name),
+                    "Attribute $expected_attribute_name does not exist"
+                );
+
+                $expected_attribute_value = $content_var->get('value');
+                if ($content_var->has('attribute_option_id')) {
+                    $expected_attribute_value = $content_var->get('value_label');
+                }
+
+                $current_attribute_value = $wc_product->get_attribute($expected_attribute_name);
+                $this->assertEquals(
+                    $expected_attribute_value,
+                    $current_attribute_value,
+                    "[sku=$sku] WooCommerce attribute option value doesn't match the expected value"
+                );
             }
-
-            $this->assertEquals(
-                $expected_attribute_value,
-                $current_attribute_value,
-                "[sku=$sku] WooCommerce attribute option value doesn't match the expected value"
-            );
         }
     }
 
