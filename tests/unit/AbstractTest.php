@@ -629,7 +629,7 @@ abstract class AbstractTest extends WP_UnitTestCase
                 $content_var = new Dot($content_var_data);
                 if ($content_var->get('name') === $barcode) {
                     $expected_attribute_value = $content_var->get('value');
-                    $current_attribute_value = $wc_product->get_meta(ProductImport::STOREKEEPER_BARCODE_META);
+                    $current_attribute_value = ProductImport::getBarcodeMeta($wc_product);
                     $this->assertEquals(
                         $expected_attribute_value,
                         $current_attribute_value,

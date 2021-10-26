@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Options;
 
+use StoreKeeper\WooCommerce\B2C\I18N;
+
 class StoreKeeperOptions extends AbstractOptions
 {
     const API_URL = 'api-url';
@@ -17,6 +19,9 @@ class StoreKeeperOptions extends AbstractOptions
 
     const SYNC_MODE_FULL_SYNC = 'sync-mode-full-sync';
     const SYNC_MODE_ORDER_ONLY = 'sync-mode-order-only';
+
+    const BARCODE_MODE = 'barcode-mode';
+    const BARCODE_META_FALLBACK = 'storekeeper_barcode';
 
     /**
      * returns true if the WooCommerce is connected to the StoreKeeper backend.
@@ -57,6 +62,46 @@ class StoreKeeperOptions extends AbstractOptions
         list($full, $schema, $api, $hostname) = self::getExplodedApiUrl();
 
         return $schema.$hostname;
+    }
+
+    public static function getBarcodeOptions()
+    {
+        $default = sprintf(
+            __('Default (%s)', I18N::DOMAIN),
+            StoreKeeperOptions::BARCODE_META_FALLBACK
+        );
+        $options = [];
+        $options[StoreKeeperOptions::BARCODE_META_FALLBACK] = $default;
+
+        $plugins = get_plugins();
+        foreach ($plugins as $file => $data) {
+            if (is_plugin_active($file)) {
+                if ('woo-add-gtin/woocommerce-gtin.php' === $file) {
+                    $options[sanitize_key($file)] = $data['Title'].' (hwp_var_gtin,hwp_product_gtin)';
+                }
+            }
+        }
+
+        return $options;
+    }
+
+    public static function getBarcodeMetaKey($product)
+    {
+        $mode = self::getBarcodeMode();
+        if (sanitize_key('woo-add-gtin/woocommerce-gtin.php') === $mode) {
+            if ('variation' === $product->get_type()) {
+                return 'hwp_var_gtin';
+            }
+
+            return 'hwp_product_gtin';
+        }
+
+        return self::BARCODE_META_FALLBACK;
+    }
+
+    public static function getBarcodeMode()
+    {
+        return self::get(self::BARCODE_MODE, self::BARCODE_META_FALLBACK);
     }
 
     public static function getExplorerUrl()

@@ -137,10 +137,9 @@ class ConnectionTab extends AbstractTab
         $this->renderFormHeader(__('Synchronization settings', I18N::DOMAIN));
 
         $this->renderSyncModeSetting();
-
         $this->renderPaymentSetting();
-
         $this->renderBackorderSetting();
+        $this->renderBarcodeModeSetting();
 
         $this->renderFormActionGroup(
             $this->getFormButton(
@@ -198,6 +197,7 @@ class ConnectionTab extends AbstractTab
         $payment = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
         $backorder = StoreKeeperOptions::getConstant(StoreKeeperOptions::NOTIFY_ON_BACKORDER);
         $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
+        $barcode = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
 
         $data = [
             $payment => 'on' === sanitize_key($_POST[$payment]) ? 'yes' : 'no',
@@ -207,6 +207,12 @@ class ConnectionTab extends AbstractTab
             $data[$mode] = sanitize_key($_POST[$mode]);
         } else {
             $data[$mode] = StoreKeeperOptions::SYNC_MODE_FULL_SYNC;
+        }
+
+        if (!empty($_POST[$barcode])) {
+            $data[$barcode] = sanitize_key($_POST[$barcode]);
+        } else {
+            $data[$barcode] = StoreKeeperOptions::BARCODE_META_FALLBACK;
         }
 
         foreach ($data as $key => $value) {
@@ -249,6 +255,26 @@ HTML;
             )
         );
 
+        $this->renderFormGroup('', $description);
+    }
+
+    private function renderBarcodeModeSetting(): void
+    {
+        $options = StoreKeeperOptions::getBarcodeOptions();
+        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
+        $this->renderFormGroup(
+            __('Barcode meta key', I18N::DOMAIN),
+            $this->getFormSelect(
+                $name,
+                $options,
+                StoreKeeperOptions::getBarcodeMode()
+            )
+        );
+
+        $description = esc_html__(
+            'Changing this settings allows to use various EAN, barcode plugins. After changing this setting all products need to be synchronized again.',
+            I18N::DOMAIN
+        );
         $this->renderFormGroup('', $description);
     }
 
