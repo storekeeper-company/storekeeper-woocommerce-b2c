@@ -140,6 +140,7 @@ class ExportTab extends AbstractTab
 <script>
     (function() {
         const link = document.createElement('a');
+        link.setAttribute('target', '_blank');
         link.setAttribute('href', '$url');
         link.setAttribute('download', '$basename');
         link.click();
