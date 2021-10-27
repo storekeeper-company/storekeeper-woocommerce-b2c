@@ -606,16 +606,7 @@ SQL;
                     $contentVar = new Dot($cvData);
                     if ($contentVar->get('name') === $barcode) {
                         $value = $contentVar->get('value');
-
-                        update_post_meta($newProduct->get_id(), $meta_key, $value);
-
-                        var_dump([
-                            'Product barcode was set',
-                            'id' => $newProduct->get_id(),
-                            'sku' => $newProduct->get_sku(),
-                            'barcode' => $value,
-                            'mata_key' => $meta_key,
-                        ]);
+                        $newProduct->add_meta_data($meta_key, $value, true);
                         $barcode_was_set = true;
                         break;
                     }
@@ -1458,15 +1449,12 @@ SQL;
         // Setting the props.
         WordpressExceptionThrower::throwExceptionOnWpError($variationProduct->set_props($props));
 
-        // Check if there are any prop changes
-        if (count($variationProduct->get_changes()) > 0) {
-            $post_id = $variationProduct->save();
-
-            $this->scheduleVariationActionTask($parentProduct->get_id());
-            $this->debug('Assigned product saved');
-        }
-
         $this->setBarcodeMeta($variationProduct, $assignedProductData);
+
+        $post_id = $variationProduct->save();
+
+        $this->scheduleVariationActionTask($parentProduct->get_id());
+        $this->debug('Assigned product saved');
 
         // To make sure it still correct.
         update_post_meta($variationProduct->get_id(), 'storekeeper_id', $assignedProductData->get('id'));
