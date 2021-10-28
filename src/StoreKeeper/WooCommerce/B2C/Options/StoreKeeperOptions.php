@@ -54,7 +54,7 @@ class StoreKeeperOptions extends AbstractOptions
 
     public static function getSyncMode(): string
     {
-        return self::get(self::SYNC_MODE, self::SYNC_MODE_FULL_SYNC);
+        return self::get(self::SYNC_MODE, self::SYNC_MODE_ORDER_ONLY);
     }
 
     public static function getBackofficeUrl()
