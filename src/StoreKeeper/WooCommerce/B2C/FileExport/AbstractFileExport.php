@@ -31,7 +31,7 @@ abstract class AbstractFileExport implements IFileExport
             }
         }
 
-        $filename = $this->getType().'-'.time().'.'.$this->getFileType();
+        $filename = $this->getExportFilename();
         $this->filePath = $export_dir.'/'.$filename;
     }
 
@@ -88,5 +88,18 @@ abstract class AbstractFileExport implements IFileExport
         $percentage = $current / $total * 100;
         $nicePercentage = number_format($percentage, 2, '.', '');
         $this->logger->info("($nicePercentage%) $description");
+    }
+
+    private function getExportFilename(): string
+    {
+        $url = site_url('', 'http');
+        if (!empty($url)) {
+            $url = str_replace('http://', '', $url);
+            $url = sanitize_title($url).'-';
+        } else {
+            $url = '';
+        }
+
+        return $url.$this->getType().'-'.time().'.'.$this->getFileType();
     }
 }

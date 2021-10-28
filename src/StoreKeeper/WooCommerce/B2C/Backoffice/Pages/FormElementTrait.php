@@ -129,6 +129,10 @@ HTML, AbstractPage::ALLOWED_ALL_KNOWN_INPUT);
     ): string {
         $href = esc_url($href);
         $label = esc_html($label);
+
+        if ('_blank' === $target) {
+            $label .= ' <i class="wf-fa wf-fa-external-link"></i>';
+        }
         $target = esc_attr($target);
 
         return "<a href='$href' class='$class' target='$target'>$label</a>";

@@ -24,6 +24,9 @@ abstract class AbstractPage extends AbstractPageLike
         'p' => [
             'class' => [],
         ],
+        'i' => [
+            'class' => [],
+        ],
     ];
 
     public const ALLOWED_FORM = [
