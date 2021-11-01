@@ -161,13 +161,24 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
             'tax_rate_state' => '',
             'tax_rate' => '21.0000',
             'tax_rate_name' => 'Tax rate 21%',
+            'tax_rate_priority' => '2',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '0',
+            'tax_rate_order' => '1',
+        ];
+        $taxRate21Id = WC_Tax::_insert_tax_rate($taxRate);
+
+        $taxRate = [
+            'tax_rate_country' => 'BE',
+            'tax_rate_state' => '',
+            'tax_rate' => '21.0000',
+            'tax_rate_name' => 'Tax rate 21% (BE)',
             'tax_rate_priority' => '1',
             'tax_rate_compound' => '0',
             'tax_rate_shipping' => '0',
             'tax_rate_order' => '1',
-            'tax_rate_class' => '21percent',
         ];
-        $taxRate21Id = WC_Tax::_insert_tax_rate($taxRate);
+        $taxRate21BeId = WC_Tax::_insert_tax_rate($taxRate);
 
         $taxRate = [
             'tax_rate_country' => 'NL',
@@ -178,14 +189,15 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
             'tax_rate_compound' => '0',
             'tax_rate_shipping' => '0',
             'tax_rate_order' => '1',
-            'tax_rate_class' => '9percent',
+            'tax_rate_class' => 'reduced-rate',
         ];
         $taxRate9Id = WC_Tax::_insert_tax_rate($taxRate);
 
         $taxRate21 = WC_Tax::_get_tax_rate($taxRate21Id, OBJECT);
         $taxRate9 = WC_Tax::_get_tax_rate($taxRate9Id, OBJECT);
+        $taxRate21Be = WC_Tax::_get_tax_rate($taxRate21BeId, OBJECT);
 
-        return [$taxRate21, $taxRate9];
+        return [$taxRate21, $taxRate9, $taxRate21Be];
     }
 
     protected function createSimpleProduct($taxRateObject = null): WC_Product_Simple

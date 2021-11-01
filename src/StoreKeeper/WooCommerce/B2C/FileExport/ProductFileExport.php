@@ -27,10 +27,18 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
         'variable',
     ];
 
-    public static function getTaxRate(WC_Product $product): ?object
+    protected $tax_rate_country_iso = null;
+
+    public static function getTaxRate(WC_Product $product, string $country_iso): ?object
     {
         $taxRateClass = $product->get_tax_class();
         $taxRates = WC_Tax::get_rates_for_tax_class($taxRateClass) ?? [];
+
+        foreach ($taxRates as $rate) {
+            if ($rate->tax_rate_country === $country_iso) {
+                return $rate;
+            }
+        }
 
         return array_shift($taxRates);
     }
@@ -305,9 +313,25 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
         return $lineData;
     }
 
+    public function getTaxRateCountryIso(): string
+    {
+        if (is_null($this->tax_rate_country_iso)) {
+            /* @var \WooCommerce $woocommerce */
+            global $woocommerce;
+            $this->tax_rate_country_iso = $woocommerce->countries->get_base_country();
+        }
+
+        return $this->tax_rate_country_iso;
+    }
+
+    public function setTaxRateCountryIso(string $iso): string
+    {
+        $this->tax_rate_country_iso = $iso;
+    }
+
     private function exportVat(array $lineData, WC_Product $product): array
     {
-        $taxRate = self::getTaxRate($product);
+        $taxRate = self::getTaxRate($product, $this->getTaxRateCountryIso());
 
         if (!empty($taxRate)) {
             $lineData['product.product_price.tax'] = $taxRate->tax_rate / 100;

@@ -14,6 +14,8 @@ use WC_Product_Variation;
 
 class ProductFileExportTest extends AbstractFileExportTest
 {
+    const BASE_COUNTRY = 'NL';
+
     public function getFileExportClass(): string
     {
         return ProductFileExport::class;
@@ -21,6 +23,9 @@ class ProductFileExportTest extends AbstractFileExportTest
 
     public function testProductExportTest()
     {
+        // set country to NL
+        update_option('woocommerce_default_country', self::BASE_COUNTRY);
+
         /**
          * @var WC_Product_Variable $variableProduct
          * @var WC_Product_Simple   $simpleProduct
@@ -132,7 +137,7 @@ class ProductFileExportTest extends AbstractFileExportTest
             "$type product category slugs is incorrectly exported"
         );
 
-        $taxRate = ProductFileExport::getTaxRate($product);
+        $taxRate = ProductFileExport::getTaxRate($product, self::BASE_COUNTRY);
         $this->assertEquals(
             $taxRate->tax_rate / 100,
             $productRow['product.product_price.tax'],
@@ -303,7 +308,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         $this->addImageToProduct($simpleProduct);
         $variableProduct = $this->createVariableProduct($taxRate21);
         $this->addImageToProduct($variableProduct);
-        $noImageProduct = $this->createSimpleProduct($taxRate21);
+        $noImageProduct = $this->createSimpleProduct($taxRate9);
 
         return [$simpleProduct, $variableProduct, $noImageProduct, $taxRate21, $taxRate9];
     }
