@@ -28,6 +28,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
     ];
 
     protected $tax_rate_country_iso = null;
+    protected $price_field = null;
 
     public static function getTaxRate(WC_Product $product, string $country_iso): ?object
     {
@@ -298,17 +299,19 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
     private function exportPrice(array $lineData, WC_Product $product): array
     {
         $lineData['product.product_price.currency_iso3'] = get_woocommerce_currency();
-        $lineData['product.product_price.ppu_wt'] = $product->get_regular_price();
-        $lineData['product.product_discount_price.ppu_wt'] = $product->get_sale_price();
+        $priceField = $this->getPriceField();
+        $lineData['product.product_price.'.$priceField] = $product->get_regular_price();
+        $lineData['product.product_discount_price.'.$priceField] = $product->get_sale_price();
 
         return $lineData;
     }
 
     private function exportConfigurablePrice(array $lineData, WC_Product_Variable $product): array
     {
+        $priceField = $this->getPriceField();
         $lineData['product.product_price.currency_iso3'] = get_woocommerce_currency();
-        $lineData['product.product_price.ppu_wt'] = $product->get_variation_regular_price();
-        $lineData['product.product_discount_price.ppu_wt'] = $product->get_variation_sale_price();
+        $lineData['product.product_price.'.$priceField] = $product->get_variation_regular_price();
+        $lineData['product.product_discount_price.'.$priceField] = $product->get_variation_sale_price();
 
         return $lineData;
     }
@@ -552,5 +555,18 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
         }
 
         return $objectsToGenerate;
+    }
+
+    private function getPriceField(): string
+    {
+        if (is_null($this->price_field)) {
+            if (!wc_tax_enabled()) {
+                $this->price_field = 'ppu_wt'; // b2c sells always with VAT
+            } else {
+                $this->price_field = wc_prices_include_tax() ? 'ppu_wt' : 'ppu';
+            }
+        }
+
+        return $this->price_field;
     }
 }
