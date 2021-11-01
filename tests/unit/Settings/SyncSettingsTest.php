@@ -10,7 +10,7 @@ class SyncSettingsTest extends AbstractTest
     public function testInitialMode()
     {
         $this->assertEquals(
-            StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
+            StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
             StoreKeeperOptions::getSyncMode(),
             'Initial sync mode is incorrect.'
         );

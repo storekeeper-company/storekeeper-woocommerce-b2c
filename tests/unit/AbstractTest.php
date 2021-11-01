@@ -215,6 +215,9 @@ abstract class AbstractTest extends WP_UnitTestCase
 
         $rest_data = new Dot(json_decode($rest->get_body(), true));
         $this->api_url = $rest_data->get('payload.api_url');
+
+        // set to fullsync, because it's order only by default
+        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
     }
 
     protected function getRestWithToken(HookDumpFile $file): WP_REST_Request

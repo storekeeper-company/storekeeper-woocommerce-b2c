@@ -13,9 +13,6 @@ abstract class AbstractTest extends \StoreKeeper\WooCommerce\B2C\UnitTest\Abstra
     {
         parent::setUp();
         $this->setUpRunner();
-
-        // set to fullsync, because it's order only by default
-        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
     }
 
     public function tearDown()
