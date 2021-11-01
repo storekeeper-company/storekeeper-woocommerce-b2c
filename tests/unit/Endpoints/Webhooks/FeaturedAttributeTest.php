@@ -50,15 +50,14 @@ class FeaturedAttributeTest extends AbstractProductTest
 
     public function testOrderOnlySyncMode()
     {
-        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_ORDER_ONLY);
-
         $this->assertFeaturedAttributes(0, 'Test was not ran on an empty environment');
 
         $this->handleHookRequest(
             self::CREATE_DATADUMP_HOOK,
             'ProductsModule::FeaturedAttribute',
             'events',
-            false
+            false,
+            StoreKeeperOptions::SYNC_MODE_ORDER_ONLY
         );
 
         $this->assertTaskCount(0, 'No tasks are supposed to be created');
@@ -81,11 +80,15 @@ class FeaturedAttributeTest extends AbstractProductTest
         $datadump_file,
         $expected_backref,
         $expected_hook_action,
-        bool $process_tasks = true
+        bool $process_tasks = true,
+        ?string $force_sync_mode = null
     ): array {
         // Initialize the connection with the API
         $this->initApiConnection();
 
+        if( !is_null($force_sync_mode)){
+            StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, $force_sync_mode);
+        }
         // Setup the data dump
         $file = $this->getHookDataDump($datadump_file);
 

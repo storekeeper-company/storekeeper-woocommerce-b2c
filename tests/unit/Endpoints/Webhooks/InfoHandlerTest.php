@@ -63,19 +63,19 @@ class InfoHandlerTest extends AbstractTest
          * Check sync mode
          */
         $this->assertEquals(
-            StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
+            StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
             $extra['sync_mode'],
             'Incorrect sync mode'
         );
 
-        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_ORDER_ONLY);
+        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
 
         $response = $this->handleRequest($rest);
         $data = $response->get_data();
         $extra = $data['extra'];
 
         $this->assertEquals(
-            StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
+            StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
             $extra['sync_mode'],
             'Incorrect sync mode'
         );

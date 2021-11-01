@@ -84,9 +84,8 @@ class CouponCodeTest extends AbstractTest
 
     public function testOrderOnlySyncMode()
     {
-        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_ORDER_ONLY);
-
         $this->initApiConnection();
+        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_ORDER_ONLY);
 
         list($__, $webhookPath) = $this->createCouponCode();
         $storekeeperId = $this->getStorekeeperIdFromWebhook($webhookPath);
