@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
+use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
+
 trait FormElementTrait
 {
     final protected function renderFormStart(string $method = 'get', string $action = null): void
@@ -9,7 +11,7 @@ trait FormElementTrait
         $action = esc_url($action ?? add_query_arg([]));
         $method = esc_attr($method);
 
-        echo wp_kses("<form action='$action' method='$method' class='storekeeper-form'>", AbstractPage::ALLOWED_FORM);
+        echo wp_kses("<form action='$action' method='$method' class='storekeeper-form'>", HtmlEscape::ALLOWED_FORM);
     }
 
     final protected function renderFormEnd(): void
@@ -26,7 +28,7 @@ trait FormElementTrait
             $html .= "<input type='hidden' name='$name' value='$value' />";
         }
 
-        echo wp_kses($html, AbstractPage::ALLOWED_INPUT);
+        echo wp_kses($html, HtmlEscape::ALLOWED_INPUT);
     }
 
     final protected function renderFormHeader(string $title): void
@@ -37,7 +39,7 @@ trait FormElementTrait
 <div class="storekeeper-form-group">
     <h2 class="storekeeper-form-header">$title</h2>
 </div>
-HTML, AbstractPage::ALLOWED_COMMON);
+HTML, HtmlEscape::ALLOWED_COMMON);
     }
 
     final protected function renderFormNote(string $note, string $class = ''): void
@@ -49,7 +51,7 @@ HTML, AbstractPage::ALLOWED_COMMON);
 <div class="storekeeper-form-group">
     <p class="storekeeper-form-note $class">$note</p>
 </div>
-HTML, AbstractPage::ALLOWED_COMMON);
+HTML, HtmlEscape::ALLOWED_COMMON);
     }
 
     final protected function renderFormGroup(string $label, string $input): void
@@ -61,12 +63,12 @@ HTML, AbstractPage::ALLOWED_COMMON);
     <label class="storekeeper-form-label">$label</label>
     <div class="storekeeper-form-input">$input</div>
 </div>
-HTML, AbstractPage::ALLOWED_ALL_KNOWN_INPUT);
+HTML, HtmlEscape::ALLOWED_ALL_KNOWN_INPUT);
     }
 
     final protected function renderFormActionGroup(string $actions): void
     {
-        echo wp_kses("<div class='storekeeper-form-action-group'>$actions</div>", AbstractPage::ALLOWED_ALL_KNOWN_INPUT);
+        echo wp_kses("<div class='storekeeper-form-action-group'>$actions</div>", HtmlEscape::ALLOWED_ALL_KNOWN_INPUT);
     }
 
     final protected function renderFormHiddenInput(string $name, string $value = ''): void
@@ -74,7 +76,7 @@ HTML, AbstractPage::ALLOWED_ALL_KNOWN_INPUT);
         $name = esc_attr($name);
         $value = esc_attr($value);
 
-        echo wp_kses("<input type='hidden' name='$name' value='$value'/>", AbstractPage::ALLOWED_INPUT);
+        echo wp_kses("<input type='hidden' name='$name' value='$value'/>", HtmlEscape::ALLOWED_INPUT);
     }
 
     final protected function getFormInput(

@@ -84,6 +84,19 @@ class LoggerFactory
         return $logger;
     }
 
+    public static function createWpAdminPrinter(?WpAdminFormatter $formatter = null, ?int $level = null)
+    {
+        $logger = new Logger('app');
+        $handler = new WpAdminHandler($level ?? self::getLogLevel());
+        if (empty($formatter)) {
+            $formatter = new WpAdminFormatter();
+        }
+        $handler->setFormatter($formatter);
+        $logger->pushHandler($handler);
+
+        return $logger;
+    }
+
     /**
      * @return string ~/logs or writable tmp
      */

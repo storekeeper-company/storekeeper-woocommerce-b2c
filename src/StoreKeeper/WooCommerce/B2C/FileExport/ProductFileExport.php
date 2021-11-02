@@ -246,7 +246,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
 
     private function getSku(WC_Product $product): string
     {
-        $sku = $product->get_sku();
+        $sku = $product->get_sku('edit'); // edit will retund empty sku for varaible is not set directly
         if (empty($sku)) {
             throw new ProductSkuEmptyException($product);
         }

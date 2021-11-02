@@ -5,8 +5,10 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductHelper;
+use StoreKeeper\WooCommerce\B2C\Helpers\ProductSkuGenerator;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -18,13 +20,15 @@ class ExportTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const EXPORT_ACTION = 'export-action';
+    const ACTION_EXPORT = 'export-action';
+    const ACTION_GENERATE_SKU_FROM_TITLE = 'generate-sku-from-title';
 
     public function __construct(string $title, string $slug = '')
     {
         parent::__construct($title, $slug);
 
-        $this->addAction(self::EXPORT_ACTION, [$this, 'exportAction']);
+        $this->addAction(self::ACTION_EXPORT, [$this, 'exportAction']);
+        $this->addAction(self::ACTION_GENERATE_SKU_FROM_TITLE, [$this, 'generateSkuFromTitleAction']);
     }
 
     protected function exportAction()
@@ -36,6 +40,39 @@ class ExportTab extends AbstractTab
             );
         }
         wp_redirect(remove_query_arg(['type', 'action', 'lang']));
+    }
+
+    protected function generateSkuFromTitleAction()
+    {
+        $ids = ProductHelper::getProductsIdsWithoutSku();
+
+        if (!empty($ids)) {
+            $this->renderRestOtherTab = false; // so we can show the results better
+            $logger = LoggerFactory::createWpAdminPrinter(new SkuLogFormatter());
+            $generator = new ProductSkuGenerator($ids);
+            $generator->setLogger($logger);
+            $generator->generateFromTitle();
+
+            $failed = $generator->getFailedIds();
+            $backButton = $this->getFormLink(
+                    remove_query_arg(['type', 'action', 'lang']),
+                    __('Back to export', I18N::DOMAIN),
+                    'button button-link'
+                );
+            if (empty($failed)) {
+                echo '<div class="notice notice-success">';
+                $title = esc_html__('All skus was generated successfully', I18N::DOMAIN);
+                echo "<h4>$title</h4>";
+            } else {
+                echo '<div class="notice notice-warning">';
+                $title = esc_html__('Failed to generate SKU for %s product(s)', I18N::DOMAIN);
+                $title = sprintf($title, count($failed));
+                echo "<h4>$title</h4>";
+            }
+            echo "<p>$backButton</p></div>";
+        } else {
+            wp_redirect(remove_query_arg(['type', 'action', 'lang']));
+        }
     }
 
     protected function getStylePaths(): array
@@ -54,7 +91,7 @@ class ExportTab extends AbstractTab
 
         $this->renderRequestHiddenInputs();
 
-        $this->renderFormHiddenInput('action', self::EXPORT_ACTION);
+        $this->renderFormHiddenInput('action', self::ACTION_EXPORT);
 
         $this->renderInfo();
         $this->renderSelectedAttributes();
@@ -239,6 +276,14 @@ HTML;
         echo "<h4>$title</h4>";
         $expl = esc_html__('They will not be exported, because they cannot be matched back by sku, which will make duplicates when imported back. If the configurable product does not have sku, it\'s variations won\'t be exported as well.', I18N::DOMAIN);
         echo "<p>$expl</p>";
+
+        $input = $this->getFormButton(
+            __('Generate all missing sku from title', I18N::DOMAIN),
+            'button',
+            'action',
+            self::ACTION_GENERATE_SKU_FROM_TITLE
+        );
+        echo "<p>$input</p>";
         echo '</div>';
     }
 

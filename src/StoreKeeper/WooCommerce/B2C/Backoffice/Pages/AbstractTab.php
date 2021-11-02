@@ -4,6 +4,11 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
 abstract class AbstractTab extends AbstractPageLike
 {
+    /**
+     * @var bool if the default render should be called after the action
+     */
+    protected $renderRestOtherTab = true;
+
     public $slug = '';
 
     public $title = '';
@@ -33,14 +38,7 @@ abstract class AbstractTab extends AbstractPageLike
         $this->title = $title;
     }
 
-    public function register(): void
-    {
-        parent::register();
-
-        $this->executeCurrentAction();
-    }
-
-    private function executeCurrentAction(): void
+    public function executeCurrentAction(): void
     {
         $action = $this->getRequestAction();
         if (array_key_exists($action, $this->actions)) {
@@ -53,5 +51,10 @@ abstract class AbstractTab extends AbstractPageLike
         $action = sanitize_key($_REQUEST['action'] ?? '');
 
         return $action;
+    }
+
+    public function isRenderRestOtherTab(): bool
+    {
+        return $this->renderRestOtherTab;
     }
 }
