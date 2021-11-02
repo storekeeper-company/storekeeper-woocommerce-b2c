@@ -86,7 +86,7 @@ class FeaturedAttributeTest extends AbstractProductTest
         // Initialize the connection with the API
         $this->initApiConnection();
 
-        if( !is_null($force_sync_mode)){
+        if (!is_null($force_sync_mode)) {
             StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, $force_sync_mode);
         }
         // Setup the data dump

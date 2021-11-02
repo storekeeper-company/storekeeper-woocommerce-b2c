@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
+use StoreKeeper\WooCommerce\B2C\Exceptions\ProductSkuEmptyException;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExportSpreadSheet;
 use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
@@ -26,6 +27,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
         'simple',
         'variable',
     ];
+    const PRODUCT_SKU_FIELD = 'product.sku';
 
     protected $tax_rate_country_iso = null;
     protected $price_field = null;
@@ -53,7 +55,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
     {
         $paths = [
             'product.type' => 'Type',
-            'product.sku' => 'Product number',
+            self::PRODUCT_SKU_FIELD => 'Product number',
             'title' => 'Product name',
             'summary' => 'Short description',
             'body' => 'Long description',
@@ -158,26 +160,33 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
                     continue;
                 }
 
-                $lineData = [];
+                try {
+                    $lineData = [];
 
-                $lineData = $this->exportGenericInfo($lineData, $product);
-                $lineData = $this->exportTitleAndSku($lineData, $product);
-                $lineData = $this->exportCategories($lineData, $product);
-                $lineData = $this->exportVat($lineData, $product);
-                $lineData = $this->exportSEO($lineData, $product);
-                $lineData = $this->exportStock($lineData, $product);
-                $lineData = $this->exportImage($lineData, $product);
-                $lineData = $this->exportAttributes($lineData, $product);
+                    $lineData = $this->exportGenericInfo($lineData, $product);
+                    $lineData = $this->exportTitleAndSku($lineData, $product);
+                    $lineData = $this->exportCategories($lineData, $product);
+                    $lineData = $this->exportVat($lineData, $product);
+                    $lineData = $this->exportSEO($lineData, $product);
+                    $lineData = $this->exportStock($lineData, $product);
+                    $lineData = $this->exportImage($lineData, $product);
+                    $lineData = $this->exportAttributes($lineData, $product);
 
-                if ($product instanceof WC_Product_Variable) {
-                    $lineData = $this->exportConfigurablePrice($lineData, $product);
-                    $lineData = $this->exportBlueprintField($lineData, $product);
-                    $this->writeLineData($lineData);
+                    if ($product instanceof WC_Product_Variable) {
+                        $lineData = $this->exportConfigurablePrice($lineData, $product);
+                        $lineData = $this->exportBlueprintField($lineData, $product);
+                        $this->writeLineData($lineData);
 
-                    $this->exportAssignedProducts($product);
-                } else {
-                    $lineData = $this->exportPrice($lineData, $product);
-                    $this->writeLineData($lineData);
+                        $this->exportAssignedProducts($product);
+                    } else {
+                        $lineData = $this->exportPrice($lineData, $product);
+                        $this->writeLineData($lineData);
+                    }
+                } catch (ProductSkuEmptyException $e) {
+                    $this->logger->warning('Skipping product because it have no sku', [
+                        'id' => $e->getProduct()->get_id(),
+                        'name' => $e->getProduct()->get_title(),
+                    ]);
                 }
             }
         }
@@ -209,37 +218,46 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
             $product = $object['product'];
             $attributes = $object['attributes'];
 
-            $lineData = [];
-            $lineData = $this->exportGenericInfo($lineData, $product);
-            $lineData = $this->exportAssignedTitleAndSku($lineData, $product, $parentProduct, $attributes);
-            $lineData = $this->exportCategories($lineData, $product);
-            $lineData = $this->exportPrice($lineData, $product);
-            $lineData = $this->exportVat($lineData, $product);
-            $lineData = $this->exportSEO($lineData, $product);
-            $lineData = $this->exportStock($lineData, $product);
-            $lineData = $this->exportImage($lineData, $product);
-            $lineData = $this->exportBlueprintField($lineData, $parentProduct);
-            $lineData = $this->exportConfigurableSku($lineData, $parentProduct);
-            $lineData = $this->exportAssignedAttributes($lineData, $attributes);
+            try {
+                $lineData = [];
+                $lineData = $this->exportGenericInfo($lineData, $product);
+                $lineData = $this->exportAssignedTitleAndSku($lineData, $product, $parentProduct, $attributes);
+                $lineData = $this->exportCategories($lineData, $product);
+                $lineData = $this->exportPrice($lineData, $product);
+                $lineData = $this->exportVat($lineData, $product);
+                $lineData = $this->exportSEO($lineData, $product);
+                $lineData = $this->exportStock($lineData, $product);
+                $lineData = $this->exportImage($lineData, $product);
+                $lineData = $this->exportBlueprintField($lineData, $parentProduct);
+                $lineData = $this->exportConfigurableSku($lineData, $parentProduct);
+                $lineData = $this->exportAssignedAttributes($lineData, $attributes);
 
-            $this->writeLineData($lineData);
+                $this->writeLineData($lineData);
+            } catch (ProductSkuEmptyException $e) {
+                $this->logger->warning('Skipping product variation because it have no sku', [
+                    'id' => $parentProduct->get_id(),
+                    'name' => $parentProduct->get_title(),
+                    'variation_id' => $e->getProduct()->get_id(),
+                    'variation_name' => $e->getProduct()->get_title(),
+                ]);
+            }
         }
     }
 
-    private function ensureProductSku(WC_Product $product)
+    private function getSku(WC_Product $product): string
     {
         $sku = $product->get_sku();
         if (empty($sku)) {
-            $sku = $product->get_title();
+            throw new ProductSkuEmptyException($product);
         }
 
-        return sanitize_title($sku);
+        return $sku;
     }
 
     private function exportTitleAndSku(array $lineData, WC_Product $product): array
     {
         $lineData['title'] = $product->get_title();
-        $lineData['product.sku'] = $this->ensureProductSku($product);
+        $lineData[self::PRODUCT_SKU_FIELD] = $this->getSku($product);
 
         return $lineData;
     }
@@ -327,7 +345,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
         return $this->tax_rate_country_iso;
     }
 
-    public function setTaxRateCountryIso(string $iso): string
+    public function setTaxRateCountryIso(string $iso)
     {
         $this->tax_rate_country_iso = $iso;
     }
@@ -428,13 +446,10 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
         }
 
         $title = $parentProduct->get_title().' - '.implode(' ', $valueLabels);
-        $sku = $product->get_sku();
-        if (empty($sku)) {
-            $sku = $this->ensureProductSku($parentProduct).'_'.implode('-', $values);
-        }
+        $sku = $this->getSku($product);
 
         $lineData['title'] = $title;
-        $lineData['product.sku'] = $sku;
+        $lineData[self::PRODUCT_SKU_FIELD] = $sku;
 
         return $lineData;
     }
@@ -474,7 +489,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
 
     private function exportConfigurableSku(array $lineData, WC_Product_Variable $parentProduct): array
     {
-        $lineData['product.configurable_product.sku'] = $this->ensureProductSku($parentProduct);
+        $lineData['product.configurable_product.sku'] = $this->getSku($parentProduct);
 
         return $lineData;
     }

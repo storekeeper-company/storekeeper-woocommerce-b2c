@@ -6,6 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
+use StoreKeeper\WooCommerce\B2C\Helpers\ProductHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -87,6 +88,11 @@ class ExportTab extends AbstractTab
             $this->renderFormGroup($label, $input);
         }
 
+        $missing_sku = ProductHelper::getAmountOfProductsWithoutSku();
+        $missing_var_sku = ProductHelper::getAmountOfProductVariationsWithoutSku();
+        if ($missing_sku > 0 || $missing_var_sku > 0) {
+            $this->renderProductsWithoutSku($missing_sku, $missing_var_sku);
+        }
         echo '<hr/>';
         $this->renderFormGroup(
             __('Export full package'),
@@ -211,6 +217,28 @@ HTML;
         echo '<p>';
         echo esc_html__('After you complete the full "One Time Export" procedure, be aware that from this moment on the management of your webshop goes through the StoreKeeper BackOffice.', I18N::DOMAIN);
         echo '</p>';
+        echo '</div>';
+    }
+
+    private function renderProductsWithoutSku(int $count, int $var_count)
+    {
+        echo '<div class="notice notice-warning">';
+        $title = '';
+        if ($count) {
+            $title .= sprintf(
+                esc_html__('There are %s product(s) without sku.', I18N::DOMAIN),
+                $count
+            );
+        }
+        if ($var_count) {
+            $title .= ' '.sprintf(
+                esc_html__('There are %s variations(s) without sku.', I18N::DOMAIN),
+                $var_count
+            );
+        }
+        echo "<h4>$title</h4>";
+        $expl = esc_html__('They will not be exported, because they cannot be matched back by sku, which will make duplicates when imported back. If the configurable product does not have sku, it\'s variations won\'t be exported as well.', I18N::DOMAIN);
+        echo "<p>$expl</p>";
         echo '</div>';
     }
 
