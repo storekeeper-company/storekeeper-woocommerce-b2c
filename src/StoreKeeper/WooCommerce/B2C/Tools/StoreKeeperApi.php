@@ -11,9 +11,14 @@ use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 
 class StoreKeeperApi
 {
+    /**
+     * @var string|null
+     */
+    private static $clientName = null;
     /**
      * @var MockAdapter
      */
@@ -64,7 +69,11 @@ class StoreKeeperApi
         /**
          * Creating the FullJsonAdapter and setting the logger.
          */
-        $adapter = new FullJsonAdapter($apiUrl);
+        $adapter = new FullJsonAdapter($apiUrl, [
+            'headers' => [
+                'User-Agent' => self::getClientName(),
+            ],
+        ]);
         $adapter->setLogger(LoggerFactory::create('storekeeper_api'));
 
         /**
@@ -74,7 +83,7 @@ class StoreKeeperApi
         $auth->setSubuser($authData['subaccount'], $authData['user']);
         $auth->setApiKey($authData['apikey']);
         $auth->setAccount($authData['account']);
-        $auth->setClientName('WooCommerceSyncPlugin');
+        $auth->setClientName(self::getClientName());
 
         return self::getApiWrapper($adapter, $auth);
     }
@@ -208,5 +217,27 @@ class StoreKeeperApi
         }
 
         return null;
+    }
+
+    protected static function getClientName(): string
+    {
+        if (is_null(self::$clientName)) {
+            $plugins = get_plugins();
+            $woocommerce_version = '?';
+            if (!empty($plugins['woocommerce/woocommerce.php'])) {
+                $woocommerce_version = $plugins['woocommerce/woocommerce.php']['Version'];
+            }
+
+            self::$clientName =
+                'storekeeper-woocommerce-b2c/'.STOREKEEPER_WOOCOMMERCE_B2C_VERSION
+                .' ('
+                    .'id='.WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_UUID).'; '
+                    .'url='.get_site_url()
+                .') '
+                .' Wordpress/'.get_bloginfo('version')
+                .' WooCommerce/'.$woocommerce_version;
+        }
+
+        return self::$clientName;
     }
 }

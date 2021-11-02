@@ -18,15 +18,15 @@ class StatusTab extends AbstractTab
         StoreKeeperOptions::GUEST_AUTH,
         StoreKeeperOptions::SYNC_AUTH,
         WooCommerceOptions::WOOCOMMERCE_TOKEN,
-        WooCommerceOptions::WOOCOMMERCE_UUID,
     ];
 
     const REQUIRED_PHP_EXTENSION = [
+        'bcmath',
         'json',
+        'mbstring',
         'mysqli',
         'openssl',
         'zip',
-        'bcmath',
     ];
 
     protected function getStylePaths(): array
