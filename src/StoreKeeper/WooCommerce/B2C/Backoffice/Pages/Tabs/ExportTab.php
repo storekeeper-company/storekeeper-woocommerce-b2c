@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
+use Monolog\Logger;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
@@ -48,7 +49,7 @@ class ExportTab extends AbstractTab
 
         if (!empty($ids)) {
             $this->renderRestOtherTab = false; // so we can show the results better
-            $logger = LoggerFactory::createWpAdminPrinter(new SkuLogFormatter());
+            $logger = LoggerFactory::createWpAdminPrinter(new SkuLogFormatter(), Logger::INFO);
             $generator = new ProductSkuGenerator($ids);
             $generator->setLogger($logger);
             $generator->generateFromTitle();

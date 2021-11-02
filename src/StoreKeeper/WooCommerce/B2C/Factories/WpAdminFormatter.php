@@ -10,13 +10,13 @@ class WpAdminFormatter extends NormalizerFormatter
 {
     protected $logLevels = [
         Logger::DEBUG => '#CCCCCC',
-        Logger::INFO => '#28A745',
-        Logger::NOTICE => '#17A2B8',
-        Logger::WARNING => '#FFC107',
-        Logger::ERROR => '#FD7E14',
-        Logger::CRITICAL => '#DC3545',
-        Logger::ALERT => '#821722',
-        Logger::EMERGENCY => '#000000',
+        Logger::INFO => '#72aee6',
+        Logger::NOTICE => '#107484',
+        Logger::WARNING => '#dba617',
+        Logger::ERROR => '#d63638',
+        Logger::CRITICAL => '#4c0f10',
+        Logger::ALERT => '#4c0f10',
+        Logger::EMERGENCY => '#4c0f10',
     ];
 
     final public function format(array $record): string

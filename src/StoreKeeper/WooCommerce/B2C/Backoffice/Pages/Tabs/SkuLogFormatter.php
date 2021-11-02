@@ -54,10 +54,10 @@ class SkuLogFormatter extends \StoreKeeper\WooCommerce\B2C\Factories\WpAdminForm
             $messages[] = esc_html($record['message']);
             if ($record['context']) {
                 if (!empty($record['context']['sku'])) {
-                    $messages[] .= ' '.esc_html__('Sku:').' '.esc_html($record['context']['sku']).' ';
+                    $messages[] .= esc_html__('Sku:').' '.esc_html($record['context']['sku']);
                 }
                 if (!empty($record['context']['error'])) {
-                    $messages[] .= ' '.esc_html__('Error:').' '.esc_html($record['context']['error']).' ';
+                    $messages[] .= esc_html__('Error:').' '.esc_html($record['context']['error']);
                 }
             }
             $output .= $this->applyColor($record['level'], implode('. ', $messages).'.');

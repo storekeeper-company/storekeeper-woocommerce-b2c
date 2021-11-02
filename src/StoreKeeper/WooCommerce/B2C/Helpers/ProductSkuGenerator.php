@@ -58,7 +58,7 @@ class ProductSkuGenerator implements LoggerAwareInterface
                         $product->set_sku($new_sku);
                         $product->save();
 
-                        $this->logger->info(__('Sku was set for products', I18N::DOMAIN), $context + [
+                        $this->logger->info(__('Sku was set for product', I18N::DOMAIN), $context + [
                             'sku' => $new_sku,
                         ]);
                     } catch (\Throwable $e) {
@@ -70,7 +70,7 @@ class ProductSkuGenerator implements LoggerAwareInterface
                     }
                 } else {
                     $this->failed_ids[] = $id;
-                    $this->logger->notice(__('Product already has sku set', I18N::DOMAIN), $context + [
+                    $this->logger->warning(__('Product already has sku set', I18N::DOMAIN), $context + [
                         'sku' => $current_sku,
                     ]);
                 }

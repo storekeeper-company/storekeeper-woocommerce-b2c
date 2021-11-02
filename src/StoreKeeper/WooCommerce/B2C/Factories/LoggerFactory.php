@@ -86,7 +86,7 @@ class LoggerFactory
 
     public static function createWpAdminPrinter(?WpAdminFormatter $formatter = null, ?int $level = null)
     {
-        $logger = new Logger('app');
+        $logger = new Logger('storekeeper');
         $handler = new WpAdminHandler($level ?? self::getLogLevel());
         if (empty($formatter)) {
             $formatter = new WpAdminFormatter();
