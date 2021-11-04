@@ -20,9 +20,15 @@ class SkuLogFormatter extends \StoreKeeper\WooCommerce\B2C\Factories\WpAdminForm
                 if ($this->isNextProduct($id)) {
                     if ($product instanceof \WC_Product_Variation && $product->get_parent_id()) {
                         $parent_id = $product->get_parent_id();
-                        $parent_title = esc_html($product->get_parent_data()['title']);
+                        $parent_title = $this->getTitleWithIdFallback(
+                            $product->get_parent_data()['title'],
+                            $parent_id
+                        );
                         $url = $this->getProductPageUrl($parent_id);
-                        $title = esc_html($product->get_attribute_summary());
+                        $title = $this->getTitleWithIdFallback(
+                            $product->get_attribute_summary(),
+                            $product->get_id()
+                        );
                         $output .=
                             '<h3>'
                             .sprintf(
@@ -32,7 +38,7 @@ class SkuLogFormatter extends \StoreKeeper\WooCommerce\B2C\Factories\WpAdminForm
                             ."<a href=\"$url\" target=\"_blank\">$parent_title</a>"
                             .'</h3>';
                     } else {
-                        $title = esc_html($product->get_title());
+                        $title = $this->getTitleWithIdFallback($product->get_title(), $product->get_id());
                         $url = $this->getProductPageUrl($id);
                         $output .=
                             '<h3>'
@@ -82,5 +88,18 @@ class SkuLogFormatter extends \StoreKeeper\WooCommerce\B2C\Factories\WpAdminForm
         $url = esc_attr(admin_url('post.php?action=edit&post='.$url_id));
 
         return $url;
+    }
+
+    protected function getTitleWithIdFallback($title, int $product_id): string
+    {
+        if (empty($title)) {
+            $title = sprintf(
+                __('Product with empty title (id=%s)'),
+                $product_id
+            );
+        }
+        $title = esc_html($title);
+
+        return $title;
     }
 }
