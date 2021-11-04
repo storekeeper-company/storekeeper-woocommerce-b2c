@@ -97,7 +97,7 @@ abstract class AbstractExport
                 $wpObject = new $function($this->id);
                 $this->debug('Found object', $wpObject);
                 $this->processItem($wpObject);
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $exceptions[] = $exception;
             }
         } else {
@@ -116,11 +116,11 @@ abstract class AbstractExport
                     $this->debug('['.count($wpArray).'/'.$index.'] [multiple] Export object: '.$wpObject);
                     try {
                         $this->processItem($wpObject);
-                    } catch (\Exception $exception) {
+                    } catch (\Throwable $exception) {
                         $exceptions[] = $exception;
                     }
                 }
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $exceptions[] = $exception;
             }
         }

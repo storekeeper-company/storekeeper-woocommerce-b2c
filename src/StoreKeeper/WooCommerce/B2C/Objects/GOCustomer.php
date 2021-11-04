@@ -95,7 +95,7 @@ class GOCustomer extends \WC_Customer
             try {
                 $this->go_api->getModule('ShopModule')->findShopCustomerBySubuserEmail(['email' => $email]);
                 $exists = true;
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $exists = false;
             }
         }

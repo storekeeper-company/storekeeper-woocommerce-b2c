@@ -138,7 +138,7 @@ class LoggerFactory
     /**
      * @param $custom_metadata
      */
-    public static function generateMetadata(string $key, \Exception $exception, $custom_metadata): array
+    public static function generateMetadata(string $key, \Throwable $exception, $custom_metadata): array
     {
         $metadata = [
             'error-key' => $key,

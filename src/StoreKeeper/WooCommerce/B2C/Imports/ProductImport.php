@@ -1184,10 +1184,10 @@ SQL;
                     $attribute_option['id']
                 );
 
-                $attributeOptionsOrder = $attribute_option['order'] ?? 0;
-                Attributes::updateAttributeOptionOrder($attribute_options_id, $attributeOptionsOrder);
-
                 if ($attribute_options_id) {
+                    $attributeOptionsOrder = $attribute_option['order'] ?? 0;
+                    Attributes::updateAttributeOptionOrder($attribute_options_id, $attributeOptionsOrder);
+
                     $configurable_attribute_array[$term_name][] = $attribute_options_id;
                 }
             }
