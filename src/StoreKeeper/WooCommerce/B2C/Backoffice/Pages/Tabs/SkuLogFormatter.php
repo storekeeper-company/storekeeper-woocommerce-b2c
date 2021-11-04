@@ -18,9 +18,10 @@ class SkuLogFormatter extends \StoreKeeper\WooCommerce\B2C\Factories\WpAdminForm
             if ($product instanceof \WC_Product) {
                 $id = (int) $product->get_id();
                 if ($this->isNextProduct($id)) {
-                    if ($product instanceof \WC_Product_Variation) {
+                    if ($product instanceof \WC_Product_Variation && $product->get_parent_id()) {
+                        $parent_id = $product->get_parent_id();
                         $parent_title = esc_html($product->get_parent_data()['title']);
-                        $url = $this->getProductPageUrl($product->get_parent_id());
+                        $url = $this->getProductPageUrl($parent_id);
                         $title = esc_html($product->get_attribute_summary());
                         $output .=
                             '<h3>'

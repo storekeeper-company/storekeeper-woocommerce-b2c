@@ -49,12 +49,22 @@ class ProductSkuGenerator implements LoggerAwareInterface
                 $current_sku = $product->get_sku('edit');
                 if (empty($current_sku)) {
                     $this->logger->info(__('Product has empty sku', I18N::DOMAIN), $context);
-                    $title = $product->get_title();
-                    if ($product instanceof \WC_Product_Variation) {
-                        $title .= ' '.$product->get_attribute_summary();
-                    }
-                    $new_sku = sanitize_title($title);
                     try {
+                        $title = $product->get_title();
+                        if ($product instanceof \WC_Product_Variation) {
+                            $parentProduct = new \WC_Product($product->get_parent_id());
+                            $parentSku = $parentProduct->get_sku();
+                            if (!empty($parentSku)) {
+                                $new_sku = $parentSku.'-'.sanitize_title($product->get_attribute_summary());
+                            } else {
+                                $new_sku = sanitize_title($title.' '.$product->get_attribute_summary());
+                            }
+                        } else {
+                            $new_sku = sanitize_title($title);
+                        }
+                        if (empty($new_sku)) {
+                            throw new \Exception('Generating from title resulted in empty sku');
+                        }
                         $product->set_sku($new_sku);
                         $product->save();
 
@@ -69,7 +79,10 @@ class ProductSkuGenerator implements LoggerAwareInterface
                         ]);
                     }
                 } else {
-                    $this->failed_ids[] = $id;
+                    // resave it, (fixes random plugins saving it only the post meta instead of wordpress table)
+                    $product->set_sku($current_sku);
+                    $product->save();
+
                     $this->logger->warning(__('Product already has sku set', I18N::DOMAIN), $context + [
                         'sku' => $current_sku,
                     ]);
