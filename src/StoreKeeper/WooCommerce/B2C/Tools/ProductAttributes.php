@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
 
 class ProductAttributes
 {
@@ -138,6 +139,26 @@ class ProductAttributes
         }
 
         return $attributeData;
+    }
+
+    public static function getCustomProductAttributeOptions()
+    {
+        global $wpdb;
+
+        $query = ProductQueryBuilder::getCustomProductAttributes();
+        $results = $wpdb->get_results($query);
+        foreach ($results as $result) {
+            if ($attributes = unserialize($result->attributes)) {
+                if (!empty($attributes)) {
+                    foreach ($attributes as $attributeName => $attribute) {
+                        if (0 === $attribute['is_taxonomy']) {
+                            $attribute['post_id'] = $result->ID;
+                            yield $attributeName => $attribute;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static function setConfigurableAttributes(\WC_Product $newProduct, Dot $product, Dot $optionsConfig)

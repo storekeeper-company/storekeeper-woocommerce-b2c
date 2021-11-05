@@ -14,8 +14,6 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeImport;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeOptionImport;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
-use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
-use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use function wc_create_attribute;
 use function wc_get_attribute;
 use WC_Product_Variation;
@@ -28,7 +26,9 @@ class Attributes
     private const slug_prefix = 'sk_';
 
     private const TYPE_TEXT = 'text';
-    private const TYPE_SELECT = 'select';
+    public const TYPE_SELECT = 'select';
+
+    public const TYPE_DEFAULT = self::TYPE_SELECT;
 
     const DEFAULT_ARCHIVED_SETTING = true;
 
@@ -37,7 +37,7 @@ class Attributes
         $this->logger = $logger ?? new NullLogger();
     }
 
-    public static function getDefaultType()
+    protected static function getDefaultType()
     {
         // If the swatches plugin is active.
         if (PluginStatus::isEnabled(PluginStatus::WOO_VARIATION_SWATCHES)) {
@@ -66,32 +66,7 @@ class Attributes
         }
     }
 
-    private static function getProductAttributeOptionsMap(): array
-    {
-        $map = [];
-
-        $next = true;
-        $index = 0;
-        while ($next) {
-            $attributes = Attributes::getProductAttributesAtIndex($index++);
-            $next = (bool) $attributes;
-
-            if (is_array($attributes)) {
-                foreach ($attributes as $attributeName => $attribute) {
-                    if (0 === $attribute['is_taxonomy']) {
-                        if (empty($map[$attributeName])) {
-                            $attributeOptions = wc_get_text_attributes($attribute['value']);
-                            $map[$attributeName] = count($attributeOptions) > 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $map;
-    }
-
-    private static function getGenericAttributeOptionsMap(): array
+    public static function getAttributeOptionsMap(): array
     {
         $map = [];
 
@@ -103,94 +78,9 @@ class Attributes
         return $map;
     }
 
-    /**
-     * Returns a map with if the attribute have options or not.
-     */
-    public static function getAttributesWithOptionsMap(): array
-    {
-        return array_merge(
-            self::getProductAttributeOptionsMap(),
-            self::getGenericAttributeOptionsMap()
-        );
-    }
-
-    private static function getGenericAttributes(): array
-    {
-        return array_map(
-            function ($item) {
-                return [
-                    'id' => $item->attribute_id,
-                    'name' => AttributeExport::getAttributeKey(
-                        $item->attribute_name,
-                        AttributeExport::TYPE_SYSTEM_ATTRIBUTE
-                    ),
-                    'label' => $item->attribute_label,
-                    'options' => true,
-                ];
-            },
-            wc_get_attribute_taxonomies()
-        );
-    }
-
-    private static function getProductAttributes(): array
-    {
-        $attributeMap = [];
-
-        $next = true;
-        $index = 0;
-        while ($next) {
-            $attributes = Attributes::getProductAttributesAtIndex($index++);
-            $next = (bool) $attributes;
-
-            if (is_array($attributes)) {
-                foreach ($attributes as $attributeName => $attribute) {
-                    $attributeOptions = wc_get_text_attributes($attribute['value']);
-                    if (0 === $attribute['is_taxonomy']) {
-                        if (empty($attributeMap[$attributeName])) {
-                            $attributeMap[$attributeName] = [
-                                'id' => 0,
-                                'name' => AttributeExport::getAttributeKey(
-                                    $attributeName,
-                                    AttributeExport::TYPE_CUSTOM_ATTRIBUTE
-                                ),
-                                'label' => $attribute['name'],
-                                'options' => false,
-                            ];
-                        }
-
-                        // Only check `options` it its false
-                        if (!$attributeMap[$attributeName]['options']) {
-                            $attributeMap[$attributeName]['options'] = count($attributeOptions) > 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        return array_values($attributeMap);
-    }
-
-    public static function getAllAttributes(): array
-    {
-        return array_merge(
-            self::getGenericAttributes(),
-            self::getProductAttributes()
-        );
-    }
-
     protected function ensureAttribute($attribute_id)
     {
-        // Check if attribute exists.
-        $attribute = WooCommerceAttributeMetadata::listAttributesByMetadata(
-            [
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $attribute_id,
-                'single' => true,
-            ]
-        );
-
-        // if not > import attribute
-        if (false === $attribute) {
+        if (!self::isAttributeLinkedToBackend($attribute_id)) {
             $attributeImport = new AttributeImport(
                 [
                     'storekeeper_id' => $attribute_id,
@@ -265,6 +155,24 @@ class Attributes
         return false;
     }
 
+    public static function isAttributeLinkedToBackend(int $attribute_id)
+    {
+        $attribute = self::getAttribute($attribute_id);
+
+        return !empty($attribute);
+    }
+
+    public static function getAttributeSlug(int $attribute_id): ?string
+    {
+        $attribute = self::getAttribute($attribute_id);
+
+        if (!empty($attribute)) {
+            return $attribute->slug;
+        }
+
+        return null;
+    }
+
     /**
      * @param $content_var
      *
@@ -275,10 +183,6 @@ class Attributes
     public static function updateAttributeAndOptionFromContentVar($content_var)
     {
         $attribute_id = $content_var['attribute_id'];
-        // Set the attributes' order/weight even if there is no attribute option id
-        if (array_key_exists('attribute_order', $content_var)) {
-            WooCommerceAttributeMetadata::setMetadata($attribute_id, 'attribute_order', $content_var['attribute_order']);
-        }
         // If there is no attribute_options_id it should to be stored as an attribute within the system,
         // But it should be set on the product its self. so it can be skipped here.
         if (array_key_exists('attribute_option_id', $content_var)) {
@@ -327,19 +231,19 @@ class Attributes
             throw new Exception('Missing required data attribute_id, slug or name, has now only: '.json_encode($data));
         }
 
-        $attributeCheck = self::getAttribute($data['attribute_id']);
-        if (false === $attributeCheck) {
-            $attributeCheck = self::getAttributeBySlug($data['slug']);
+        $existingAttribute = self::getAttribute($data['attribute_id']);
+        if (false === $existingAttribute) {
+            $existingAttribute = self::getAttributeBySlug($data['slug']);
         }
 
-        $isNew = !$attributeCheck;
+        $isNew = !$existingAttribute;
         $data['name'] = substr($data['name'], 0, 30);
 
         if (!array_key_exists('type', $data)) {
             if ($isNew) {
                 $data['type'] = 'text';
             } else {
-                $data['type'] = $attributeCheck->type;
+                $data['type'] = $existingAttribute->type;
             }
         }
 
@@ -351,18 +255,18 @@ class Attributes
             // Create the attribute in woocommerce
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(wc_create_attribute($data));
         } else {
-            $attribute = WordpressExceptionThrower::throwExceptionOnWpError(wc_get_attribute($attributeCheck->id));
+            $attribute = WordpressExceptionThrower::throwExceptionOnWpError(wc_get_attribute($existingAttribute->id));
             if ($attribute) {
                 $data['has_archives'] = $attribute->has_archives;
             }
 
             // Update the attribute in woocommerce
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
-                wc_update_attribute($attributeCheck->id, $data)
+                wc_update_attribute($existingAttribute->id, $data)
             );
         }
 
-        WooCommerceAttributeMetadata::setMetadata($attribute_id, 'storekeeper_id', $data['attribute_id']);
+        self::setStoreKeeperIdForAttribute($attribute_id, $data['attribute_id']);
     }
 
     /**
@@ -513,7 +417,7 @@ SQL
      * @param $term_id
      * @param $image_url
      */
-    public static function setAttributeOptionImage($term_id, $image_url)
+    protected static function setAttributeOptionImage($term_id, $image_url)
     {
         // Import the image if the Swatches plugin is enabled
         // OR when the plugin is being tested.
@@ -532,7 +436,7 @@ SQL
     /**
      * @param $term_id
      */
-    public static function unsetAttributeOptionImage($term_id)
+    protected static function unsetAttributeOptionImage($term_id)
     {
         if (PluginStatus::isWoocommerceVariationSwatchesEnabled() || PluginStatus::isStoreKeeperSwatchesEnabled()) {
             delete_term_meta($term_id, 'product_attribute_image'); // no image found > delete link
@@ -652,30 +556,19 @@ SQL
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(wc_create_attribute($update_arguments));
         }
 
-        WooCommerceAttributeMetadata::setMetadata($attribute_id, 'storekeeper_id', $dotObject->get('id'));
-        WooCommerceAttributeMetadata::setMetadata($attribute_id, 'attribute_order', $dotObject->get('order'));
+        self::setStoreKeeperIdForAttribute($attribute_id, $dotObject->get('id'));
 
         return $attribute_id;
+    }
+
+    protected static function setStoreKeeperIdForAttribute(int $attribute_id, int $storekeeper_id)
+    {
+        WooCommerceAttributeMetadata::setMetadata($attribute_id, 'storekeeper_id', $storekeeper_id);
     }
 
     public static function updateAttributeOptionOrder(int $optionTermId, int $attributeOptionOrder): void
     {
         update_term_meta($optionTermId, 'order', $attributeOptionOrder);
-    }
-
-    public static function getProductAttributesAtIndex(int $index): ?array
-    {
-        global $wpdb;
-
-        $query = ProductQueryBuilder::getProductAttributeArray($index);
-        $results = $wpdb->get_results($query);
-        if ($result = current($results)) {
-            if ($attribute = unserialize($result->attributes)) {
-                return $attribute;
-            }
-        }
-
-        return null;
     }
 
     /**

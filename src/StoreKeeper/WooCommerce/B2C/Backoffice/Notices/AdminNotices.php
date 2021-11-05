@@ -3,32 +3,36 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
-use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\StringFunctions;
-use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
-use StoreKeeper\WooCommerce\B2C\Tools\WooCommerceAttributeMetadata;
 use Throwable;
 
 class AdminNotices
 {
     public function emitNotices()
     {
-        $this->connectionCheck();
-        $this->StoreKeeperSyncCheck();
-        $this->lastCronCheck();
-        $this->checkCronRunner();
+        try {
+            $this->connectionCheck();
+            $this->lastCronCheck();
+            $this->checkCronRunner();
 
-        $this->StoreKeeperNewProduct();
-        $this->StoreKeeperProductCheck();
-        $this->StoreKeeperProductCategoryCheck();
-        $this->StoreKeeperProductTagCheck();
-        $this->StoreKeeperProductAttributeCheck();
-        $this->StoreKeeperProductAttributeTermCheck();
-        $this->StoreKeeperOrderCheck();
+            $this->StoreKeeperNewProduct();
+            $this->StoreKeeperProductCheck();
+            $this->StoreKeeperProductCategoryCheck();
+            $this->StoreKeeperProductTagCheck();
+            $this->StoreKeeperProductAttributeCheck();
+            $this->StoreKeeperProductAttributeTermCheck();
+            $this->StoreKeeperOrderCheck();
+        } catch (\Throwable $e) {
+            AdminNotices::showError(
+                sprintf(__('Failed to build notices: %s.', I18N::DOMAIN), $e->getMessage()),
+                $e->getTraceAsString()
+            );
+        }
     }
 
     private function StoreKeeperNewProduct()
@@ -106,16 +110,17 @@ class AdminNotices
         }
     }
 
+    /**
+     * Show notification for Product->Attribute->edit if the attribute was synchronized from backend.
+     */
     private function StoreKeeperProductAttributeCheck()
     {
         if ('product' === $this->getRequestPostType()
-            && 'product_attributes' === $_GET['page'] ?? ''
-            && isset($_GET['edit'])
+            && 'product_attributes' === ($_GET['page'] ?? '')
+            && intval($_GET['edit'])
+            && Attributes::isAttributeLinkedToBackend($_GET['edit'])
         ) {
-            $goid = WooCommerceAttributeMetadata::getMetadata((int) $_GET['edit'], 'storekeeper_id', true);
-            if ($goid) {
-                $this->isSyncedFromBackend(__('attribute', I18N::DOMAIN));
-            }
+            $this->isSyncedFromBackend(__('attribute', I18N::DOMAIN));
         }
     }
 
@@ -153,129 +158,6 @@ class AdminNotices
         }
     }
 
-    private function StoreKeeperSyncCheck()
-    {
-        global $post_type, $pagenow;
-
-        if ($this->isProductCategoryPage()) {
-            if ($fistLine = $this->taskHasError('category', $this->getRequestTagId())) {
-                $this->hasTaskError(__('category', I18N::DOMAIN), $fistLine);
-            }
-        }
-
-        if ($this->isProductTagPage()) {
-            if ($fistLine = $this->taskHasError('tag', $this->getRequestTagId())) {
-                $this->hasTaskError(__('tag', I18N::DOMAIN), $fistLine);
-            }
-        }
-
-        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && 'product' === $post_type) {
-            if ($fistLine = $this->taskHasError('product', $this->getRequestPostId())) {
-                $this->hasTaskError(__('product', I18N::DOMAIN), $fistLine);
-            }
-        }
-
-        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && 'shop_order' === $post_type) {
-            if ($fistLine = $this->taskHasError('order', $this->getRequestPostId())) {
-                $this->hasTaskError(__('order', I18N::DOMAIN), $fistLine);
-            }
-        }
-
-        if ('admin.php' === $pagenow
-            && 'wc-settings' === $_GET['page'] ?? ''
-            && 'storekeeper-woocommerce-b2c' === $_GET['tab'] ?? ''
-        ) {
-            if ($fistLine = $this->taskHasError('full')) {
-                $this->hasTaskError(__('full', I18N::DOMAIN), $fistLine);
-            }
-        }
-    }
-
-    /**
-     * @param $type
-     * @param $id
-     *
-     * @return bool
-     *
-     * @throws WordpressException
-     */
-    private function taskHasError($type, $id = 0)
-    {
-        switch ($type) {
-            case 'category':
-                $delTask = TaskHandler::getScheduledTask(TaskHandler::CATEGORY_DELETE, $id);
-                $impTask = TaskHandler::getScheduledTask(TaskHandler::CATEGORY_IMPORT, $id);
-                $content = $this->getTaskBody($delTask).$this->getTaskBody($impTask);
-                if (!empty($content)) {
-                    return esc_html(strtok($content, "\n"));
-                }
-
-                return false;
-                break;
-            case 'tag':
-                $delTask = TaskHandler::getScheduledTask(TaskHandler::TAG_DELETE, $id);
-                $impTask = TaskHandler::getScheduledTask(TaskHandler::TAG_IMPORT, $id);
-                $content = $this->getTaskBody($delTask).$this->getTaskBody($impTask);
-                if (!empty($content)) {
-                    return esc_html(strtok($content, "\n"));
-                }
-
-                return false;
-                break;
-            case 'product':
-                $delTask = TaskHandler::getScheduledTask(TaskHandler::PRODUCT_DELETE, $id);
-                $impTask = TaskHandler::getScheduledTask(TaskHandler::PRODUCT_IMPORT, $id);
-                $content = $this->getTaskBody($delTask).$this->getTaskBody($impTask);
-                if (!empty($content)) {
-                    return esc_html(strtok($content, "\n"));
-                }
-
-                return false;
-                break;
-            case 'order':
-                $delTask = TaskHandler::getScheduledTask(TaskHandler::ORDERS_DELETE, $id);
-                $impTask = TaskHandler::getScheduledTask(TaskHandler::ORDERS_IMPORT, $id);
-                $expTask = TaskHandler::getScheduledTask(TaskHandler::ORDERS_EXPORT, $id);
-                $content = $this->getTaskBody($delTask).$this->getTaskBody($impTask).$this->getTaskBody($expTask);
-                if (!empty($content)) {
-                    return esc_html(strtok($content, "\n"));
-                }
-                break;
-            case 'full':
-                $impTask = TaskHandler::getScheduledTask(TaskHandler::FULL_IMPORT);
-                $content = $this->getTaskBody($impTask);
-                if (!empty($content)) {
-                    return esc_html(strtok($content, "\n"));
-                }
-                break;
-            default:
-                return false;
-        }
-    }
-
-    private function getTaskBody($task)
-    {
-        if (empty($task['error_output'])) {
-            return '';
-        }
-
-        return $task['error_output'];
-    }
-
-    private function hasTaskError($type, $fistLine = false)
-    {
-        $message = __(
-            'This %s has a failing task, check the logs of the tasks or ask your system administrator to check out the problem.',
-            I18N::DOMAIN
-        );
-        $message = sprintf($message, $type);
-        if ($fistLine) {
-            $message = $message.' '.__('With as first line', I18N::DOMAIN);
-            $message = "<b>$message:</b><br>$fistLine";
-        }
-        AdminNotices::showError($message);
-    }
-
     private function isSyncedFromBackend($type)
     {
         $message = __(
@@ -293,7 +175,7 @@ class AdminNotices
             <h4>
                 StoreKeeper for Woocommerce:
                 <?php
-                echo esc_html($message); ?>
+                echo nl2br(esc_html($message)); ?>
             </h4>
         </div>
         <?php
@@ -310,7 +192,7 @@ class AdminNotices
             <?php
             if (!empty($description)) {
                 echo '<p>';
-                echo esc_html($description);
+                echo nl2br(esc_html($description));
                 echo '</p>';
             } ?>
         </div>

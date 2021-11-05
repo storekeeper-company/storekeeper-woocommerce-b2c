@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
-use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Base36Coder;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\BlueprintExport;
@@ -12,8 +11,6 @@ use WC_Product_Variable;
 
 class ProductBlueprintFileExport extends AbstractCSVFileExport
 {
-    use TraitFeaturedAttributeName;
-
     public function getType(): string
     {
         return FileExportTypeHelper::PRODUCT_BLUEPRINT;
@@ -28,8 +25,8 @@ class ProductBlueprintFileExport extends AbstractCSVFileExport
             'title_pattern' => 'Title pattern',
         ];
 
-        foreach (Attributes::getAllAttributes() as $attribute) {
-            $name = $this->ensureAttributeName($attribute['name']);
+        foreach (AttributeExport::getAllAttributes() as $attribute) {
+            $name = $attribute['name'];
             $label = $attribute['label'];
             $paths[$this->getConfigurablePath($name)] = "$label (Configurable)";
             $paths[$this->getSynchronizedPath($name)] = "$label (Synchronized)";
@@ -112,7 +109,6 @@ class ProductBlueprintFileExport extends AbstractCSVFileExport
     {
         foreach ($product->get_attributes() as $attribute) {
             $name = AttributeExport::getProductAttributeKey($attribute);
-            $name = $this->ensureAttributeName($name);
             $lineData[$this->getConfigurablePath($name)] = $attribute->get_variation();
             $lineData[$this->getSynchronizedPath($name)] = !$attribute->get_variation();
         }

@@ -17,8 +17,6 @@ use WC_Tax;
 
 class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpreadSheet
 {
-    use TraitFeaturedAttributeName;
-
     const TYPE_SIMPLE = 'simple';
     const TYPE_CONFIGURABLE = 'configurable';
     const TYPE_ASSIGNED = 'configurable_assign';
@@ -101,10 +99,9 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
             'shop_products.main.relation_limited' => 'Sales relation limited',
         ];
 
-        foreach (Attributes::getAllAttributes() as $attribute) {
+        foreach (AttributeExport::getAllAttributes() as $attribute) {
             $label = $attribute['label'];
-            $name = $this->ensureAttributeName($attribute['name']);
-            $encodedName = Base36Coder::encode($name);
+            $encodedName = Base36Coder::encode($attribute['name']);
 
             $paths["content_vars.encoded__$encodedName.value"] = "$label (raw)";
             $paths["content_vars.encoded__$encodedName.value_label"] = "$label (label)";
@@ -398,31 +395,33 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
     private function exportAttributes(array $lineData, WC_Product $product): array
     {
         foreach ($product->get_attributes() as $alias => $attribute) {
-            $name = $this->ensureAttributeName(
-                AttributeExport::getProductAttributeKey($attribute)
-            );
+            $name = AttributeExport::getProductAttributeKey($attribute);
             $encodedName = Base36Coder::encode($name);
-            if (self::attributeWithOptions($alias)) {
+            $isCustomAttribute = 0 === $attribute->get_id();
+            if (!$isCustomAttribute) {
                 $labelPath = "content_vars.encoded__$encodedName.value_label";
                 $valuePath = "content_vars.encoded__$encodedName.value";
 
-                $option = current($attribute->get_options());
-                if (0 === $attribute->get_id()) {
-                    var_dump($attribute);
-                    $lineData[$labelPath] = $option;
-                    $lineData[$valuePath] = sanitize_title($option);
-                } else {
-                    $terms = get_terms(
-                        $alias,
-                        [
-                            'hide_empty' => false,
-                            'include' => [$option],
-                        ]
-                    );
-                    $term = array_shift($terms);
-                    $lineData[$labelPath] = $term->name;
-                    $lineData[$valuePath] = $term->slug;
+                // only take the first option, backend does not handle multiple options on one
+                $hasMultiple = count($attribute->get_options());
+                if ($hasMultiple) {
+                    $this->logger->warning('Product has multiple options, choosing first', [
+                        'id' => $product->get_id(),
+                        'name' => $attribute->get_name(),
+                        'options' => $attribute->get_options(),
+                    ]);
                 }
+                $option = current($attribute->get_options());
+                $terms = get_terms(
+                    $alias,
+                    [
+                        'hide_empty' => false,
+                        'include' => [$option],
+                    ]
+                );
+                $term = array_shift($terms);
+                $lineData[$labelPath] = $term->name;
+                $lineData[$valuePath] = $term->slug;
             } else {
                 $lineData["content_vars.encoded__$encodedName.value"] = current($attribute->get_options());
             }
@@ -462,8 +461,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
             $value = $attribute['value'];
             $valueLabel = $attribute['value_label'];
 
-            $name = $this->ensureAttributeName($attribute['name']);
-            $encodedName = Base36Coder::encode($name);
+            $encodedName = Base36Coder::encode($attribute['name']);
             $labelPath = "content_vars.encoded__$encodedName.value_label";
             $valuePath = "content_vars.encoded__$encodedName.value";
 
@@ -474,9 +472,12 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
         return $lineData;
     }
 
-    public static function attributeWithOptions($name)
+    public static function isAttributeWithOptions($name)
     {
-        return array_key_exists($name, Attributes::getAttributesWithOptionsMap());
+        return array_key_exists(
+            $name,
+            Attributes::getAttributeOptionsMap()
+        );
     }
 
     private function exportBlueprintField(array $lineData, WC_Product_Variable $product): array

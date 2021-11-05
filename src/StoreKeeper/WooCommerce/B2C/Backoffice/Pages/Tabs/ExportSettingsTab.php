@@ -7,7 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
-use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
+use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 
 class ExportSettingsTab extends AbstractTab
 {
@@ -109,7 +109,7 @@ class ExportSettingsTab extends AbstractTab
         $options = [];
         $options[self::NOT_MAPPED_VALUE] = "------ $notMapped ------";
 
-        foreach (Attributes::getAllAttributes() as $attribute) {
+        foreach (AttributeExport::getAllAttributes() as $attribute) {
             $options[$attribute['name']] = $attribute['label'];
         }
 

@@ -3,7 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Options;
 
 use StoreKeeper\WooCommerce\B2C\I18N;
-use StoreKeeper\WooCommerce\B2C\Tools\WooCommerceAttributeMetadata;
+use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 
 class FeaturedAttributeOptions extends AbstractOptions
 {
@@ -15,8 +15,6 @@ class FeaturedAttributeOptions extends AbstractOptions
     const ALIAS_PRINTABLE_SHORTNAME = 'printable_shortname';
     const ALIAS_NEEDS_WEIGHT_ON_KASSA = 'needs_weight_on_kassa';
     const ALIAS_NEEDS_DESCRIPTION_ON_KASSA = 'needs_description_on_kassa';
-    const ALIAS_DURATION_IN_SECONDS = 'duration_in_seconds';
-
     const ALIAS_MINIMAL_ORDER_QTY = 'minimal_order_qty';
     const ALIAS_IN_PACKAGE_QTY = 'in_package_qty';
     const ALIAS_IN_BOX_QTY = 'in_box_qty';
@@ -29,13 +27,32 @@ class FeaturedAttributeOptions extends AbstractOptions
         self::ALIAS_PRINTABLE_SHORTNAME,
         self::ALIAS_NEEDS_WEIGHT_ON_KASSA,
         self::ALIAS_NEEDS_DESCRIPTION_ON_KASSA,
-        self::ALIAS_DURATION_IN_SECONDS,
+        self::ALIAS_UNIT_WEIGHT_IN_G,
         self::ALIAS_MINIMAL_ORDER_QTY,
         self::ALIAS_IN_PACKAGE_QTY,
         self::ALIAS_IN_BOX_QTY,
         self::ALIAS_IN_OUTER_QTY,
-        self::ALIAS_UNIT_WEIGHT_IN_G,
     ];
+
+    public static function isOptionsAttribute(string $featured_alias)
+    {
+        return self::ALIAS_BRAND === $featured_alias;
+    }
+
+    public static function isBoolAttribute(string $featured_alias)
+    {
+        return self::ALIAS_NEEDS_WEIGHT_ON_KASSA === $featured_alias ||
+            self::ALIAS_NEEDS_DESCRIPTION_ON_KASSA === $featured_alias;
+    }
+
+    public static function isIntAttribute(string $featured_alias)
+    {
+        return self::ALIAS_UNIT_WEIGHT_IN_G === $featured_alias ||
+            self::ALIAS_MINIMAL_ORDER_QTY === $featured_alias ||
+            self::ALIAS_IN_PACKAGE_QTY === $featured_alias ||
+            self::ALIAS_IN_BOX_QTY === $featured_alias ||
+            self::ALIAS_IN_OUTER_QTY === $featured_alias;
+    }
 
     public static function getAttribute($alias)
     {
@@ -70,8 +87,6 @@ class FeaturedAttributeOptions extends AbstractOptions
                 return __('Needs weight on kassa', I18N::DOMAIN);
             case self::ALIAS_NEEDS_DESCRIPTION_ON_KASSA:
                 return __('Needs description on kassa', I18N::DOMAIN);
-            case self::ALIAS_DURATION_IN_SECONDS:
-                return __('Duration in seconds', I18N::DOMAIN);
             case self::ALIAS_MINIMAL_ORDER_QTY:
                 return __('Minimal order quantity', I18N::DOMAIN);
             case self::ALIAS_IN_PACKAGE_QTY:
@@ -131,16 +146,8 @@ class FeaturedAttributeOptions extends AbstractOptions
         $name = null;
         $option = self::get(self::getOptionName($alias));
         if (!empty($option)) {
-            $attribute = WooCommerceAttributeMetadata::listAttributesByMetadata(
-                [
-                    'meta_key' => 'storekeeper_id',
-                    'meta_value' => $option['attribute_id'],
-                    'single' => true,
-                ]
-            );
-            if (!empty($attribute)) {
-                $name = $attribute->slug;
-            } else {
+            $name = Attributes::getAttributeSlug($option['attribute_id']);
+            if (empty($name)) {
                 // fallback to name, because woocommerce is not able to store attributes without options
                 $name = $option['attribute_name'];
             }
@@ -156,9 +163,28 @@ class FeaturedAttributeOptions extends AbstractOptions
         foreach (FeaturedAttributeOptions::FEATURED_ATTRIBUTES_ALIASES as $alias) {
             $constant = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
             $value = FeaturedAttributeOptions::get($constant);
-            $map[$value] = $alias;
+            if (!empty($value)) {
+                $map[$value] = $alias;
+            }
         }
 
         return $map;
+    }
+
+    public static function isFeatured(string $exportName): bool
+    {
+        $featuredAttributes = FeaturedAttributeOptions::getMappedFeaturedExportAttributes();
+
+        return array_key_exists($exportName, $featuredAttributes);
+    }
+
+    public static function getFeaturedNameIfPossible(string $exportName): string
+    {
+        $map = FeaturedAttributeOptions::getMappedFeaturedExportAttributes();
+        if (array_key_exists($exportName, $map)) {
+            return $map[$exportName];
+        }
+
+        return $exportName;
     }
 }

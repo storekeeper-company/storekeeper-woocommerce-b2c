@@ -16,7 +16,7 @@ class AttributeFileExportTest extends AbstractAttributeFileExportTest
 
     public function testAttributeExportTest()
     {
-        list($sizeAttributeData, $colourAttributeData, $brandAttribute, $product) = $this->setupAttributes();
+        list($sizeAttributeData, $colourAttributeData, $qtyAttribute, $brandAttribute, $product) = $this->setupAttributes();
 
         $instance = $this->getNewFileExportInstance();
         $path = $instance->runExport(Language::getSiteLanguageIso2());
@@ -30,17 +30,31 @@ class AttributeFileExportTest extends AbstractAttributeFileExportTest
             }
         );
 
-        $this->assertArrayNotHasKey('sa_brand', $mappedRows, 'Brand should not be exported.');
-        $this->assertSystemAttribute($colourAttributeData, $mappedRows['sa_colour'], 'Colour');
-        $this->assertSystemAttribute($sizeAttributeData, $mappedRows['sa_size'], 'Size');
+        $exported_keys = array_keys($mappedRows);
+        sort($exported_keys);
+        $this->assertEquals(
+            [
+                self::CA_CUSTOM_TITLE_MULTIPLE,
+                self::CA_CUSTOM_TITLE_ONE,
+                self::SA_COLOUR,
+                self::SA_SIZE,
+                // qty and brand are featured
+            ],
+            $exported_keys,
+            'Correct keys are exported'
+        );
+
+        $this->assertSystemAttribute($colourAttributeData, $mappedRows[self::SA_COLOUR], 'Colour');
+        $this->assertSystemAttribute($sizeAttributeData, $mappedRows[self::SA_SIZE], 'Size');
+        $product_attributes = $product->get_attributes();
         $this->assertProductAttribute(
-            $product->get_attributes()['custom-title-one'],
-            $mappedRows['ca_custom-title-one'],
+            $product_attributes['custom-title-one'],
+            $mappedRows[self::CA_CUSTOM_TITLE_ONE],
             'Single option'
         );
         $this->assertProductAttribute(
-            $product->get_attributes()['custom-title-multiple'],
-            $mappedRows['ca_custom-title-multiple'],
+            $product_attributes['custom-title-multiple'],
+            $mappedRows[self::CA_CUSTOM_TITLE_MULTIPLE],
             'Multiple options'
         );
     }
@@ -118,7 +132,7 @@ class AttributeFileExportTest extends AbstractAttributeFileExportTest
         );
 
         $this->assertEquals(
-            count($attribute->get_options()) > 1 ? 'yes' : 'no',
+            'no', // text values are not options
             $dataRow['is_options'],
             "$type attribute is_options is not correctly exported"
         );

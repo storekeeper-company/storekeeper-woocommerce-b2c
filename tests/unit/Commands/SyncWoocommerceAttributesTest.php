@@ -90,9 +90,8 @@ class SyncWoocommerceAttributesTest extends AbstractTest
 
             // Attribute type
             // In case of a new attribute, this will always be the same (StoreKeeper/WooCommerce/B2C/Imports/AttributeImport.php:96)
-            $expected_attribute_type = Attributes::getDefaultType();
             $this->assertEquals(
-                $expected_attribute_type,
+                Attributes::TYPE_DEFAULT,
                 $wc_attribute->attribute_type,
                 'WooCommerce attribute type doesn\'t match the expected attribute type'
             );
@@ -215,9 +214,8 @@ SQL;
 
         // Attribute type
         // In case of a new attribute, this will always be the same (StoreKeeper/WooCommerce/B2C/Imports/AttributeImport.php:96)
-        $expected_attribute_type = Attributes::getDefaultType();
         $this->assertEquals(
-            $expected_attribute_type,
+            Attributes::TYPE_DEFAULT,
             $wc_attribute->attribute_type,
             $message.': WooCommerce attribute type doesn\'t match the expected attribute type'
         );

@@ -260,7 +260,7 @@ class ProductFileExportTest extends AbstractFileExportTest
             $name = AttributeExport::getProductAttributeKey($attribute);
             $encodedName = Base36Coder::encode($name);
             $label = AttributeExport::getProductAttributeLabel($attribute);
-            if (ProductFileExport::attributeWithOptions($alias)) {
+            if (ProductFileExport::isAttributeWithOptions($alias)) {
                 $options = $attribute->get_options();
                 $option = array_shift($options);
                 $valueLabel = $option;
