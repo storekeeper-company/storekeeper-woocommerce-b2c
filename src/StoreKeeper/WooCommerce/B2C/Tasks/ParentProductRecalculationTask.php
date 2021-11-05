@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tasks;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
+use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 
 /**
  * Recalculated the parents attribute options. to make sure its still correct after an assigned product has updated.
@@ -75,10 +76,9 @@ class ParentProductRecalculationTask extends AbstractTask
 
         $parent_product = new \WC_Product_Variable($parent_post);
 
-        $import = new ProductImport();
-        $import->setLogger($this->logger);
-        $import->setTaskHandler($this->getTaskHandler());
-        $import->setConfigurableAttributes($parent_product, $parent_product_object, $options_config);
+        ProductAttributes::setConfigurableAttributes(
+            $parent_product, $parent_product_object, $options_config
+        );
 
         $parent_product->save();
 

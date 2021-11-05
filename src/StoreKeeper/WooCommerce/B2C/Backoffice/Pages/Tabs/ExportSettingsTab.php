@@ -74,7 +74,7 @@ class ExportSettingsTab extends AbstractTab
 
         $this->renderFormHiddenInput('action', self::SAVE_OPTIONS_ACTION);
 
-        $options = $this->getAttributeOptions();
+        $options = $this->getAttributes();
         foreach (self::FEATURED_ATTRIBUTES_ALIASES as $alias) {
             $name = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
             $label = FeaturedAttributeOptions::getAliasName($alias);
@@ -103,7 +103,7 @@ class ExportSettingsTab extends AbstractTab
         echo '</p></div>';
     }
 
-    private function getAttributeOptions()
+    private function getAttributes()
     {
         $notMapped = __('Not mapped', I18N::DOMAIN);
         $options = [];

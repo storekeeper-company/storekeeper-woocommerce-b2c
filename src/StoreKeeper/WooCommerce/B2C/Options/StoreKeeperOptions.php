@@ -85,7 +85,7 @@ class StoreKeeperOptions extends AbstractOptions
         return $options;
     }
 
-    public static function getBarcodeMetaKey($product)
+    public static function getBarcodeMetaKey(\WC_Product $product)
     {
         $mode = self::getBarcodeMode();
         if (sanitize_key('woo-add-gtin/woocommerce-gtin.php') === $mode) {

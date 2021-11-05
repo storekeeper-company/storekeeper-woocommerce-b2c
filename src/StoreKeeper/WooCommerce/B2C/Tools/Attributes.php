@@ -5,6 +5,8 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 use Adbar\Dot;
 use Exception;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use stdClass;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\AttributeTranslatorException;
@@ -23,12 +25,17 @@ class Attributes
 {
     use LoggerAwareTrait;
 
-    const slug_prefix = 'sk_';
+    private const slug_prefix = 'sk_';
 
-    const TYPE_TEXT = 'text';
-    const TYPE_SELECT = 'select';
+    private const TYPE_TEXT = 'text';
+    private const TYPE_SELECT = 'select';
 
     const DEFAULT_ARCHIVED_SETTING = true;
+
+    public function __construct(?LoggerInterface $logger = null)
+    {
+        $this->logger = $logger ?? new NullLogger();
+    }
 
     public static function getDefaultType()
     {
@@ -310,7 +317,7 @@ class Attributes
         return false; // nothing was added
     }
 
-    public static function updateAttribute($data = [])
+    protected static function updateAttribute($data = [])
     {
         if (
             !array_key_exists('attribute_id', $data) ||
@@ -404,7 +411,7 @@ class Attributes
      *
      * @return bool|stdClass|null
      */
-    public static function getAttributeBySlug($slug)
+    protected static function getAttributeBySlug($slug)
     {
         global $wpdb;
         $slug = trim($slug);
@@ -596,6 +603,61 @@ SQL
         return $term_id;
     }
 
+    /**
+     * @return int attribute id
+     *
+     * @throws WordpressException
+     */
+    public static function importAttribute(Dot $dotObject): int
+    {
+        $slug = $dotObject->get('name');
+        $title = $dotObject->get('label');
+
+        $existingAttribute = self::getAttribute($dotObject->get('id'));
+        if (empty($existingAttribute) && $dotObject->has('name')) {
+            $existingAttribute = self::getAttributeBySlug($slug);
+        }
+
+        if (empty(trim($title))) {
+            // fallback in case if empty
+            $title = $dotObject->get('name');
+        }
+
+        $update_arguments = [
+            'name' => substr($title, 0, 30),
+        ];
+
+        // If the slug is set in the update_arguments and if it is not a new attribute,
+        // then you need to use the update_attribute function
+        if (false !== $existingAttribute) {
+            $update_arguments['type'] = $existingAttribute->type;
+            $update_arguments['slug'] = $existingAttribute->slug;
+            $attribute = WordpressExceptionThrower::throwExceptionOnWpError(wc_get_attribute($existingAttribute->id));
+            if ($attribute) {
+                $update_arguments['has_archives'] = $attribute->has_archives;
+            }
+
+            // Update the attribute in woocommerce
+            $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
+                wc_update_attribute($existingAttribute->id, $update_arguments)
+            );
+        } else {
+            $update_arguments['type'] = self::getDefaultType();
+            $update_arguments['slug'] = AttributeTranslator::validateAttribute($slug);
+            if (!array_key_exists('has_archives', $update_arguments)) {
+                $update_arguments['has_archives'] = self::DEFAULT_ARCHIVED_SETTING; // Activate archives when it is not set
+            }
+
+            // Create the attribute in woocommerce
+            $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(wc_create_attribute($update_arguments));
+        }
+
+        WooCommerceAttributeMetadata::setMetadata($attribute_id, 'storekeeper_id', $dotObject->get('id'));
+        WooCommerceAttributeMetadata::setMetadata($attribute_id, 'attribute_order', $dotObject->get('order'));
+
+        return $attribute_id;
+    }
+
     public static function updateAttributeOptionOrder(int $optionTermId, int $attributeOptionOrder): void
     {
         update_term_meta($optionTermId, 'order', $attributeOptionOrder);
@@ -639,5 +701,26 @@ SQL
         } catch (AttributeTranslatorException $attributeTranslatorException) {
             return 0;
         }
+    }
+
+    public static function importAttributeOption(Dot $dotObject): void
+    {
+        $attribute_slug = $dotObject->get('attribute.name');
+        $attribute_name = $dotObject->get('attribute.label');
+        $attribute_option_id = $dotObject->get('id');
+        $attribute_option_name = substr($dotObject->get('label'), 0, 30);
+        $attribute_option_slug = Attributes::sanitizeOptionSlug($attribute_option_id, $dotObject->get('name'));
+        $attribute_option_image = $dotObject->get('image_url', false);
+        $attribute_option_order = $dotObject->get('order', false);
+
+        Attributes::updateAttributeOption(
+            $attribute_slug,
+            $attribute_name,
+            $attribute_option_id,
+            $attribute_option_slug,
+            $attribute_option_name,
+            $attribute_option_image,
+            $attribute_option_order
+        );
     }
 }

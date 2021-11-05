@@ -15,7 +15,6 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Debug\HookDumpFile;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
 use StoreKeeper\WooCommerce\B2C\Imports\CouponCodeImport;
-use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -24,6 +23,7 @@ use StoreKeeper\WooCommerce\B2C\TestLib\DumpFileHelper;
 use StoreKeeper\WooCommerce\B2C\TestLib\MediaHelper;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
+use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WC_Coupon;
 use WC_Email_Customer_Processing_Order;
@@ -632,7 +632,7 @@ abstract class AbstractTest extends WP_UnitTestCase
                 $content_var = new Dot($content_var_data);
                 if ($content_var->get('name') === $barcode) {
                     $expected_attribute_value = $content_var->get('value');
-                    $current_attribute_value = ProductImport::getBarcodeMeta($wc_product);
+                    $current_attribute_value = ProductAttributes::getBarcodeMeta($wc_product);
                     $this->assertEquals(
                         $expected_attribute_value,
                         $current_attribute_value,

@@ -78,24 +78,8 @@ class AttributeOptionImport extends AbstractImport
     protected function processItem($dotObject, array $options = [])
     {
         $this->debug('Importing Attribute option with id', $dotObject->get());
-        $title = $this->getTranslationIfRequired($dotObject, 'label');
+        $dotObject->set('label', $this->getTranslationIfRequired($dotObject, 'label'));
 
-        $attribute_slug = $dotObject->get('attribute.name');
-        $attribute_name = $dotObject->get('attribute.label');
-        $attribute_option_id = $dotObject->get('id');
-        $attribute_option_name = substr($title, 0, 30);
-        $attribute_option_slug = Attributes::sanitizeOptionSlug($attribute_option_id, $dotObject->get('name'));
-        $attribute_option_image = $dotObject->get('image_url', false);
-        $attribute_option_order = $dotObject->get('order', false);
-
-        Attributes::updateAttributeOption(
-            $attribute_slug,
-            $attribute_name,
-            $attribute_option_id,
-            $attribute_option_slug,
-            $attribute_option_name,
-            $attribute_option_image,
-            $attribute_option_order
-        );
+        Attributes::importAttributeOption($dotObject);
     }
 }
