@@ -155,36 +155,4 @@ class FeaturedAttributeOptions extends AbstractOptions
 
         return $name;
     }
-
-    public static function getMappedFeaturedExportAttributes()
-    {
-        $map = [];
-
-        foreach (FeaturedAttributeOptions::FEATURED_ATTRIBUTES_ALIASES as $alias) {
-            $constant = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
-            $value = FeaturedAttributeOptions::get($constant);
-            if (!empty($value)) {
-                $map[$value] = $alias;
-            }
-        }
-
-        return $map;
-    }
-
-    public static function isFeatured(string $exportName): bool
-    {
-        $featuredAttributes = FeaturedAttributeOptions::getMappedFeaturedExportAttributes();
-
-        return array_key_exists($exportName, $featuredAttributes);
-    }
-
-    public static function getFeaturedNameIfPossible(string $exportName): string
-    {
-        $map = FeaturedAttributeOptions::getMappedFeaturedExportAttributes();
-        if (array_key_exists($exportName, $map)) {
-            return $map[$exportName];
-        }
-
-        return $exportName;
-    }
 }

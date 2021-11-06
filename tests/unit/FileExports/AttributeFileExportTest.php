@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
 use StoreKeeper\WooCommerce\B2C\FileExport\AttributeFileExport;
+use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use WC_Product_Attribute;
@@ -38,7 +39,7 @@ class AttributeFileExportTest extends AbstractAttributeFileExportTest
                 self::CA_CUSTOM_TITLE_ONE,
                 self::SA_COLOUR,
                 self::SA_SIZE,
-                // qty and brand are featured
+                // qty and brand are featured, so they should not be exported
             ],
             $exported_keys,
             'Correct keys are exported'
@@ -69,7 +70,7 @@ class AttributeFileExportTest extends AbstractAttributeFileExportTest
         );
 
         $this->assertEquals(
-            AttributeExport::getAttributeKey($attribute->slug, AttributeExport::TYPE_SYSTEM_ATTRIBUTE),
+            AttributeExport::getAttributeKey($attribute->slug, CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE),
             $dataRow['name'],
             "$type attribute name is not correctly exported"
         );

@@ -3,14 +3,18 @@
 namespace StoreKeeper\WooCommerce\B2C\Tools\Export;
 
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 use WC_Product_Attribute;
 
 class AttributeExport
 {
-    const TYPE_CUSTOM_ATTRIBUTE = 'type_custom_attribute';
-    const TYPE_SYSTEM_ATTRIBUTE = 'type_system_attribute';
-    const ATTRIBUTE_TERM_PREFIX = 'pa_';
+    protected static $exportAttributeToFeaturedAliasMap = null;
+
+    public static function cleanCache()
+    {
+        self::$exportAttributeToFeaturedAliasMap = null;
+    }
 
     public static function getAllAttributes(): array
     {
@@ -28,11 +32,40 @@ class AttributeExport
         );
     }
 
+    protected static function getExportAttributeToFeaturedAliasMap(): array
+    {
+        if (is_null(self::$exportAttributeToFeaturedAliasMap)) {
+            $map = [];
+            foreach (FeaturedAttributeOptions::FEATURED_ATTRIBUTES_ALIASES as $alias) {
+                $constant = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
+                $value = FeaturedAttributeOptions::get($constant);
+                if (!empty($value)) {
+                    $map[$value] = $alias;
+                }
+            }
+            self::$exportAttributeToFeaturedAliasMap = $map;
+        }
+
+        return self::$exportAttributeToFeaturedAliasMap;
+    }
+
+    public static function isFeatured(string $exportName): bool
+    {
+        return !is_null(self::getFeaturedAlias($exportName));
+    }
+
+    public static function getFeaturedAlias(string $exportName): ?string
+    {
+        $featuredAttributes = self::getExportAttributeToFeaturedAliasMap();
+
+        return $featuredAttributes[$exportName] ?? null;
+    }
+
     public static function getCustomProductAttributes(bool $excludeFeatured = false): array
     {
         $attributeMap = [];
         foreach (ProductAttributes::getCustomProductAttributeOptions() as $attributeName => $attribute) {
-            $attributeKey = self::getAttributeKey($attributeName, self::TYPE_CUSTOM_ATTRIBUTE, $isFeatured);
+            $attributeKey = self::getAttributeKey($attributeName, CommonAttributeName::TYPE_CUSTOM_ATTRIBUTE, $isFeatured);
             if (empty($attributeMap[$attributeKey])) {
                 if (!$isFeatured || !$excludeFeatured) {
                     $attributeMap[$attributeKey] = [
@@ -53,7 +86,7 @@ class AttributeExport
         $attributes = [];
         $items = wc_get_attribute_taxonomies();
         foreach ($items as $item) {
-            $attributeKey = self::getAttributeKey($item->attribute_name, self::TYPE_SYSTEM_ATTRIBUTE, $isFeatured);
+            $attributeKey = self::getAttributeKey($item->attribute_name, CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE, $isFeatured);
 
             if (!$isFeatured || !$excludeFeatured) {
                 $attributes[] = [
@@ -75,10 +108,10 @@ class AttributeExport
             $name = wc_attribute_taxonomy_name($attribute->attribute_name);
             $exportKey = AttributeExport::getAttributeKey(
                 $attribute->attribute_name,
-                AttributeExport::TYPE_SYSTEM_ATTRIBUTE
+                CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE
             );
-            $isFeatured = FeaturedAttributeOptions::isFeatured($exportKey);
-            if (!$isFeatured || FeaturedAttributeOptions::isOptionsAttribute($exportKey)) {
+            $featuredAlias = self::getFeaturedAlias($exportKey);
+            if (empty($featuredAlias) || FeaturedAttributeOptions::isOptionsAttribute($featuredAlias)) {
                 $attributeOptions = get_terms($name, ['hide_empty' => false]);
                 foreach ($attributeOptions as $attributeOption) {
                     yield [
@@ -94,51 +127,28 @@ class AttributeExport
 
     public static function getProductAttributeKey(WC_Product_Attribute $attribute): string
     {
-        $name = self::cleanAttributeTermPrefix($attribute->get_name());
         $type = self::getProductAttributeType($attribute);
 
-        return self::getAttributeKey($name, $type);
+        return self::getAttributeKey($attribute->get_name(), $type);
     }
 
     public static function getAttributeKey(string $attributeName, string $type, ?bool &$isFeatured = null): string
     {
-        $name = self::cleanAttributeTermPrefix($attributeName);
-        $prefix = self::getPrefix($type);
-
-        $attributeKey = sanitize_title($prefix.$name);
-        $isFeatured = FeaturedAttributeOptions::isFeatured($attributeKey);
-        $attributeKey = FeaturedAttributeOptions::getFeaturedNameIfPossible($attributeKey);
+        $attributeKey = CommonAttributeName::getName($attributeName, $type);
+        $featuredName = self::getFeaturedAlias($attributeKey);
+        $isFeatured = !empty($featuredName);
+        if ($isFeatured) {
+            return $featuredName;
+        }
 
         return $attributeKey;
     }
 
     private static function getProductAttributeType(WC_Product_Attribute $attribute): string
     {
-        return $attribute->get_id() <= 0 ? self::TYPE_CUSTOM_ATTRIBUTE : self::TYPE_SYSTEM_ATTRIBUTE;
+        return $attribute->get_id() <= 0 ? CommonAttributeName::TYPE_CUSTOM_ATTRIBUTE : CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE;
     }
 
-    public static function cleanAttributeTermPrefix(string $name): string
-    {
-        if (0 === strpos($name, self::ATTRIBUTE_TERM_PREFIX)) {
-            return substr($name, strlen(self::ATTRIBUTE_TERM_PREFIX));
-        }
-
-        return $name;
-    }
-
-    /**
-     * We add a prefix to the name based on if the attribute:
-     * Is a custom attribute for that product (ca-)
-     * Is a system attribute for the whole system (no prefix).
-     */
-    private static function getPrefix(string $type): string
-    {
-        if (self::TYPE_SYSTEM_ATTRIBUTE === $type) {
-            return 'sa_';
-        }
-
-        return 'ca_';
-    }
 
     public static function getProductAttributeOptions(WC_Product_Attribute $attribute): array
     {

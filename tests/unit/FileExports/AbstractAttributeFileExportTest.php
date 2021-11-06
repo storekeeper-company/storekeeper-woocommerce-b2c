@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use WC_Helper_Product;
 use WC_Meta_Box_Product_Data;
@@ -72,10 +73,7 @@ abstract class AbstractAttributeFileExportTest extends AbstractFileExportTest
             FeaturedAttributeOptions::getAttributeExportOptionConstant(
                 FeaturedAttributeOptions::ALIAS_BRAND
             ),
-            AttributeExport::getAttributeKey(
-                $brandAttribute['attribute_name'],
-                AttributeExport::TYPE_SYSTEM_ATTRIBUTE
-            )
+            CommonAttributeName::getSystemName($brandAttribute['attribute_name'])
         );
 
         $qtyAttribute = WC_Helper_Product::create_attribute(
@@ -91,10 +89,7 @@ abstract class AbstractAttributeFileExportTest extends AbstractFileExportTest
             FeaturedAttributeOptions::getAttributeExportOptionConstant(
                 FeaturedAttributeOptions::ALIAS_IN_BOX_QTY
             ),
-            AttributeExport::getAttributeKey(
-                $qtyAttribute['attribute_name'],
-                AttributeExport::TYPE_SYSTEM_ATTRIBUTE
-            )
+            CommonAttributeName::getSystemName($qtyAttribute['attribute_name'])
         );
 
         $product = $this->createProduct();

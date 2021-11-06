@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
 use StoreKeeper\WooCommerce\B2C\FileExport\AttributeOptionsFileExport;
+use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 
@@ -81,7 +82,7 @@ class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
             );
 
             $this->assertEquals(
-                AttributeExport::getAttributeKey($attribute->attribute_name, AttributeExport::TYPE_SYSTEM_ATTRIBUTE),
+                AttributeExport::getAttributeKey($attribute->attribute_name, CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE),
                 $mappedRow['attribute.name'],
                 "$message attribute option's name is incorrect"
             );
@@ -125,8 +126,8 @@ class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
         $attributeName = AttributeExport::getAttributeKey(
             $attribute->attribute_name,
             $attribute->attribute_id ?
-                AttributeExport::TYPE_SYSTEM_ATTRIBUTE :
-                AttributeExport::TYPE_CUSTOM_ATTRIBUTE,
+                CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE :
+                CommonAttributeName::TYPE_CUSTOM_ATTRIBUTE,
         );
         $mappedKey = $this->getMappedKey($attributeName, $term->slug);
 
@@ -135,7 +136,7 @@ class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
 
     protected function getMappedKey($attributeName, $name): string
     {
-        $attributeName = AttributeExport::cleanAttributeTermPrefix($attributeName);
+        $attributeName = CommonAttributeName::cleanAttributeTermPrefix($attributeName);
 
         return "{$attributeName}::{$name}";
     }

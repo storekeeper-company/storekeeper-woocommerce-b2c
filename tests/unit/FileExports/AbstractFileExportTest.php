@@ -7,6 +7,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExport;
+use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractTest;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Interfaces\IFileExportTest;
 use WC_Customer;
@@ -42,6 +43,7 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
     {
         parent::tearDown();
         $this->cleanFiles();
+        AttributeExport::cleanCache();
     }
 
     protected function getNewFileExportInstance(): IFileExport
