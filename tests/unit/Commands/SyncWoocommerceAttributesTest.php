@@ -23,7 +23,7 @@ class SyncWoocommerceAttributesTest extends AbstractTest
     const DATADUMP_RESERVED_DIRECTORY = 'commands/sync-woocommerce-reserved-attributes';
     const DATADUMP_RESERVED_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.reserved.json';
 
-    const MAX_LENGTH_ATTRIBUTE_LABEL = 30;
+    const MAX_LENGTH_ATTRIBUTE_LABEL = Attributes::MAX_NAME_LENGTH;
 
     public function testInit()
     {

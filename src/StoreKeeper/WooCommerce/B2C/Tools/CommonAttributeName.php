@@ -29,6 +29,18 @@ class CommonAttributeName
         return $name;
     }
 
+    public static function cleanCommonNamePrefix(string $name): string
+    {
+        if (0 === strpos($name, self::SYSTEM_ATTR_PREFIX)) {
+            return substr($name, strlen(self::SYSTEM_ATTR_PREFIX));
+        }
+        if (0 === strpos($name, self::CUSTOM_ATTRIBUTE_PREFIX)) {
+            return substr($name, strlen(self::CUSTOM_ATTRIBUTE_PREFIX));
+        }
+
+        return $name;
+    }
+
     public static function getName(string $attributeName, string $type): string
     {
         $name = self::cleanAttributeTermPrefix($attributeName);

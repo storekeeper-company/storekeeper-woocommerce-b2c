@@ -32,6 +32,7 @@ class Attributes
     public const TYPE_DEFAULT = self::TYPE_SELECT;
 
     const DEFAULT_ARCHIVED_SETTING = true;
+    const MAX_NAME_LENGTH = 200;
 
     public function __construct(?LoggerInterface $logger = null)
     {
@@ -77,6 +78,21 @@ class Attributes
         }
 
         return $map;
+    }
+
+    protected static function getUnmatchedAttributes(): array
+    {
+        $attributes = wc_get_attribute_taxonomies();
+        $sk_attribute_ids = AttributeModel::getAttributeIds();
+        $unmatched_attributes = [];
+        foreach ($attributes as $attribute) {
+            if (in_array($attribute->attribute_id, $sk_attribute_ids)) {
+                continue; //already matched
+            }
+            $unmatched_attributes[] = $attribute;
+        }
+
+        return $unmatched_attributes;
     }
 
     protected function ensureAttribute($attribute_id)
@@ -253,24 +269,43 @@ class Attributes
      *
      * @return bool|stdClass|null
      */
-    protected static function getAttributeBySlug($slug)
-    {
-        global $wpdb;
-        $slug = trim($slug);
-
-        $sql = <<<SQL
-SELECT attribute_id 
-FROM `{$wpdb->prefix}woocommerce_attribute_taxonomies`
-WHERE attribute_name=%s
-SQL;
-
-        $attribute_id = $wpdb->get_var($wpdb->prepare($sql, $slug));
-
-        if (!$attribute_id) {
-            return false;
+    protected static function findMatchingAttribute(
+        string $alias,
+        string $title
+    ) {
+        $attribute_id = null;
+        $unmatched_attributes = self::getUnmatchedAttributes();
+        $cleanedSlug = CommonAttributeName::cleanCommonNamePrefix($alias);
+        $name_options = [
+            $alias,
+            $cleanedSlug,
+            sanitize_title($alias),
+            sanitize_title($cleanedSlug),
+        ];
+        foreach ($name_options as $name_option) {
+            foreach ($unmatched_attributes as $attribute) {
+                if ($attribute->attribute_name === $name_option) {
+                    $attribute_id = $attribute->attribute_id;
+                    break 2;
+                }
+            }
+        }
+        if (empty($attribute_id)) {
+            // try matching by label
+            $sanitized_label = sanitize_title($title);
+            foreach ($unmatched_attributes as $attribute) {
+                if (sanitize_title($attribute->attribute_label) === $sanitized_label) {
+                    $attribute_id = $attribute->attribute_id;
+                    break;
+                }
+            }
         }
 
-        return wc_get_attribute($attribute_id);
+        if (!empty($attribute_id)) {
+            return wc_get_attribute($attribute_id);
+        }
+
+        return null;
     }
 
     /**
@@ -457,7 +492,7 @@ SQL
     ): int {
         $existingAttribute = self::getAttribute($storekeeper_id);
         if (empty($existingAttribute)) {
-            $existingAttribute = self::getAttributeBySlug($alias);
+            $existingAttribute = self::findMatchingAttribute($alias, $title);
         }
 
         if (empty(trim($title))) {
@@ -466,35 +501,32 @@ SQL
         }
 
         $update_arguments = [
-            'name' => substr($title, 0, 30),
+            'name' => substr($title, 0, self::MAX_NAME_LENGTH),
         ];
 
-        // If the slug is set in the update_arguments and if it is not a new attribute,
-        // then you need to use the update_attribute function
-        if (false !== $existingAttribute) {
+        if (empty($existingAttribute)) {
+            // Create the attribute in woocommerce
+            $update_arguments['type'] = self::getDefaultType();
+            $update_arguments['slug'] = AttributeTranslator::validateAttribute($alias);
+            $update_arguments['has_archives'] = self::DEFAULT_ARCHIVED_SETTING;
+
+            $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
+                wc_create_attribute($update_arguments)
+            );
+        } else {
+            // Update old attribute (title)
             $update_arguments['type'] = $existingAttribute->type;
             $update_arguments['slug'] = $existingAttribute->slug;
-            $attribute = WordpressExceptionThrower::throwExceptionOnWpError(wc_get_attribute($existingAttribute->id));
-            if ($attribute) {
-                $update_arguments['has_archives'] = $attribute->has_archives;
-            }
+            $update_arguments['has_archives'] = $existingAttribute->has_archives;
 
-            // Update the attribute in woocommerce
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
                 wc_update_attribute($existingAttribute->id, $update_arguments)
             );
-        } else {
-            $update_arguments['type'] = self::getDefaultType();
-            $update_arguments['slug'] = AttributeTranslator::validateAttribute($alias);
-            if (!array_key_exists('has_archives', $update_arguments)) {
-                $update_arguments['has_archives'] = self::DEFAULT_ARCHIVED_SETTING; // Activate archives when it is not set
-            }
-
-            // Create the attribute in woocommerce
-            $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(wc_create_attribute($update_arguments));
         }
 
-        AttributeModel::setAttributeStoreKeeperId($attribute_id, $storekeeper_id, $alias);
+        AttributeModel::setAttributeStoreKeeperId(
+            $attribute_id, $storekeeper_id, $alias
+        );
 
         return $attribute_id;
     }

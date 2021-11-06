@@ -138,6 +138,16 @@ SQL;
         return null;
     }
 
+    public static function getAttributeIds(): array
+    {
+        $select = self::getSelectHelper()
+            ->cols(['attribute_id']);
+
+        global $wpdb;
+
+        return $wpdb->get_col(self::prepareQuery($select));
+    }
+
     public static function purge(): int
     {
         $delete = self::getDeleteHelper();
