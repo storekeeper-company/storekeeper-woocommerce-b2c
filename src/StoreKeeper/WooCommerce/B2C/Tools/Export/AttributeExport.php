@@ -2,8 +2,9 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools\Export;
 
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
+use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 use WC_Product_Attribute;
 
@@ -36,9 +37,9 @@ class AttributeExport
     {
         if (is_null(self::$exportAttributeToFeaturedAliasMap)) {
             $map = [];
-            foreach (FeaturedAttributeOptions::FEATURED_ATTRIBUTES_ALIASES as $alias) {
-                $constant = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
-                $value = FeaturedAttributeOptions::get($constant);
+            foreach (FeaturedAttributes::ALL_ALIASES as $alias) {
+                $constant = FeaturedAttributeExportOptions::getAttributeExportOptionConstant($alias);
+                $value = FeaturedAttributeExportOptions::get($constant);
                 if (!empty($value)) {
                     $map[$value] = $alias;
                 }
@@ -111,7 +112,7 @@ class AttributeExport
                 CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE
             );
             $featuredAlias = self::getFeaturedAlias($exportKey);
-            if (empty($featuredAlias) || FeaturedAttributeOptions::isOptionsAttribute($featuredAlias)) {
+            if (empty($featuredAlias) || FeaturedAttributes::isOptionsAttribute($featuredAlias)) {
                 $attributeOptions = get_terms($name, ['hide_empty' => false]);
                 foreach ($attributeOptions as $attributeOption) {
                     yield [
@@ -148,7 +149,6 @@ class AttributeExport
     {
         return $attribute->get_id() <= 0 ? CommonAttributeName::TYPE_CUSTOM_ATTRIBUTE : CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE;
     }
-
 
     public static function getProductAttributeOptions(WC_Product_Attribute $attribute): array
     {

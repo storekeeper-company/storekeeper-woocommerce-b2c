@@ -28,7 +28,6 @@ class StoreKeeperOptions extends AbstractOptions
      */
     public static function disconnect()
     {
-        FeaturedAttributeOptions::deleteAttributes();
         self::delete(self::API_URL);
         self::delete(self::GUEST_AUTH);
         self::delete(self::SYNC_AUTH);

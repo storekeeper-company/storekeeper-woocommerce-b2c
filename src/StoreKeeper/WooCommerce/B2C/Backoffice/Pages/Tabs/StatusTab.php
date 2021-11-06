@@ -7,7 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\TableRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\I18N;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use WC_REST_System_Status_V2_Controller;
@@ -82,7 +82,7 @@ class StatusTab extends AbstractTab
 
         $data = array_merge(
             $data,
-            $this->getOptionClassData(FeaturedAttributeOptions::class, 'getAttribute')
+            $this->getOptionClassData(FeaturedAttributeExportOptions::class, 'getAttribute')
         );
 
         return $data;

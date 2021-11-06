@@ -36,10 +36,12 @@ class CommonAttributeName
 
         return sanitize_title($prefix.$name);
     }
+
     public static function getSystemName(string $attributeName): string
     {
         return self::getName($attributeName, self::TYPE_SYSTEM_ATTRIBUTE);
     }
+
     public static function getCustomName(string $attributeName): string
     {
         return self::getName($attributeName, self::TYPE_CUSTOM_ATTRIBUTE);

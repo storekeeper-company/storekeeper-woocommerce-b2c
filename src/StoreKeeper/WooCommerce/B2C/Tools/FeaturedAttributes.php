@@ -1,15 +1,11 @@
 <?php
 
-namespace StoreKeeper\WooCommerce\B2C\Options;
+namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 use StoreKeeper\WooCommerce\B2C\I18N;
-use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 
-class FeaturedAttributeOptions extends AbstractOptions
+class FeaturedAttributes
 {
-    const FEATURED_PREFIX = 'featured_attribute_id';
-    const ATTRIBUTE_EXPORT_PREFIX = 'attribute_export';
-
     const ALIAS_BRAND = 'brand';
     const ALIAS_BARCODE = 'barcode';
     const ALIAS_PRINTABLE_SHORTNAME = 'printable_shortname';
@@ -21,7 +17,7 @@ class FeaturedAttributeOptions extends AbstractOptions
     const ALIAS_IN_OUTER_QTY = 'in_outer_qty';
     const ALIAS_UNIT_WEIGHT_IN_G = 'unit_weight_in_g';
 
-    const FEATURED_ATTRIBUTES_ALIASES = [
+    const ALL_ALIASES = [
         self::ALIAS_BRAND,
         self::ALIAS_BARCODE,
         self::ALIAS_PRINTABLE_SHORTNAME,
@@ -54,26 +50,6 @@ class FeaturedAttributeOptions extends AbstractOptions
             self::ALIAS_IN_OUTER_QTY === $featured_alias;
     }
 
-    public static function getAttribute($alias)
-    {
-        $constant = self::getAttributeExportOptionConstant($alias);
-
-        return self::get($constant);
-    }
-
-    /**
-     * @param $alias
-     */
-    private static function getOptionName($alias): string
-    {
-        return self::FEATURED_PREFIX.'-'.$alias;
-    }
-
-    public static function getAttributeExportOptionConstant($alias): string
-    {
-        return self::getPrefixedConstant(self::ATTRIBUTE_EXPORT_PREFIX.'-'.$alias);
-    }
-
     public static function getAliasName($alias)
     {
         switch ($alias) {
@@ -100,59 +76,5 @@ class FeaturedAttributeOptions extends AbstractOptions
         }
 
         return $alias;
-    }
-
-    public static function deleteAttributes()
-    {
-        global $wpdb;
-        $prefix = self::getPrefixedConstant(self::FEATURED_PREFIX);
-        $results = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT option_name FROM $wpdb->options WHERE option_name like %s",
-                $prefix.'%'
-            )
-        );
-        foreach ($results as $result) {
-            self::deleteAttribute(
-                substr($result->option_name, strlen($prefix) + 1)
-            );
-        }
-    }
-
-    /**
-     * @param $alias
-     */
-    public static function deleteAttribute($alias)
-    {
-        self::delete(self::getOptionName($alias));
-    }
-
-    /**
-     * @param $alias
-     */
-    public static function setAttribute($alias, $attribute_id, $name)
-    {
-        self::set(
-            self::getOptionName($alias),
-            [
-                'attribute_id' => $attribute_id,
-                'attribute_name' => $name,
-            ]
-        );
-    }
-
-    public static function getWooCommerceAttributeName($alias)
-    {
-        $name = null;
-        $option = self::get(self::getOptionName($alias));
-        if (!empty($option)) {
-            $name = Attributes::getAttributeSlug($option['attribute_id']);
-            if (empty($name)) {
-                // fallback to name, because woocommerce is not able to store attributes without options
-                $name = $option['attribute_name'];
-            }
-        }
-
-        return $name;
     }
 }

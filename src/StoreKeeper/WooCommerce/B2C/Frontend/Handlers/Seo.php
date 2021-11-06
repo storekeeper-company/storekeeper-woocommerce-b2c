@@ -2,7 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 
 class Seo
 {
@@ -44,7 +45,7 @@ class Seo
      */
     protected function applyBarcode(&$markdown, $product)
     {
-        $barcode_name = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributeOptions::ALIAS_BARCODE);
+        $barcode_name = FeaturedAttributeExportOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BARCODE);
         if (!empty($barcode_name)) {
             $barcode = $product->get_attribute($barcode_name);
             if (!empty($barcode)) {
@@ -94,7 +95,7 @@ class Seo
      */
     protected function applyBrand(&$markdown, $product)
     {
-        $brand_name = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributeOptions::ALIAS_BRAND);
+        $brand_name = FeaturedAttributeExportOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BRAND);
         if (!empty($brand_name)) {
             $brand = $product->get_attribute($brand_name);
             if (!empty($brand)) {

@@ -11,8 +11,9 @@ use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductSkuGenerator;
 use StoreKeeper\WooCommerce\B2C\I18N;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use Throwable;
@@ -219,9 +220,9 @@ HTML;
     {
         $selectedAttributes = [];
         foreach (ExportSettingsTab::FEATURED_ATTRIBUTES_ALIASES as $alias) {
-            $name = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
-            $label = FeaturedAttributeOptions::getAliasName($alias);
-            $value = FeaturedAttributeOptions::get($name);
+            $name = FeaturedAttributeExportOptions::getAttributeExportOptionConstant($alias);
+            $label = FeaturedAttributes::getAliasName($alias);
+            $value = FeaturedAttributeExportOptions::get($name);
             if (!is_null($value) && ExportSettingsTab::NOT_MAPPED_VALUE !== $value) {
                 $selectedAttributes[$label] = $value;
             }

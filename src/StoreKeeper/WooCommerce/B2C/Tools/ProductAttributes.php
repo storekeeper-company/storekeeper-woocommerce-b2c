@@ -3,7 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 use Adbar\Dot;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
 
@@ -26,7 +26,7 @@ class ProductAttributes
 
     public static function setBarcodeMeta(\WC_Product $newProduct, Dot $product)
     {
-        $barcode = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributeOptions::ALIAS_BARCODE);
+        $barcode = FeaturedAttributeExportOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BARCODE);
         if ($barcode) {
             $meta_key = StoreKeeperOptions::getBarcodeMetaKey($newProduct);
             $barcode_was_set = false;

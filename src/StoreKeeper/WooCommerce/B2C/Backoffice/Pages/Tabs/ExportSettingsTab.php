@@ -6,8 +6,9 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\I18N;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
+use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 
 class ExportSettingsTab extends AbstractTab
 {
@@ -76,9 +77,9 @@ class ExportSettingsTab extends AbstractTab
 
         $options = $this->getAttributes();
         foreach (self::FEATURED_ATTRIBUTES_ALIASES as $alias) {
-            $name = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
-            $label = FeaturedAttributeOptions::getAliasName($alias);
-            $value = FeaturedAttributeOptions::get($name, self::NOT_MAPPED_VALUE);
+            $name = FeaturedAttributeExportOptions::getAttributeExportOptionConstant($alias);
+            $label = FeaturedAttributes::getAliasName($alias);
+            $value = FeaturedAttributeExportOptions::get($name, self::NOT_MAPPED_VALUE);
             $this->renderFormGroup(
                 $label,
                 $this->getFormSelect($name, $options, $value)
@@ -120,8 +121,8 @@ class ExportSettingsTab extends AbstractTab
     {
         if (count($_POST) > 0) {
             $data = [];
-            foreach (FeaturedAttributeOptions::FEATURED_ATTRIBUTES_ALIASES as $alias) {
-                $constant = FeaturedAttributeOptions::getAttributeExportOptionConstant($alias);
+            foreach (FeaturedAttributes::ALL_ALIASES as $alias) {
+                $constant = FeaturedAttributeExportOptions::getAttributeExportOptionConstant($alias);
                 $data[$constant] = sanitize_key($_POST[$constant]);
             }
 
@@ -131,7 +132,7 @@ class ExportSettingsTab extends AbstractTab
                 AdminNotices::showError($message);
             } else {
                 foreach ($data as $key => $value) {
-                    FeaturedAttributeOptions::set($key, $value);
+                    FeaturedAttributeExportOptions::set($key, $value);
                 }
             }
         }
