@@ -77,7 +77,7 @@ SQL;
             }
             if ($hasChange) {
                 AttributeModel::update(
-                    $existingRow->id,
+                    $existingRow['id'],
                     $updates
                 );
             }
@@ -138,7 +138,7 @@ SQL;
         return null;
     }
 
-    public static function getAttributeByStoreKeeperAlias(int $storekeeper_alias): ?\stdClass
+    public static function getAttributeByStoreKeeperAlias(string $storekeeper_alias): ?\stdClass
     {
         $select = self::getSelectHelper()
             ->cols(['attribute_id'])
