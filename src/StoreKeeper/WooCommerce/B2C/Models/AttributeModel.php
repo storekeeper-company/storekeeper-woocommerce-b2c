@@ -17,6 +17,7 @@ class AttributeModel extends AbstractModel implements IModelPurge
             'attribute_id' => false,
             'common_name' => true,
             'storekeeper_id' => false,
+            'storekeeper_alias' => false,
             'date_created' => false,
             'date_updated' => false,
         ];
@@ -32,6 +33,7 @@ class AttributeModel extends AbstractModel implements IModelPurge
         `attribute_id` BIGINT(20) UNSIGNED NULL UNIQUE,
         `common_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
         `storekeeper_id` BIGINT(20) NOT NULL UNIQUE,
+        `storekeeper_alias` VARCHAR(1500) COLLATE utf8mb4_unicode_ci,
         `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
         `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
         PRIMARY KEY (`id`),
@@ -45,35 +47,47 @@ SQL;
         return static::querySql($tableQuery);
     }
 
-    public static function setAttributeTaxonomy(\stdClass $taxonomy, int $storekeper_id)
+    public static function setAttributeTaxonomy(\stdClass $taxonomy, int $storekeper_id,
+                                                ?string $storekeper_alias = null)
     {
         $select = self::getSelectHelper()
-            ->cols(['id', 'common_name', 'storekeeper_id'])
+            ->cols(['*'])
             ->where('attribute_id = :attribute_id')
             ->bindValue('attribute_id', $taxonomy->attribute_id);
 
         global $wpdb;
-        $existingRow = $wpdb->get_row(self::prepareQuery($select));
+        $existingRow = $wpdb->get_row(self::prepareQuery($select), ARRAY_A);
         $updates = [
             'attribute_id' => $taxonomy->attribute_id,
             'common_name' => CommonAttributeName::getSystemName($taxonomy->attribute_name),
             'storekeeper_id' => $storekeper_id,
         ];
+        if (!empty($storekeper_alias)) {
+            $updates['storekeeper_alias'] = $storekeper_alias;
+        }
         if (empty($existingRow)) {
             AttributeModel::create($updates);
-        } elseif (
-            $updates['common_name'] !== $existingRow->common_name ||
-            $updates['storekeeper_id'] !== (int) $existingRow->storekeeper_id
-        ) {
-            AttributeModel::update(
-                $existingRow->id,
-                $updates
-            );
+        } else {
+            $hasChange = false;
+            foreach ($updates as $k => $v) {
+                if ($v != $existingRow[$k]) {
+                    $hasChange = true;
+                    break;
+                }
+            }
+            if ($hasChange) {
+                AttributeModel::update(
+                    $existingRow->id,
+                    $updates
+                );
+            }
         }
     }
 
-    public static function setAttributeStoreKeeperId(int $attribute_id, int $storekeper_id)
-    {
+    public static function setAttributeStoreKeeperId(
+        int $attribute_id, int $storekeper_id,
+        ?string $storekeper_alias = null
+    ) {
         $attributes = wc_get_attribute_taxonomies();
 
         $key = 'id:'.$attribute_id;
@@ -81,7 +95,7 @@ SQL;
             throw new \Exception("WcAttribute with id=$attribute_id not found");
         }
 
-        self::setAttributeTaxonomy($attributes[$key], $storekeper_id);
+        self::setAttributeTaxonomy($attributes[$key], $storekeper_id, $storekeper_alias);
     }
 
     public static function getAttributeStoreKeeperId(int $attribute_id): ?int

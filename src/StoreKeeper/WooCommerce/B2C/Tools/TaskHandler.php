@@ -385,30 +385,33 @@ class TaskHandler
      * @throws Exception
      * @throws Throwable
      */
-    public function handleImport($typeName, $task_options = [])
+    public function handleImport(int $task_id, string $typeName, $task_options = [])
     {
         $regexOutput = preg_match(self::$typeRegex, $typeName, $regexMatches);
 
-        $this->logger->debug('Handle import');
+        $this->logger->debug('Handle import', [
+            'typeName' => $typeName,
+            'task_id' => $task_id,
+            'task_options' => $task_options,
+        ]);
 
         if (0 === $regexOutput) {
             $type = $typeName;
-            $id = 0;
+            $storekeeper_id = 0;
         } else {
             if (1 === $regexOutput && count($regexMatches) > 0) {
                 $type = $regexMatches[1];
-                $id = $regexMatches[2];
-                $id = absint($id);
+                $storekeeper_id = $regexMatches[2];
+                $storekeeper_id = absint($storekeeper_id);
             } else {
                 return false;
             }
         }
 
+        $this->logger->debug('Got the task type: '.$type);
         if (self::FULL_IMPORT === $type) {
             return true;
         }
-
-        $this->logger->debug('Got the task: '.$type);
 
         switch ($type) {
             case self::ATTRIBUTE_IMPORT:
@@ -488,16 +491,11 @@ class TaskHandler
             ]
         );
 
-        if ($id > 0) {
-            $import->setId($id);
+        if ($storekeeper_id > 0) {
+            $import->setId($storekeeper_id);
         }
 
-        $task = self::getScheduledTask($type, $id);
-
-        $task_id = $task['id'];
-        if (0 != $task_id) {
-            $import->setTaskId($task_id);
-        }
+        $import->setTaskId($task_id);
 
         // Load all task meta for the task
         $taskMeta = $import->loadTaskMeta();
@@ -522,7 +520,7 @@ class TaskHandler
             $import->increaseTimesRan();
 
             if (!$import->run($task_options)) {
-                throw new Exception("Failed to run the task (id=$id) (task_id=$task_id)");
+                throw new Exception("Failed to run the task (id=$storekeeper_id) (task_id=$task_id)");
             }
 
             $this->logger->notice(

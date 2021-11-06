@@ -65,6 +65,11 @@ class AttributeImport extends AbstractImport
     {
         $title = $this->getTranslationIfRequired($dotObject, 'label');
         $dotObject->set('label', $title);
-        Attributes::importAttribute($dotObject);
+
+        Attributes::importAttribute(
+            $dotObject->get('id'),
+            $dotObject->get('name'),
+            $dotObject->get('label')
+        );
     }
 }

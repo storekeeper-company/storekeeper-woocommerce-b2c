@@ -71,7 +71,7 @@ HTML;
                 StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
             }
         }
-        if (version_compare($databaseVersion, '7.3.5', '<')) {
+        if (version_compare($databaseVersion, '7.4.0', '<')) {
             AttributeModel::ensureTable();
 
             if (0 === AttributeModel::count()) {

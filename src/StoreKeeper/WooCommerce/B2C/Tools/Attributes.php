@@ -183,7 +183,7 @@ class Attributes
      */
     public static function updateAttributeAndOptionFromContentVar($content_var)
     {
-        $attribute_id = $content_var['attribute_id'];
+        $storekeeper_id = $content_var['attribute_id'];
         // If there is no attribute_options_id it should to be stored as an attribute within the system,
         // But it should be set on the product its self. so it can be skipped here.
         if (array_key_exists('attribute_option_id', $content_var)) {
@@ -192,12 +192,10 @@ class Attributes
 
             $attribute_slug = self::createWooCommerceAttributeName($attribute_slug);
 
-            self::updateAttribute(
-                [
-                    'attribute_id' => $attribute_id,
-                    'slug' => $attribute_slug,
-                    'name' => $attribute_name,
-                ]
+            $attribute_id = self::importAttribute(
+                $storekeeper_id,
+                $content_var['name'],
+                $content_var['label'],
             );
 
             // Update attribute option.
@@ -220,54 +218,6 @@ class Attributes
         }
 
         return false; // nothing was added
-    }
-
-    protected static function updateAttribute($data = [])
-    {
-        if (
-            !array_key_exists('attribute_id', $data) ||
-            !array_key_exists('slug', $data) ||
-            !array_key_exists('name', $data)
-        ) {
-            throw new Exception('Missing required data attribute_id, slug or name, has now only: '.json_encode($data));
-        }
-
-        $existingAttribute = self::getAttribute($data['attribute_id']);
-        if (false === $existingAttribute) {
-            $existingAttribute = self::getAttributeBySlug($data['slug']);
-        }
-
-        $isNew = !$existingAttribute;
-        $data['name'] = substr($data['name'], 0, 30);
-
-        if (!array_key_exists('type', $data)) {
-            if ($isNew) {
-                $data['type'] = 'text';
-            } else {
-                $data['type'] = $existingAttribute->type;
-            }
-        }
-
-        if ($isNew) {
-            if (!array_key_exists('has_archives', $data)) {
-                $data['has_archives'] = self::DEFAULT_ARCHIVED_SETTING; // Activate archives when it is not set
-            }
-
-            // Create the attribute in woocommerce
-            $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(wc_create_attribute($data));
-        } else {
-            $attribute = WordpressExceptionThrower::throwExceptionOnWpError(wc_get_attribute($existingAttribute->id));
-            if ($attribute) {
-                $data['has_archives'] = $attribute->has_archives;
-            }
-
-            // Update the attribute in woocommerce
-            $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
-                wc_update_attribute($existingAttribute->id, $data)
-            );
-        }
-
-        self::setStoreKeeperIdForAttribute($attribute_id, $data['attribute_id']);
     }
 
     /**
@@ -500,19 +450,19 @@ SQL
      *
      * @throws WordpressException
      */
-    public static function importAttribute(Dot $dotObject): int
-    {
-        $slug = $dotObject->get('name');
-        $title = $dotObject->get('label');
-
-        $existingAttribute = self::getAttribute($dotObject->get('id'));
-        if (empty($existingAttribute) && $dotObject->has('name')) {
-            $existingAttribute = self::getAttributeBySlug($slug);
+    public static function importAttribute(
+        int $storekeeper_id,
+        string $alias,
+        string $title
+    ): int {
+        $existingAttribute = self::getAttribute($storekeeper_id);
+        if (empty($existingAttribute)) {
+            $existingAttribute = self::getAttributeBySlug($alias);
         }
 
         if (empty(trim($title))) {
             // fallback in case if empty
-            $title = $dotObject->get('name');
+            $title = $alias;
         }
 
         $update_arguments = [
@@ -535,7 +485,7 @@ SQL
             );
         } else {
             $update_arguments['type'] = self::getDefaultType();
-            $update_arguments['slug'] = AttributeTranslator::validateAttribute($slug);
+            $update_arguments['slug'] = AttributeTranslator::validateAttribute($alias);
             if (!array_key_exists('has_archives', $update_arguments)) {
                 $update_arguments['has_archives'] = self::DEFAULT_ARCHIVED_SETTING; // Activate archives when it is not set
             }
@@ -544,14 +494,9 @@ SQL
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(wc_create_attribute($update_arguments));
         }
 
-        self::setStoreKeeperIdForAttribute($attribute_id, $dotObject->get('id'));
+        AttributeModel::setAttributeStoreKeeperId($attribute_id, $storekeeper_id, $alias);
 
         return $attribute_id;
-    }
-
-    protected static function setStoreKeeperIdForAttribute(int $attribute_id, int $storekeeper_id)
-    {
-        AttributeModel::setAttributeStoreKeeperId($attribute_id, $storekeeper_id);
     }
 
     public static function updateAttributeOptionOrder(int $optionTermId, int $attributeOptionOrder): void
