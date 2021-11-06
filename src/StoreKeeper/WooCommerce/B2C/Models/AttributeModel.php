@@ -138,6 +138,22 @@ SQL;
         return null;
     }
 
+    public static function getAttributeByStoreKeeperAlias(int $storekeeper_alias): ?\stdClass
+    {
+        $select = self::getSelectHelper()
+            ->cols(['attribute_id'])
+            ->where('storekeeper_alias = :storekeeper_alias')
+            ->bindValue('storekeeper_alias', $storekeeper_alias);
+
+        global $wpdb;
+        $attribute_id = $wpdb->get_var(self::prepareQuery($select));
+        if (!empty($attribute_id)) {
+            return wc_get_attribute($attribute_id);
+        }
+
+        return null;
+    }
+
     public static function getAttributeIds(): array
     {
         $select = self::getSelectHelper()

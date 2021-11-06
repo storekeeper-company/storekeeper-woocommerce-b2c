@@ -275,6 +275,7 @@ class Attributes
     ) {
         $attribute_id = null;
         $unmatched_attributes = self::getUnmatchedAttributes();
+        // match by alias
         $cleanedSlug = CommonAttributeName::cleanCommonNamePrefix($alias);
         $name_options = [
             $alias,
@@ -290,6 +291,20 @@ class Attributes
                 }
             }
         }
+
+        // match by name
+        if (empty($attribute_id)) {
+            // try matching by label
+            $sanitized_label = sanitize_title($title);
+            foreach ($unmatched_attributes as $attribute) {
+                if (sanitize_title($attribute->attribute_label) === $sanitized_label) {
+                    $attribute_id = $attribute->attribute_id;
+                    break;
+                }
+            }
+        }
+
+        // match by name
         if (empty($attribute_id)) {
             // try matching by label
             $sanitized_label = sanitize_title($title);
@@ -491,6 +506,10 @@ SQL
         string $title
     ): int {
         $existingAttribute = self::getAttribute($storekeeper_id);
+        if (empty($existingAttribute)) {
+            // maybe the attribute was deleted on the StoreKeper site and recreated (alias cannot be changed)
+            $existingAttribute = AttributeModel::getAttributeByStoreKeeperAlias($alias);
+        }
         if (empty($existingAttribute)) {
             $existingAttribute = self::findMatchingAttribute($alias, $title);
         }
