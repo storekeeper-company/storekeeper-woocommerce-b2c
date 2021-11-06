@@ -292,21 +292,8 @@ class Attributes
             }
         }
 
-        // match by name
+        // match by label
         if (empty($attribute_id)) {
-            // try matching by label
-            $sanitized_label = sanitize_title($title);
-            foreach ($unmatched_attributes as $attribute) {
-                if (sanitize_title($attribute->attribute_label) === $sanitized_label) {
-                    $attribute_id = $attribute->attribute_id;
-                    break;
-                }
-            }
-        }
-
-        // match by name
-        if (empty($attribute_id)) {
-            // try matching by label
             $sanitized_label = sanitize_title($title);
             foreach ($unmatched_attributes as $attribute) {
                 if (sanitize_title($attribute->attribute_label) === $sanitized_label) {
