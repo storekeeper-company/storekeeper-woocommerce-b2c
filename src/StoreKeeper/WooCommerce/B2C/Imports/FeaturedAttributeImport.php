@@ -3,7 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 
 class FeaturedAttributeImport extends AbstractImport
 {
@@ -34,7 +34,7 @@ class FeaturedAttributeImport extends AbstractImport
      */
     protected function processItem($dotObject, array $options = [])
     {
-        FeaturedAttributeExportOptions::setAttribute(
+        FeaturedAttributeOptions::setAttribute(
             $dotObject->get('alias'),
             $dotObject->get('attribute_id'),
             $dotObject->get('attribute.name')

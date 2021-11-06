@@ -8,7 +8,7 @@ use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -225,7 +225,7 @@ class EventsHandler
                 // ProductsModule::FeaturedAttribute
                 case 'ProductsModule::FeaturedAttribute::updated':
                     $alias = $details['alias'];
-                    FeaturedAttributeExportOptions::setAttribute(
+                    FeaturedAttributeOptions::setAttribute(
                         $alias,
                         $details['attribute_id'],
                         $details['attribute']['name']
@@ -233,7 +233,7 @@ class EventsHandler
                     break;
                 case 'ProductsModule::FeaturedAttribute::deleted':
                     $alias = $details['alias'];
-                    FeaturedAttributeExportOptions::deleteAttribute($alias);
+                    FeaturedAttributeOptions::deleteAttribute($alias);
                     break;
                 // BlogModule::MenuItem
                 case 'BlogModule::MenuItem::updated':

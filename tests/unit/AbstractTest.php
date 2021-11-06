@@ -16,7 +16,7 @@ use StoreKeeper\WooCommerce\B2C\Debug\HookDumpFile;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
 use StoreKeeper\WooCommerce\B2C\Imports\CouponCodeImport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\TestLib\DumpFileHelper;
@@ -626,7 +626,7 @@ abstract class AbstractTest extends WP_UnitTestCase
 
         // Attributes
         $isAssigned = self::WC_TYPE_ASSIGNED === $wc_product->get_type();
-        $barcode = FeaturedAttributeExportOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BARCODE);
+        $barcode = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BARCODE);
 
         if ($barcode) {
             foreach ($original_product->get('flat_product.content_vars') as $content_var_data) {

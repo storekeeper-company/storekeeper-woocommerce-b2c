@@ -66,12 +66,15 @@ class AttributeExport
     {
         $attributeMap = [];
         foreach (ProductAttributes::getCustomProductAttributeOptions() as $attributeName => $attribute) {
-            $attributeKey = self::getAttributeKey($attributeName, CommonAttributeName::TYPE_CUSTOM_ATTRIBUTE, $isFeatured);
-            if (empty($attributeMap[$attributeKey])) {
+            $commonName = CommonAttributeName::getCustomName($attributeName);
+
+            if (empty($attributeMap[$commonName])) {
+                $attributeKey = self::getAttributeKey($attributeName, CommonAttributeName::TYPE_CUSTOM_ATTRIBUTE, $isFeatured);
                 if (!$isFeatured || !$excludeFeatured) {
-                    $attributeMap[$attributeKey] = [
+                    $attributeMap[$commonName] = [
                         'id' => 0,
                         'name' => $attributeKey,
+                        'common_name' => $commonName,
                         'label' => $attribute['name'],
                         'options' => false,
                     ];
@@ -93,6 +96,7 @@ class AttributeExport
                 $attributes[] = [
                     'id' => $item->attribute_id,
                     'name' => $attributeKey,
+                    'common_name' => CommonAttributeName::getSystemName($item->attribute_name),
                     'label' => $item->attribute_label,
                     'options' => true,
                 ];

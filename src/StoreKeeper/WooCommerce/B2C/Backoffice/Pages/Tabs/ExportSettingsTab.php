@@ -17,32 +17,7 @@ class ExportSettingsTab extends AbstractTab
     const SLUG = 'export-settings';
     const SAVE_OPTIONS_ACTION = 'save-options-action';
 
-    const ALIAS_BRAND = 'brand';
-    const ALIAS_BARCODE = 'barcode';
-    const ALIAS_PRINTABLE_SHORTNAME = 'printable_shortname';
-    const ALIAS_NEEDS_WEIGHT_ON_KASSA = 'needs_weight_on_kassa';
-    const ALIAS_NEEDS_DESCRIPTION_ON_KASSA = 'needs_description_on_kassa';
-    const ALIAS_DURATION_IN_SECONDS = 'duration_in_seconds';
-
-    const ALIAS_MINIMAL_ORDER_QTY = 'minimal_order_qty';
-    const ALIAS_IN_PACKAGE_QTY = 'in_package_qty';
-    const ALIAS_IN_BOX_QTY = 'in_box_qty';
-    const ALIAS_IN_OUTER_QTY = 'in_outer_qty';
-    const ALIAS_UNIT_WEIGHT_IN_G = 'unit_weight_in_g';
-
-    const FEATURED_ATTRIBUTES_ALIASES = [
-        self::ALIAS_BRAND,
-        self::ALIAS_BARCODE,
-        self::ALIAS_PRINTABLE_SHORTNAME,
-        self::ALIAS_NEEDS_WEIGHT_ON_KASSA,
-        self::ALIAS_NEEDS_DESCRIPTION_ON_KASSA,
-        self::ALIAS_DURATION_IN_SECONDS,
-        self::ALIAS_MINIMAL_ORDER_QTY,
-        self::ALIAS_IN_PACKAGE_QTY,
-        self::ALIAS_IN_BOX_QTY,
-        self::ALIAS_IN_OUTER_QTY,
-        self::ALIAS_UNIT_WEIGHT_IN_G,
-    ];
+    const FEATURED_ATTRIBUTES_ALIASES = FeaturedAttributes::ALL_ALIASES;
 
     public function __construct(string $title, string $slug = '')
     {
@@ -111,7 +86,7 @@ class ExportSettingsTab extends AbstractTab
         $options[self::NOT_MAPPED_VALUE] = "------ $notMapped ------";
 
         foreach (AttributeExport::getAllAttributes() as $attribute) {
-            $options[$attribute['name']] = $attribute['label'];
+            $options[$attribute['common_name']] = $attribute['label'];
         }
 
         return $options;
@@ -132,7 +107,11 @@ class ExportSettingsTab extends AbstractTab
                 AdminNotices::showError($message);
             } else {
                 foreach ($data as $key => $value) {
-                    FeaturedAttributeExportOptions::set($key, $value);
+                    if (self::NOT_MAPPED_VALUE !== $value) {
+                        FeaturedAttributeExportOptions::set($key, $value);
+                    } else {
+                        FeaturedAttributeExportOptions::set($key, '');
+                    }
                 }
             }
         }

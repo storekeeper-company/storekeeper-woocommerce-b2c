@@ -5,7 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFullSync;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
@@ -101,7 +101,7 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
         $featuredAttributes = $this->getMergedDataDump('ProductsModule::listFeaturedAttributes');
         foreach ($featuredAttributes as $featuredAttribute) {
             $this->assertNotEmpty(
-                FeaturedAttributeExportOptions::getWooCommerceAttributeName($featuredAttribute['alias']),
+                FeaturedAttributeOptions::getWooCommerceAttributeName($featuredAttribute['alias']),
                 'Missing featured attribute'
             );
         }
