@@ -3,7 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use Adbar\Dot;
-use StoreKeeper\WooCommerce\B2C\Cache\StoreKeeperIdCache;
+use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
@@ -59,7 +59,7 @@ class SyncWoocommerceProductPage extends AbstractSyncCommand
     public function recheckType($some_false_variable, $product_id)
     {
         $id = get_post_meta($product_id, 'storekeeper_id', true);
-        $data = StoreKeeperIdCache::get($id);
+        $data = ShopProductCache::get($id);
 
         if ($data) {
             return $data;
@@ -86,7 +86,7 @@ class SyncWoocommerceProductPage extends AbstractSyncCommand
                 if ($shopProduct->has('flat_product.product.type')) {
                     $type = $shopProduct->get('flat_product.product.type');
                     $wp_type = WooCommerceOptions::getWooCommerceTypeFromProductType($type);
-                    StoreKeeperIdCache::set($id, $wp_type);
+                    ShopProductCache::set($id, $wp_type);
                     unset($storekeeper_api);
                     unset($ShopModule);
                     unset($shopProduct);

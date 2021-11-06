@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use Exception;
-use StoreKeeper\WooCommerce\B2C\Cache\StoreKeeperIdCache;
+use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -768,7 +768,7 @@ SQL;
 
         // set StoreKeeperId
         $wp_type = WooCommerceOptions::getWooCommerceTypeFromProductType($importProductType);
-        StoreKeeperIdCache::set($dotObject->get('id'), $wp_type);
+        ShopProductCache::set($dotObject->get('id'), $wp_type);
 
         /* Other variables */
         $newProduct->set_sku($dotObject->get('flat_product.product.sku'));
