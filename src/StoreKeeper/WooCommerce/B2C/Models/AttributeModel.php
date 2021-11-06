@@ -110,6 +110,18 @@ SQL;
         return $wpdb->get_var(self::prepareQuery($select));
     }
 
+    public static function getStoreKeeperAliasByCommonName(string $common_name): ?string
+    {
+        $select = self::getSelectHelper()
+            ->cols(['storekeeper_alias'])
+            ->where('common_name = :common_name')
+            ->bindValue('common_name', $common_name);
+
+        global $wpdb;
+
+        return $wpdb->get_var(self::prepareQuery($select));
+    }
+
     public static function getAttributeByStoreKeeperId(int $storekeeper_id): ?\stdClass
     {
         $select = self::getSelectHelper()

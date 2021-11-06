@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools\Export;
 
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
@@ -144,6 +145,12 @@ class AttributeExport
         $isFeatured = !empty($featuredName);
         if ($isFeatured) {
             return $featuredName;
+        } else {
+            // if it was synchronized use existing alias
+            $storeKeeperAlias = AttributeModel::getStoreKeeperAliasByCommonName($attributeKey);
+            if (!empty($storeKeeperAlias)) {
+                return $storeKeeperAlias;
+            }
         }
 
         return $attributeKey;
