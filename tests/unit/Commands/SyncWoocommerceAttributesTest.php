@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributes;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 
 class SyncWoocommerceAttributesTest extends AbstractTest
@@ -64,7 +65,7 @@ class SyncWoocommerceAttributesTest extends AbstractTest
             $storekeeper_id = $this->fetchAttributeStoreKeeperId($wc_attribute->attribute_id);
             $this->assertEquals(
                 $original->get('id'),
-                $storekeeper_id->meta_value,
+                $storekeeper_id,
                 'The Woocommerce Attribute doesn\'t have the correct StoreKeeper id'
             );
 
@@ -143,33 +144,9 @@ class SyncWoocommerceAttributesTest extends AbstractTest
         return false;
     }
 
-    /**
-     * Retrieve the StoreKeeper id of the attribute from the database. Since this is a custom table, it's not retrievable
-     * using a native Wordpress / Woocommerce function.
-     *
-     * @param $attribute_id
-     *
-     * @return array|object|void|null
-     */
-    protected function fetchAttributeStoreKeeperId($attribute_id)
+    protected function fetchAttributeStoreKeeperId($attribute_id): ?int
     {
-        if (!is_null(wc_get_attribute($attribute_id))) {
-            $table_name = 'wp_storekeeper_woocommerce_attribute_metadata';
-            $sql = <<<SQL
-            SELECT `meta_value` 
-            FROM `$table_name`
-            WHERE `attribute_id` = %d
-            AND `meta_key` = 'storekeeper_id'
-SQL;
-
-            // Use wpdb to prepare the SQL statement
-            global $wpdb;
-            $sqlPrepared = $wpdb->prepare($sql, $attribute_id);
-
-            return (object) $this->db->querySql($sqlPrepared)->fetch_assoc();
-        }
-
-        return null;
+        return AttributeModel::getAttributeStoreKeeperId($attribute_id);
     }
 
     /**
@@ -192,7 +169,7 @@ SQL;
         $storekeeper_id = $this->fetchAttributeStoreKeeperId($wc_attribute->attribute_id);
         $this->assertEquals(
             $original->get('id'),
-            $storekeeper_id->meta_value,
+            $storekeeper_id,
             $message.': The Woocommerce Attribute doesn\'t have the correct StoreKeeper id'
         );
 

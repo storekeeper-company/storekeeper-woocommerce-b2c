@@ -30,7 +30,7 @@ abstract class AbstractModelGetCommand extends AbstractModelCommand
             \WP_CLI::error("Item with ID $id not found");
         }
 
-        $formatter = new \WP_CLI\Formatter($assoc_arguments, array_keys($Model::getFields()));
+        $formatter = new \WP_CLI\Formatter($assoc_arguments, array_keys($Model::getFieldsWithRequired()));
 
         $formatter->display_item($data);
     }

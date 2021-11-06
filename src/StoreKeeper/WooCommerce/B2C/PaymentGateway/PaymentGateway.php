@@ -221,6 +221,7 @@ SQL;
         $new_db_version = get_option(self::STOREKEEPER_PAY_DB_VERSION);
         $old_version = 'upx_pay_db_version';
         $db_version = get_option($old_version);
+        $sql = null;
         if (1.0 == $db_version && !$new_db_version) {
             $old_table = $wpdb->prefix.'upx_pay_orders_payments';
             $table_name_orders_payments = self::getDatabaseTable();

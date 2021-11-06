@@ -13,6 +13,7 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\AttributeTranslatorException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeImport;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeOptionImport;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use function wc_create_attribute;
 use function wc_get_attribute;
@@ -292,22 +293,9 @@ class Attributes
         throw new Exception(join("\r\n", $issues));
     }
 
-    /**
-     * @param $attribute_id
-     *
-     * @return array<stdClass>|stdClass|false
-     *
-     * @throws Exception
-     */
-    public static function getAttribute($attribute_id)
+    public static function getAttribute($storekeeper_id): ?stdClass
     {
-        return WooCommerceAttributeMetadata::listAttributesByMetadata(
-            [
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $attribute_id,
-                'single' => true,
-            ]
-        );
+        return AttributeModel::getAttributeByStoreKeeperId($storekeeper_id);
     }
 
     /**
@@ -563,7 +551,7 @@ SQL
 
     protected static function setStoreKeeperIdForAttribute(int $attribute_id, int $storekeeper_id)
     {
-        WooCommerceAttributeMetadata::setMetadata($attribute_id, 'storekeeper_id', $storekeeper_id);
+        AttributeModel::setAttributeStoreKeeperId($attribute_id, $storekeeper_id);
     }
 
     public static function updateAttributeOptionOrder(int $optionTermId, int $attributeOptionOrder): void

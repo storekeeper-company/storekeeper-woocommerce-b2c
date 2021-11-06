@@ -8,7 +8,7 @@ class WebhookLogModel extends AbstractModel implements IModelPurge
 {
     const TABLE_NAME = 'storekeeper_webhook_logs';
 
-    public static function getFields(): array
+    public static function getFieldsWithRequired(): array
     {
         return [
             'id' => true,

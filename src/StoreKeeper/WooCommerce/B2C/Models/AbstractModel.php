@@ -32,14 +32,17 @@ abstract class AbstractModel implements IModel
 
     const TABLE_NAME = 'storekeeper_abstract';
 
-    public static function getTableName(): string
+    public static function getWpPrefix(): string
     {
         global $wpdb, $table_prefix;
 
         // When running scripts without wordpress, wpdb isn't available.
-        $prefix = $wpdb ? $wpdb->prefix : $table_prefix;
+        return ($wpdb ? $wpdb->prefix : $table_prefix) ?? '';
+    }
 
-        return $prefix.static::TABLE_NAME;
+    public static function getTableName(): string
+    {
+        return self::getWpPrefix().static::TABLE_NAME;
     }
 
     protected static function querySql(string $sql): bool
@@ -82,7 +85,7 @@ abstract class AbstractModel implements IModel
             $stringData = json_encode($data);
             throw new Exception('Object is missing ID when updating in: '.$stringData);
         } else {
-            foreach (static::getFields() as $key => $required) {
+            foreach (static::getFieldsWithRequired() as $key => $required) {
                 if ('id' !== $key && $required && !isset($data[$key])) {
                     throw new Exception("Key $key not in object: ".json_encode($data));
                 }
@@ -94,7 +97,7 @@ abstract class AbstractModel implements IModel
     {
         $preparedData = [];
 
-        foreach (static::getFields() as $key => $required) {
+        foreach (static::getFieldsWithRequired() as $key => $required) {
             if (!empty($data[$key])) {
                 if ('id' !== $key) {
                     $preparedData[$key] = $data[$key];
@@ -264,5 +267,14 @@ abstract class AbstractModel implements IModel
     {
         return QueryFactorySingleton::getInstance()
             ->prepare($query);
+    }
+
+    public static function alterTable(): void
+    {
+    }
+
+    public static function purge(): int
+    {
+        return 0;
     }
 }

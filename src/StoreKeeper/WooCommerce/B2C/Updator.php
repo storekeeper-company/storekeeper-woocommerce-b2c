@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel\MigrateFromOldData;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class Updator
@@ -47,15 +49,7 @@ HTML;
     private function handleUpdate(string $databaseVersion)
     {
         if ($this->isUpgrade($databaseVersion)) {
-            // it's an upgrade
-            if (version_compare($databaseVersion, '7.2.1', '<')) {
-                // default mode was added
-                $isSet = StoreKeeperOptions::get(StoreKeeperOptions::SYNC_MODE, false);
-                if (!$isSet) {
-                    // previously it was full sync
-                    StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
-                }
-            }
+            $this->upgradeDatabase($databaseVersion);
         }
 
         $activator = new Activator();
@@ -65,5 +59,26 @@ HTML;
     private function isUpgrade(string $databaseVersion): bool
     {
         return self::ZERO_VERSION !== $databaseVersion;
+    }
+
+    private function upgradeDatabase(string $databaseVersion): void
+    {
+        if (version_compare($databaseVersion, '7.2.1', '<')) {
+            // default mode was added
+            $isSet = StoreKeeperOptions::get(StoreKeeperOptions::SYNC_MODE, false);
+            if (!$isSet) {
+                // previously it was full sync
+                StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
+            }
+        }
+        if (version_compare($databaseVersion, '7.3.5', '<')) {
+            AttributeModel::ensureTable();
+
+            if (0 === AttributeModel::count()) {
+                // no rows, lets copy
+                $migrate = new MigrateFromOldData();
+                $migrate->run();
+            }
+        }
     }
 }
