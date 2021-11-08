@@ -65,23 +65,7 @@ SQL;
         if (!empty($storekeper_alias)) {
             $updates['storekeeper_alias'] = $storekeper_alias;
         }
-        if (empty($existingRow)) {
-            AttributeModel::create($updates);
-        } else {
-            $hasChange = false;
-            foreach ($updates as $k => $v) {
-                if ($v != $existingRow[$k]) {
-                    $hasChange = true;
-                    break;
-                }
-            }
-            if ($hasChange) {
-                AttributeModel::update(
-                    $existingRow['id'],
-                    $updates
-                );
-            }
-        }
+        self::upsert($updates, $existingRow);
     }
 
     public static function setAttributeStoreKeeperId(
@@ -102,6 +86,18 @@ SQL;
     {
         $select = self::getSelectHelper()
             ->cols(['storekeeper_id'])
+            ->where('attribute_id = :attribute_id')
+            ->bindValue('attribute_id', $attribute_id);
+
+        global $wpdb;
+
+        return $wpdb->get_var(self::prepareQuery($select));
+    }
+
+    public static function getIdAttributeId(int $attribute_id): ?int
+    {
+        $select = self::getSelectHelper()
+            ->cols(['id'])
             ->where('attribute_id = :attribute_id')
             ->bindValue('attribute_id', $attribute_id);
 

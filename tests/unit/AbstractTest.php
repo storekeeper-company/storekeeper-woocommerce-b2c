@@ -651,18 +651,9 @@ abstract class AbstractTest extends WP_UnitTestCase
                         $wc_product->get_attribute($expected_attribute_name),
                         "Attribute $expected_attribute_name does not exist"
                     );
-                    $expected_attribute_value = Attributes::sanitizeOptionSlug(
-                        $content_var->get('attribute_option_id'),
-                        $content_var->get('value')
-                    );
-                    $current_attributes = $wc_product->get_attributes();
-                    $current_attribute_value = $current_attributes[Attributes::createWooCommerceAttributeName(
-                        $expected_attribute_name
-                    )];
-
                     $this->assertEquals(
-                        $expected_attribute_value,
-                        $current_attribute_value,
+                        $content_var->get('value_label'),
+                        $wc_product->get_attribute($expected_attribute_name),
                         "[sku=$sku] WooCommerce attribute option value doesn't match the expected value"
                     );
                 }
@@ -672,15 +663,17 @@ abstract class AbstractTest extends WP_UnitTestCase
                 $content_var = new Dot($content_var_data);
 
                 $expected_attribute_name = $content_var->get('name');
+                $expected_attribute_value = $content_var->get('value');
+                if ($content_var->has('attribute_option_id')) {
+                    $expected_attribute_value = $content_var->get('value_label');
+                } else {
+                    $expected_attribute_name = $content_var->get('label');
+                }
+
                 $this->assertNotEmpty(
                     $wc_product->get_attribute($expected_attribute_name),
                     "Attribute $expected_attribute_name does not exist"
                 );
-
-                $expected_attribute_value = $content_var->get('value');
-                if ($content_var->has('attribute_option_id')) {
-                    $expected_attribute_value = $content_var->get('value_label');
-                }
 
                 $current_attribute_value = $wc_product->get_attribute($expected_attribute_name);
                 $this->assertEquals(

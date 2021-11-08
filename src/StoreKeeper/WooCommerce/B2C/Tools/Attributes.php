@@ -2,22 +2,20 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
-use Adbar\Dot;
 use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use stdClass;
 use StoreKeeper\WooCommerce\B2C\Core;
-use StoreKeeper\WooCommerce\B2C\Exceptions\AttributeTranslatorException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeImport;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeOptionImport;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use function wc_create_attribute;
 use function wc_get_attribute;
-use WC_Product_Variation;
 use function wc_update_attribute;
 
 class Attributes
@@ -95,12 +93,12 @@ class Attributes
         return $unmatched_attributes;
     }
 
-    protected function ensureAttribute($attribute_id)
+    protected function ensureAttribute($storekeeper_id)
     {
-        if (!self::isAttributeLinkedToBackend($attribute_id)) {
+        if (!self::isAttributeLinkedToBackend($storekeeper_id)) {
             $attributeImport = new AttributeImport(
                 [
-                    'storekeeper_id' => $attribute_id,
+                    'storekeeper_id' => $storekeeper_id,
                 ]
             );
             $attributeImport->setLogger($this->logger);
@@ -108,19 +106,61 @@ class Attributes
         }
     }
 
-    protected function ensureAttributeOptions($attribute_id, $attribute_option_ids = [])
+    /**
+     * @return array<int,int> [storekeeper_id => wc_attribute_id, ... ]
+     *
+     * @throws WordpressException
+     */
+    public static function importsAttributes(array $sk_attributes): array
     {
-        if (count($attribute_option_ids) > 0) {
-            $attribute = self::getAttribute($attribute_id);
+        $attribute_sk_to_wc = [];
+        foreach ($sk_attributes as $sk_attribute) {
+            $attribute_sk_to_wc[$sk_attribute['id']] = self::importAttribute(
+                $sk_attribute['id'],
+                $sk_attribute['name'],
+                $sk_attribute['label'],
+            );
+        }
+
+        return $attribute_sk_to_wc;
+    }
+
+    /**
+     * @param array<int,int> $attribute_sk_to_wc [storekeeper_id => wc_attribute_id, ... ] see self::importsAttributes
+     *
+     * @return array<int,int> [storekeeper_id => term_id, ... ]
+     *
+     * @throws WordpressException
+     */
+    public static function importsAttributeOptions(array $attribute_sk_to_wc, array $sk_options): array
+    {
+        $option_sk_to_wc = [];
+        foreach ($sk_options as $sk_option) {
+            $attribute_id = $attribute_sk_to_wc[$sk_option['attribute_id']];
+            $option_sk_to_wc[$sk_option['id']] = self::importAttributeOption(
+                $attribute_id,
+                $sk_option['id'],
+                $sk_option['name'],
+                $sk_option['label'],
+            );
+        }
+
+        return $option_sk_to_wc;
+    }
+
+    protected function ensureAttributeOptions($sk_attribute_id, $sk_attribute_option_ids = [])
+    {
+        if (count($sk_attribute_option_ids) > 0) {
+            $attribute = self::getAttribute($sk_attribute_id);
             $attribute_slug = $attribute->slug;
 
             // Check if attribute options exists
             $missing_attribute_option_ids = [];
 
             // TODO [profes@3/14/19]: Improve this with a single SQL query
-            foreach ($attribute_option_ids as $attribute_option_id) {
+            foreach ($sk_attribute_option_ids as $attribute_option_id) {
                 // Add it when it can't find it.
-                if (false === self::getAttributeOptionTermIdByAttributeOptionId(
+                if (false === self::getAttributeOptionTermIdByAttributeOptionIdInMeta(
                         $attribute_option_id,
                         $attribute_slug
                     )) {
@@ -138,38 +178,29 @@ class Attributes
         }
     }
 
-    public function ensureAttributeAndOptions($attribute_id, $attribute_option_ids = [])
-    {
-        $this->ensureAttribute($attribute_id);
-        $this->ensureAttributeOptions($attribute_id, $attribute_option_ids);
-    }
-
-    public static function getAttributeOptionTermIdByAttributeOptionId($attribute_option_id, $attribute_name)
+    protected static function getAttributeOptionTermIdByAttributeOptionIdInMeta(int $sk_attribute_option_id, string $attribute_taxonomy_name): ?int
     {
         $args = [
-            'hide_empty' => false, // also retrieve terms which are not used yet
+            'taxonomy' => $attribute_taxonomy_name,
+            'hide_empty' => false, // also retrieve terms which are not used yet on products
             'meta_query' => [
                 [
                     'key' => 'storekeeper_id',
-                    'value' => $attribute_option_id,
+                    'value' => $sk_attribute_option_id,
                     'compare' => '=',
                 ],
             ],
+            'fields' => 'ids',
         ];
 
         // get_terms can return a wpError, which causes count below to error out.
         $terms = WordpressExceptionThrower::throwExceptionOnWpError(get_terms($args));
 
         if (count($terms) > 0) {
-            $attribute_taxonomy = self::createWooCommerceAttributeName($attribute_name);
-
-            $current = array_shift($terms);
-            if ($current->taxonomy == $attribute_taxonomy) {
-                return (int) $current->term_id;
-            }
+            return array_shift($terms)->term_id;
         }
 
-        return false;
+        return null;
     }
 
     public static function isAttributeLinkedToBackend(int $attribute_id)
@@ -203,33 +234,19 @@ class Attributes
         // If there is no attribute_options_id it should to be stored as an attribute within the system,
         // But it should be set on the product its self. so it can be skipped here.
         if (array_key_exists('attribute_option_id', $content_var)) {
-            $attribute_slug = $content_var['name'];
-            $attribute_name = substr($content_var['label'], 0, 30);
-
-            $attribute_slug = self::createWooCommerceAttributeName($attribute_slug);
-
             $attribute_id = self::importAttribute(
                 $storekeeper_id,
                 $content_var['name'],
                 $content_var['label'],
             );
 
-            // Update attribute option.
-            $attribute_option_id = $content_var['attribute_option_id'];
-            $attribute_option_name = substr($content_var['value_label'], 0, 30);
-            $attribute_option_slug = $content_var['value'];
-            $attribute_option_image = array_key_exists('attribute_option_image_url', $content_var)
-                ? $content_var['attribute_option_image_url'] : false;
-            $attribute_option_order = array_key_exists('attribute_option_order', $content_var) ? $content_var['attribute_option_order'] : 0;
-
-            return self::updateAttributeOption(
-                $attribute_slug,
-                $attribute_name,
-                $attribute_option_id,
-                $attribute_option_slug,
-                $attribute_option_name,
-                $attribute_option_image,
-                $attribute_option_order,
+            return self::importAttributeOption(
+                $attribute_id,
+                $content_var['attribute_option_id'],
+                $content_var['value'],
+                $content_var['value_label'],
+                $content_var['attribute_option_image_url'] ?? null,
+                $content_var['attribute_option_order'] ?? 0,
             );
         }
 
@@ -269,20 +286,71 @@ class Attributes
      *
      * @return bool|stdClass|null
      */
-    protected static function findMatchingAttribute(
+    protected static function findMatchingAttributeOption(
+        string $attribute_alias,
         string $alias,
         string $title
-    ) {
-        $attribute_id = null;
-        $unmatched_attributes = self::getUnmatchedAttributes();
-        // match by alias
-        $cleanedSlug = CommonAttributeName::cleanCommonNamePrefix($alias);
-        $name_options = [
+    ): ?int {
+        $term_id = null;
+
+        // search by slug
+        $cleanedSlug = CommonAttributeOptionName::cleanCommonNamePrefix($attribute_alias, $alias);
+        $name_options = array_unique([
             $alias,
             $cleanedSlug,
             sanitize_title($alias),
             sanitize_title($cleanedSlug),
-        ];
+        ]);
+        foreach ($name_options as $name_option) {
+            $args = [
+                'taxonomy' => $attribute_alias,
+                'hide_empty' => false, // also retrieve terms which are not used yet on products
+                'slug' => $name_option,
+                'fields' => 'ids',
+            ];
+            $term_ids = WordpressExceptionThrower::throwExceptionOnWpError(get_terms($args));
+            foreach ($term_ids as $possible_term_id) {
+                if (!AttributeOptionModel::termIdExists($possible_term_id)) {
+                    $term_id = $possible_term_id;
+                    break 2;
+                }
+            }
+        }
+
+        if (empty($term_id)) {
+            // search by exact label
+            $args = [
+                'taxonomy' => $attribute_alias,
+                'hide_empty' => false, // also retrieve terms which are not used yet on products
+                'name' => $title,
+                'fields' => 'ids',
+            ];
+            $term_ids = WordpressExceptionThrower::throwExceptionOnWpError(get_terms($args));
+            foreach ($term_ids as $possible_term_id) {
+                if (!AttributeOptionModel::termIdExists($possible_term_id)) {
+                    $term_id = $possible_term_id;
+                    break;
+                }
+            }
+        }
+
+        return $term_id;
+    }
+
+    protected static function findMatchingAttribute(
+        string $alias,
+        string $title
+    ): ?stdClass {
+        $attribute_id = null;
+        $unmatched_attributes = self::getUnmatchedAttributes();
+        // match by alias
+        $cleanedSlug = CommonAttributeName::cleanCommonNamePrefix($alias);
+        $name_options = array_unique([
+            $alias,
+            $cleanedSlug,
+            sanitize_title($alias),
+            sanitize_title($cleanedSlug),
+        ]);
         foreach ($name_options as $name_option) {
             foreach ($unmatched_attributes as $attribute) {
                 if ($attribute->attribute_name === $name_option) {
@@ -311,15 +379,11 @@ class Attributes
     }
 
     /**
-     * @param $attribute_slug
-     * @param $attribute_name
-     *
-     * @throws WordpressException
+     * registers the taxonomy, so we can fo wp_query on it.
      */
-    protected static function registerAttributeTemporary($attribute_slug, $attribute_name)
+    protected static function registerAttributeTemporary($taxonomy_name, $label)
     {
         // Register as taxonomy while importing.
-        $taxonomy_name = self::createWooCommerceAttributeName($attribute_slug);
         WordpressExceptionThrower::throwExceptionOnWpError(
             register_taxonomy(
                 $taxonomy_name,
@@ -328,7 +392,7 @@ class Attributes
                     'woocommerce_taxonomy_args_'.$taxonomy_name,
                     [
                         'labels' => [
-                            'name' => $attribute_name,
+                            'name' => $label,
                         ],
                         'hierarchical' => true,
                         'show_ui' => false,
@@ -338,54 +402,6 @@ class Attributes
                 )
             )
         );
-    }
-
-    /**
-     * @throws AttributeTranslatorException
-     */
-    public static function createWooCommerceAttributeName($tax_name)
-    {
-        try {
-            // Get the correct attribute name
-            $tax_name = AttributeTranslator::setTranslation($tax_name);
-        } catch (\Throwable $throwable) {
-            throw new AttributeTranslatorException($throwable->getMessage(), 0, $throwable);
-        }
-
-        // Change format when needed
-        if (strlen($tax_name) > 32) {
-            $tax_name = substr($tax_name, 0, 31);
-        }
-        if (!StringFunctions::startsWith($tax_name, 'pa_')) {
-            $tax_name = wc_attribute_taxonomy_name($tax_name);
-        }
-
-        return $tax_name;
-    }
-
-    public static function getAttributeOptionTermId($attribute_name, $attribute_option_slug, $attribute_option_id)
-    {
-        $attribute_name = self::createWooCommerceAttributeName($attribute_name);
-        $attribute_option_slug = self::sanitizeOptionSlug($attribute_option_id, $attribute_option_slug);
-
-        global $wpdb;
-
-        $sql = $wpdb->prepare(
-            <<<SQL
-SELECT terms.term_id 
-FROM `{$wpdb->prefix}terms` AS terms
-LEFT JOIN `{$wpdb->prefix}term_taxonomy` AS TAX 
-ON terms.term_id=TAX.term_id 
-WHERE terms.slug=%s
-AND TAX.taxonomy=%s
-LIMIT 1
-SQL
-            ,
-            $attribute_option_slug,
-            $attribute_name
-        );
-
-        return $wpdb->get_var($sql);
     }
 
     /**
@@ -418,65 +434,97 @@ SQL
         }
     }
 
-    /**
-     * @param $attribute_slug
-     * @param $attribute_name
-     * @param $attribute_option_id
-     * @param $attribute_option_slug
-     * @param $attribute_option_name
-     * @param $attribute_option_image
-     *
-     * @throws WordpressException
-     */
-    public static function updateAttributeOption(
-        $attribute_slug,
-        $attribute_name,
-        $attribute_option_id,
-        $attribute_option_slug,
-        $attribute_option_name,
-        $attribute_option_image,
-        $attribute_option_order
+    public static function importAttributeOption(
+        int $attribute_id,
+        int $sk_attribute_option_id,
+        string $option_alias,
+        string $option_name,
+        ?string $option_image = null,
+        int $option_order = 0
     ) {
-        self::registerAttributeTemporary($attribute_slug, $attribute_name);
+        $wc_attribute = wc_get_attribute($attribute_id);
+        self::registerAttributeTemporary($wc_attribute->slug, $wc_attribute->name);
 
-        $attribute_option_term_id = self::getAttributeOptionTermId(
-            $attribute_slug,
-            $attribute_option_slug,
-            $attribute_option_id
+        $term_id = AttributeOptionModel::getTermIdByStorekeeperId(
+            $attribute_id,
+            $sk_attribute_option_id
         );
-
-        if (!$attribute_option_term_id) {
-            $term = WordpressExceptionThrower::throwExceptionOnWpError(
-                wp_insert_term(
-                    $attribute_option_name,
-                    self::createWooCommerceAttributeName($attribute_slug),
-                    [
-                        'slug' => self::sanitizeOptionSlug($attribute_option_id, $attribute_option_slug),
-                    ]
-                )
+        $by_meta = false;
+        if (empty($term_id)) {
+            // try to find by term_meta (version before 7.4.0 was storing it that way)
+            $term_id = self::getAttributeOptionTermIdByAttributeOptionIdInMeta(
+                $sk_attribute_option_id,
+                $wc_attribute->slug
             );
-            $term_id = $term['term_id'];
-        } else {
-            $term = WordpressExceptionThrower::throwExceptionOnWpError(
-                wp_update_term(
-                    $attribute_option_term_id,
-                    self::createWooCommerceAttributeName($attribute_slug),
-                    [
-                        'name' => $attribute_option_name,
-                        'slug' => self::sanitizeOptionSlug($attribute_option_id, $attribute_option_slug),
-                    ]
-                )
+            $by_meta = true;
+        }
+        if (empty($term_id)) {
+            // seems like option was deleted and recreated after (alias cannot be changed)
+            $term_id = AttributeOptionModel::getTermIdByStorekeeperAlias(
+                $attribute_id,
+                $option_alias
             );
-            $term_id = $term['term_id'];
+        }
+        if (empty($term_id)) {
+            $term_id = self::findMatchingAttributeOption(
+                $wc_attribute->slug,
+                $option_alias,
+                $option_name
+            );
         }
 
-        update_term_meta($term_id, 'storekeeper_id', $attribute_option_id);
-        static::updateAttributeOptionOrder($term_id, $attribute_option_order);
+        // Update attribute option.
+        $option_name = substr($option_name, 0, self::MAX_NAME_LENGTH);
+        if (!$term_id) {
+            $option_alias = CommonAttributeOptionName::getName(
+                $wc_attribute->slug, $option_alias
+            );
+            $option_alias = wp_unique_term_slug($option_alias, (object) [
+                'taxonomy' => $wc_attribute->slug,
+            ]);
+            $term = WordpressExceptionThrower::throwExceptionOnWpError(
+                wp_insert_term(
+                    $option_name,
+                    $wc_attribute->slug,
+                    [
+                        'slug' => $option_alias,
+                    ]
+                )
+            );
+            $term_id = $term['term_id'];
+        } else {
+            WordpressExceptionThrower::throwExceptionOnWpError(
+                wp_update_term(
+                    $term_id,
+                    $wc_attribute->slug,
+                    [
+                        'name' => $option_name,
+                    ]
+                )
+            );
+        }
 
-        if ($attribute_option_image) {
-            self::setAttributeOptionImage($term_id, $attribute_option_image);
+        static::updateAttributeOptionOrder($term_id, $option_order);
+
+        if ($option_image) {
+            self::setAttributeOptionImage($term_id, $option_image);
         } else {
             self::unsetAttributeOptionImage($term_id);
+        }
+
+        AttributeOptionModel::setAttributeOptionTerm(
+            WordpressExceptionThrower::throwExceptionOnWpError(get_term($term_id)),
+            $attribute_id,
+            $sk_attribute_option_id,
+            $option_alias
+        );
+
+        if ($by_meta) {
+            // clean the old way of getting the option <7.4.0
+            delete_term_meta(
+                $term_id,
+                'storekeeper_id'
+            );
         }
 
         return $term_id;
@@ -513,7 +561,7 @@ SQL
         if (empty($existingAttribute)) {
             // Create the attribute in woocommerce
             $update_arguments['type'] = self::getDefaultType();
-            $update_arguments['slug'] = AttributeTranslator::validateAttribute($alias);
+            $update_arguments['slug'] = self::prepareNewAttributeSlug($alias);
             $update_arguments['has_archives'] = self::DEFAULT_ARCHIVED_SETTING;
 
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
@@ -537,54 +585,24 @@ SQL
         return $attribute_id;
     }
 
+    public static function prepareNewAttributeSlug(string $slug): string
+    {
+        $clean_slug_base = wc_sanitize_taxonomy_name(CommonAttributeName::cleanAttributeTermPrefix($slug));
+        $i = 1;
+        $clean_slug = $clean_slug_base;
+        while (
+            wc_check_if_attribute_name_is_reserved($clean_slug) ||
+            taxonomy_exists($clean_slug) // taxonomy exists
+        ) {
+            $clean_slug = $clean_slug_base.'_'.$i;
+            ++$i;
+        }
+
+        return $clean_slug;
+    }
+
     public static function updateAttributeOptionOrder(int $optionTermId, int $attributeOptionOrder): void
     {
         update_term_meta($optionTermId, 'order', $attributeOptionOrder);
-    }
-
-    /**
-     * @return int|mixed
-     */
-    public static function getOptionOrder(WC_Product_Variation $variation, Dot $associatedShopProduct): int
-    {
-        $attributes = $variation->get_attributes();
-
-        try {
-            $optionOrder = 0;
-            $optionId = self::getAttributeOptionTermIdByAttributeOptionId(
-                $associatedShopProduct->get('configurable_associated_product.attribute_option_ids')[0],
-                key($attributes),
-            );
-
-            $optionMeta = get_term_meta($optionId);
-            if (isset($optionMeta['order'])) {
-                $optionOrder = $optionMeta['order'][0] ?? 0;
-            }
-
-            return $optionOrder;
-        } catch (AttributeTranslatorException $attributeTranslatorException) {
-            return 0;
-        }
-    }
-
-    public static function importAttributeOption(Dot $dotObject): void
-    {
-        $attribute_slug = $dotObject->get('attribute.name');
-        $attribute_name = $dotObject->get('attribute.label');
-        $attribute_option_id = $dotObject->get('id');
-        $attribute_option_name = substr($dotObject->get('label'), 0, 30);
-        $attribute_option_slug = Attributes::sanitizeOptionSlug($attribute_option_id, $dotObject->get('name'));
-        $attribute_option_image = $dotObject->get('image_url', false);
-        $attribute_option_order = $dotObject->get('order', false);
-
-        Attributes::updateAttributeOption(
-            $attribute_slug,
-            $attribute_name,
-            $attribute_option_id,
-            $attribute_option_slug,
-            $attribute_option_name,
-            $attribute_option_image,
-            $attribute_option_order
-        );
     }
 }

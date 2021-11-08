@@ -196,6 +196,30 @@ abstract class AbstractModel implements IModel
         static::ensureAffectedRows($affectedRows, true);
     }
 
+    public static function upsert(array $updates, ?array $existingRow = null): int
+    {
+        if (empty($existingRow)) {
+            $id = static::create($updates);
+        } else {
+            $id = $existingRow['id'];
+            $hasChange = false;
+            foreach ($updates as $k => $v) {
+                if ($v != $existingRow[$k]) {
+                    $hasChange = true;
+                    break;
+                }
+            }
+            if ($hasChange) {
+                static::update(
+                    $id,
+                    $updates
+                );
+            }
+        }
+
+        return $id;
+    }
+
     public static function delete($id): void
     {
         global $wpdb;
@@ -235,11 +259,16 @@ abstract class AbstractModel implements IModel
         }
     }
 
-    public static function getSelectHelper(): SelectInterface
+    public static function getSelectHelper($alias = ''): SelectInterface
     {
+        $spec = static::getTableName();
+        if (!empty($alias)) {
+            $spec .= ' AS '.$alias;
+        }
+
         return QueryFactorySingleton::getInstance()
             ->newSelect()
-            ->from(static::getTableName());
+            ->from($spec);
     }
 
     public static function getInsertHelper(): InsertInterface

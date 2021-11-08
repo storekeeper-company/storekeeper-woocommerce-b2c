@@ -13,6 +13,7 @@ use Throwable;
 class ProcessAllTasks extends AbstractCommand
 {
     const HAS_ERROR_TRANSIENT_KEY = 'process_has_error';
+    const MASSAGE_TASK_FAILED = 'Task failed';
 
     private $hasError = 'no';
     /**
@@ -270,7 +271,7 @@ class ProcessAllTasks extends AbstractCommand
         $task['error_output'] = $error;
         $this->updateTask($task['id'], $task);
 
-        $this->logger->error('Task failed', $log_context + $error_parts);
+        $this->logger->error(self::MASSAGE_TASK_FAILED, $log_context + $error_parts);
     }
 
     protected function getSiteUrl(): string

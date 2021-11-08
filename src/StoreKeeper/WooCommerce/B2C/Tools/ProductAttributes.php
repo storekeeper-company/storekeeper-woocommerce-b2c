@@ -9,15 +9,31 @@ use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
 
 class ProductAttributes
 {
+    private const ATTRIBUTE_NAMES = 'attribute_names';
+    private const ATTRIBUTE_POSITION = 'attribute_position';
+    private const ATTRIBUTE_VISIBILITY = 'attribute_visibility';
+    private const ATTRIBUTE_VALUES = 'attribute_values';
+    private const ATTRIBUTE_VARIATION = 'attribute_variation';
+
+    private const ATTRIBUTE_KEYS = [
+        self::ATTRIBUTE_NAMES,
+        self::ATTRIBUTE_POSITION,
+        self::ATTRIBUTE_VISIBILITY,
+        self::ATTRIBUTE_VALUES,
+        self::ATTRIBUTE_VARIATION,
+    ];
+
     public static function setSimpleAttributes(\WC_Product $newProduct, Dot $product)
     {
-        $attribute_data = [];
+        $attribute_box = [];
         if ($product->has('flat_product.content_vars')) {
-            $attribute_data = self::getAttributeData($product);
+            $attribute_box = self::getAttributeBoxFromContentVars(
+                $product->get('flat_product.content_vars', [])
+            );
         }
 
-        if (count($attribute_data) > 0) {
-            $attributes = \WC_Meta_Box_Product_Data::prepare_attributes($attribute_data);
+        if (count($attribute_box) > 0) {
+            $attributes = self::prepareBoxData($attribute_box);
             $newProduct->set_attributes($attributes);
         }
 
@@ -52,93 +68,66 @@ class ProductAttributes
         return $wc_product->get_meta(StoreKeeperOptions::getBarcodeMetaKey($wc_product));
     }
 
-    public static function getAttributeData(Dot $product)
+    protected static function getAttributeBoxFromContentVars(array $content_vars): array
     {
-        $attributeData = [
-            'attribute_names' => [],
-            'attribute_position' => [],
-            'attribute_visibility' => [],
-            'attribute_values' => [],
-        ];
+        $attribute_box = [];
+        foreach ($content_vars as $cvData) {
+            $contentVar = new Dot($cvData);
 
-        $added = 0;
+            if (!$contentVar->has('attribute_id')) {
+                continue;
+            }
 
-        if ($product->has('flat_product.content_vars')) {
-            foreach ($product->get('flat_product.content_vars') as $index => $cvData) {
-                $contentVar = new Dot($cvData);
+            if (!$contentVar->get('attribute_published')) {
+                continue;
+            }
 
-                if (!$contentVar->has('attribute_id')) {
-                    continue;
-                }
+            $position = $contentVar->get('attribute_order', 0);
+            if ($contentVar->has('attribute_option_id')) {
+                $attribute_id = Attributes::importAttribute(
+                    $contentVar->get('attribute_id'),
+                    $contentVar->get('name'),
+                    $contentVar->get('label')
+                );
+                $value = [
+                    self::importAttributeOptionFromContentVar(
+                        $attribute_id,
+                        $contentVar
+                    ),
+                ];
+                $attribute = wc_get_attribute($attribute_id);
+                $attribute_name = $attribute->slug;
+            } else {
+                $attribute_name = $contentVar->get('label');
+                $value = (string) $contentVar->get('value');
+            }
 
-                if (!$contentVar->get('attribute_published')) {
-                    continue;
-                }
+            $attribute_box[$attribute_name] = [
+                self::ATTRIBUTE_NAMES => $attribute_name,
+                self::ATTRIBUTE_VISIBILITY => $contentVar->get('attribute_published') ? 1 : 0,
+                self::ATTRIBUTE_VALUES => $value,
+                self::ATTRIBUTE_POSITION => $position,
+            ];
+        }
 
-                ++$added;
+        return $attribute_box;
+    }
 
-                // Check if attribute and attribute option id exists.
-                $attribute = Attributes::getAttribute($contentVar->get('attribute_id'));
-                $attributeOptionsId = false;
-                if ($contentVar->has('attribute_option_id') && $attribute && $attribute->slug && $attribute->name) {
-                    $attributeOptionsId = Attributes::getAttributeOptionTermIdByAttributeOptionId(
-                        $contentVar->get('attribute_option_id'),
-                        $attribute->slug
-                    );
-                }
+    private static function prepareBoxData(array $attribute_box)
+    {
+        $attribute_data = array_fill_keys(self::ATTRIBUTE_KEYS, []);
 
-                // Check if attribute and or attribute option needs updating
-                $updateAttribute = !$attribute;
-                $updateAttributeOptions = !$attributeOptionsId;
-                if (!$updateAttributeOptions && $contentVar->has('attribute_option_id')) {
-                    $attribute_option_term = get_term($attributeOptionsId, $attribute->slug);
-                    $updateAttributeOptions = $attribute_option_term->name !== $contentVar->has('value_label');
-                }
-
-                // Update both attribute and attribute options if either need updating
-                if ($updateAttributeOptions || $updateAttribute) {
-                    $attributeOptionsId = Attributes::updateAttributeAndOptionFromContentVar($contentVar->get());
-                    $attribute = Attributes::getAttribute($contentVar->get('attribute_id'));
-                }
-
-                if ($contentVar->has('attribute_option_id')) {
-                    $attributeData['attribute_names'][$index] = $attribute->slug;
-                } else {
-                    $attributeData['attribute_names'][$index] = $contentVar->get('label');
-                }
-
-                $attributeOrder = 0;
-                if ($contentVar->has('attribute_order')) {
-                    $attributeOrder = $contentVar->get('attribute_order');
-                }
-                $attributeData['attribute_position'][$index] = (int) $attributeOrder;
-
-                if ($contentVar->get('attribute_published')) {
-                    $attributeData['attribute_visibility'][$index] = 1;
-                }
-
-                // If the attribute options is imported
-                if ($attributeOptionsId) {
-                    $attributeData['attribute_values'][$index] = [
-                        $attributeOptionsId,
-                    ];
-                } else {
-                    if ($contentVar->has('value_label')) {
-                        $attributeData['attribute_values'][$index] = Attributes::sanitizeOptionSlug(
-                            $contentVar->get('attribute_option_id'),
-                            (string) $contentVar->get('value')
-                        );
-                    } else {
-                        $attributeData['attribute_values'][$index] = (string) $contentVar->get('value');
-                    }
+        $i = 0;
+        foreach ($attribute_box as $attribute) {
+            ++$i;
+            foreach (self::ATTRIBUTE_KEYS as $key) {
+                if (array_key_exists($key, $attribute)) {
+                    $attribute_data[$key][$i] = $attribute[$key];
                 }
             }
         }
-        if ($added <= 0) {
-            return [];
-        }
 
-        return $attributeData;
+        return \WC_Meta_Box_Product_Data::prepare_attributes($attribute_data);
     }
 
     public static function getCustomProductAttributeOptions()
@@ -163,131 +152,95 @@ class ProductAttributes
 
     public static function setConfigurableAttributes(\WC_Product $newProduct, Dot $product, Dot $optionsConfig)
     {
-        $attribute_data = [
-            'attribute_names' => [],
-            'attribute_position' => [],
-            'attribute_visibility' => [],
-            'attribute_values' => [],
-        ];
-
-        if ($product->has('flat_product.content_vars')) {
-            $attribute_data = ProductAttributes::getAttributeData($product);
-        }
-
-        /**
-         * We are going to create an attribute option id map, so we can limit the attribute options we recheck
-         * $attribute_option_id_map[$attribute_id] = [...$attribute_option_id].
-         */
-        $attribute_option_id_map = [];
-        $attribute_options = $optionsConfig->get('attribute_options');
-
-        if (is_array($attribute_options)) {
-            foreach ($attribute_options as $attribute_option) {
-                if (!array_key_exists($attribute_option['attribute_id'], $attribute_option_id_map)) {
-                    $attribute_option_id_map[$attribute_option['attribute_id']] = [];
-                }
-
-                $attribute_option_id_map[$attribute_option['attribute_id']][] = $attribute_option['id'];
-            }
-        }
-
-        // Checking if the optionsConfig attributes are fully synced, limiting to the required attribute options ids.
-        $attribute_ids = $optionsConfig->get(
-            'configurable_product.configurable_product_kind.configurable_attribute_ids'
+        $attribute_sk_to_wc = Attributes::importsAttributes(
+            $optionsConfig->get('attributes')
         );
-        if (is_array($attribute_ids)) {
-            foreach ($attribute_ids as $attribute_id) {
-                if (array_key_exists($attribute_id, $attribute_option_id_map)) {
-                    $A = new Attributes();
-                    $A->ensureAttributeAndOptions($attribute_id, $attribute_option_id_map[$attribute_id]);
-                }
-            }
+        $options_sk_to_wc = Attributes::importsAttributeOptions(
+            $attribute_sk_to_wc,
+            $optionsConfig->get('attribute_options')
+        );
+
+        $attribute_box = self::getAttributeBoxFromContentVars(
+            $product->get('flat_product.content_vars', [])
+        );
+
+        $terms_per_sk_attribute = array_fill_keys(array_keys($attribute_sk_to_wc), []);
+        foreach ($optionsConfig->get('attribute_options') as $option) {
+            $terms_per_sk_attribute[$option['attribute_id']][] = $options_sk_to_wc[$option['id']];
         }
 
-        $configurable_attribute_array = [];
+        $sk_attributes = self::getSortedAttributes($optionsConfig->get('attributes'));
 
-        foreach ($optionsConfig->get('attributes') as $attribute) {
-            $term_name = Attributes::createWooCommerceAttributeName($attribute['name']);
-            $configurable_attribute_array[$term_name] = [];
-            foreach ($optionsConfig->get('attribute_options') as $attribute_option) {
-                $attribute_options_id = Attributes::getAttributeOptionTermId(
-                    $attribute['name'],
-                    $attribute_option['name'],
-                    $attribute_option['id']
-                );
-
-                if ($attribute_options_id) {
-                    $attributeOptionsOrder = $attribute_option['order'] ?? 0;
-                    Attributes::updateAttributeOptionOrder($attribute_options_id, $attributeOptionsOrder);
-
-                    $configurable_attribute_array[$term_name][] = $attribute_options_id;
-                }
-            }
+        foreach ($sk_attributes as $sk_attribute) {
+            $sk_attribute_id = $sk_attribute['id'];
+            $attribute_id = $attribute_sk_to_wc[$sk_attribute_id];
+            $attribute = wc_get_attribute($attribute_id);
+            $attribute_box[$attribute->slug] = [
+                self::ATTRIBUTE_NAMES => $attribute->slug,
+                self::ATTRIBUTE_VALUES => $terms_per_sk_attribute[$sk_attribute_id],
+                self::ATTRIBUTE_VISIBILITY => $sk_attribute['published'] ? 1 : 0,
+                self::ATTRIBUTE_VARIATION => 1,
+                self::ATTRIBUTE_POSITION => $sk_attribute['order'] ?? 0,
+            ];
         }
 
-        foreach ($configurable_attribute_array as $attribute_name => $attribute_values) {
-            $index = array_search($attribute_name, $attribute_data['attribute_names'], true);
-
-            if (false === $index) {
-                $index = count($attribute_data['attribute_position']) + 1;
-                $attribute_data['attribute_position'][$index] = count($attribute_data['attribute_position']);
-            }
-
-            $attribute_data['attribute_names'][$index] = $attribute_name;
-            $attribute_data['attribute_visibility'][$index] = 1;
-
-            $attribute_data['attribute_values'][$index] = $attribute_values;
-            $attribute_data['attribute_variation'][$index] = 1;
-        }
-
-        $attributes = \WC_Meta_Box_Product_Data::prepare_attributes($attribute_data);
-        $newProduct->set_attributes($attributes);
+        $data = self::prepareBoxData($attribute_box);
+        $newProduct->set_attributes($data);
 
         ProductAttributes::setBarcodeMeta($newProduct, $product);
     }
 
     public static function setAssignedAttributes(\WC_Product $newProduct, Dot $optionsConfig, array $wantedAttributeOptionIds)
     {
+        $attribute_sk_to_wc = Attributes::importsAttributes(
+            $optionsConfig->get('attributes')
+        );
+        $options_sk_to_wc = Attributes::importsAttributeOptions(
+            $attribute_sk_to_wc,
+            $optionsConfig->get('attribute_options')
+        );
+
         $options = [];
-
-        $attributes = self::getArrayById($optionsConfig->get('attributes'));
-        $attributeOptions = self::getArrayById($optionsConfig->get('attribute_options'));
-
-        foreach ($wantedAttributeOptionIds as $wantedId) {
-            if (array_key_exists($wantedId, $attributeOptions)) {
-                $option = $attributeOptions[$wantedId];
-                $attribute = $attributes[$option['attribute_id']];
-                $attrName = wc_variation_attribute_name(Attributes::createWooCommerceAttributeName($attribute['name']));
-                $options[$attrName] = Attributes::sanitizeOptionSlug($option['id'], $option['name']);
-            }
+        foreach ($wantedAttributeOptionIds as $sk_attribute_id => $sk_option_id) {
+            $attribute = wc_get_attribute($attribute_sk_to_wc[$sk_attribute_id]);
+            $term = get_term($options_sk_to_wc[$sk_option_id]);
+            $options[$attribute->slug] = $term->slug;
         }
 
         $newProduct->set_attributes($options);
     }
 
-    public static function getAssignedWantedAttributes(Dot $assignedProductData, array $attribute_options_by_id): array
+    /**
+     * @param $attribute_id
+     *
+     * @return int term_id
+     */
+    protected static function importAttributeOptionFromContentVar($attribute_id, Dot $content_var): int
     {
-        $wanted_configured_attribute_option_ids = [];
-        foreach ($assignedProductData->get('flat_product.content_vars', []) as $content_var) {
-            Attributes::updateAttributeAndOptionFromContentVar($content_var);
-            if (
-                array_key_exists('attribute_option_id', $content_var) &&
-                array_key_exists($content_var['attribute_option_id'], $attribute_options_by_id)
-            ) {
-                $wanted_configured_attribute_option_ids[] = $content_var['attribute_option_id'];
-            }
-        }
-
-        return $wanted_configured_attribute_option_ids;
+        return Attributes::importAttributeOption(
+            $attribute_id,
+            $content_var->get('attribute_option_id'),
+            $content_var->get('value'),
+            $content_var->get('value_label'),
+            $content_var->get('attribute_option_image_url', null),
+            $content_var->get('attribute_option_order', 0),
+        );
     }
 
-    private static function getArrayById($array, $key = 'id')
+    public static function getSortedAttributes($attributes)
     {
-        $return = [];
-        foreach ($array as $item) {
-            $return[$item[$key]] = $item;
-        }
+        usort($attributes, function ($a, $b) {
+            $ret = ($a['order'] ?? 0) <=> ($b['order'] ?? 0);
+            if (0 === $ret) {
+                $ret = $a['label'] <=> $b['label'];
+                if (0 === $ret) {
+                    $ret = $a['id'] <=> $b['id'];
+                }
+            }
 
-        return $return;
+            return $ret;
+        });
+
+        return $attributes;
     }
 }

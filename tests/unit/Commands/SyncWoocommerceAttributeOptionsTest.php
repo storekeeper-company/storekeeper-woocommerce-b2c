@@ -4,7 +4,9 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptions;
-use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
+use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeOptionName;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 
 class SyncWoocommerceAttributeOptionsTest extends AbstractTest
@@ -54,12 +56,13 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
         // Retrieve all synchronised tags
         foreach ($original_options as $original_option_data) {
             $original_option = new Dot($original_option_data);
+            $attribute = AttributeModel::getAttributeByStoreKeeperId($original_option->get('attribute_id'));
             $name = "{$original_option->get('attribute.name')}::{$original_option->get('name')}";
-            $term_id = Attributes::getAttributeOptionTermIdByAttributeOptionId(
-                $original_option->get('id'),
-                $original_option->get('attribute.name')
-            );
 
+            $term_id = AttributeOptionModel::getTermIdByStorekeeperId(
+                $attribute->id,
+                $original_option->get('id')
+            );
             $this->assertNotEmpty(
                 $term_id,
                 "Attribute option \"$name\" is found"
@@ -78,18 +81,11 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
                 "Attribute option name for \"$name\" is correct"
             );
 
-            $expected_slug = Attributes::sanitizeOptionSlug($original_option->get('id'), $original_option->get('name'));
+            $expected_slug = CommonAttributeOptionName::getName($attribute->slug, $original_option->get('name'));
             $this->assertEquals(
                 $expected_slug,
                 $term->slug,
                 "Attribute option slug for \"$name\" is correct"
-            );
-
-            $storekeeper_id = get_term_meta($term_id, 'storekeeper_id', true);
-            $this->assertEquals(
-                $original_option->get('id'),
-                $storekeeper_id,
-                "Attribute option id for \"$name\" is imported"
             );
 
             if ($original_option->has('image_url')) {
@@ -124,10 +120,11 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
 
     public function fetchAllStoreKeeperAttributeOptions()
     {
+        $prefix = CommonAttributeOptionName::PREFIX;
         $sql = <<<SQL
             SELECT * 
             FROM `wp_terms`
-            WHERE `slug` LIKE 'sk_%'
+            WHERE `slug` LIKE '$prefix%'
 SQL;
 
         return $this->db->querySql($sql)->fetch_all();

@@ -108,6 +108,10 @@ class ProcessAllTasksTest extends AbstractTest
 
         $this->runner->execute(ProcessAllTasks::getCommandName());
 
+        $this->assertFalse(
+            $this->logger->hasErrorThatContains(ProcessAllTasks::MASSAGE_TASK_FAILED),
+            'Task failed: '.json_encode($this->logger->recordsByLevel['error'] ?? null)
+        );
         $this->assertTrue(
             $this->logger->hasNoticeThatContains('skipping'),
             'Did not skipped the task'
