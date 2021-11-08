@@ -2,14 +2,14 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
-use StoreKeeper\WooCommerce\B2C\Tools\AttributeTranslator;
 use StoreKeeper\WooCommerce\B2C\Tools\RedirectHandler;
-use StoreKeeper\WooCommerce\B2C\Tools\WooCommerceAttributeMetadata;
 
 class Activator
 {
@@ -19,10 +19,7 @@ class Activator
         $this->setWooCommerceUuid();
         $this->setOrderPrefix();
         $this->setMainCategoryId();
-        $this->createWebhookLogsTable();
-        $this->createTaskTable();
-        $this->createAttributeMetadataTable();
-        $this->createAttributeTranslationTable();
+        $this->ensureModelTables();
         $this->createOrdersPaymentsTable();
         $this->createRedirectTable();
         $this->setVersion();
@@ -43,16 +40,6 @@ class Activator
             $uuid = wp_generate_uuid4();
             WooCommerceOptions::set(WooCommerceOptions::WOOCOMMERCE_UUID, $uuid);
         }
-    }
-
-    private function createAttributeTranslationTable()
-    {
-        AttributeTranslator::createTable(); // Create the table if it doesn't exist
-    }
-
-    private function createAttributeMetadataTable()
-    {
-        WooCommerceAttributeMetadata::createTable(); // Create the attribute metadata table if it doesn't exists
     }
 
     private function createOrdersPaymentsTable()
@@ -84,13 +71,11 @@ class Activator
         StoreKeeperOptions::set(StoreKeeperOptions::INSTALLED_VERSION, STOREKEEPER_WOOCOMMERCE_B2C_VERSION);
     }
 
-    private function createWebhookLogsTable()
+    protected function ensureModelTables(): void
     {
         WebhookLogModel::ensureTable();
-    }
-
-    private function createTaskTable()
-    {
         TaskModel::ensureTable();
+        AttributeModel::ensureTable();
+        AttributeOptionModel::ensureTable();
     }
 }

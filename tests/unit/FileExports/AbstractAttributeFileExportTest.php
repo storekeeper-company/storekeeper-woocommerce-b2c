@@ -2,13 +2,26 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
-use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
+use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
+use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 use WC_Helper_Product;
 use WC_Meta_Box_Product_Data;
 
 abstract class AbstractAttributeFileExportTest extends AbstractFileExportTest
 {
+    const QTY_ATTRIBUTE_NAME = 'quantino_no_exportino';
+    const BRAND_ATTRIBUTE_NAME = 'brandino_exportino';
+
+    const SA_COLOUR = 'sa_colour';
+    const SA_SIZE = 'sa_size';
+    const SA_BRAND = FeaturedAttributes::ALIAS_BRAND;
+    const SA_QTY = FeaturedAttributes::ALIAS_IN_BOX_QTY;
+    const SA_QTY_ATTR = 'sa_'.self::QTY_ATTRIBUTE_NAME;
+    const SA_BRAND_ATTR = 'sa_'.self::BRAND_ATTRIBUTE_NAME;
+    const CA_CUSTOM_TITLE_ONE = 'ca_custom-title-one';
+    const CA_CUSTOM_TITLE_MULTIPLE = 'ca_custom-title-multiple';
+
     private function createProduct()
     {
         $product = WC_Helper_Product::create_simple_product(false);
@@ -48,7 +61,7 @@ abstract class AbstractAttributeFileExportTest extends AbstractFileExportTest
         );
 
         $brandAttribute = WC_Helper_Product::create_attribute(
-            'brand',
+            self::BRAND_ATTRIBUTE_NAME,
             [
                 'JavaScript',
                 'TypeScript',
@@ -56,18 +69,31 @@ abstract class AbstractAttributeFileExportTest extends AbstractFileExportTest
             ]
         );
 
-        FeaturedAttributeOptions::set(
-            FeaturedAttributeOptions::getAttributeExportOptionConstant(
-                FeaturedAttributeOptions::ALIAS_BRAND
+        FeaturedAttributeExportOptions::set(
+            FeaturedAttributeExportOptions::getAttributeExportOptionConstant(
+                FeaturedAttributes::ALIAS_BRAND
             ),
-            AttributeExport::getAttributeKey(
-                $brandAttribute['attribute_name'],
-                AttributeExport::TYPE_SYSTEM_ATTRIBUTE
-            )
+            CommonAttributeName::getSystemName($brandAttribute['attribute_name'])
+        );
+
+        $qtyAttribute = WC_Helper_Product::create_attribute(
+            self::QTY_ATTRIBUTE_NAME,
+            [
+                1,
+                12,
+                24,
+            ]
+        );
+
+        FeaturedAttributeExportOptions::set(
+            FeaturedAttributeExportOptions::getAttributeExportOptionConstant(
+                FeaturedAttributes::ALIAS_IN_BOX_QTY
+            ),
+            CommonAttributeName::getSystemName($qtyAttribute['attribute_name'])
         );
 
         $product = $this->createProduct();
 
-        return [$sizeAttribute, $colourAttribute, $brandAttribute, $product];
+        return [$sizeAttribute, $colourAttribute, $qtyAttribute, $brandAttribute, $product];
     }
 }

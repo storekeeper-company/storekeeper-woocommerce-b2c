@@ -11,7 +11,7 @@ class TaskModel extends AbstractModel implements IModelPurge
     const TABLE_NAME = 'storekeeper_tasks';
     const TABLE_VERSION = '1.1.0';
 
-    public static function getFields(): array
+    public static function getFieldsWithRequired(): array
     {
         return [
             'id' => true,
@@ -61,7 +61,7 @@ SQL;
     {
         global $wpdb;
 
-        $fields = array_keys(static::getFields());
+        $fields = array_keys(static::getFieldsWithRequired());
         $tableColumns = $wpdb->get_results("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '".static::getTableName()."'", ARRAY_A);
         $tableColumns = array_column($tableColumns, 'column_name');
 

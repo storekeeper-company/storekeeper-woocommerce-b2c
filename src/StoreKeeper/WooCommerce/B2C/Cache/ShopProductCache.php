@@ -2,7 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Cache;
 
-class StoreKeeperIdCache extends AbstractCache
+class ShopProductCache extends AbstractCache
 {
     public static function getCacheGroup()
     {

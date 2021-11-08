@@ -14,7 +14,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
     // Datadump related constants
     const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products';
     const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.72e551759ae4651bdb99611a255078af300eb8b787c2a8b9a216b800b8818b06.json';
-    const DATADUMP_SOURCE_SINGLE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.613db2c03f849.json';
+    const DATADUMP_PRODUCT_21_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.613db2c03f849.json';
     const DATADUMP_CONFIGURABLE_OPTIONS_FILE = 'moduleFunction.ShopModule::getConfigurableShopProductOptions.5e20566c4b0dd01fa60732d6968bc565b60fbda96451d989d00e35cc6d46e04a.json';
 
     /**
@@ -194,47 +194,37 @@ class SyncWoocommerceProductsTest extends AbstractTest
     {
         $productStorekeeperId = 21;
         $this->initializeTest($productStorekeeperId);
-        $originalProductData = $this->getReturnData(self::DATADUMP_SOURCE_SINGLE_FILE);
-        $attributeOptionsFile = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
-        $attributeOptionsData = $attributeOptionsFile->getReturn();
-        $expectedAttributeOptions = $attributeOptionsData['attribute_options'];
-        // Get the configurable products from the data dump
-        $configurableProducts = $this->getProductsByTypeFromDataDump(
-            $originalProductData,
-            self::SK_TYPE_CONFIGURABLE
-        );
-
-        $expectedAttributesPosition = $this->getAttributeWithPositions($configurableProducts);
 
         // Create a collection with all of the variations of configurable products from WooCommerce
         $actualAttributesPosition = [];
-        $wooCommerceConfigurableProducts = wc_get_products(['type' => self::WC_TYPE_CONFIGURABLE]);
-        foreach ($wooCommerceConfigurableProducts as $wooCommerceConfigurableProduct) {
-            $parentProduct = new \WC_Product_Variable($wooCommerceConfigurableProduct->get_id());
-            $wooCommerceAttributes = $parentProduct->get_attributes();
-            foreach ($wooCommerceAttributes as $wooCommerceAttribute) {
-                $attributeName = $this->cleanAttributeName($wooCommerceAttribute->get_name());
-                $actualAttributesPosition[$attributeName] = $wooCommerceAttribute->get_position();
-            }
+        $wooCommerceConfigurableProduct = current(wc_get_products(['type' => self::WC_TYPE_CONFIGURABLE]));
 
-            foreach ($parentProduct->get_visible_children() as $childId) {
-                $variationProduct = new \WC_Product_Variation($childId);
-                $variationAttributes = $variationProduct->get_attributes();
-                $optionTerm = get_term_by('slug', reset($variationAttributes), key($variationAttributes));
-
-                $optionMeta = get_term_meta($optionTerm->term_id);
-                $storekeeperId = (int) $optionMeta['storekeeper_id'][0];
-                $actualAttributeOptionPosition = $variationProduct->get_menu_order();
-                $attributeOptionIndex = array_search($storekeeperId, array_column($expectedAttributeOptions, 'id'), true);
-                $expectedAttributeOptionPosition = $expectedAttributeOptions[$attributeOptionIndex]['order'];
-                $this->assertEquals(
-                    $expectedAttributeOptionPosition,
-                    $actualAttributeOptionPosition,
-                    'Menu order for '.$variationProduct->get_title().' option='.$optionTerm->name);
-            }
+        $parentProduct = new \WC_Product_Variable($wooCommerceConfigurableProduct->get_id());
+        $wooCommerceAttributes = $parentProduct->get_attributes();
+        foreach ($wooCommerceAttributes as $wooCommerceAttribute) {
+            /* @var $wooCommerceAttribute \WC_Product_Attribute */
+            $attributeName = $this->cleanAttributeName($wooCommerceAttribute->get_name());
+            $actualAttributesPosition[$attributeName] = $wooCommerceAttribute->get_position();
         }
 
-        $this->assertEquals($expectedAttributesPosition, $actualAttributesPosition);
+        $this->assertEquals([
+            'barcode' => 4,
+            'kleur' => 3,
+        ], $actualAttributesPosition);
+
+        $actualAttributeOptionPosition = [];
+        foreach ($parentProduct->get_visible_children() as $childId) {
+            $variationProduct = new \WC_Product_Variation($childId);
+            $actualAttributeOptionPosition[$variationProduct->get_sku()] = $variationProduct->get_menu_order();
+        }
+        $this->assertEquals(
+            [
+                'MWVR2-wit' => 3,
+                'MWVR2-zwart' => 4,
+            ],
+            $actualAttributeOptionPosition,
+            'Menu order for '.$variationProduct->get_title()
+        );
     }
 
     public function cleanAttributeName($name)

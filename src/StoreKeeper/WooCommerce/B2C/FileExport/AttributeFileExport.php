@@ -3,9 +3,8 @@
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
-use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
-use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Base36Coder;
+use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 
 class AttributeFileExport extends AbstractCSVFileExport
@@ -38,9 +37,8 @@ class AttributeFileExport extends AbstractCSVFileExport
      */
     public function runExport(string $exportLanguage = null): string
     {
-        $featuredAttributes = FeaturedAttributeOptions::getMappedFeaturedExportAttributes();
         $exportLanguage = $exportLanguage ?? Language::getSiteLanguageIso2();
-        $attributes = Attributes::getAllAttributes();
+        $attributes = AttributeExport::getAllNonFeaturedAttributes();
 
         $map = $this->keyValueMapArray(
             $attributes,
@@ -52,22 +50,20 @@ class AttributeFileExport extends AbstractCSVFileExport
         $total = count($map);
         $index = 0;
         foreach ($map as $itemName => $item) {
-            if (!array_key_exists($itemName, $featuredAttributes)) {
-                $lineData = [];
-                $lineData['name'] = $itemName;
-                $lineData['label'] = $item['label'];
-                $lineData['translatable.lang'] = $exportLanguage;
-                $lineData['is_options'] = $item['options'];
-                $lineData['type'] = 'string';
-                $lineData['published'] = true;
-                $lineData[self::getAttributeSetPath()] = true;
+            $lineData = [];
+            $lineData['name'] = $itemName;
+            $lineData['label'] = $item['label'];
+            $lineData['translatable.lang'] = $exportLanguage;
+            $lineData['is_options'] = $item['options'];
+            $lineData['type'] = 'string';
+            $lineData['published'] = true;
+            $lineData[self::getAttributeSetPath()] = true;
 
-                $this->writeLineData($lineData);
+            $this->writeLineData($lineData);
 
-                ++$index;
-                if (0 === $index % 10) {
-                    $this->reportUpdate($total, $index, 'Exported 10 attributes');
-                }
+            ++$index;
+            if (0 === $index % 10) {
+                $this->reportUpdate($total, $index, 'Exported 10 attributes');
             }
         }
 

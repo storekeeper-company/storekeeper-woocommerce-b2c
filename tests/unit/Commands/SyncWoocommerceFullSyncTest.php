@@ -5,6 +5,8 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFullSync;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
@@ -93,7 +95,7 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
         foreach ($attributes as $attribute) {
             $this->assertNotEmpty(
                 Attributes::getAttribute($attribute['id']),
-                'Missing attribute'
+                'Missing attribute: '.json_encode($attribute)
             );
         }
 
@@ -102,7 +104,7 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
         foreach ($featuredAttributes as $featuredAttribute) {
             $this->assertNotEmpty(
                 FeaturedAttributeOptions::getWooCommerceAttributeName($featuredAttribute['alias']),
-                'Missing featured attribute'
+                'Missing featured attribute: '.json_encode($featuredAttribute)
             );
         }
 
@@ -111,15 +113,15 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
         foreach ($attributeOptions as $attributeOptionData) {
             $attributeOption = new Dot($attributeOptionData);
             $attributeOptionId = $attributeOption->get('id');
-            $termId = Attributes::getAttributeOptionTermId(
-                $attributeOption->get('attribute.name'),
-                Attributes::sanitizeOptionSlug($attributeOptionId, $attributeOption->get('name')),
+            $attribute = AttributeModel::getAttributeByStoreKeeperId($attributeOption->get('attribute_id'));
+            $termId = AttributeOptionModel::getTermIdByStorekeeperId(
+                $attribute->id,
                 $attributeOptionId
             );
 
             $this->assertNotEmpty(
                 $termId,
-                'Missing attribute option'
+                'Missing attribute option: '.json_encode($attributeOptionData)
             );
         }
 

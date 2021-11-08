@@ -54,7 +54,7 @@ class TaskList extends AbstractModelListCommand
 
         $data = $wpdb->get_results($Model::prepareQuery($select), ARRAY_A);
 
-        $formatter = new \WP_CLI\Formatter($assoc_arguments, array_keys($Model::getFields()));
+        $formatter = new \WP_CLI\Formatter($assoc_arguments, array_keys($Model::getFieldsWithRequired()));
 
         $formatter->display_items($data);
     }

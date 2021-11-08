@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+
 class WordpressCleaner
 {
     public function cleanAll()
@@ -53,14 +55,6 @@ SQL;
 
     public function cleanStoreKeeperIdFromAttributes()
     {
-        global $wpdb;
-        $tablename = WooCommerceAttributeMetadata::getTableName();
-
-        $sqlQuery = <<<SQL
-    DELETE from `$tablename`
-    WHERE `meta_key`="storekeeper_id"
-SQL;
-
-        $wpdb->query($sqlQuery);
+        AttributeModel::purge();
     }
 }

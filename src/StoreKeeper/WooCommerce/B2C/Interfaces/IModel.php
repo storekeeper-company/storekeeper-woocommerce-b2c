@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Interfaces;
 
 interface IModel
 {
-    public static function getFields(): array;
+    public static function getFieldsWithRequired(): array;
 
     public static function hasTable(): bool;
 

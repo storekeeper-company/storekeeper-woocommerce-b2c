@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributes;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 
 class SyncWoocommerceAttributesTest extends AbstractTest
@@ -22,7 +23,7 @@ class SyncWoocommerceAttributesTest extends AbstractTest
     const DATADUMP_RESERVED_DIRECTORY = 'commands/sync-woocommerce-reserved-attributes';
     const DATADUMP_RESERVED_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.reserved.json';
 
-    const MAX_LENGTH_ATTRIBUTE_LABEL = 30;
+    const MAX_LENGTH_ATTRIBUTE_LABEL = Attributes::MAX_NAME_LENGTH;
 
     public function testInit()
     {
@@ -64,7 +65,7 @@ class SyncWoocommerceAttributesTest extends AbstractTest
             $storekeeper_id = $this->fetchAttributeStoreKeeperId($wc_attribute->attribute_id);
             $this->assertEquals(
                 $original->get('id'),
-                $storekeeper_id->meta_value,
+                $storekeeper_id,
                 'The Woocommerce Attribute doesn\'t have the correct StoreKeeper id'
             );
 
@@ -90,9 +91,8 @@ class SyncWoocommerceAttributesTest extends AbstractTest
 
             // Attribute type
             // In case of a new attribute, this will always be the same (StoreKeeper/WooCommerce/B2C/Imports/AttributeImport.php:96)
-            $expected_attribute_type = Attributes::getDefaultType();
             $this->assertEquals(
-                $expected_attribute_type,
+                Attributes::TYPE_DEFAULT,
                 $wc_attribute->attribute_type,
                 'WooCommerce attribute type doesn\'t match the expected attribute type'
             );
@@ -144,33 +144,9 @@ class SyncWoocommerceAttributesTest extends AbstractTest
         return false;
     }
 
-    /**
-     * Retrieve the StoreKeeper id of the attribute from the database. Since this is a custom table, it's not retrievable
-     * using a native Wordpress / Woocommerce function.
-     *
-     * @param $attribute_id
-     *
-     * @return array|object|void|null
-     */
-    protected function fetchAttributeStoreKeeperId($attribute_id)
+    protected function fetchAttributeStoreKeeperId($attribute_id): ?int
     {
-        if (!is_null(wc_get_attribute($attribute_id))) {
-            $table_name = 'wp_storekeeper_woocommerce_attribute_metadata';
-            $sql = <<<SQL
-            SELECT `meta_value` 
-            FROM `$table_name`
-            WHERE `attribute_id` = %d
-            AND `meta_key` = 'storekeeper_id'
-SQL;
-
-            // Use wpdb to prepare the SQL statement
-            global $wpdb;
-            $sqlPrepared = $wpdb->prepare($sql, $attribute_id);
-
-            return (object) $this->db->querySql($sqlPrepared)->fetch_assoc();
-        }
-
-        return null;
+        return AttributeModel::getAttributeStoreKeeperId($attribute_id);
     }
 
     /**
@@ -193,7 +169,7 @@ SQL;
         $storekeeper_id = $this->fetchAttributeStoreKeeperId($wc_attribute->attribute_id);
         $this->assertEquals(
             $original->get('id'),
-            $storekeeper_id->meta_value,
+            $storekeeper_id,
             $message.': The Woocommerce Attribute doesn\'t have the correct StoreKeeper id'
         );
 
@@ -215,9 +191,8 @@ SQL;
 
         // Attribute type
         // In case of a new attribute, this will always be the same (StoreKeeper/WooCommerce/B2C/Imports/AttributeImport.php:96)
-        $expected_attribute_type = Attributes::getDefaultType();
         $this->assertEquals(
-            $expected_attribute_type,
+            Attributes::TYPE_DEFAULT,
             $wc_attribute->attribute_type,
             $message.': WooCommerce attribute type doesn\'t match the expected attribute type'
         );

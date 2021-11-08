@@ -5,7 +5,6 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Regression;
 
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
-use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\AbstractTest;
 
 class InvalidTaxonomyTest extends AbstractTest
@@ -22,8 +21,11 @@ class InvalidTaxonomyTest extends AbstractTest
 
         $this->runner->execute(SyncWooCommerceProducts::getCommandName());
 
-        // Make sure 6 requests have been made
-        $used_keys = StoreKeeperApi::$mockAdapter->getUsedReturns();
-        $this->assertCount(6, $used_keys, 'Not all calls were made');
+        $wc_products = wc_get_products([]);
+        $this->assertEquals(
+            1,
+            count($wc_products),
+            'Configurable products was imported'
+        );
     }
 }

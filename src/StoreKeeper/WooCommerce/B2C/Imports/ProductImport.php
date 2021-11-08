@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use Exception;
-use StoreKeeper\WooCommerce\B2C\Cache\StoreKeeperIdCache;
+use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -768,7 +768,7 @@ SQL;
 
         // set StoreKeeperId
         $wp_type = WooCommerceOptions::getWooCommerceTypeFromProductType($importProductType);
-        StoreKeeperIdCache::set($dotObject->get('id'), $wp_type);
+        ShopProductCache::set($dotObject->get('id'), $wp_type);
 
         /* Other variables */
         $newProduct->set_sku($dotObject->get('flat_product.product.sku'));
@@ -978,18 +978,37 @@ SQL;
      */
     private function reorderProductVariations($optionsConfig): void
     {
-        $associatedShopProducts = $optionsConfig->get('configurable_associated_shop_products', false);
-        if (false !== $associatedShopProducts && count($associatedShopProducts) > 0) {
+        $associatedShopProducts = $optionsConfig->get('configurable_associated_shop_products');
+        if (count($associatedShopProducts) > 0) {
+            $sk_attribute = current(ProductAttributes::getSortedAttributes($optionsConfig->get('attributes')));
+            $firstAttribute = Attributes::getAttribute($sk_attribute['id']);
+            if (is_null($firstAttribute)) {
+                throw new Exception("Attribute id={$sk_attribute['id']} is not synchronized yet");
+            }
+
             foreach ($associatedShopProducts as $associatedShopProductData) {
                 $assigned_debug_log = [];
                 $associatedShopProduct = new Dot($associatedShopProductData);
-
                 $variation_id = $this->getVariationId($associatedShopProduct, $assigned_debug_log);
-                if (0 !== $variation_id && !is_null($variation_id)) {
+
+                if ($variation_id) {
                     $variation = new WC_Product_Variation($variation_id);
-
-                    $menuOrder = Attributes::getOptionOrder($variation, $associatedShopProduct);
-
+                    $variation_attributes = $variation->get_attributes();
+                    $option_slug = $variation_attributes[$firstAttribute->slug];
+                    $term_ids = get_terms([
+                        'taxonomy' => $firstAttribute->slug,
+                        'hide_empty' => false,
+                        'fields' => 'ids',
+                        'slug' => $option_slug,
+                    ]);
+                    if (0 === count($term_ids)) {
+                        throw new Exception("Attribute option id={$sk_attribute['id']} (attr=$firstAttribute->slug,term=$option_slug) is not synchronized");
+                    }
+                    $term_id = $term_ids[0];
+                    $menuOrder = get_term_meta($term_id, 'order', true);
+                    if (empty($menuOrder)) {
+                        $menuOrder = 0;
+                    }
                     $assigned_debug_log['variation_id'] = $variation_id;
                     $this->debug('variation post_id', $assigned_debug_log);
 
@@ -1033,7 +1052,7 @@ SQL;
             return $products[0];
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -1061,7 +1080,7 @@ SQL;
             return $products[0];
         }
 
-        return false;
+        return null;
     }
 
     private function getArrayById($array, $key = 'id')
@@ -1072,6 +1091,21 @@ SQL;
         }
 
         return $return;
+    }
+
+    protected static function getAssignedWantedAttributes(Dot $assignedProductData, array $attribute_options_by_id): array
+    {
+        $att_to_option = [];
+        foreach ($assignedProductData->get('flat_product.content_vars', []) as $content_var) {
+            if (
+                array_key_exists('attribute_option_id', $content_var) &&
+                array_key_exists($content_var['attribute_option_id'], $attribute_options_by_id)
+            ) {
+                $att_to_option[$content_var['attribute_id']] = $content_var['attribute_option_id'];
+            }
+        }
+
+        return $att_to_option;
     }
 
     /**
@@ -1090,7 +1124,7 @@ SQL;
         $attribute_options_by_id = $this->getArrayById($configObject->get('attribute_options'));
 
         // Update the attributes
-        $wanted_configured_attribute_option_ids = ProductAttributes::getAssignedWantedAttributes($assignedProductData, $attribute_options_by_id);
+        $configurable_options = self::getAssignedWantedAttributes($assignedProductData, $attribute_options_by_id);
 
         $firstAttributeId = $configObject->get('attributes.0.id');
         $menuOrder = 0;
@@ -1108,7 +1142,7 @@ SQL;
         ProductAttributes::setAssignedAttributes(
             $variationProduct,
             $configObject,
-            $wanted_configured_attribute_option_ids
+            $configurable_options
         ); // This may always trigger a change.
 
         // Setting the props.
@@ -1349,22 +1383,21 @@ SQL;
     /**
      * @throws WordpressException
      */
-    private function getVariationId(Dot $associatedShopProduct, array &$assigned_debug_log): int
+    private function getVariationId(Dot $associatedShopProduct, array &$assigned_debug_log): ?int
     {
-        $variationCheck = $this->getProductVariation($associatedShopProduct->get('shop_product_id'));
-        if (false === $variationCheck && $associatedShopProduct->has('shop_product.product.sku')) {
-            $variationCheck = (false === $variationCheck) ? $this->getProductVariationBySku(
+        $variation = $this->getProductVariation($associatedShopProduct->get('shop_product_id'));
+        if (is_null($variation) && $associatedShopProduct->has('shop_product.product.sku')) {
+            $variation = $this->getProductVariationBySku(
                 $associatedShopProduct->get('shop_product.product.sku')
-            ) : $variationCheck;
+            );
         }
         $assigned_debug_log['assigned_shop_id'] = $associatedShopProduct->get('shop_product_id');
         $this->debug('Assigned product added', $assigned_debug_log);
 
-        $variationId = 0;
-        if (false !== $variationCheck) {
-            $variationId = $variationCheck->ID;
+        if ($variation) {
+            return $variation->ID;
         }
 
-        return $variationId;
+        return null;
     }
 }

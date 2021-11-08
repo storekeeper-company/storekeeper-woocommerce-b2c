@@ -3,10 +3,9 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
 use StoreKeeper\WooCommerce\B2C\FileExport\AttributeOptionsFileExport;
+use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
-use WC_Product;
-use WC_Product_Attribute;
 
 class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
 {
@@ -17,7 +16,7 @@ class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
 
     public function testAttributeOptionExportTest()
     {
-        list($sizeAttributeData, $colourAttributeData, $brandAttribute, $product) = $this->setupAttributes();
+        list($sizeAttributeData, $colourAttributeData, $qtyAttribute, $brandAttribute, $product) = $this->setupAttributes();
 
         $instance = $this->getNewFileExportInstance();
         $path = $instance->runExport(Language::getSiteLanguageIso2());
@@ -27,55 +26,71 @@ class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
         $mappedRows = $this->mapSpreadSheetRows(
             $spreadSheet,
             function ($row) {
-                $slug = sanitize_title($row['name']);
-                $attributeName = 'pa_'.substr($row['attribute.name'], 3);
-
-                return "$slug::$attributeName";
+                return $this->getMappedKey($row['attribute.name'], $row['name']);
             }
         );
 
-        $this->assertSystemAttributeOptionsEmpty($mappedRows, $brandAttribute['term_ids'], 'Brand');
+        $otherKeys = [];
+        foreach ($mappedRows as $key => $option) {
+            list($attr, $opt) = explode('::', $key);
+            if (!in_array($attr, [
+                self::SA_COLOUR,
+                self::SA_SIZE,
+                self::SA_BRAND,
+                self::SA_QTY,
+            ])) {
+                $otherKeys[] = $key;
+            }
+        }
+        $this->assertEmpty($otherKeys, 'Other keys ware exported');
+        $this->assertSystemAttributeOptions($mappedRows, $qtyAttribute['term_ids'], 'Box quanity');
         $this->assertSystemAttributeOptions($mappedRows, $sizeAttributeData['term_ids'], 'Size');
+        $this->assertSystemAttributeOptions($mappedRows, $brandAttribute['term_ids'], 'Brand');
         $this->assertSystemAttributeOptions($mappedRows, $colourAttributeData['term_ids'], 'Colour');
-        $this->assertProductAttributeOption($mappedRows, $product, 'Simple');
     }
 
-    private function assertSystemAttributeOptions(array $mappedRows, array $termIds, string $type)
+    private function assertSystemAttributeOptions(array $mappedRows, array $termIds, string $message)
     {
         foreach ($termIds as $termId) {
             $term = get_term($termId);
             $attributeMap = $this->getAttributeMap();
             $attribute = $attributeMap[$term->taxonomy];
-            $mappedRow = $mappedRows["$term->slug::$term->taxonomy"];
+            $mappedKey = $this->getMappedKeyForAttributeTerm($term);
+            $this->assertArrayHasKey(
+                $mappedKey,
+                $mappedRows,
+                'Keys available: '.implode(',', array_keys($mappedRows))
+            );
+            $mappedRow = $mappedRows[$mappedKey];
 
             $this->assertEquals(
                 $term->name,
                 $mappedRow['label'],
-                "$type attribute option's label is incorrect"
+                "$message attribute option's label is incorrect"
             );
 
             $this->assertEquals(
                 $term->slug,
                 $mappedRow['name'],
-                "$type attribute option's name is incorrect"
+                "$message attribute option's name is incorrect"
             );
 
             $this->assertEquals(
                 Language::getSiteLanguageIso2(),
                 $mappedRow['translatable.lang'],
-                "$type attribute option's language is incorrect"
+                "$message attribute option's language is incorrect"
             );
 
             $this->assertEquals(
-                AttributeExport::getAttributeKey($attribute->attribute_name, AttributeExport::TYPE_SYSTEM_ATTRIBUTE),
+                AttributeExport::getAttributeKey($attribute->attribute_name, CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE),
                 $mappedRow['attribute.name'],
-                "$type attribute option's name is incorrect"
+                "$message attribute option's name is incorrect"
             );
 
             $this->assertEquals(
                 $attribute->attribute_label,
                 $mappedRow['attribute.label'],
-                "$type attribute option's name is incorrect"
+                "$message attribute option's name is incorrect"
             );
         }
     }
@@ -84,7 +99,8 @@ class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
     {
         foreach ($termIds as $termId) {
             $term = get_term($termId);
-            $this->assertArrayNotHasKey("$term->slug::$term->taxonomy", $mappedRows, "$type options should not be exported");
+            $mappedKey = $this->getMappedKeyForAttributeTerm($term);
+            $this->assertArrayNotHasKey($mappedKey, $mappedRows, "$type options should not be exported");
         }
     }
 
@@ -103,47 +119,25 @@ class AttributeOptionFileExportTest extends AbstractAttributeFileExportTest
         return $this->attributeMap;
     }
 
-    private function assertProductAttributeOption(array $mappedRows, WC_Product $product, string $type)
+    protected function getMappedKeyForAttributeTerm($term): string
     {
-        /** @var WC_Product_Attribute $attribute */
-        foreach ($product->get_attributes() as $attribute) {
-            if (count($attribute->get_options()) > 1) {
-                foreach ($attribute->get_options() as $option) {
-                    $optionSlug = sanitize_title($option);
-                    $attributeSlug = 'pa_'.sanitize_title($attribute->get_name());
-                    $mappedRow = $mappedRows["$optionSlug::$attributeSlug"];
+        $attributeMap = $this->getAttributeMap();
+        $attribute = $attributeMap[$term->taxonomy];
+        $attributeName = AttributeExport::getAttributeKey(
+            $attribute->attribute_name,
+            $attribute->attribute_id ?
+                CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE :
+                CommonAttributeName::TYPE_CUSTOM_ATTRIBUTE,
+        );
+        $mappedKey = $this->getMappedKey($attributeName, $term->slug);
 
-                    $this->assertEquals(
-                        $option,
-                        $mappedRow['label'],
-                        "$type attribute option's label is incorrect"
-                    );
+        return $mappedKey;
+    }
 
-                    $this->assertEquals(
-                        $optionSlug,
-                        $mappedRow['name'],
-                        "$type attribute option's name is incorrect"
-                    );
+    protected function getMappedKey($attributeName, $name): string
+    {
+        $attributeName = CommonAttributeName::cleanAttributeTermPrefix($attributeName);
 
-                    $this->assertEquals(
-                        Language::getSiteLanguageIso2(),
-                        $mappedRow['translatable.lang'],
-                        "$type attribute option's language is incorrect"
-                    );
-
-                    $this->assertEquals(
-                        AttributeExport::getAttributeKey($attributeSlug, AttributeExport::TYPE_CUSTOM_ATTRIBUTE),
-                        $mappedRow['attribute.name'],
-                        "$type attribute option's name is incorrect"
-                    );
-
-                    $this->assertEquals(
-                        $attribute->get_name(),
-                        $mappedRow['attribute.label'],
-                        "$type attribute option's name is incorrect"
-                    );
-                }
-            }
-        }
+        return "{$attributeName}::{$name}";
     }
 }

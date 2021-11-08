@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel\MigrateFromOldData;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class Updator
@@ -35,6 +37,23 @@ HTML;
         return true;
     }
 
+    public function onProcessComplete(\WP_Upgrader $upgrader_object, $options)
+    {
+        if (isset($options['plugins']) && is_array($options['plugins'])) {
+            foreach ($options['plugins'] as $each_plugin) {
+                if (STOREKEEPER_WOOCOMMERCE_FILE === $each_plugin) {
+                    $this->update();
+                }
+            }
+        } elseif (isset($options['plugins']) && STOREKEEPER_WOOCOMMERCE_FILE === $options['plugins']) {
+            $this->update();
+        } elseif (isset($options['plugin']) && ('' != $options['plugin'])) {
+            if (STOREKEEPER_WOOCOMMERCE_FILE === $options['plugin']) {
+                $this->update();
+            }
+        }
+    }
+
     public function update(bool $forceUpdate = false)
     {
         $currentVersion = STOREKEEPER_WOOCOMMERCE_B2C_VERSION;
@@ -47,15 +66,7 @@ HTML;
     private function handleUpdate(string $databaseVersion)
     {
         if ($this->isUpgrade($databaseVersion)) {
-            // it's an upgrade
-            if (version_compare($databaseVersion, '7.2.1', '<')) {
-                // default mode was added
-                $isSet = StoreKeeperOptions::get(StoreKeeperOptions::SYNC_MODE, false);
-                if (!$isSet) {
-                    // previously it was full sync
-                    StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
-                }
-            }
+            $this->upgradeDatabase($databaseVersion);
         }
 
         $activator = new Activator();
@@ -65,5 +76,26 @@ HTML;
     private function isUpgrade(string $databaseVersion): bool
     {
         return self::ZERO_VERSION !== $databaseVersion;
+    }
+
+    private function upgradeDatabase(string $databaseVersion): void
+    {
+        if (version_compare($databaseVersion, '7.2.1', '<')) {
+            // default mode was added
+            $isSet = StoreKeeperOptions::get(StoreKeeperOptions::SYNC_MODE, false);
+            if (!$isSet) {
+                // previously it was full sync
+                StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
+            }
+        }
+        if (version_compare($databaseVersion, '7.4.0', '<')) {
+            AttributeModel::ensureTable();
+
+            if (0 === AttributeModel::count()) {
+                // no rows, lets copy
+                $migrate = new MigrateFromOldData();
+                $migrate->run();
+            }
+        }
     }
 }

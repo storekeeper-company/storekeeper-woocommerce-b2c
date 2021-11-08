@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 use StoreKeeper\WooCommerce\B2C\FileExport\AbstractCSVFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\ProductBlueprintFileExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Base36Coder;
+use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\BlueprintExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
@@ -61,7 +62,7 @@ class ProductBlueprintFileExportTest extends AbstractFileExportTest
         );
 
         foreach ($productVariable->get_variation_attributes() as $attributeName => $_) {
-            $name = AttributeExport::getAttributeKey($attributeName, AttributeExport::TYPE_SYSTEM_ATTRIBUTE);
+            $name = AttributeExport::getAttributeKey($attributeName, CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE);
             $encoded = Base36Coder::encode($name);
 
             $this->assertEquals(

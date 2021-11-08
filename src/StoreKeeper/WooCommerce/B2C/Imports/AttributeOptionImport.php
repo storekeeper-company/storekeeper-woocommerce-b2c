@@ -80,6 +80,18 @@ class AttributeOptionImport extends AbstractImport
         $this->debug('Importing Attribute option with id', $dotObject->get());
         $dotObject->set('label', $this->getTranslationIfRequired($dotObject, 'label'));
 
-        Attributes::importAttributeOption($dotObject);
+        $attribute_id = Attributes::importAttribute(
+            $dotObject->get('attribute.id'),
+            $dotObject->get('attribute.name'),
+            $dotObject->get('attribute.label')
+        );
+        Attributes::importAttributeOption(
+            $attribute_id,
+            $dotObject->get('id'),
+            $dotObject->get('name'),
+            $dotObject->get('label'),
+            $dotObject->get('image_url'),
+            $dotObject->get('order', 0),
+        );
     }
 }

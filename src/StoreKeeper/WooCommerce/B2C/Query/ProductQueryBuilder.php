@@ -44,23 +44,18 @@ SQL;
         return $wpdb->prepare($query, $type, $index);
     }
 
-    public static function getProductAttributeArray(int $index)
+    public static function getCustomProductAttributes(): string
     {
-        global $table_prefix, $wpdb;
+        global $table_prefix;
 
-        $query = <<<SQL
-    SELECT meta.meta_value AS attributes
+        return <<<SQL
+    SELECT post.ID, meta.meta_value AS attributes
     FROM {$table_prefix}postmeta AS meta 
-    JOIN {$table_prefix}posts as post
-        on post.ID = meta.post_id
+    JOIN {$table_prefix}posts as post ON post.ID = meta.post_id
     WHERE post.post_type = 'product'
-    AND meta.meta_key = '_product_attributes'
-    ORDER BY ID
-    LIMIT 1
-    OFFSET %d;
+        AND meta.meta_key = '_product_attributes'
+        AND meta.meta_value like '%"is_taxonomy";i:0;%'
 SQL;
-
-        return $wpdb->prepare($query, $index);
     }
 
     public static function getProductCount()
