@@ -9,8 +9,6 @@ use Psr\Log\NullLogger;
 use stdClass;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use StoreKeeper\WooCommerce\B2C\Imports\AttributeImport;
-use StoreKeeper\WooCommerce\B2C\Imports\AttributeOptionImport;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
@@ -47,25 +45,6 @@ class Attributes
         return self::TYPE_SELECT;
     }
 
-    /**
-     * @param int    $id   Id of the attribute option
-     * @param string $name Name of the attribute
-     *
-     * @return string The sanitized option slug
-     */
-    public static function sanitizeOptionSlug($id, $name)
-    {
-        $wanted_prefix = self::slug_prefix.$id.'_';
-        if (!StringFunctions::startsWith($name, $wanted_prefix)) {
-            return $wanted_prefix.sanitize_title($name);
-        } else {
-            //is already sanitized
-            //this function is called at a lot of places, in some cases it's called twice(+). (results in double prefixes etc)
-            //rather than debugging or refactoring for hours we added this startsWith check here.
-            return $name;
-        }
-    }
-
     public static function getAttributeOptionsMap(): array
     {
         $map = [];
@@ -91,19 +70,6 @@ class Attributes
         }
 
         return $unmatched_attributes;
-    }
-
-    protected function ensureAttribute($storekeeper_id)
-    {
-        if (!self::isAttributeLinkedToBackend($storekeeper_id)) {
-            $attributeImport = new AttributeImport(
-                [
-                    'storekeeper_id' => $storekeeper_id,
-                ]
-            );
-            $attributeImport->setLogger($this->logger);
-            self::throwExceptionArray($attributeImport->run());
-        }
     }
 
     /**
@@ -148,36 +114,6 @@ class Attributes
         return $option_sk_to_wc;
     }
 
-    protected function ensureAttributeOptions($sk_attribute_id, $sk_attribute_option_ids = [])
-    {
-        if (count($sk_attribute_option_ids) > 0) {
-            $attribute = self::getAttribute($sk_attribute_id);
-            $attribute_slug = $attribute->slug;
-
-            // Check if attribute options exists
-            $missing_attribute_option_ids = [];
-
-            // TODO [profes@3/14/19]: Improve this with a single SQL query
-            foreach ($sk_attribute_option_ids as $attribute_option_id) {
-                // Add it when it can't find it.
-                if (false === self::getAttributeOptionTermIdByAttributeOptionIdInMeta(
-                        $attribute_option_id,
-                        $attribute_slug
-                    )) {
-                    $missing_attribute_option_ids[] = $attribute_option_id;
-                }
-            }
-
-            // Import missing attribute options if there are any.
-            if (count($missing_attribute_option_ids) > 0) {
-                $data = ['attribute_option_ids' => $missing_attribute_option_ids];
-                $attributeOption = new AttributeOptionImport($data);
-                $attributeOption->setLogger($this->logger);
-                self::throwExceptionArray($attributeOption->run());
-            }
-        }
-    }
-
     protected static function getAttributeOptionTermIdByAttributeOptionIdInMeta(int $sk_attribute_option_id, string $attribute_taxonomy_name): ?int
     {
         $args = [
@@ -219,38 +155,6 @@ class Attributes
         }
 
         return null;
-    }
-
-    /**
-     * @param $content_var
-     *
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public static function updateAttributeAndOptionFromContentVar($content_var)
-    {
-        $storekeeper_id = $content_var['attribute_id'];
-        // If there is no attribute_options_id it should to be stored as an attribute within the system,
-        // But it should be set on the product its self. so it can be skipped here.
-        if (array_key_exists('attribute_option_id', $content_var)) {
-            $attribute_id = self::importAttribute(
-                $storekeeper_id,
-                $content_var['name'],
-                $content_var['label'],
-            );
-
-            return self::importAttributeOption(
-                $attribute_id,
-                $content_var['attribute_option_id'],
-                $content_var['value'],
-                $content_var['value_label'],
-                $content_var['attribute_option_image_url'] ?? null,
-                $content_var['attribute_option_order'] ?? 0,
-            );
-        }
-
-        return false; // nothing was added
     }
 
     /**
@@ -504,7 +408,7 @@ class Attributes
             );
         }
 
-        static::updateAttributeOptionOrder($term_id, $option_order);
+        update_term_meta($term_id, 'order', $option_order);
 
         if ($option_image) {
             self::setAttributeOptionImage($term_id, $option_image);
@@ -585,7 +489,7 @@ class Attributes
         return $attribute_id;
     }
 
-    public static function prepareNewAttributeSlug(string $slug): string
+    protected static function prepareNewAttributeSlug(string $slug): string
     {
         $clean_slug_base = wc_sanitize_taxonomy_name(CommonAttributeName::cleanAttributeTermPrefix($slug));
         $i = 1;
@@ -599,10 +503,5 @@ class Attributes
         }
 
         return $clean_slug;
-    }
-
-    public static function updateAttributeOptionOrder(int $optionTermId, int $attributeOptionOrder): void
-    {
-        update_term_meta($optionTermId, 'order', $attributeOptionOrder);
     }
 }
