@@ -279,7 +279,7 @@ HTML;
         // Check for updates upon loading WordPress pages
         $this->loader->add_action('load-plugins.php', $updator, 'updateAction');
         $this->loader->add_action('load-plugin-install.php', $updator, 'updateAction');
-        $this->loader->add_action('upgrader_process_complete', $updator, 'onProcessComplete');
+        $this->loader->add_action('upgrader_process_complete', $updator, 'onProcessComplete', 0, 2);
 
         // Check for updates upon loading StoreKeeper pages
         list($pages) = MenuStructure::getPages();
