@@ -29,6 +29,7 @@ class Attributes
 
     const DEFAULT_ARCHIVED_SETTING = true;
     const MAX_NAME_LENGTH = 200;
+    const TAXONOMY_MAX_LENGTH = 29; // 32 - 3 (pa_ prefix)
 
     public function __construct(?LoggerInterface $logger = null)
     {
@@ -492,13 +493,16 @@ class Attributes
     protected static function prepareNewAttributeSlug(string $slug): string
     {
         $clean_slug_base = wc_sanitize_taxonomy_name(CommonAttributeName::cleanAttributeTermPrefix($slug));
+        $clean_slug_base = substr($clean_slug_base, 0, self::TAXONOMY_MAX_LENGTH);
         $i = 1;
         $clean_slug = $clean_slug_base;
         while (
             wc_check_if_attribute_name_is_reserved($clean_slug) ||
             taxonomy_exists($clean_slug) // taxonomy exists
         ) {
-            $clean_slug = $clean_slug_base.'_'.$i;
+            $suffix = '_'.$i;
+            $len = self::TAXONOMY_MAX_LENGTH - strlen($suffix);
+            $clean_slug = substr($clean_slug_base, 0, $len).$suffix;
             ++$i;
         }
 
