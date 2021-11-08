@@ -37,6 +37,23 @@ HTML;
         return true;
     }
 
+    public function onProcessComplete(\WP_Upgrader $upgrader_object, $options)
+    {
+        if (isset($options['plugins']) && is_array($options['plugins'])) {
+            foreach ($options['plugins'] as $each_plugin) {
+                if (STOREKEEPER_WOOCOMMERCE_FILE === $each_plugin) {
+                    $this->update();
+                }
+            }
+        } elseif (isset($options['plugins']) && STOREKEEPER_WOOCOMMERCE_FILE === $options['plugins']) {
+            $this->update();
+        } elseif (isset($options['plugin']) && ('' != $options['plugin'])) {
+            if (STOREKEEPER_WOOCOMMERCE_FILE === $options['plugin']) {
+                $this->update();
+            }
+        }
+    }
+
     public function update(bool $forceUpdate = false)
     {
         $currentVersion = STOREKEEPER_WOOCOMMERCE_B2C_VERSION;
