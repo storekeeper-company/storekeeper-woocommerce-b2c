@@ -222,20 +222,46 @@ class StoreKeeperApi
     protected static function getClientName(): string
     {
         if (is_null(self::$clientName)) {
-            $plugins = get_plugins();
+            $missingInfo = false;
+            $plugins = [];
+            if (function_exists('get_plugins')) {
+                $plugins = \get_plugins();
+            } else {
+                $missingInfo = true;
+            }
+            $url = '?';
+            if (function_exists('get_site_url')) {
+                $url = \get_site_url();
+            } else {
+                $missingInfo = true;
+            }
             $woocommerce_version = '?';
             if (!empty($plugins['woocommerce/woocommerce.php'])) {
                 $woocommerce_version = $plugins['woocommerce/woocommerce.php']['Version'];
+            } else {
+                $missingInfo = true;
+            }
+            $wordpress_version = '?';
+            if (function_exists('get_bloginfo')) {
+                $wordpress_version = \get_bloginfo('version');
+            } else {
+                $missingInfo = true;
             }
 
-            self::$clientName =
-                'storekeeper-woocommerce-b2c/'.STOREKEEPER_WOOCOMMERCE_B2C_VERSION
+            $clientName = 'storekeeper-woocommerce-b2c/'.STOREKEEPER_WOOCOMMERCE_B2C_VERSION
                 .' ('
-                    .'id='.WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_UUID).'; '
-                    .'url='.get_site_url()
+                .'id='.WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_UUID).'; '
+                .'url='.$url
                 .') '
-                .' Wordpress/'.get_bloginfo('version')
+                .' Wordpress/'.$wordpress_version
                 .' WooCommerce/'.$woocommerce_version;
+
+            if ($missingInfo) {
+                // do not cache so later we can get better one
+                return $clientName;
+            }
+
+            self::$clientName = $clientName;
         }
 
         return self::$clientName;
