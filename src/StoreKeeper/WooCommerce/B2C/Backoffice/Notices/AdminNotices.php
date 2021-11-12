@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
-use StoreKeeper\WooCommerce\B2C\Helpers\KsesHelper;
+use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
@@ -193,7 +193,7 @@ class AdminNotices
             <?php
             if (!empty($description)) {
                 echo '<p>';
-                echo nl2br(wp_kses($description, KsesHelper::ANCHOR));
+                echo nl2br(wp_kses($description, HtmlEscape::ALLOWED_ANCHOR));
                 echo '</p>';
             } ?>
         </div>
