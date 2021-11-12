@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
+use StoreKeeper\WooCommerce\B2C\Helpers\KsesHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
@@ -62,7 +63,7 @@ class AdminNotices
                 I18N::DOMAIN
             );
             $configure = __('Configure StoreKeeper synchronization plugin', I18N::DOMAIN);
-            $url = admin_url('/wp-admin/admin.php?page=storekeeper-settings'); ?>
+            $url = admin_url('/admin.php?page=storekeeper-settings'); ?>
             <div class="notice notice-error">
                 <p style="display:flex;justify-content:space-between;align-items:center;">
                     <?php
@@ -192,7 +193,7 @@ class AdminNotices
             <?php
             if (!empty($description)) {
                 echo '<p>';
-                echo nl2br(esc_html($description));
+                echo nl2br(wp_kses($description, KsesHelper::ANCHOR));
                 echo '</p>';
             } ?>
         </div>
