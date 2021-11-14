@@ -106,6 +106,6 @@ HTML;
 
     private function checkPaymentsActive(): bool
     {
-        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'no');
+        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes');
     }
 }

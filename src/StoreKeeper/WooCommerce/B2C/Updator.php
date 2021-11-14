@@ -97,5 +97,12 @@ HTML;
                 $migrate->run();
             }
         }
+
+        if (version_compare($databaseVersion, '7.4.6', '<')) {
+            $currentPaymentGatewayOption = StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
+            if (is_null($currentPaymentGatewayOption)) {
+                StoreKeeperOptions::set(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'no');
+            }
+        }
     }
 }
