@@ -229,7 +229,7 @@ class Core
     private function registerPaymentGateway()
     {
         if (
-            'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'no') &&
+            'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes') &&
             StoreKeeperOptions::isConnected()
         ) {
             //activated the payment gateway and backend is connected, which is required for this feature.
