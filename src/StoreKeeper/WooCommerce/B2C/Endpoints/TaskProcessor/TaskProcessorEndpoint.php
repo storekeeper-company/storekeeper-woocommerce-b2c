@@ -36,4 +36,14 @@ class TaskProcessorEndpoint extends AbstractEndpoint
 
         return $response;
     }
+
+    final public function handleRequestSilently(\WP_REST_Request $request): ?\WP_REST_Response
+    {
+        $response = $this->handleRequest($request);
+        if (500 === $response->get_status()) {
+            return $response;
+        }
+
+        return null;
+    }
 }
