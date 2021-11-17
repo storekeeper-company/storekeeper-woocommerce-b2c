@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use WC_Order;
 
 class OrderImport extends AbstractImport
@@ -187,5 +188,10 @@ SQL;
         $upgrade_branch = $upgrade_tree[$current_status];
 
         return in_array($new_status, $upgrade_branch);
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('orders', I18N::DOMAIN);
     }
 }

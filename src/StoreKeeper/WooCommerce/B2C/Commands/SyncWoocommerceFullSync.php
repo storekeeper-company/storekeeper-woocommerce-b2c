@@ -3,6 +3,8 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductHelper;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use WP_CLI;
 
 class SyncWoocommerceFullSync extends AbstractSyncCommand
 {
@@ -32,31 +34,37 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
     public function execute(array $arguments, array $assoc_arguments)
     {
         if ($this->prepareExecute()) {
+            // %W is bright gray
+            WP_CLI::line($this->setYellowOutputColor(__('Starting shop information synchronization...', I18N::DOMAIN)));
             // Sync the shop info
             $this->executeSubCommand(SyncWoocommerceShopInfo::getCommandName());
 
+            WP_CLI::line($this->setYellowOutputColor(__('Starting product categories synchronization...', I18N::DOMAIN)));
             // Sync all categories
             $depth = $this->getCategoryDepth();
             for ($level = 0; $level <= $depth; ++$level) {
+                WP_CLI::line(sprintf(__('Product categories level (%s)', I18N::DOMAIN), $level + 1));
                 $this->executeSubCommand(SyncWoocommerceCategories::getCommandName(), [], ['level' => $level]);
             }
 
+            WP_CLI::line($this->setYellowOutputColor(__('Starting coupon codes synchronization...', I18N::DOMAIN)));
             // Sync coupon code
             $this->executeSubCommand(SyncWoocommerceCouponCodes::getCommandName());
 
+            WP_CLI::line($this->setYellowOutputColor(__('Starting tags synchronization...', I18N::DOMAIN)));
             // Sync the tags
             $this->executeSubCommand(SyncWoocommerceTags::getCommandName());
 
-            // Sync the coupon codes
-            $this->executeSubCommand(SyncWoocommerceCouponCodes::getCommandName());
-
+            WP_CLI::line($this->setYellowOutputColor(__('Starting product attributes synchronization...', I18N::DOMAIN)));
             // Sync the attributes
             $this->executeSubCommand(SyncWoocommerceAttributes::getCommandName());
 
+            WP_CLI::line($this->setYellowOutputColor(__('Starting featured attributes synchronization...', I18N::DOMAIN)));
             // Sync the featured attributes
             $this->executeSubCommand(SyncWoocommerceFeaturedAttributes::getCommandName());
 
             // Sync the attribute options(with pagination)
+            WP_CLI::line($this->setYellowOutputColor(__('Starting attribute options synchronization...', I18N::DOMAIN)));
             $attribute_options_totals = $this->getAmountOfAttributeOptionsInBackend();
             $this->executeSubCommand(
                 SyncWoocommerceAttributeOptions::getCommandName(),
@@ -67,6 +75,7 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
 
             // Sync the products(with pagination)
             if (!array_key_exists('skip-products', $assoc_arguments)) {
+                WP_CLI::line($this->setYellowOutputColor(__('Starting products synchronization...', I18N::DOMAIN)));
                 $product_totals = $this->getAmountOfProductsInBackend();
                 $this->executeSubCommand(
                     SyncWoocommerceProducts::getCommandName(),
@@ -88,11 +97,13 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
                 ];
 
                 if ($sync_upsell) {
+                    WP_CLI::line($this->setYellowOutputColor(__('Starting upsell products synchronization...', I18N::DOMAIN)));
                     // Sync the upsell
                     $this->executeSubCommand(SyncWoocommerceUpsellProducts::getCommandName(), [], $args);
                 }
 
                 if ($sync_cross_sell) {
+                    WP_CLI::line($this->setYellowOutputColor(__('Starting cross-sell products synchronization...', I18N::DOMAIN)));
                     // Sync the cross sell
                     $this->executeSubCommand(SyncWoocommerceCrossSellProducts::getCommandName(), [], $args);
                 }
@@ -122,5 +133,10 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
         }
 
         return $level;
+    }
+
+    private function setYellowOutputColor(string $message): string
+    {
+        return WP_CLI::colorize('%y'.$message.'%n');
     }
 }

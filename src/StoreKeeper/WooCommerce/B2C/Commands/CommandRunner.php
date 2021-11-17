@@ -267,9 +267,15 @@ class CommandRunner
                     $this->logger->error($buffer, $context);
                 } else {
                     $this->logger->debug($buffer, $context);
+                    if (!empty($buffer)) {
+                        echo $buffer;
+                    }
                 }
+                flush();
+                ob_flush();
             }
         );
+
         if (!$process->isSuccessful()) {
             throw new SubProcessException($process, $cmd_string);
         }

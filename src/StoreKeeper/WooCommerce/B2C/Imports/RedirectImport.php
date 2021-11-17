@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\RedirectHandler;
 
 class RedirectImport extends AbstractImport
@@ -82,5 +83,10 @@ class RedirectImport extends AbstractImport
         RedirectHandler::registerRedirect($this->storekeeper_id, $from_url, $to_url, $status_code);
 
         $this->debug("Imported redirect from $from_url to $to_url");
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('redirect', I18N::DOMAIN);
     }
 }

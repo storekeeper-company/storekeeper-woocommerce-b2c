@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class ProductStockImport extends AbstractProductImport
@@ -39,5 +40,10 @@ class ProductStockImport extends AbstractProductImport
         }
 
         return false;
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('products stock', I18N::DOMAIN);
     }
 }

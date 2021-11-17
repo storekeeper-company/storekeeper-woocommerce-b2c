@@ -3,10 +3,15 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
+use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 
-class FeaturedAttributeImport extends AbstractImport
+class FeaturedAttributeImport extends AbstractImport implements WithConsoleProgressBarInterface
 {
+    use ConsoleProgressBarTrait;
+
     protected function getModule()
     {
         return 'ProductsModule';
@@ -39,5 +44,10 @@ class FeaturedAttributeImport extends AbstractImport
             $dotObject->get('attribute_id'),
             $dotObject->get('attribute.name')
         );
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('featured attributes', I18N::DOMAIN);
     }
 }

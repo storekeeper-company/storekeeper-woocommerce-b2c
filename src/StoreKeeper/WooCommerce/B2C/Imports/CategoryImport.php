@@ -4,15 +4,20 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\ParseDown;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 
-class CategoryImport extends AbstractImport
+class CategoryImport extends AbstractImport implements WithConsoleProgressBarInterface
 {
+    use ConsoleProgressBarTrait;
+
     /**
      * @var int|null
      */
@@ -317,5 +322,10 @@ class CategoryImport extends AbstractImport
         if (PluginStatus::isPortoFunctionalityEnabled()) {
             delete_metadata('product_cat', $term_id, 'category_image');
         }
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('product categories', I18N::DOMAIN);
     }
 }
