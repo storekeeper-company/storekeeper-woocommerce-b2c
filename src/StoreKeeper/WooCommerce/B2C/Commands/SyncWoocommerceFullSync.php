@@ -34,7 +34,6 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
     public function execute(array $arguments, array $assoc_arguments)
     {
         if ($this->prepareExecute()) {
-            // %W is bright gray
             WP_CLI::line($this->setYellowOutputColor(__('Starting shop information synchronization...', I18N::DOMAIN)));
             // Sync the shop info
             $this->executeSubCommand(SyncWoocommerceShopInfo::getCommandName());
