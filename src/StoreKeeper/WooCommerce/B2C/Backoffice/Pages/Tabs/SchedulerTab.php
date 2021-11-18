@@ -160,7 +160,7 @@ class SchedulerTab extends AbstractTab
             $url = rest_url(EndpointLoader::getFullNamespace().'/'.TaskProcessorEndpoint::ROUTE);
             $instructions = [
                 __('Check if `curl` and `cron` is installed in the website\'s server.', I18N::DOMAIN),
-                sprintf(__('Add %s to crontab.', I18N::DOMAIN), "<code>* * * * * curl $url</code>"),
+                sprintf(__('Add %s to crontab.', I18N::DOMAIN), "<code>* * * * * curl -s $url</code>"),
                 __('Upon changing runner, please make sure to remove the cron above from crontab.', I18N::DOMAIN),
             ];
         } else {
