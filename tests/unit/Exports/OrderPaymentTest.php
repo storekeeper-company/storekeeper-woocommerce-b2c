@@ -167,6 +167,8 @@ class OrderPaymentTest extends AbstractOrderExportTest
                             return [
                                 'id' => $sk_order_id,
                                 'status' => $getOrderStatus,
+                                'is_paid' => false,
+                                'order_items' => [],
                             ];
                         }
                     );
