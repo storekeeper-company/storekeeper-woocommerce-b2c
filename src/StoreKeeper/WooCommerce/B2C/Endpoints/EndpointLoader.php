@@ -53,7 +53,7 @@ class EndpointLoader
             TaskProcessorEndpoint::ROUTE,
             [
                 'methods' => 'GET',
-                'callback' => [$taskProcessor, 'handleRequest'],
+                'callback' => [$taskProcessor, 'handleRequestSilently'],
                 'permission_callback' => '__return_true',
             ]
         );
