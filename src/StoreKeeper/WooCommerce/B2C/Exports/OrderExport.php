@@ -9,6 +9,7 @@ use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use WC_Order;
 use WC_Product;
 use WC_Product_Factory;
 
@@ -41,7 +42,7 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param \WC_Order $WpObject
+     * @param WC_Order $WpObject
      *
      * @return bool|mixed
      *
@@ -103,6 +104,9 @@ class OrderExport extends AbstractExport
         }
 
         $this->debug('Added guest information', $callData);
+
+        $ShopModule = $this->storekeeper_api->getModule('ShopModule');
+
         /*
          * Order products
          */
@@ -110,9 +114,19 @@ class OrderExport extends AbstractExport
             $callData['order_items'] = $this->getOrderItems($WpObject);
             $this->debug('Added order_items information', $callData);
         } else {
-            $callData['order_items__do_not_change'] = true;
-            $callData['order_items__remove'] = null;
-            $this->debug('Update, ignored order_items', $callData);
+            $storekeeperId = $this->get_storekeeper_id();
+            $storekeeperOrder = $ShopModule->getOrder($storekeeperId, null);
+
+            $hasDiscrepancy = $this->checkOrderDiscrepancy($WpObject, $storekeeperOrder);
+            // Only update order items if they have discrepancy and order is not paid yet
+            if ($hasDiscrepancy && !$storekeeperOrder['is_paid']) {
+                $callData['order_items'] = $this->getOrderItems($WpObject);
+                $this->debug('Updated order_items information due to discrepancy with the backoffice order items', $callData);
+            } else {
+                $callData['order_items__do_not_change'] = true;
+                $callData['order_items__remove'] = null;
+                $this->debug('Update, ignored order_items', $callData);
+            }
         }
 
         /*
@@ -206,10 +220,9 @@ class OrderExport extends AbstractExport
             $this->debug('Added billing_address as shipping_address information', $callData);
         }
 
-        /**
+        /*
          * Create or update the order.
          */
-        $ShopModule = $this->storekeeper_api->getModule('ShopModule');
         if ($isUpdate) {
             $storekeeper_id = $this->get_storekeeper_id();
             $ShopModule->updateOrder($callData, $this->get_storekeeper_id());
@@ -395,6 +408,32 @@ class OrderExport extends AbstractExport
     }
 
     /**
+     * @param WC_Order $databaseOrder - Order items to compare from
+     * @param $backofficeOrder - Order items to compare to
+     */
+    protected function checkOrderDiscrepancy(WC_Order $databaseOrder, $backofficeOrder): bool
+    {
+        $hasDiscrepancy = false;
+        $databaseOrderItems = $this->getOrderItems($databaseOrder);
+        $backofficeOrderItems = $backofficeOrder['order_items'];
+
+        foreach ($databaseOrderItems as $databaseOrderItem) {
+            $sku = $databaseOrderItem['sku'];
+            if (!in_array($sku, array_column($backofficeOrderItems, 'sku'), true)) {
+                $hasDiscrepancy = true;
+                break;
+            }
+        }
+
+        // In case order items are the same but prices have changed. e.g payment gateway fee
+        if (!$hasDiscrepancy && ((float) $databaseOrder->get_total()) !== $backofficeOrder['value_wt']) {
+            $hasDiscrepancy = true;
+        }
+
+        return $hasDiscrepancy;
+    }
+
+    /**
      * @param $storekeeper_status string The current StoreKeeper order status
      * @param $woocommerce_status string The woocommerce status, converted to its storekeeper status
      *
@@ -426,7 +465,7 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param $order \WC_Order
+     * @param $order WC_Order
      *
      * @return array
      *
