@@ -7,9 +7,12 @@ use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\ApiWrapper;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Traits\TaskHandlerTrait;
+use WP_CLI;
 
 abstract class AbstractImport
 {
@@ -42,6 +45,8 @@ abstract class AbstractImport
      * @var ApiWrapper
      */
     protected $storekeeper_api = null;
+
+    protected $processedItemCount = 0;
 
     /**
      * AbstractImport constructor.
@@ -230,6 +235,17 @@ abstract class AbstractImport
                 $last_fetched_amount = (int) $response['count'];
                 $start = $start + ($last_fetched_amount - 1);
                 $items = $response['data'];
+                if ($this instanceof WithConsoleProgressBarInterface) {
+                    $this->createProgressBar(
+                        $last_fetched_amount,
+                        WP_CLI::colorize(
+                            '%G'.sprintf(
+                            __('Syncing %s from Storekeeper backoffice', I18N::DOMAIN),
+                                $this->getImportEntityName()
+                            ).'%n'
+                        )
+                    );
+                }
                 foreach ($items as $index => $item) {
                     ++$this->total_fetched;
                     $count = $index + 1;
@@ -239,6 +255,7 @@ abstract class AbstractImport
 
                         unset($dotObject);
 
+                        ++$this->processedItemCount;
                         $this->debug("Processed {$count}/{$response['count']} items");
                     } catch (Exception $exception) {
                         $this->debug('Caught an exception');
@@ -258,10 +275,18 @@ abstract class AbstractImport
                             $data
                         );
                         throw $exception;
+                    } finally {
+                        if ($this instanceof WithConsoleProgressBarInterface) {
+                            $this->tickProgressBar();
+                        }
                     }
                 }
                 unset($items);
                 unset($response);
+
+                if ($this instanceof WithConsoleProgressBarInterface) {
+                    $this->endProgressBar();
+                }
             }
 
             $fetched_total = $fetched_total + $limit; // always up it with the limit
@@ -292,11 +317,18 @@ abstract class AbstractImport
         return $deepArray->get("translation.$path", $untranslated);
     }
 
+    public function getProcessedItemCount(): int
+    {
+        return $this->processedItemCount;
+    }
+
     /**
      * @param $dotObject Dot
      * @param $options
      */
     abstract protected function processItem(Dot $dotObject, array $options = []);
+
+    abstract protected function getImportEntityName(): string;
 
     /**
      * Which module to call.
@@ -318,5 +350,6 @@ abstract class AbstractImport
 
     protected function afterRun()
     {
+        WP_CLI::success(sprintf(__('Done processing %s items of %s', I18N::DOMAIN), $this->getProcessedItemCount(), $this->getImportEntityName()));
     }
 }

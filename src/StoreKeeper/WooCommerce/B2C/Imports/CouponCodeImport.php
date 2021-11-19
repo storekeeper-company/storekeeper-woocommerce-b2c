@@ -6,14 +6,18 @@ use Adbar\Dot;
 use DateTime;
 use DateTimeInterface;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 use WC_Coupon;
 use WP_Post;
 use WP_Term;
 
-class CouponCodeImport extends AbstractImport
+class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarInterface
 {
+    use ConsoleProgressBarTrait;
     const SK_COUPON_TYPE_PERCENTAGE = 'percent';
     const SK_COUPON_TYPE_FIXED_ORDER = 'fixed_order';
 
@@ -280,6 +284,7 @@ class CouponCodeImport extends AbstractImport
     protected function afterRun()
     {
         $this->makeMissingCouponPrivate();
+        parent::afterRun();
     }
 
     protected function makeMissingCouponPrivate(): void
@@ -293,5 +298,10 @@ class CouponCodeImport extends AbstractImport
                 }
             }
         }
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('coupon codes', I18N::DOMAIN);
     }
 }

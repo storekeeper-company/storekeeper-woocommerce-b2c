@@ -21,7 +21,8 @@ class SyncWoocommerceProducts extends AbstractSyncCommand
             $this->runSubCommandWithPagination(
                 SyncWoocommerceProductPage::getCommandName(),
                 $total_amount,
-                self::AMOUNT
+                self::AMOUNT,
+                true
             );
         }
     }
