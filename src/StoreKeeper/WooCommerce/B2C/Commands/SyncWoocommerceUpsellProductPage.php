@@ -4,10 +4,16 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
+use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
+use WP_CLI;
 
-class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand
+class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand implements WithConsoleProgressBarInterface
 {
+    use ConsoleProgressBarTrait;
+
     /**
      * Execute this command to sync the upsell products.
      *
@@ -47,6 +53,15 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand
      */
     private function syncUpsellForProducts($products)
     {
+        $this->createProgressBar(count($products), WP_CLI::colorize(
+            '%G'.
+                sprintf(
+                    __('Syncing %s from Storekeeper backoffice', I18N::DOMAIN),
+                    __('upsell products', I18N::DOMAIN)
+                )
+                .'%n'
+            )
+        );
         foreach ($products as $index => $product) {
             $this->logger->debug(
                 'Processing product',
@@ -63,7 +78,11 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand
                     'post_id' => $product->get_id(),
                 ]
             );
+
+            $this->tickProgressBar();
         }
+
+        $this->endProgressBar();
     }
 
     /**

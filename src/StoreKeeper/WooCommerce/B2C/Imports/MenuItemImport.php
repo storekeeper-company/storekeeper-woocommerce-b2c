@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 use Adbar\Dot;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
@@ -427,5 +428,10 @@ class MenuItemImport extends AbstractImport
         }
 
         return $processedItemVars;
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('menu items', I18N::DOMAIN);
     }
 }

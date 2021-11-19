@@ -4,10 +4,14 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 
-class TagImport extends AbstractImport
+class TagImport extends AbstractImport implements WithConsoleProgressBarInterface
 {
+    use ConsoleProgressBarTrait;
     private $storekeeper_id = 0;
 
     /**
@@ -170,5 +174,10 @@ class TagImport extends AbstractImport
             $term_id = $term['term_id'];
             add_term_meta($term_id, 'storekeeper_id', $dotObject->get('id'), true);
         }
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('tags', I18N::DOMAIN);
     }
 }

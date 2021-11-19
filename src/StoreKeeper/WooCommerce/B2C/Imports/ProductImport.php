@@ -7,6 +7,8 @@ use Exception;
 use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
@@ -16,13 +18,19 @@ use StoreKeeper\WooCommerce\B2C\Tools\ParseDown;
 use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
+use WP_CLI;
 
-class ProductImport extends AbstractProductImport
+class ProductImport extends AbstractProductImport implements WithConsoleProgressBarInterface
 {
+    use ConsoleProgressBarTrait;
+
     protected $syncProductVariations = false;
+    protected $newItemsCount = 0;
+    protected $updatedItemsCount = 0;
 
     /**
      * @param $StoreKeeperId
@@ -732,6 +740,9 @@ SQL;
         if (!$productCheck) {
             // Getting the product id.
             $productCheck = $this->getAssignedProduct($dotObject);
+            ++$this->newItemsCount;
+        } else {
+            ++$this->updatedItemsCount;
         }
 
         return $productCheck->ID;
@@ -756,6 +767,9 @@ SQL;
         $product_id = 0;
         if (false !== $productCheck && null !== $productCheck) {
             $product_id = $productCheck->ID;
+            ++$this->updatedItemsCount;
+        } else {
+            ++$this->newItemsCount;
         }
 
         if ('simple' === $importProductType) {
@@ -1319,6 +1333,14 @@ SQL;
                 }
             }
         }
+
+        WP_CLI::success(sprintf(
+            __('Done processing %s items of %s (%s new / %s updated)', I18N::DOMAIN),
+            $this->getProcessedItemCount(),
+            $this->getImportEntityName(),
+            $this->getNewItemsCount(),
+            $this->getUpdatedItemsCount()
+        ));
     }
 
     /**
@@ -1399,5 +1421,20 @@ SQL;
         }
 
         return null;
+    }
+
+    public function getUpdatedItemsCount(): int
+    {
+        return $this->updatedItemsCount;
+    }
+
+    public function getNewItemsCount(): int
+    {
+        return $this->newItemsCount;
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('products', I18N::DOMAIN);
     }
 }

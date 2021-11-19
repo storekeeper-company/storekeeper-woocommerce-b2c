@@ -4,10 +4,15 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
+use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 
-class AttributeOptionImport extends AbstractImport
+class AttributeOptionImport extends AbstractImport implements WithConsoleProgressBarInterface
 {
+    use ConsoleProgressBarTrait;
+
     private $storekeeper_id = 0;
 
     private $attribute_id = 0;
@@ -93,5 +98,10 @@ class AttributeOptionImport extends AbstractImport
             $dotObject->get('image_url'),
             $dotObject->get('order', 0),
         );
+    }
+
+    protected function getImportEntityName(): string
+    {
+        return __('attribute options', I18N::DOMAIN);
     }
 }
