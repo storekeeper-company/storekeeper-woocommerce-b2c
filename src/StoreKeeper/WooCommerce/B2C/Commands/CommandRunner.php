@@ -140,7 +140,8 @@ class CommandRunner
     public function executeAsSubProcess(
         string $name,
         array $arguments = [],
-        array $assoc_arguments = []
+        array $assoc_arguments = [],
+        bool $isOutputEcho = false
     ): int {
         global $argv;
         $input = self::getSubProcessInputString($name, $arguments, $assoc_arguments);
@@ -158,7 +159,8 @@ class CommandRunner
             $process = $this->spawnSubProcess(
                 $params,
                 null,
-                600
+                600,
+                $isOutputEcho
             );
 
             return $process->getExitCode();
@@ -231,7 +233,7 @@ class CommandRunner
     /**
      * @throws SubProcessException
      */
-    protected function spawnSubProcess(array $params, string $input = null, int $timeout = 0): Process
+    protected function spawnSubProcess(array $params, string $input = null, int $timeout = 0, bool $isOutputEcho = false): Process
     {
         $phpBinary = PHP_BINARY === '' ? 'php' : PHP_BINARY;
         $command = [$phpBinary];
@@ -262,17 +264,16 @@ class CommandRunner
             ] + $context
         );
         $process->wait(
-            function ($type, $buffer) use ($context) {
+            function ($type, $buffer) use ($context, $isOutputEcho) {
                 if (Process::ERR === $type) {
                     $this->logger->error($buffer, $context);
                 } else {
-                    $this->logger->debug($buffer, $context);
-                    if (!empty($buffer)) {
+                    if ($isOutputEcho) {
                         echo $buffer;
+                    } else {
+                        $this->logger->debug($buffer, $context);
                     }
                 }
-                flush();
-                ob_flush();
             }
         );
 

@@ -99,7 +99,8 @@ abstract class AbstractCommand implements CommandInterface
     protected function executeSubCommand(
         $name,
         array $arguments = [],
-        array $assoc_arguments = []
+        array $assoc_arguments = [],
+        bool $isOutputEcho = false
     ): int {
         if (Core::isTest()) {
             // for tests we skip all the sub processing,
@@ -107,7 +108,7 @@ abstract class AbstractCommand implements CommandInterface
             $result = $this->runner->execute($name, $arguments, $assoc_arguments);
             $this->logger->warning(__CLASS__.'::'.__FILE__.' timeout option ignored');
         } else {
-            $result = $this->runner->executeAsSubProcess($name, $arguments, $assoc_arguments);
+            $result = $this->runner->executeAsSubProcess($name, $arguments, $assoc_arguments, $isOutputEcho);
         }
 
         return $result;
@@ -120,9 +121,9 @@ abstract class AbstractCommand implements CommandInterface
      * @param int    $total_amount The total amount of items to send to the command
      * @param int    $amount       The amount of items to send to the command at once
      *
-     * @throws SubProcessException
+     * @throws SubProcessException|BaseException
      */
-    protected function runSubCommandWithPagination($command_name, $total_amount, $amount = self::AMOUNT)
+    protected function runSubCommandWithPagination(string $command_name, int $total_amount, int $amount = self::AMOUNT, bool $isOutputEcho = false): void
     {
         $page = 0;
         for ($start = 0; $start < $total_amount; $start += $amount) {
@@ -133,7 +134,8 @@ abstract class AbstractCommand implements CommandInterface
                     'start' => $start,
                     'limit' => $amount,
                     'page' => $page,
-                ]
+                ],
+                $isOutputEcho
             );
             ++$page;
         }

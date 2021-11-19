@@ -36,31 +36,31 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
         if ($this->prepareExecute()) {
             WP_CLI::line($this->setYellowOutputColor(__('Starting shop information synchronization...', I18N::DOMAIN)));
             // Sync the shop info
-            $this->executeSubCommand(SyncWoocommerceShopInfo::getCommandName());
+            $this->executeSubCommand(SyncWoocommerceShopInfo::getCommandName(), [], [], true);
 
             WP_CLI::line($this->setYellowOutputColor(__('Starting product categories synchronization...', I18N::DOMAIN)));
             // Sync all categories
             $depth = $this->getCategoryDepth();
             for ($level = 0; $level <= $depth; ++$level) {
                 WP_CLI::line(sprintf(__('Product categories level (%s)', I18N::DOMAIN), $level + 1));
-                $this->executeSubCommand(SyncWoocommerceCategories::getCommandName(), [], ['level' => $level]);
+                $this->executeSubCommand(SyncWoocommerceCategories::getCommandName(), [], ['level' => $level], true);
             }
 
             WP_CLI::line($this->setYellowOutputColor(__('Starting coupon codes synchronization...', I18N::DOMAIN)));
             // Sync coupon code
-            $this->executeSubCommand(SyncWoocommerceCouponCodes::getCommandName());
+            $this->executeSubCommand(SyncWoocommerceCouponCodes::getCommandName(), [], [], true);
 
             WP_CLI::line($this->setYellowOutputColor(__('Starting tags synchronization...', I18N::DOMAIN)));
             // Sync the tags
-            $this->executeSubCommand(SyncWoocommerceTags::getCommandName());
+            $this->executeSubCommand(SyncWoocommerceTags::getCommandName(), [], [], true);
 
             WP_CLI::line($this->setYellowOutputColor(__('Starting product attributes synchronization...', I18N::DOMAIN)));
             // Sync the attributes
-            $this->executeSubCommand(SyncWoocommerceAttributes::getCommandName());
+            $this->executeSubCommand(SyncWoocommerceAttributes::getCommandName(), [], [], true);
 
             WP_CLI::line($this->setYellowOutputColor(__('Starting featured attributes synchronization...', I18N::DOMAIN)));
             // Sync the featured attributes
-            $this->executeSubCommand(SyncWoocommerceFeaturedAttributes::getCommandName());
+            $this->executeSubCommand(SyncWoocommerceFeaturedAttributes::getCommandName(), [], [], true);
 
             // Sync the attribute options(with pagination)
             WP_CLI::line($this->setYellowOutputColor(__('Starting attribute options synchronization...', I18N::DOMAIN)));
@@ -69,7 +69,9 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
                 SyncWoocommerceAttributeOptions::getCommandName(),
                 [
                     'total_amount' => $attribute_options_totals,
-                ]
+                ],
+                [],
+                true
             );
 
             // Sync the products(with pagination)
@@ -80,7 +82,9 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
                     SyncWoocommerceProducts::getCommandName(),
                     [
                         'total_amount' => $product_totals,
-                    ]
+                    ],
+                    [],
+                    true
                 );
             }
 
@@ -98,13 +102,13 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
                 if ($sync_upsell) {
                     WP_CLI::line($this->setYellowOutputColor(__('Starting upsell products synchronization...', I18N::DOMAIN)));
                     // Sync the upsell
-                    $this->executeSubCommand(SyncWoocommerceUpsellProducts::getCommandName(), [], $args);
+                    $this->executeSubCommand(SyncWoocommerceUpsellProducts::getCommandName(), [], $args, true);
                 }
 
                 if ($sync_cross_sell) {
                     WP_CLI::line($this->setYellowOutputColor(__('Starting cross-sell products synchronization...', I18N::DOMAIN)));
                     // Sync the cross sell
-                    $this->executeSubCommand(SyncWoocommerceCrossSellProducts::getCommandName(), [], $args);
+                    $this->executeSubCommand(SyncWoocommerceCrossSellProducts::getCommandName(), [], $args, true);
                 }
             }
         }
