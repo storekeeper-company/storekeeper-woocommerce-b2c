@@ -9,6 +9,7 @@ use Psr\Log\NullLogger;
 use stdClass;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
@@ -445,6 +446,11 @@ class Attributes
         string $alias,
         string $title
     ): int {
+        // Refer admin issue on StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner::21
+        if (!is_admin()) {
+            throw new WordpressException(__('Failed to execute attribute sync as WP_ADMIN constant is set to false', I18N::DOMAIN));
+        }
+
         $existingAttribute = self::getAttribute($storekeeper_id);
         if (empty($existingAttribute)) {
             // maybe the attribute was deleted on the StoreKeper site and recreated (alias cannot be changed)
@@ -468,7 +474,6 @@ class Attributes
             $update_arguments['type'] = self::getDefaultType();
             $update_arguments['slug'] = self::prepareNewAttributeSlug($alias);
             $update_arguments['has_archives'] = self::DEFAULT_ARCHIVED_SETTING;
-
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
                 wc_create_attribute($update_arguments)
             );
