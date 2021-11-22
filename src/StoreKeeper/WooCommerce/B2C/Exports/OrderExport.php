@@ -117,11 +117,18 @@ class OrderExport extends AbstractExport
             $storekeeperId = $this->get_storekeeper_id();
             $storekeeperOrder = $ShopModule->getOrder($storekeeperId, null);
 
-            $hasDiscrepancy = $this->checkOrderDiscrepancy($WpObject, $storekeeperOrder);
-            // Only update order items if they have discrepancy and order is not paid yet
-            if ($hasDiscrepancy && !$storekeeperOrder['is_paid']) {
+            $hasDifference = $this->checkOrderDifference($WpObject, $storekeeperOrder);
+            // Only update order items if they have difference and order is not paid yet
+            if ($hasDifference && !$storekeeperOrder['is_paid']) {
                 $callData['order_items'] = $this->getOrderItems($WpObject);
-                $this->debug('Updated order_items information due to discrepancy with the backoffice order items', $callData);
+                $this->debug('Updated order_items information due to difference with the backoffice order items', $callData);
+            } elseif ($hasDifference && $storekeeperOrder['is_paid']) {
+                $this->debug('Cannot synchronize order, there are differences but order is already paid',
+                    array_merge(
+                        ['shop_order_id' => $WpObject->get_id()],
+                        $callData
+                    ));
+                throw new Exception('Order is paid but has differences, synchronization fails');
             } else {
                 $callData['order_items__do_not_change'] = true;
                 $callData['order_items__remove'] = null;
@@ -411,26 +418,36 @@ class OrderExport extends AbstractExport
      * @param WC_Order $databaseOrder - Order items to compare from
      * @param $backofficeOrder - Order items to compare to
      */
-    protected function checkOrderDiscrepancy(WC_Order $databaseOrder, $backofficeOrder): bool
+    protected function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): bool
     {
-        $hasDiscrepancy = false;
+        $hasDifference = false;
         $databaseOrderItems = $this->getOrderItems($databaseOrder);
         $backofficeOrderItems = $backofficeOrder['order_items'];
 
         foreach ($databaseOrderItems as $databaseOrderItem) {
             $sku = $databaseOrderItem['sku'];
             if (!in_array($sku, array_column($backofficeOrderItems, 'sku'), true)) {
-                $hasDiscrepancy = true;
+                $hasDifference = true;
+                break;
+            }
+
+            $index = array_search($sku, array_column($backofficeOrderItems, 'sku'), true);
+            $backofficeOrderItem = $backofficeOrderItems[$index];
+            if (
+                $backofficeOrderItem['quantity'] !== $databaseOrderItem['quantity'] ||
+                $backofficeOrderItem['ppu_wt'] !== $databaseOrderItem['ppu_wt']
+            ) {
+                $hasDifference = true;
                 break;
             }
         }
 
         // In case order items are the same but prices have changed. e.g payment gateway fee
-        if (!$hasDiscrepancy && ((float) $databaseOrder->get_total()) !== $backofficeOrder['value_wt']) {
-            $hasDiscrepancy = true;
+        if (!$hasDifference && ((float) $databaseOrder->get_total()) !== $backofficeOrder['value_wt']) {
+            $hasDifference = true;
         }
 
-        return $hasDiscrepancy;
+        return $hasDifference;
     }
 
     /**
