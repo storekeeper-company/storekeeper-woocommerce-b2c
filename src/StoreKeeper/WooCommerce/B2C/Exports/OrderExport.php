@@ -418,7 +418,7 @@ class OrderExport extends AbstractExport
      * @param WC_Order $databaseOrder - Order items to compare from
      * @param $backofficeOrder - Order items to compare to
      */
-    protected function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): bool
+    public function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): bool
     {
         $hasDifference = false;
         $databaseOrderItems = $this->getOrderItems($databaseOrder);
@@ -431,12 +431,21 @@ class OrderExport extends AbstractExport
                 break;
             }
 
-            $index = array_search($sku, array_column($backofficeOrderItems, 'sku'), true);
-            $backofficeOrderItem = $backofficeOrderItems[$index];
-            if (
-                $backofficeOrderItem['quantity'] !== $databaseOrderItem['quantity'] ||
-                $backofficeOrderItem['ppu_wt'] !== $databaseOrderItem['ppu_wt']
-            ) {
+            $quantity = $databaseOrderItem['quantity'];
+            $pricePerUnit = $databaseOrderItem['ppu_wt'];
+
+            $databaseOrderItemSet = [$sku, $quantity, $pricePerUnit];
+
+            // Check if any set matches in backoffice order items
+            $hasMatch = false;
+            foreach ($backofficeOrderItems as $backofficeOrderItem) {
+                $backofficeOrderItemSet = [$backofficeOrderItem['sku'], $backofficeOrderItem['quantity'], $backofficeOrderItem['ppu_wt']];
+                if ($backofficeOrderItemSet === $databaseOrderItemSet) {
+                    $hasMatch = true;
+                }
+            }
+
+            if (!$hasMatch) {
                 $hasDifference = true;
                 break;
             }
