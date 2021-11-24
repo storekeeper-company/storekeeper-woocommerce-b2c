@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\Exceptions\NonExistentObjectException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use WC_Order;
 
@@ -36,7 +37,14 @@ class OrderImport extends AbstractImport
      */
     public function run($options = [])
     {
-        $this->processItem(new Dot($this->new_order));
+        try {
+            $this->processItem(new Dot($this->new_order));
+        } catch (NonExistentObjectException $exception) {
+            $this->logger->info('Order import is marked as success', [
+                'storekeeper_id' => $this->storekeeper_id,
+                'message' => $exception->getMessage(),
+            ]);
+        }
 
         return true;
     }
@@ -45,6 +53,7 @@ class OrderImport extends AbstractImport
      * @param Dot $dotObject
      *
      * @throws Exception
+     * @throws NonExistentObjectException
      */
     protected function processItem($dotObject, array $options = [])
     {
@@ -52,15 +61,11 @@ class OrderImport extends AbstractImport
         $order = $this->getItem($this->storekeeper_id);
 
         if (false === $order) {
-            throw new Exception('Tried to import an non-existing order: '.$this->storekeeper_id);
-
-            return;
+            throw new NonExistentObjectException('Tried to import an non-existing order: '.$this->storekeeper_id);
         }
 
         if (true === $order) {
             throw new Exception('Fount more orders with id: '.$this->storekeeper_id);
-
-            return;
         }
 
         /** Set the ignore order id to prevent an update loop (wc > backend > wc > etc) */
@@ -111,7 +116,7 @@ SQL;
 
         $response = $wpdb->get_row($safe_sql);
 
-        if (key_exists('ID', $response)) {
+        if (is_array($response) && array_key_exists('ID', $response)) {
             return new WC_Order($response->ID);
         }
 
