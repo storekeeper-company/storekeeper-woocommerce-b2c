@@ -27,6 +27,21 @@ class EventsHandler
 
     private $id;
 
+    const MODES_WITHOUT_CUSTOMERS_SYNC = [
+        StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY,
+        StoreKeeperOptions::SYNC_MODE_NONE,
+    ];
+
+    const MODES_WITHOUT_ORDERS_SYNC = [
+        StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY,
+        StoreKeeperOptions::SYNC_MODE_NONE,
+    ];
+
+    const MODES_WITHOUT_PAYMENTS = [
+        StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY,
+        StoreKeeperOptions::SYNC_MODE_NONE,
+    ];
+
     /**
      * @return mixed
      */
@@ -255,6 +270,106 @@ class EventsHandler
         }
     }
 
+    private function processProductOnlyEvents($events)
+    {
+        if (!is_array($events)) {
+            return;
+        }
+
+        $taskData = ['storekeeper_id' => (int) $this->getId()];
+        $storekeeper_id = (int) $this->getId();
+        $categoryType = $this->getCategoryType($storekeeper_id) ?? $this->getCategoryTypeFromWordpress($storekeeper_id);
+        $module = $this->getModule();
+
+        foreach ($events as $id => $event) {
+            $details = $event['details'] ?? [];
+            $eventType = $event['event'];
+            switch ("$module::$eventType") {
+                // ShopModule::ShopProduct
+                case 'ShopModule::ShopProduct::updated':
+                case 'ShopModule::ShopProduct::created':
+                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_IMPORT, $this->getId(), $taskData);
+                    break;
+                case 'ShopModule::ShopProduct::deleted':
+                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
+                    break;
+                case 'ShopModule::ShopProduct::deactivated':
+                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_DEACTIVATED, $this->getId(), $taskData, true);
+                    break;
+                case 'ShopModule::ShopProduct::activated':
+                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_ACTIVATED, $this->getId(), $taskData, true);
+                    break;
+                // BlogModule::Category
+                case 'BlogModule::Category::updated':
+                case 'BlogModule::Category::created':
+                    if ('category' === $categoryType) {
+                        TaskHandler::scheduleTask(TaskHandler::CATEGORY_IMPORT, $this->getId(), $taskData);
+                    }
+                    if ('label' === $categoryType) {
+                        TaskHandler::scheduleTask(TaskHandler::TAG_IMPORT, $this->getId(), $taskData);
+                    }
+                    break;
+                case 'BlogModule::Category::deleted':
+                    if ('category' === $categoryType) {
+                        TaskHandler::scheduleTask(TaskHandler::CATEGORY_DELETE, $this->getId(), $taskData);
+                    }
+                    if ('label' === $categoryType) {
+                        TaskHandler::scheduleTask(TaskHandler::TAG_DELETE, $this->getId(), $taskData);
+                    }
+                    break;
+                // ShopModule::CouponCode
+                case 'ShopModule::CouponCode::updated':
+                case 'ShopModule::CouponCode::created':
+                    $taskData = array_merge(
+                        $taskData,
+                        [
+                            'code' => $details['code'] ?? null,
+                        ]
+                    );
+                    TaskHandler::scheduleTask(TaskHandler::COUPON_CODE_IMPORT, $this->getId(), $taskData);
+                    break;
+                case 'ShopModule::CouponCode::deleted':
+                    TaskHandler::scheduleTask(TaskHandler::COUPON_CODE_DELETE, $this->getId(), $taskData);
+                    $taskData = array_merge(
+                        $taskData,
+                        [
+                            'code' => $details['code'],
+                        ]
+                    );
+                    break;
+                // ProductsModule::FeaturedAttribute
+                case 'ProductsModule::FeaturedAttribute::updated':
+                    $alias = $details['alias'];
+                    FeaturedAttributeOptions::setAttribute(
+                        $alias,
+                        $details['attribute_id'],
+                        $details['attribute']['name']
+                    );
+                    break;
+                case 'ProductsModule::FeaturedAttribute::deleted':
+                    $alias = $details['alias'];
+                    FeaturedAttributeOptions::deleteAttribute($alias);
+                    break;
+                // BlogModule::MenuItem
+                case 'BlogModule::MenuItem::updated':
+                case 'BlogModule::MenuItem::created':
+                    TaskHandler::scheduleTask(TaskHandler::MENU_ITEM_IMPORT, $this->getId(), $taskData);
+                    break;
+                case 'BlogModule::MenuItem::deleted':
+                    TaskHandler::scheduleTask(TaskHandler::MENU_ITEM_DELETE, $this->getId(), $taskData);
+                    break;
+                // BlogModule::SiteRedirect
+                case 'BlogModule::SiteRedirect::updated':
+                case 'BlogModule::SiteRedirect::created':
+                    TaskHandler::scheduleTask(TaskHandler::REDIRECT_IMPORT, $this->getId(), $taskData);
+                    break;
+                case 'BlogModule::SiteRedirect::deleted':
+                    TaskHandler::scheduleTask(TaskHandler::REDIRECT_DELETE, $this->getId(), $taskData);
+                    break;
+            }
+        }
+    }
+
     private function processOrderOnlyEvents($events)
     {
         if (!is_array($events)) {
@@ -302,6 +417,9 @@ class EventsHandler
             }
             if (StoreKeeperOptions::SYNC_MODE_ORDER_ONLY === StoreKeeperOptions::getSyncMode()) {
                 $this->processOrderOnlyEvents($events);
+            }
+            if (StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY === StoreKeeperOptions::getSyncMode()) {
+                $this->processProductOnlyEvents($events);
             }
         } catch (Throwable $exception) {
             $this->logger->error(
@@ -387,5 +505,23 @@ class EventsHandler
         }
 
         return false;
+    }
+
+    public static function isEventsDisabled(string $eventType): bool
+    {
+        $disabled = false;
+        if ('orders' === $eventType) {
+            $disabled = in_array(StoreKeeperOptions::getSyncMode(), self::MODES_WITHOUT_ORDERS_SYNC, true);
+        }
+
+        if ('customers' === $eventType) {
+            $disabled = in_array(StoreKeeperOptions::getSyncMode(), self::MODES_WITHOUT_CUSTOMERS_SYNC, true);
+        }
+
+        if ('payments' === $eventType) {
+            $disabled = in_array(StoreKeeperOptions::getSyncMode(), self::MODES_WITHOUT_PAYMENTS, true);
+        }
+
+        return $disabled;
     }
 }

@@ -83,6 +83,7 @@ class InfoHandler
             'task_failed_quantity' => TaskModel::countFailedTasks(),
             'task_successful_quantity' => TaskModel::countSuccessfulTasks(),
             'hook_quantity' => WebhookLogModel::count(),
+            'active_capability' => [], // TODO: Discussion with Szymon
         ];
 
         foreach (self::EXTRA_BLOG_INFO_FIELDS as $blogInfoField) {

@@ -19,6 +19,10 @@ class StoreKeeperOptions extends AbstractOptions
 
     const SYNC_MODE_FULL_SYNC = 'sync-mode-full-sync';
     const SYNC_MODE_ORDER_ONLY = 'sync-mode-order-only';
+    const SYNC_MODE_PRODUCT_ONLY = 'sync-mode-product-only';
+    const SYNC_MODE_NONE = 'sync-mode-none';
+
+    const ORDER_SYNC_FROM_DATE = 'sync-order-from-date';
 
     const BARCODE_MODE = 'barcode-mode';
     const BARCODE_META_FALLBACK = 'storekeeper_barcode';

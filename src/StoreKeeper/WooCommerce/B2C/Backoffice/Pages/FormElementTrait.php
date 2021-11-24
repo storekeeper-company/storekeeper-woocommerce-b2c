@@ -98,13 +98,15 @@ HTML, HtmlEscape::ALLOWED_ALL_KNOWN_INPUT);
     final protected function getFormCheckbox(
         string $name,
         bool $value = false,
-        string $class = ''
+        string $class = '',
+        bool $isDisabled = false
     ): string {
         $name = esc_attr($name);
         $checked = esc_attr($value) ? 'checked' : '';
+        $disabled = esc_attr($isDisabled) ? 'disabled="disabled"' : '';
         $class = esc_attr($class);
 
-        return "<input type='checkbox' class='$class' name='$name' $checked />";
+        return "<input type='checkbox' class='$class' name='$name' $checked $disabled/>";
     }
 
     final protected function getFormButton(

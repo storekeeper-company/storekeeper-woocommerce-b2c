@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
+use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\EventsHandler;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
@@ -137,6 +138,9 @@ class ConnectionTab extends AbstractTab
         $this->renderFormHeader(__('Synchronization settings', I18N::DOMAIN));
 
         $this->renderSyncModeSetting();
+        if (!EventsHandler::isEventsDisabled('orders')) {
+            $this->renderOrderSyncFromDate();
+        }
         $this->renderPaymentSetting();
         $this->renderBackorderSetting();
         $this->renderBarcodeModeSetting();
@@ -197,6 +201,7 @@ class ConnectionTab extends AbstractTab
         $payment = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
         $backorder = StoreKeeperOptions::getConstant(StoreKeeperOptions::NOTIFY_ON_BACKORDER);
         $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
+        $orderSyncFromDate = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
         $barcode = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
 
         $data = [
@@ -207,6 +212,10 @@ class ConnectionTab extends AbstractTab
             $data[$mode] = sanitize_key($_POST[$mode]);
         } else {
             $data[$mode] = StoreKeeperOptions::SYNC_MODE_FULL_SYNC;
+        }
+
+        if (!empty($_POST[$orderSyncFromDate])) {
+            $data[$orderSyncFromDate] = sanitize_key($_POST[$orderSyncFromDate]);
         }
 
         if (!empty($_POST[$barcode])) {
@@ -226,6 +235,8 @@ class ConnectionTab extends AbstractTab
     {
         $full = __('Full sync', I18N::DOMAIN);
         $order = __('Order only', I18N::DOMAIN);
+        $product = __('Products only', I18N::DOMAIN);
+        $none = __('No sync', I18N::DOMAIN);
 
         $fullDescription = esc_html__(
             'Products, categories, labels/tags, attributes with options, coupons, orders and customers are being synced',
@@ -235,15 +246,27 @@ class ConnectionTab extends AbstractTab
             'Orders and customers are being exported, order status and product stock with matching skus are being imports',
             I18N::DOMAIN
         );
+        $productDescription = esc_html__(
+            'Products, categories, labels/tags, attributes with options, and coupons are being synced',
+            I18N::DOMAIN
+        );
+        $noneDescription = esc_html__(
+            'Nothing will be synced',
+            I18N::DOMAIN
+        );
 
         $description = <<<HTML
-<b>$full:</b> $fullDescription</br>
-<b>$order:</b> $orderDescription
+<strong>$full:</strong> $fullDescription</br>
+<strong>$order:</strong> $orderDescription</br>
+<strong>$product:</strong> $productDescription</br>
+<strong>$none:</strong> $noneDescription
 HTML;
 
         $options = [];
         $options[StoreKeeperOptions::SYNC_MODE_FULL_SYNC] = $full;
         $options[StoreKeeperOptions::SYNC_MODE_ORDER_ONLY] = $order;
+        $options[StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY] = $product;
+        $options[StoreKeeperOptions::SYNC_MODE_NONE] = $none;
 
         $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
         $this->renderFormGroup(
@@ -278,18 +301,39 @@ HTML;
         $this->renderFormGroup('', $description);
     }
 
+    private function renderOrderSyncFromDate(): void
+    {
+        $orderSyncFromDateName = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
+
+        $this->renderFormGroup(
+            __('Order sync from date', I18N::DOMAIN),
+            $this->getFormInput($orderSyncFromDateName, '', StoreKeeperOptions::get($orderSyncFromDateName, ''), '', 'date')
+        );
+
+        $description = esc_html__(
+            'Order created before the date set will not be synchronized to backoffice.',
+            I18N::DOMAIN
+        );
+        $this->renderFormGroup('', $description);
+    }
+
     private function renderPaymentSetting(): void
     {
         $paymentName = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
+        $extraInfo = '';
+        if (EventsHandler::isEventsDisabled('payments')) {
+            $extraInfo = '<br><small>'.__('Payments are disabled in currently selected Synchronization mode').'</small>';
+        }
         $this->renderFormGroup(
             __('Activate StoreKeeper payments', I18N::DOMAIN),
             $this->getFormCheckbox(
                 $paymentName,
-                'yes' === StoreKeeperOptions::get($paymentName)
+                'yes' === StoreKeeperOptions::get($paymentName),
+                EventsHandler::isEventsDisabled('payments') ? 'disabled' : '',
             ).' '.__(
                 'When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop\'s checkout',
                 I18N::DOMAIN
-            )
+            ).$extraInfo
         );
     }
 

@@ -39,6 +39,14 @@ class HtmlEscape
             'class' => [],
             'style' => [],
         ],
+        'strong' => [
+            'class' => [],
+            'style' => [],
+        ],
+        'b' => [
+            'class' => [],
+            'style' => [],
+        ],
     ];
 
     public const ALLOWED_FORM = [
@@ -68,6 +76,7 @@ class HtmlEscape
             'value' => [],
             'placeholder' => [],
             'checked' => [],
+            'disabled' => [],
         ],
     ] + self::ALLOWED_COMMON;
 
