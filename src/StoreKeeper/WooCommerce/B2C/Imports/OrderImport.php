@@ -116,7 +116,7 @@ SQL;
 
         $response = $wpdb->get_row($safe_sql);
 
-        if (is_array($response) && array_key_exists('ID', $response)) {
+        if (isset($response->ID)) {
             return new WC_Order($response->ID);
         }
 
