@@ -446,7 +446,7 @@ class Attributes
         string $alias,
         string $title
     ): int {
-        // Refer admin issue on StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner::21
+        // Refer admin issue on StoreKeeper\WooCommerce\B2C\Commands\CommandRunner::32
         if (!is_admin()) {
             throw new WordpressException(__('Failed to execute attribute sync as WP_ADMIN constant is set to false', I18N::DOMAIN));
         }
