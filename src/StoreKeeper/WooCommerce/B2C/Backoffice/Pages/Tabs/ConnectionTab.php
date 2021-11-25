@@ -138,9 +138,7 @@ class ConnectionTab extends AbstractTab
         $this->renderFormHeader(__('Synchronization settings', I18N::DOMAIN));
 
         $this->renderSyncModeSetting();
-        if (!EventsHandler::isEventsDisabled('orders')) {
-            $this->renderOrderSyncFromDate();
-        }
+        $this->renderOrderSyncFromDate();
         $this->renderPaymentSetting();
         $this->renderBackorderSetting();
         $this->renderBarcodeModeSetting();
