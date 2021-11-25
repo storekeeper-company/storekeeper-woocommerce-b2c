@@ -16,17 +16,6 @@ class WpCliCommandRunner extends CommandRunner
     const command_prefix = 'sk';
     const SINGLE_PROCESS = 'single-process';
 
-    public function __construct()
-    {
-        // WP_ADMIN constant is being defined here as it causes synchronization issue of attribute types due to external plugins
-        // @see known plugin: https://themesinfo.com/wordpress-plugins/wordpress-wpa-woocommerce-variation-swatch-plugin-dksd/latest
-        // @see issue: https://app.clickup.com/t/1tm4vav
-        if (!defined('WP_ADMIN')) {
-            define('WP_ADMIN', true);
-        }
-        parent::__construct();
-    }
-
     /**
      * @throws \Exception
      */
