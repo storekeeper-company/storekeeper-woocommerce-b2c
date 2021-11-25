@@ -3,8 +3,8 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use Adbar\Dot;
+use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
-use WP_CLI;
 
 class SyncWoocommerceShopInfo extends AbstractSyncCommand
 {
@@ -49,7 +49,7 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
             update_option('sendgrid_from_name', $email_name);
             update_option('sendgrid_from_email', $email);
 
-            WP_CLI::success(__('Done synchronizing shop information', I18N::DOMAIN));
+            WpCliHelper::attemptSuccessOutput(__('Done synchronizing shop information', I18N::DOMAIN));
         }
     }
 
