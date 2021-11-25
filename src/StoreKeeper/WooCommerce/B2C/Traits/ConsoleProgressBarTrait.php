@@ -13,8 +13,8 @@ trait ConsoleProgressBarTrait
     public function createProgressBar(int $count, string $message)
     {
         $progressBar = null;
-        if (class_exists('WP_CLI')) {
-            $progressBar = \WP_CLI\Utils\make_progress_bar($message, $count);
+        if (class_exists('WP_CLI') && class_exists('\cli\progress\Bar')) {
+            $progressBar = new \cli\progress\Bar($message, $count);
         }
         $this->progressBar = $progressBar;
 
