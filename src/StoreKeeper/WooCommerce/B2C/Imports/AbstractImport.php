@@ -7,12 +7,12 @@ use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\ApiWrapper;
+use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Traits\TaskHandlerTrait;
-use WP_CLI;
 
 abstract class AbstractImport
 {
@@ -238,13 +238,10 @@ abstract class AbstractImport
                 if ($this instanceof WithConsoleProgressBarInterface) {
                     $this->createProgressBar(
                         $last_fetched_amount,
-                        WP_CLI::colorize(
-                            '%G'.sprintf(
+                        WpCliHelper::setGreenOutputColor(sprintf(
                             __('Syncing %s from Storekeeper backoffice', I18N::DOMAIN),
-                                $this->getImportEntityName()
-                            ).'%n'
-                        )
-                    );
+                            $this->getImportEntityName()
+                        )));
                 }
                 foreach ($items as $index => $item) {
                     ++$this->total_fetched;
@@ -350,6 +347,6 @@ abstract class AbstractImport
 
     protected function afterRun()
     {
-        WP_CLI::success(sprintf(__('Done processing %s items of %s', I18N::DOMAIN), $this->getProcessedItemCount(), $this->getImportEntityName()));
+        WpCliHelper::attemptSuccessOutput(sprintf(__('Done processing %s items of %s', I18N::DOMAIN), $this->getProcessedItemCount(), $this->getImportEntityName()));
     }
 }
