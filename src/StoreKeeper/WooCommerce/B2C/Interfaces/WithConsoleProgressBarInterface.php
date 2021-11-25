@@ -4,10 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Interfaces;
 
 interface WithConsoleProgressBarInterface
 {
-    /**
-     * @return \cli\progress\Bar|null
-     */
-    public function createProgressBar(int $count, string $message);
+    public function createProgressBar(int $count, string $message): void;
 
     public function tickProgressBar(): void;
 
