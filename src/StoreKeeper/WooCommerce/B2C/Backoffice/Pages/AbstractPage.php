@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 abstract class AbstractPage extends AbstractPageLike
@@ -139,16 +140,23 @@ HTML;
 
     private function renderTab(): void
     {
-        if ($tab = $this->getCurrentTab()) {
-            $slug = esc_html($tab->slug);
-            echo "<div class='storekeeper-tab storekeeper-tab-$slug'>";
+        try {
+            if ($tab = $this->getCurrentTab()) {
+                $slug = esc_html($tab->slug);
+                echo "<div class='storekeeper-tab storekeeper-tab-$slug'>";
 
-            $tab->render();
+                $tab->render();
 
-            echo '</div>';
-        } else {
-            $text = esc_html__('No tabs set for this page', I18N::DOMAIN);
-            echo "<h1 style='text-align: center'>$text</h1>";
+                echo '</div>';
+            } else {
+                $text = esc_html__('No tabs set for this page', I18N::DOMAIN);
+                echo "<h1 style='text-align: center'>$text</h1>";
+            }
+        } catch (\Throwable $e) {
+            AdminNotices::showException(
+                $e,
+                __('Failed to render the tab')
+            );
         }
     }
 

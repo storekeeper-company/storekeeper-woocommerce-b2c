@@ -8,8 +8,10 @@ use Aura\SqlQuery\Common\SelectInterface;
 use Aura\SqlQuery\Common\UpdateInterface;
 use Aura\SqlQuery\QueryInterface;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModel;
 use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
+use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
 /**
  * Docs: https://github.com/auraphp/Aura.SqlQuery/tree/2.x
@@ -122,6 +124,39 @@ abstract class AbstractModel implements IModel
         $tableName = static::getTableName();
 
         return $wpdb->get_var("SHOW TABLES LIKE '$tableName'") === $tableName;
+    }
+
+    protected static function getTableEngine(string $tableName): string
+    {
+        global $wpdb;
+        $sql = $wpdb->prepare(
+            'SHOW TABLE STATUS WHERE Name =  %s',
+            [$tableName]
+        );
+
+        return $wpdb->get_row($sql)->Engine;
+    }
+
+    public static function setTableEngineToInnoDB(string $tableName)
+    {
+        global $wpdb;
+        $tableName = sanitize_key($tableName);
+        WordpressExceptionThrower::throwExceptionOnWpError(
+            $wpdb->query("ALTER TABLE `$tableName` ENGINE  = InnoDB"),
+            true
+        );
+    }
+
+    public static function isTableEngineInnoDB(string $tableName): bool
+    {
+        return 'InnoDB' === self::getTableEngine($tableName);
+    }
+
+    public static function checkTableEngineInnoDB(string $tableName): void
+    {
+        if (!self::isTableEngineInnoDB($tableName)) {
+            throw new TableNeedsInnoDbException($tableName);
+        }
     }
 
     public static function create(array $data): int

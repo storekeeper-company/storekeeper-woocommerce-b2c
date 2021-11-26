@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
+use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel\MigrateFromOldData;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -14,22 +16,25 @@ class Updator
     {
         try {
             $this->update();
-        } catch (\Throwable $e) {
-            $txt = sprintf(
-                __(
-                    'Failed to update \'StoreKeeper for WooCommerce\' plugin to version %s',
-                    I18N::DOMAIN
-                ),
-                STOREKEEPER_WOOCOMMERCE_B2C_VERSION
+        } catch (TableNeedsInnoDbException $e) {
+            AdminNotices::showError(
+                $this->getUpgradeFailMessage(),
+                sprintf(
+                    __(
+                        'Table "%s" need to be using InnoDB ENGINE. <a href="%s">Go to status page</a> to fix this dependency.',
+                        I18N::DOMAIN
+                    ),
+                    $e->getTableName(),
+                    admin_url().'admin.php?page=storekeeper-status#table-innodb'
+                )
             );
-            $txt = esc_html($txt);
-            $trace = nl2br(esc_html((string) $e));
-            echo <<<HTML
-<div class="notice notice-error">
-<p style="color: red;">$txt</p>
-<p>$trace</p>
-</div>
-HTML;
+
+            return false;
+        } catch (\Throwable $e) {
+            AdminNotices::showException(
+                $e,
+                $this->getUpgradeFailMessage()
+            );
 
             return false;
         }
@@ -104,5 +109,16 @@ HTML;
                 StoreKeeperOptions::set(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'no');
             }
         }
+    }
+
+    protected function getUpgradeFailMessage(): string
+    {
+        return sprintf(
+            __(
+                'Failed to update \'StoreKeeper for WooCommerce\' plugin to version %s.',
+                I18N::DOMAIN
+            ),
+            STOREKEEPER_WOOCOMMERCE_B2C_VERSION
+        );
     }
 }
