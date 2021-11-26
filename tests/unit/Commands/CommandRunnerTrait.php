@@ -21,7 +21,9 @@ trait CommandRunnerTrait
     {
         $this->logger = new TestLogger();
         // Refer admin issue on StoreKeeper\WooCommerce\B2C\Commands\CommandRunner::32
-        define('WP_ADMIN', true);
+        if (!defined('WP_ADMIN')) {
+            define('WP_ADMIN', true);
+        }
         $this->runner = Core::getCommandRunner();
         $this->runner->setLogger($this->logger);
     }

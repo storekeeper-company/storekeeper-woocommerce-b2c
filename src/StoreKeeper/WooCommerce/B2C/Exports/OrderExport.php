@@ -420,35 +420,21 @@ class OrderExport extends AbstractExport
      */
     public function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): bool
     {
-        $hasDifference = false;
         $databaseOrderItems = $this->getOrderItems($databaseOrder);
         $backofficeOrderItems = $backofficeOrder['order_items'];
 
-        foreach ($databaseOrderItems as $databaseOrderItem) {
-            $sku = $databaseOrderItem['sku'];
-            if (!in_array($sku, array_column($backofficeOrderItems, 'sku'), true)) {
-                $hasDifference = true;
+        $allHasExtras = true;
+        foreach ($backofficeOrderItems as $backofficeOrderItem) {
+            if (!array_key_exists('extra', $backofficeOrderItem)) {
+                $allHasExtras = false;
                 break;
             }
+        }
 
-            $quantity = $databaseOrderItem['quantity'];
-            $pricePerUnit = $databaseOrderItem['ppu_wt'];
-
-            $databaseOrderItemSet = [$sku, $quantity, $pricePerUnit];
-
-            // Check if any set matches in backoffice order items
-            $hasMatch = false;
-            foreach ($backofficeOrderItems as $backofficeOrderItem) {
-                $backofficeOrderItemSet = [$backofficeOrderItem['sku'], $backofficeOrderItem['quantity'], $backofficeOrderItem['ppu_wt']];
-                if ($backofficeOrderItemSet === $databaseOrderItemSet) {
-                    $hasMatch = true;
-                }
-            }
-
-            if (!$hasMatch) {
-                $hasDifference = true;
-                break;
-            }
+        if ($allHasExtras) {
+            $hasDifference = $this->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
+        } else {
+            $hasDifference = $this->checkOrderDifferenceBySet($databaseOrderItems, $backofficeOrderItems);
         }
 
         // In case order items are the same but prices have changed. e.g payment gateway fee
@@ -457,6 +443,35 @@ class OrderExport extends AbstractExport
         }
 
         return $hasDifference;
+    }
+
+    private function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): bool
+    {
+        return array_column($databaseOrderItems, 'extra') !== array_column($backofficeOrderItems, 'extra');
+    }
+
+    private function checkOrderDifferenceBySet(array $databaseOrderItems, array $backofficeOrderItems): bool
+    {
+        $databaseSet = [];
+        foreach ($databaseOrderItems as $databaseOrderItem) {
+            $databaseSet[] = (
+                (int) $databaseOrderItem['quantity']).'|'
+                .round($databaseOrderItem['ppu_wt'], 2).'|'
+                .$databaseOrderItem['sku'];
+        }
+
+        $backofficeSet = [];
+        foreach ($backofficeOrderItems as $backofficeOrderItem) {
+            $backofficeSet[] = (
+                (int) $backofficeOrderItem['quantity']).'|'
+                .round($backofficeOrderItem['ppu_wt'], 2).'|'
+                .$backofficeOrderItem['sku'];
+        }
+
+        sort($databaseSet);
+        sort($backofficeSet);
+
+        return $databaseSet !== $backofficeSet;
     }
 
     /**
@@ -572,6 +587,13 @@ class OrderExport extends AbstractExport
                 $data['attribute_option_ids'] = $attribute_ids;
             }
 
+            $extra = [
+                'wp_row_id' => $orderProduct->get_id(),
+                'wp_row_md5' => md5(json_encode($data, JSON_THROW_ON_ERROR)),
+            ];
+
+            $data['extra'] = $extra;
+
             $order_items[] = $data;
 
             $this->debug($index.' Added product item');
@@ -583,12 +605,20 @@ class OrderExport extends AbstractExport
          * @var $fee \WC_Order_Item_Fee
          */
         foreach ($order->get_fees() as $fee) {
-            $order_items[] = [
+            $data = [
                 'sku' => strtolower($fee->get_name(self::CONTEXT)),
                 'ppu_wt' => $order->get_item_total($fee, true, false),
                 'quantity' => $fee->get_quantity(),
                 'name' => $fee->get_name(self::CONTEXT),
             ];
+
+            $extra = [
+                'wp_row_id' => $fee->get_id(),
+                'wp_row_md5' => md5(json_encode($data, JSON_THROW_ON_ERROR)),
+            ];
+
+            $data['extra'] = $extra;
+            $order_items[] = $data;
         }
 
         $this->debug('Added fee items');
@@ -597,13 +627,22 @@ class OrderExport extends AbstractExport
          * @var $shipping_method \WC_Order_Item_Shipping
          */
         foreach ($order->get_shipping_methods() as $shipping_method) {
-            $order_items[] = [
+            $data = [
                 'sku' => strtolower($shipping_method->get_name(self::CONTEXT)),
                 'ppu_wt' => $order->get_item_total($shipping_method, true, false),
                 'quantity' => $shipping_method->get_quantity(),
                 'name' => $shipping_method->get_name(self::CONTEXT),
                 'is_shipping' => true,
             ];
+
+            $extra = [
+                'wp_row_id' => $shipping_method->get_id(),
+                'wp_row_md5' => md5(json_encode($data, JSON_THROW_ON_ERROR)),
+            ];
+
+            $data['extra'] = $extra;
+
+            $order_items[] = $data;
         }
         $this->debug('Added shipping items');
 

@@ -152,7 +152,7 @@ class OrderExportTest extends AbstractOrderExportTest
         }
     }
 
-    public function dataProviderUserCreateByRoles()
+    public function dataProviderOrderDifference()
     {
         $tests = [];
 
@@ -340,9 +340,9 @@ class OrderExportTest extends AbstractOrderExportTest
     }
 
     /**
-     * @dataProvider dataProviderUserCreateByRoles
+     * @dataProvider dataProviderOrderDifference
      */
-    public function testOrderDifference($actual, $expected, $result)
+    public function testOrderDifferenceBySet($actual, $expected, $result)
     {
         $this->initApiConnection();
 
@@ -364,7 +364,8 @@ class OrderExportTest extends AbstractOrderExportTest
             [
             'order_items' => $expected,
             'value_wt' => $this->computeOrderTotal($expected),
-        ]);
+            ]
+        );
 
         $this->assertSame($result, $hasDifference, 'Difference result is not same as expected');
     }
