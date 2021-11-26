@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
@@ -29,6 +30,11 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
     private $level = null;
 
     /**
+     * @var bool
+     */
+    private $descriptionAsHtml;
+
+    /**
      * CategoryImport constructor.
      *
      * @throws Exception
@@ -39,6 +45,13 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         $this->level = key_exists('level', $settings) ? (int) $settings['level'] : null;
         unset($settings['level']);
         unset($settings['storekeeper_id']);
+
+        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
+        $this->descriptionAsHtml = StoreKeeperOptions::getBoolOption($name, false);
+
+        if ($this->descriptionAsHtml) {
+            $this->enableAllowHtmlInDescriptions();
+        }
         parent::__construct($settings);
     }
 
@@ -205,6 +218,12 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
             'description' => $description,
             'slug' => $slug,
         ];
+
+        $parsedown = new MarkdownCode();
+        $args['description'] = $parsedown->render(null, $description);
+        if (!$this->descriptionAsHtml) {
+            $args['description'] = strip_tags($args['description']);
+        }
         if (!$isNew) {
             $args['name'] = $title;
             if ($term->slug !== $slug) {
@@ -302,6 +321,14 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
                 }
             }
         }
+    }
+
+    private function enableAllowHtmlInDescriptions()
+    {
+        remove_filter('term_description', 'wp_kses_data');
+        remove_filter('pre_term_description', 'wp_filter_kses');
+        add_filter('term_description', 'wp_kses_post');
+        add_filter('pre_term_description', 'wp_filter_post_kses');
     }
 
     private static function setImage($term_id, $image_url)
