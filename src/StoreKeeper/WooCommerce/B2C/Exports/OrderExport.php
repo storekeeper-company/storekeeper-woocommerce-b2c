@@ -599,7 +599,7 @@ class OrderExport extends AbstractExport
             $extra = [
                 'wp_row_id' => $orderProduct->get_id(),
                 'wp_row_md5' => md5(json_encode($orderProduct->get_data(), JSON_THROW_ON_ERROR)),
-                'row_type' => self::ROW_PRODUCT_TYPE,
+                'wp_row_type' => self::ROW_PRODUCT_TYPE,
             ];
 
             $data['extra'] = $extra;
@@ -625,7 +625,7 @@ class OrderExport extends AbstractExport
             $extra = [
                 'wp_row_id' => $fee->get_id(),
                 'wp_row_md5' => md5(json_encode($fee->get_data(), JSON_THROW_ON_ERROR)),
-                'row_type' => self::ROW_FEE_TYPE,
+                'wp_row_type' => self::ROW_FEE_TYPE,
             ];
 
             $data['extra'] = $extra;
@@ -649,7 +649,7 @@ class OrderExport extends AbstractExport
             $extra = [
                 'wp_row_id' => $shipping_method->get_id(),
                 'wp_row_md5' => md5(json_encode($shipping_method->get_data(), JSON_THROW_ON_ERROR)),
-                'row_type' => self::ROW_SHIPPING_METHOD_TYPE,
+                'wp_row_type' => self::ROW_SHIPPING_METHOD_TYPE,
             ];
 
             $data['extra'] = $extra;
