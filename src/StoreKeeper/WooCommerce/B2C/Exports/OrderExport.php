@@ -16,6 +16,9 @@ use WC_Product_Factory;
 class OrderExport extends AbstractExport
 {
     const CONTEXT = 'edit';
+    const ROW_SHIPPING_METHOD_TYPE = 'shipping_method';
+    const ROW_FEE_TYPE = 'fee';
+    const ROW_PRODUCT_TYPE = 'product';
 
     protected function getFunction()
     {
@@ -447,7 +450,13 @@ class OrderExport extends AbstractExport
 
     private function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): bool
     {
-        return array_column($databaseOrderItems, 'extra') !== array_column($backofficeOrderItems, 'extra');
+        $databaseOrderItemExtras = array_column($databaseOrderItems, 'extra');
+        $backofficeOrderItemExtras = array_column($backofficeOrderItems, 'extra');
+
+        sort($databaseOrderItemExtras);
+        sort($backofficeOrderItemExtras);
+
+        return $databaseOrderItemExtras !== $backofficeOrderItemExtras;
     }
 
     private function checkOrderDifferenceBySet(array $databaseOrderItems, array $backofficeOrderItems): bool
@@ -589,7 +598,8 @@ class OrderExport extends AbstractExport
 
             $extra = [
                 'wp_row_id' => $orderProduct->get_id(),
-                'wp_row_md5' => md5(json_encode($data, JSON_THROW_ON_ERROR)),
+                'wp_row_md5' => md5(json_encode($orderProduct->get_data(), JSON_THROW_ON_ERROR)),
+                'row_type' => self::ROW_PRODUCT_TYPE,
             ];
 
             $data['extra'] = $extra;
@@ -614,7 +624,8 @@ class OrderExport extends AbstractExport
 
             $extra = [
                 'wp_row_id' => $fee->get_id(),
-                'wp_row_md5' => md5(json_encode($data, JSON_THROW_ON_ERROR)),
+                'wp_row_md5' => md5(json_encode($fee->get_data(), JSON_THROW_ON_ERROR)),
+                'row_type' => self::ROW_FEE_TYPE,
             ];
 
             $data['extra'] = $extra;
@@ -637,7 +648,8 @@ class OrderExport extends AbstractExport
 
             $extra = [
                 'wp_row_id' => $shipping_method->get_id(),
-                'wp_row_md5' => md5(json_encode($data, JSON_THROW_ON_ERROR)),
+                'wp_row_md5' => md5(json_encode($shipping_method->get_data(), JSON_THROW_ON_ERROR)),
+                'row_type' => self::ROW_SHIPPING_METHOD_TYPE,
             ];
 
             $data['extra'] = $extra;
