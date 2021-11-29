@@ -206,15 +206,7 @@ class EventsHandler
             $fullEventType = "$module::$eventType";
 
             $this->handleOrderEvents($fullEventType, $taskData, $details);
-
-            switch ($fullEventType) {
-                // ShopModule::ShopProduct
-                case 'ShopModule::ShopProduct::created':
-                case 'ShopModule::ShopProduct::updated':
-                case 'ShopModule::ShopProduct::activated':
-                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_STOCK_UPDATE, $this->getId(), $taskData);
-                    break;
-            }
+            $this->handleProductStockEvents($fullEventType, $taskData);
         }
     }
 
@@ -234,6 +226,19 @@ class EventsHandler
                 break;
             case 'ShopModule::ShopProduct::activated':
                 TaskHandler::scheduleTask(TaskHandler::PRODUCT_ACTIVATED, $this->getId(), $taskData, true);
+                break;
+        }
+    }
+
+    private function handleProductStockEvents(string $eventType, array $taskData): void
+    {
+        switch ($eventType) {
+            // ShopModule::ShopProduct
+            // For product stock only
+            case 'ShopModule::ShopProduct::created':
+            case 'ShopModule::ShopProduct::updated':
+            case 'ShopModule::ShopProduct::activated':
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_STOCK_UPDATE, $this->getId(), $taskData);
                 break;
         }
     }

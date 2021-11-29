@@ -59,7 +59,7 @@ class OrderSyncMetaBox extends AbstractMetaBox
 
         $manualSyncWarning = '';
         if (!StoreKeeperOptions::isOrderSyncEnabled()) {
-            $manualSyncWarningText = __("All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the Force sync below", I18N::DOMAIN);
+            $manualSyncWarningText = esc_html__("All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the Force sync button", I18N::DOMAIN);
             $manualSyncWarning = <<<HTML
                 <li class="wide">
                     <small class="text-danger">$manualSyncWarningText</small>
