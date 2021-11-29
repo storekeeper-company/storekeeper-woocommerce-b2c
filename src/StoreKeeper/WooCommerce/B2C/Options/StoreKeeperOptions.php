@@ -14,6 +14,7 @@ class StoreKeeperOptions extends AbstractOptions
     const MAIN_CATEGORY_ID = 'main-category-id';
     const NOTIFY_ON_BACKORDER = 'notify-on-backorder';
     const PAYMENT_GATEWAY_ACTIVATED = 'payment-gateway-activated';
+    const CATEGORY_DESCRIPTION_HTML = 'category-description-html';
     const SYNC_MODE = 'sync-mode';
     const INSTALLED_VERSION = 'installed-version';
 

@@ -38,6 +38,15 @@ abstract class AbstractOptions
         }
     }
 
+    public static function getBoolOption(string $optionKey, ?bool $fallback = null): ?bool
+    {
+        if (self::exists($optionKey)) {
+            return 'yes' === get_option(self::getPrefixedConstant($optionKey));
+        }
+
+        return $fallback;
+    }
+
     public static function exists($optionKey)
     {
         $optionValue = get_option(self::getPrefixedConstant($optionKey));

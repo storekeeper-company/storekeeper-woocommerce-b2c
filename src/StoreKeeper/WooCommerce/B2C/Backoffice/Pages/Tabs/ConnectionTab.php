@@ -142,6 +142,7 @@ class ConnectionTab extends AbstractTab
         $this->renderPaymentSetting();
         $this->renderBackorderSetting();
         $this->renderBarcodeModeSetting();
+        $this->renderCategoryOptions();
 
         $this->renderFormActionGroup(
             $this->getFormButton(
@@ -201,10 +202,12 @@ class ConnectionTab extends AbstractTab
         $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
         $orderSyncFromDate = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
         $barcode = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
+        $categoryHtml = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
 
         $data = [
             $payment => 'on' === sanitize_key($_POST[$payment]) ? 'yes' : 'no',
             $backorder => 'on' === sanitize_key($_POST[$backorder]) ? 'yes' : 'no',
+            $categoryHtml => 'on' === sanitize_key($_POST[$categoryHtml]) ? 'yes' : 'no',
         ];
         if (!empty($_POST[$mode])) {
             $data[$mode] = sanitize_key($_POST[$mode]);
@@ -332,6 +335,21 @@ HTML;
                 'When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop\'s checkout',
                 I18N::DOMAIN
             ).$extraInfo
+        );
+    }
+
+    private function renderCategoryOptions(): void
+    {
+        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
+        $this->renderFormGroup(
+            __('Import category description as HTML', I18N::DOMAIN),
+            $this->getFormCheckbox(
+                $name,
+                StoreKeeperOptions::getBoolOption($name, false)
+            ).' '.__(
+                'It will import the category descriptions as html, otherwise plain text. It requires a theme support for rendering it correctly.',
+                I18N::DOMAIN
+            )
         );
     }
 
