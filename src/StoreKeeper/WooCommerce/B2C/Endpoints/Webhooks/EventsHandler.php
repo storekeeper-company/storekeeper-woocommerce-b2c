@@ -153,105 +153,40 @@ class EventsHandler
         foreach ($events as $id => $event) {
             $details = $event['details'] ?? [];
             $eventType = $event['event'];
-            switch ("$module::$eventType") {
-                // ShopModule::ShopProduct
-                case 'ShopModule::ShopProduct::updated':
-                case 'ShopModule::ShopProduct::created':
-                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_IMPORT, $this->getId(), $taskData);
-                    break;
-                case 'ShopModule::ShopProduct::deleted':
-                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
-                    break;
-                case 'ShopModule::ShopProduct::deactivated':
-                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_DEACTIVATED, $this->getId(), $taskData, true);
-                    break;
-                case 'ShopModule::ShopProduct::activated':
-                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_ACTIVATED, $this->getId(), $taskData, true);
-                    break;
-                // ShopModule::Order
-                case 'ShopModule::Order::updated':
-                    $metaData = [
-                        'old_order' => json_encode($details['old_order']),
-                        'order' => json_encode($details['order']),
-                    ];
-                    TaskHandler::scheduleTask(
-                        TaskHandler::ORDERS_IMPORT,
-                        $this->getId(),
-                        array_merge($taskData, $metaData),
-                        true
-                    );
-                    break;
-                case 'ShopModule::Order::deleted':
-                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
-                    break;
-                // BlogModule::Category
-                case 'BlogModule::Category::updated':
-                case 'BlogModule::Category::created':
-                    if ('category' === $categoryType) {
-                        TaskHandler::scheduleTask(TaskHandler::CATEGORY_IMPORT, $this->getId(), $taskData);
-                    }
-                    if ('label' === $categoryType) {
-                        TaskHandler::scheduleTask(TaskHandler::TAG_IMPORT, $this->getId(), $taskData);
-                    }
-                    break;
-                case 'BlogModule::Category::deleted':
-                    if ('category' === $categoryType) {
-                        TaskHandler::scheduleTask(TaskHandler::CATEGORY_DELETE, $this->getId(), $taskData);
-                    }
-                    if ('label' === $categoryType) {
-                        TaskHandler::scheduleTask(TaskHandler::TAG_DELETE, $this->getId(), $taskData);
-                    }
-                    break;
-                // ShopModule::CouponCode
-                case 'ShopModule::CouponCode::updated':
-                case 'ShopModule::CouponCode::created':
-                    $taskData = array_merge(
-                        $taskData,
-                        [
-                            'code' => $details['code'] ?? null,
-                        ]
-                    );
-                    TaskHandler::scheduleTask(TaskHandler::COUPON_CODE_IMPORT, $this->getId(), $taskData);
-                    break;
-                case 'ShopModule::CouponCode::deleted':
-                    TaskHandler::scheduleTask(TaskHandler::COUPON_CODE_DELETE, $this->getId(), $taskData);
-                    $taskData = array_merge(
-                        $taskData,
-                        [
-                            'code' => $details['code'],
-                        ]
-                    );
-                    break;
-                // ProductsModule::FeaturedAttribute
-                case 'ProductsModule::FeaturedAttribute::updated':
-                    $alias = $details['alias'];
-                    FeaturedAttributeOptions::setAttribute(
-                        $alias,
-                        $details['attribute_id'],
-                        $details['attribute']['name']
-                    );
-                    break;
-                case 'ProductsModule::FeaturedAttribute::deleted':
-                    $alias = $details['alias'];
-                    FeaturedAttributeOptions::deleteAttribute($alias);
-                    break;
-                // BlogModule::MenuItem
-                case 'BlogModule::MenuItem::updated':
-                case 'BlogModule::MenuItem::created':
-                    TaskHandler::scheduleTask(TaskHandler::MENU_ITEM_IMPORT, $this->getId(), $taskData);
-                    break;
-                case 'BlogModule::MenuItem::deleted':
-                    TaskHandler::scheduleTask(TaskHandler::MENU_ITEM_DELETE, $this->getId(), $taskData);
-                    break;
-                // BlogModule::SiteRedirect
-                case 'BlogModule::SiteRedirect::updated':
-                case 'BlogModule::SiteRedirect::created':
-                    TaskHandler::scheduleTask(TaskHandler::REDIRECT_IMPORT, $this->getId(), $taskData);
-                    break;
-                case 'BlogModule::SiteRedirect::deleted':
-                    TaskHandler::scheduleTask(TaskHandler::REDIRECT_DELETE, $this->getId(), $taskData);
-                    break;
-            }
+            $fullEventType = "$module::$eventType";
+
+            $this->handleProductEvents($fullEventType, $taskData);
+            $this->handleCategoryEvents($fullEventType, $taskData, $categoryType);
+            $this->handleCouponCodeEvents($fullEventType, $taskData, $details);
+            $this->handleOrderEvents($fullEventType, $taskData, $details);
+            $this->handleFeaturedAttributeEvents($fullEventType, $details);
+            $this->handleMenuItemEvents($fullEventType, $taskData);
+            $this->handleSiteRedirectEvents($fullEventType, $taskData);
+        }
+    }
+
+    private function processProductOnlyEvents($events)
+    {
+        if (!is_array($events)) {
+            return;
+        }
+
+        $taskData = ['storekeeper_id' => (int) $this->getId()];
+        $storekeeper_id = (int) $this->getId();
+        $categoryType = $this->getCategoryType($storekeeper_id) ?? $this->getCategoryTypeFromWordpress($storekeeper_id);
+        $module = $this->getModule();
+
+        foreach ($events as $id => $event) {
+            $details = $event['details'] ?? [];
+            $eventType = $event['event'];
+            $fullEventType = "$module::$eventType";
+
+            $this->handleProductEvents($fullEventType, $taskData);
+            $this->handleCategoryEvents($fullEventType, $taskData, $categoryType);
+            $this->handleCouponCodeEvents($fullEventType, $taskData, $details);
+            $this->handleFeaturedAttributeEvents($fullEventType, $details);
+            $this->handleMenuItemEvents($fullEventType, $taskData);
+            $this->handleSiteRedirectEvents($fullEventType, $taskData);
         }
     }
 
@@ -267,30 +202,157 @@ class EventsHandler
         foreach ($events as $id => $event) {
             $details = $event['details'] ?? [];
             $eventType = $event['event'];
-            switch ("$module::$eventType") {
-                // ShopModule::ShopProduct
-                case 'ShopModule::ShopProduct::created':
-                case 'ShopModule::ShopProduct::updated':
-                case 'ShopModule::ShopProduct::activated':
-                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_STOCK_UPDATE, $this->getId(), $taskData);
-                    break;
-                // ShopModule::Order
-                case 'ShopModule::Order::updated':
-                    $metaData = [
-                        'old_order' => json_encode($details['old_order']),
-                        'order' => json_encode($details['order']),
-                    ];
-                    TaskHandler::scheduleTask(
-                        TaskHandler::ORDERS_IMPORT,
-                        $this->getId(),
-                        array_merge($taskData, $metaData),
-                        true
-                    );
-                    break;
-                case 'ShopModule::Order::deleted':
-                    TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
-                    break;
-            }
+
+            $fullEventType = "$module::$eventType";
+
+            $this->handleOrderEvents($fullEventType, $taskData, $details);
+            $this->handleProductStockEvents($fullEventType, $taskData);
+        }
+    }
+
+    private function handleProductEvents(string $eventType, array $taskData): void
+    {
+        switch ($eventType) {
+            // ShopModule::ShopProduct
+            case 'ShopModule::ShopProduct::updated':
+            case 'ShopModule::ShopProduct::created':
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_IMPORT, $this->getId(), $taskData);
+                break;
+            case 'ShopModule::ShopProduct::deleted':
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
+                break;
+            case 'ShopModule::ShopProduct::deactivated':
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_DEACTIVATED, $this->getId(), $taskData, true);
+                break;
+            case 'ShopModule::ShopProduct::activated':
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_ACTIVATED, $this->getId(), $taskData, true);
+                break;
+        }
+    }
+
+    private function handleProductStockEvents(string $eventType, array $taskData): void
+    {
+        switch ($eventType) {
+            // ShopModule::ShopProduct
+            // For product stock only
+            case 'ShopModule::ShopProduct::created':
+            case 'ShopModule::ShopProduct::updated':
+            case 'ShopModule::ShopProduct::activated':
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_STOCK_UPDATE, $this->getId(), $taskData);
+                break;
+        }
+    }
+
+    private function handleCategoryEvents(string $eventType, array $taskData, string $categoryType): void
+    {
+        switch ($eventType) {
+            // BlogModule::Category
+            case 'BlogModule::Category::updated':
+            case 'BlogModule::Category::created':
+                if ('category' === $categoryType) {
+                    TaskHandler::scheduleTask(TaskHandler::CATEGORY_IMPORT, $this->getId(), $taskData);
+                }
+                if ('label' === $categoryType) {
+                    TaskHandler::scheduleTask(TaskHandler::TAG_IMPORT, $this->getId(), $taskData);
+                }
+                break;
+            case 'BlogModule::Category::deleted':
+                if ('category' === $categoryType) {
+                    TaskHandler::scheduleTask(TaskHandler::CATEGORY_DELETE, $this->getId(), $taskData);
+                }
+                if ('label' === $categoryType) {
+                    TaskHandler::scheduleTask(TaskHandler::TAG_DELETE, $this->getId(), $taskData);
+                }
+                break;
+        }
+    }
+
+    private function handleCouponCodeEvents(string $eventType, array $taskData, $details): void
+    {
+        switch ($eventType) {
+            // ShopModule::CouponCode
+            case 'ShopModule::CouponCode::updated':
+            case 'ShopModule::CouponCode::created':
+                $taskData = array_merge(
+                    $taskData,
+                    [
+                        'code' => $details['code'] ?? null,
+                    ]
+                );
+                TaskHandler::scheduleTask(TaskHandler::COUPON_CODE_IMPORT, $this->getId(), $taskData);
+                break;
+            case 'ShopModule::CouponCode::deleted':
+                TaskHandler::scheduleTask(TaskHandler::COUPON_CODE_DELETE, $this->getId(), $taskData);
+                break;
+        }
+    }
+
+    private function handleOrderEvents(string $eventType, array $taskData, $details): void
+    {
+        switch ($eventType) {
+            // ShopModule::Order
+            case 'ShopModule::Order::updated':
+                $metaData = [
+                    'old_order' => json_encode($details['old_order'], JSON_THROW_ON_ERROR),
+                    'order' => json_encode($details['order'], JSON_THROW_ON_ERROR),
+                ];
+                TaskHandler::scheduleTask(
+                    TaskHandler::ORDERS_IMPORT,
+                    $this->getId(),
+                    array_merge($taskData, $metaData),
+                    true
+                );
+                break;
+            case 'ShopModule::Order::deleted':
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
+                break;
+        }
+    }
+
+    private function handleFeaturedAttributeEvents(string $eventType, $details): void
+    {
+        switch ($eventType) {
+            // ProductsModule::FeaturedAttribute
+            case 'ProductsModule::FeaturedAttribute::updated':
+                $alias = $details['alias'];
+                FeaturedAttributeOptions::setAttribute(
+                    $alias,
+                    $details['attribute_id'],
+                    $details['attribute']['name']
+                );
+                break;
+            case 'ProductsModule::FeaturedAttribute::deleted':
+                $alias = $details['alias'];
+                FeaturedAttributeOptions::deleteAttribute($alias);
+                break;
+        }
+    }
+
+    private function handleMenuItemEvents(string $eventType, array $taskData): void
+    {
+        switch ($eventType) {
+            // BlogModule::MenuItem
+            case 'BlogModule::MenuItem::updated':
+            case 'BlogModule::MenuItem::created':
+                TaskHandler::scheduleTask(TaskHandler::MENU_ITEM_IMPORT, $this->getId(), $taskData);
+                break;
+            case 'BlogModule::MenuItem::deleted':
+                TaskHandler::scheduleTask(TaskHandler::MENU_ITEM_DELETE, $this->getId(), $taskData);
+                break;
+        }
+    }
+
+    private function handleSiteRedirectEvents(string $eventType, array $taskData): void
+    {
+        switch ($eventType) {
+            // BlogModule::SiteRedirect
+            case 'BlogModule::SiteRedirect::updated':
+            case 'BlogModule::SiteRedirect::created':
+                TaskHandler::scheduleTask(TaskHandler::REDIRECT_IMPORT, $this->getId(), $taskData);
+                break;
+            case 'BlogModule::SiteRedirect::deleted':
+                TaskHandler::scheduleTask(TaskHandler::REDIRECT_DELETE, $this->getId(), $taskData);
+                break;
         }
     }
 
@@ -302,6 +364,9 @@ class EventsHandler
             }
             if (StoreKeeperOptions::SYNC_MODE_ORDER_ONLY === StoreKeeperOptions::getSyncMode()) {
                 $this->processOrderOnlyEvents($events);
+            }
+            if (StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY === StoreKeeperOptions::getSyncMode()) {
+                $this->processProductOnlyEvents($events);
             }
         } catch (Throwable $exception) {
             $this->logger->error(

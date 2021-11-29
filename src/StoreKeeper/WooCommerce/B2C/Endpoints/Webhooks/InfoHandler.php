@@ -83,6 +83,7 @@ class InfoHandler
             'task_failed_quantity' => TaskModel::countFailedTasks(),
             'task_successful_quantity' => TaskModel::countSuccessfulTasks(),
             'hook_quantity' => WebhookLogModel::count(),
+            'active_capability' => self::getActiveCapabilities(),
         ];
 
         foreach (self::EXTRA_BLOG_INFO_FIELDS as $blogInfoField) {
@@ -93,6 +94,19 @@ class InfoHandler
         }
 
         return $extras;
+    }
+
+    public static function getActiveCapabilities(): array
+    {
+        $activeCapabilities = [];
+        if (
+            StoreKeeperOptions::isPaymentSyncEnabled() &&
+            'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes')
+        ) {
+            $activeCapabilities[] = 'b2s_payment_method';
+        }
+
+        return $activeCapabilities;
     }
 
     public static function getLastHookDate(): ?string

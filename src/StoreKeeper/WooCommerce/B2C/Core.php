@@ -132,14 +132,20 @@ class Core
 
         $this->setUpdateCheck();
         $this->setLocale();
-        $this->setOrderHooks();
-        $this->setCustomerHooks();
+        if (StoreKeeperOptions::isOrderSyncEnabled()) {
+            $this->setOrderHooks();
+        }
+        if (StoreKeeperOptions::isCustomerSyncEnabled()) {
+            $this->setCustomerHooks();
+        }
         $this->setCouponHooks();
         $this->prepareCron();
-        $this->registerCommands();
+        self::registerCommands();
         $this->loadAdditionalCore();
         $this->loadEndpoints();
-        $this->registerPaymentGateway();
+        if (StoreKeeperOptions::isPaymentSyncEnabled()) {
+            $this->registerPaymentGateway();
+        }
         $this->versionChecks();
     }
 
