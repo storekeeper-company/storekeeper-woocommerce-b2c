@@ -262,7 +262,7 @@ class EventsHandler
         }
     }
 
-    private function handleCouponCodeEvents(string $eventType, array $taskData, array $details): void
+    private function handleCouponCodeEvents(string $eventType, array $taskData, $details): void
     {
         switch ($eventType) {
             // ShopModule::CouponCode
@@ -282,7 +282,7 @@ class EventsHandler
         }
     }
 
-    private function handleOrderEvents(string $eventType, array $taskData, array $details): void
+    private function handleOrderEvents(string $eventType, array $taskData, $details): void
     {
         switch ($eventType) {
             // ShopModule::Order
@@ -304,7 +304,7 @@ class EventsHandler
         }
     }
 
-    private function handleFeaturedAttributeEvents(string $eventType, array $details): void
+    private function handleFeaturedAttributeEvents(string $eventType, $details): void
     {
         switch ($eventType) {
             // ProductsModule::FeaturedAttribute
