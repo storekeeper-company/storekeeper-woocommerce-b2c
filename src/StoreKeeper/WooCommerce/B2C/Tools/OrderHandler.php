@@ -110,7 +110,12 @@ class OrderHandler
             $orderCreatedDate = $order->get_date_created();
             $orderCreatedDate = date('Y-m-d', strtotime($orderCreatedDate));
             $orderSyncFromDate = StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
-            if (!is_null($orderSyncFromDate) && strtotime($orderSyncFromDate) <= strtotime($orderCreatedDate)) {
+
+            if (is_null($orderSyncFromDate)) {
+                return true;
+            }
+
+            if (strtotime($orderSyncFromDate) <= strtotime($orderCreatedDate)) {
                 return true;
             }
         }
