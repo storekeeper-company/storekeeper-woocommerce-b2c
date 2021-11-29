@@ -100,7 +100,7 @@ class InfoHandler
     {
         $activeCapabilities = [];
         if (
-            !EventsHandler::isEventsDisabled('payments') &&
+            StoreKeeperOptions::isPaymentSyncEnabled() &&
             'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes')
         ) {
             $activeCapabilities[] = 'b2s_payment_method';

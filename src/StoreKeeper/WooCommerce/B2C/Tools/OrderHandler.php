@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
-use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\EventsHandler;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use WP_Post;
 
@@ -106,20 +105,16 @@ class OrderHandler
 
     protected function isSyncAllowed(int $orderId): bool
     {
-        if (EventsHandler::isEventsDisabled('orders')) {
-            return false;
-        }
-
-        if (0 !== $orderId) {
+        if (StoreKeeperOptions::isOrderSyncEnabled()) {
             $order = new \WC_Order($orderId);
             $orderCreatedDate = $order->get_date_created();
             $orderCreatedDate = date('Y-m-d', strtotime($orderCreatedDate));
             $orderSyncFromDate = StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
-            if (!is_null($orderSyncFromDate) && strtotime($orderCreatedDate) < strtotime($orderSyncFromDate)) {
-                return false;
+            if (!is_null($orderSyncFromDate) && strtotime($orderSyncFromDate) <= strtotime($orderCreatedDate)) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 }

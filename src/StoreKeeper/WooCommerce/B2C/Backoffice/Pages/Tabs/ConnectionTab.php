@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
-use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\EventsHandler;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
@@ -322,7 +321,7 @@ HTML;
     {
         $paymentName = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
         $extraInfo = '';
-        if (EventsHandler::isEventsDisabled('payments')) {
+        if (!StoreKeeperOptions::isPaymentSyncEnabled()) {
             $extraInfo = '<br><small>'.__('Payments are disabled in currently selected Synchronization mode').'</small>';
         }
         $this->renderFormGroup(
@@ -330,7 +329,7 @@ HTML;
             $this->getFormCheckbox(
                 $paymentName,
                 'yes' === StoreKeeperOptions::get($paymentName),
-                EventsHandler::isEventsDisabled('payments') ? 'disabled' : '',
+                StoreKeeperOptions::isPaymentSyncEnabled() ? '' : 'disabled',
             ).' '.__(
                 'When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop\'s checkout',
                 I18N::DOMAIN

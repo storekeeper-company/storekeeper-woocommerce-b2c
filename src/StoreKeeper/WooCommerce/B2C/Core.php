@@ -51,7 +51,6 @@ use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
-use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\EventsHandler;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrondendCore;
 use StoreKeeper\WooCommerce\B2C\Hooks\CustomerHook;
@@ -133,10 +132,10 @@ class Core
 
         $this->setUpdateCheck();
         $this->setLocale();
-        if (!EventsHandler::isEventsDisabled('orders')) {
+        if (StoreKeeperOptions::isOrderSyncEnabled()) {
             $this->setOrderHooks();
         }
-        if (!EventsHandler::isEventsDisabled('customers')) {
+        if (StoreKeeperOptions::isCustomerSyncEnabled()) {
             $this->setCustomerHooks();
         }
         $this->setCouponHooks();
@@ -144,7 +143,7 @@ class Core
         self::registerCommands();
         $this->loadAdditionalCore();
         $this->loadEndpoints();
-        if (!EventsHandler::isEventsDisabled('payments')) {
+        if (StoreKeeperOptions::isPaymentSyncEnabled()) {
             $this->registerPaymentGateway();
         }
         $this->versionChecks();

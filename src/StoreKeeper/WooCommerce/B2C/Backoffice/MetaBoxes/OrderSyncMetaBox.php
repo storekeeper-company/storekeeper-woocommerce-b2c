@@ -56,6 +56,17 @@ class OrderSyncMetaBox extends AbstractMetaBox
         }
 
         $submitLabel = esc_html__('Force sync', I18N::DOMAIN);
+
+        $manualSyncWarning = '';
+        if (!StoreKeeperOptions::isOrderSyncEnabled()) {
+            $manualSyncWarningText = __("All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the Force sync below", I18N::DOMAIN);
+            $manualSyncWarning = <<<HTML
+                <li class="wide">
+                    <small class="text-danger">$manualSyncWarningText</small>
+                </li>
+            HTML;
+        }
+
         echo <<<HTML
             <ul class="order_actions submitbox">
                 <li class="wide">
@@ -72,6 +83,7 @@ class OrderSyncMetaBox extends AbstractMetaBox
                     <a href="$syncUrl" class="button-primary order_sync_submission">$submitLabel</a>
                     $backoffice
                 </li>
+                $manualSyncWarning
             </ul>
             HTML;
 
