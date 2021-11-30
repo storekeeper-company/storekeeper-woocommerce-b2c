@@ -53,6 +53,7 @@ use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrondendCore;
+use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Hooks\CustomerHook;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -147,6 +148,7 @@ class Core
             $this->registerPaymentGateway();
         }
         $this->versionChecks();
+        $this->registerMarkDown();
     }
 
     private function prepareCron()
@@ -367,6 +369,16 @@ HTML;
     {
         $endpointLoader = new EndpointLoader();
         $this->loader->add_action('rest_api_init', $endpointLoader, 'load');
+    }
+
+    private function registerMarkDown()
+    {
+        $this->loader->add_filter('init', new MarkdownCode(), 'load');
+
+        // for ajax responses, when markdown present in short description
+        add_filter('woocommerce_short_description', function ($description) {
+            return do_shortcode($description);
+        });
     }
 
     public function run()
