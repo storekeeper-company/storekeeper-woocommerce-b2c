@@ -193,11 +193,16 @@ class AdminNotices
             <?php
             if (!empty($description)) {
                 echo '<p>';
-                echo nl2br(wp_kses($description, HtmlEscape::ALLOWED_ANCHOR));
+                echo nl2br(wp_kses($description, HtmlEscape::ALLOWED_ALL_SAFE));
                 echo '</p>';
             } ?>
         </div>
         <?php
+    }
+
+    public static function showException(Throwable $e, string $message)
+    {
+        self::showError($message, (string) $e);
     }
 
     public static function showInfo($message)

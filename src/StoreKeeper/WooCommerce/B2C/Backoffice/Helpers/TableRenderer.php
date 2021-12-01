@@ -4,7 +4,13 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Helpers;
 
 class TableRenderer
 {
+    private $id = '';
     private $columns = [];
+
+    public function __construct(?string $id = '')
+    {
+        $this->id = sanitize_key($id);
+    }
 
     public function addColumn(
         string $title,
@@ -44,6 +50,10 @@ class TableRenderer
 
     private function renderTableStart(): void
     {
+        if (!empty($this->id)) {
+            // id is sanitized in constructor
+            echo "<div id=\"$this->id\"></div>";
+        }
         echo '<table class="wp-list-table widefat storekeeper-table">';
     }
 

@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use WP_Post;
 
 class OrderHandler
@@ -13,8 +14,12 @@ class OrderHandler
      *
      * @throws \Exception
      */
-    public function create($order_id): array
+    public function create($order_id): ?array
     {
+        if (!$this->isSyncAllowed($order_id)) {
+            return null;
+        }
+
         return TaskHandler::scheduleTask(
             TaskHandler::ORDERS_EXPORT,
             $order_id,
@@ -33,6 +38,10 @@ class OrderHandler
     {
         global $storekeeper_ignore_order_id;
 
+        if (!$this->isSyncAllowed($order_id)) {
+            return;
+        }
+
         if ($storekeeper_ignore_order_id === $order_id) {
             return;
         }
@@ -50,6 +59,7 @@ class OrderHandler
         );
     }
 
+    /* @deprecated  */
     public function delete($order_id): WP_Post
     {
         $meta_data = [];
@@ -91,5 +101,25 @@ class OrderHandler
         }
 
         $order->add_meta_data(self::SHOP_PRODUCT_ID_MAP, $id_map);
+    }
+
+    protected function isSyncAllowed(int $orderId): bool
+    {
+        if (StoreKeeperOptions::isOrderSyncEnabled()) {
+            $order = new \WC_Order($orderId);
+            $orderCreatedDate = $order->get_date_created();
+            $orderCreatedDate = date('Y-m-d', strtotime($orderCreatedDate));
+            $orderSyncFromDate = StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
+
+            if (is_null($orderSyncFromDate)) {
+                return true;
+            }
+
+            if (strtotime($orderSyncFromDate) <= strtotime($orderCreatedDate)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
