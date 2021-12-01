@@ -441,7 +441,10 @@ class OrderExport extends AbstractExport
         }
 
         // In case order items are the same but prices have changed. e.g payment gateway fee
-        if (!$hasDifference && ((float) $databaseOrder->get_total()) !== $backofficeOrder['value_wt']) {
+        if (
+            !$hasDifference &&
+            round(((float) $databaseOrder->get_total()), 2) !== round($backofficeOrder['value_wt'], 2)
+        ) {
             $hasDifference = true;
         }
 
@@ -452,6 +455,16 @@ class OrderExport extends AbstractExport
     {
         $databaseOrderItemExtras = array_column($databaseOrderItems, 'extra');
         $backofficeOrderItemExtras = array_column($backofficeOrderItems, 'extra');
+
+        foreach ($databaseOrderItemExtras as &$extras) {
+            array_multisort($extras);
+            unset($extras);
+        }
+
+        foreach ($backofficeOrderItemExtras as &$extras) {
+            array_multisort($extras);
+            unset($extras);
+        }
 
         sort($databaseOrderItemExtras);
         sort($backofficeOrderItemExtras);
