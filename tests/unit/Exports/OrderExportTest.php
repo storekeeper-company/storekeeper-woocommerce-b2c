@@ -152,6 +152,255 @@ class OrderExportTest extends AbstractOrderExportTest
         }
     }
 
+    public function dataProviderOrderDifference()
+    {
+        $tests = [];
+
+        $tests['same items with backoffice'] = [
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 1,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 2,
+                ],
+            ],
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                ],
+            ],
+            false,
+        ];
+
+        $tests['same items with backoffice with decimals'] = [
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100.25,
+                    'storekeeper_id' => 1,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 100.15,
+                    'storekeeper_id' => 2,
+                ],
+            ],
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100.25,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 100.15,
+                ],
+            ],
+            false,
+        ];
+
+        $tests['missing item from backoffice order'] = [
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 1,
+                ],
+                [
+                    'sku' => 'NON-EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 2,
+                ],
+            ],
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                ],
+            ],
+            true,
+        ];
+
+        $tests['same items from backoffice order but different quantity'] = [
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 1,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 2,
+                ],
+            ],
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 2,
+                    'ppu_wt' => 100,
+                ],
+            ],
+            true,
+        ];
+
+        $tests['same items from backoffice order but different price per unit'] = [
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 1,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 2,
+                ],
+            ],
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 200,
+                ],
+            ],
+            true,
+        ];
+
+        $tests['same items from backoffice order but 2 products with same SKU'] = [
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 1,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                    'storekeeper_id' => 12,
+                ],
+            ],
+            [
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 1,
+                    'ppu_wt' => 100,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU 2',
+                    'quantity' => 1,
+                    'ppu_wt' => 200,
+                ],
+                [
+                    'sku' => 'EXISTING DUMMY SKU',
+                    'quantity' => 2,
+                    'ppu_wt' => 100,
+                ],
+            ],
+            true,
+        ];
+
+        return $tests;
+    }
+
+    /**
+     * @dataProvider dataProviderOrderDifference
+     */
+    public function testOrderDifferenceBySet($actual, $expected, $result)
+    {
+        $this->initApiConnection();
+
+        $exportTask = new OrderExport([]);
+
+        $order = wc_create_order();
+
+        $shopProductMap = [];
+        foreach ($actual as $orderItem) {
+            $orderProduct = $this->createOrderProduct($orderItem);
+            $order->add_product($orderProduct);
+            $shopProductMap[$orderProduct->get_id()] = $orderItem['storekeeper_id'];
+        }
+        $order->update_meta_data(OrderHandler::SHOP_PRODUCT_ID_MAP, $shopProductMap);
+        $order->calculate_totals();
+        $order->save();
+        $hasDifference = $exportTask->checkOrderDifference(
+            new \WC_Order($order->get_id()),
+            [
+            'order_items' => $expected,
+            'value_wt' => $this->computeOrderTotal($expected),
+            ]
+        );
+
+        $this->assertSame($result, $hasDifference, 'Difference result is not same as expected');
+    }
+
+    protected function computeOrderTotal(array $orderItems)
+    {
+        $total = 0;
+        foreach ($orderItems as $orderItem) {
+            $quantity = $orderItem['quantity'];
+            $pricePerUnit = $orderItem['ppu_wt'];
+            $subTotal = $quantity * $pricePerUnit;
+            $total += $subTotal;
+        }
+
+        return round($total, 2);
+    }
+
+    protected function createOrderProduct(array $args): \WC_Product
+    {
+        if (0 !== wc_get_product_id_by_sku($args['sku'])) {
+            $orderProduct = new \WC_Product(wc_get_product_id_by_sku($args['sku']));
+        } else {
+            $orderProduct = new \WC_Product();
+            $orderProduct->set_name($args['sku']);
+            $orderProduct->set_price($args['ppu_wt']);
+            $orderProduct->set_sku($args['sku']);
+            $orderProduct->set_props([
+                'storekeeper_id' => $args['storekeeper_id'],
+            ]);
+            $orderProduct->save();
+        }
+
+        return $orderProduct;
+    }
+
     public function testOrderCreate()
     {
         $this->initApiConnection();

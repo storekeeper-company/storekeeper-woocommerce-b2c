@@ -9,12 +9,16 @@ use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use WC_Order;
 use WC_Product;
 use WC_Product_Factory;
 
 class OrderExport extends AbstractExport
 {
     const CONTEXT = 'edit';
+    const ROW_SHIPPING_METHOD_TYPE = 'shipping_method';
+    const ROW_FEE_TYPE = 'fee';
+    const ROW_PRODUCT_TYPE = 'product';
 
     protected function getFunction()
     {
@@ -41,7 +45,7 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param \WC_Order $WpObject
+     * @param WC_Order $WpObject
      *
      * @return bool|mixed
      *
@@ -103,6 +107,9 @@ class OrderExport extends AbstractExport
         }
 
         $this->debug('Added guest information', $callData);
+
+        $ShopModule = $this->storekeeper_api->getModule('ShopModule');
+
         /*
          * Order products
          */
@@ -110,9 +117,26 @@ class OrderExport extends AbstractExport
             $callData['order_items'] = $this->getOrderItems($WpObject);
             $this->debug('Added order_items information', $callData);
         } else {
-            $callData['order_items__do_not_change'] = true;
-            $callData['order_items__remove'] = null;
-            $this->debug('Update, ignored order_items', $callData);
+            $storekeeperId = $this->get_storekeeper_id();
+            $storekeeperOrder = $ShopModule->getOrder($storekeeperId, null);
+
+            $hasDifference = $this->checkOrderDifference($WpObject, $storekeeperOrder);
+            // Only update order items if they have difference and order is not paid yet
+            if ($hasDifference && !$storekeeperOrder['is_paid']) {
+                $callData['order_items'] = $this->getOrderItems($WpObject);
+                $this->debug('Updated order_items information due to difference with the backoffice order items', $callData);
+            } elseif ($hasDifference && $storekeeperOrder['is_paid']) {
+                $this->debug('Cannot synchronize order, there are differences but order is already paid',
+                    array_merge(
+                        ['shop_order_id' => $WpObject->get_id()],
+                        $callData
+                    ));
+                throw new Exception('Order is paid but has differences, synchronization fails');
+            } else {
+                $callData['order_items__do_not_change'] = true;
+                $callData['order_items__remove'] = null;
+                $this->debug('Update, ignored order_items', $callData);
+            }
         }
 
         /*
@@ -206,10 +230,9 @@ class OrderExport extends AbstractExport
             $this->debug('Added billing_address as shipping_address information', $callData);
         }
 
-        /**
+        /*
          * Create or update the order.
          */
-        $ShopModule = $this->storekeeper_api->getModule('ShopModule');
         if ($isUpdate) {
             $storekeeper_id = $this->get_storekeeper_id();
             $ShopModule->updateOrder($callData, $this->get_storekeeper_id());
@@ -395,6 +418,85 @@ class OrderExport extends AbstractExport
     }
 
     /**
+     * @param WC_Order $databaseOrder - Order items to compare from
+     * @param $backofficeOrder - Order items to compare to
+     */
+    public function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): bool
+    {
+        $databaseOrderItems = $this->getOrderItems($databaseOrder);
+        $backofficeOrderItems = $backofficeOrder['order_items'];
+
+        $allHasExtras = true;
+        foreach ($backofficeOrderItems as $backofficeOrderItem) {
+            if (!array_key_exists('extra', $backofficeOrderItem)) {
+                $allHasExtras = false;
+                break;
+            }
+        }
+
+        if ($allHasExtras) {
+            $hasDifference = $this->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
+        } else {
+            $hasDifference = $this->checkOrderDifferenceBySet($databaseOrderItems, $backofficeOrderItems);
+        }
+
+        // In case order items are the same but prices have changed. e.g payment gateway fee
+        if (
+            !$hasDifference &&
+            round(((float) $databaseOrder->get_total()), 2) !== round($backofficeOrder['value_wt'], 2)
+        ) {
+            $hasDifference = true;
+        }
+
+        return $hasDifference;
+    }
+
+    private function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): bool
+    {
+        $databaseOrderItemExtras = array_column($databaseOrderItems, 'extra');
+        $backofficeOrderItemExtras = array_column($backofficeOrderItems, 'extra');
+
+        foreach ($databaseOrderItemExtras as &$extras) {
+            array_multisort($extras);
+            unset($extras);
+        }
+
+        foreach ($backofficeOrderItemExtras as &$extras) {
+            array_multisort($extras);
+            unset($extras);
+        }
+
+        sort($databaseOrderItemExtras);
+        sort($backofficeOrderItemExtras);
+
+        return $databaseOrderItemExtras !== $backofficeOrderItemExtras;
+    }
+
+    private function checkOrderDifferenceBySet(array $databaseOrderItems, array $backofficeOrderItems): bool
+    {
+        $databaseSet = [];
+        foreach ($databaseOrderItems as $databaseOrderItem) {
+            $databaseSet[] = (
+                (int) $databaseOrderItem['quantity']).'|'
+                .round($databaseOrderItem['ppu_wt'], 2).'|'
+                .$databaseOrderItem['sku'];
+        }
+
+        $backofficeSet = [];
+        foreach ($backofficeOrderItems as $backofficeOrderItem) {
+            $backofficeSet[] = (
+                (int) $backofficeOrderItem['quantity']).'|'
+                .round($backofficeOrderItem['ppu_wt'], 2).'|'
+                .$backofficeOrderItem['sku'];
+        }
+
+        sort($databaseSet);
+        sort($backofficeSet);
+
+        return $databaseSet !== $backofficeSet;
+    }
+
+    /**
      * @param $storekeeper_status string The current StoreKeeper order status
      * @param $woocommerce_status string The woocommerce status, converted to its storekeeper status
      *
@@ -426,7 +528,7 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param $order \WC_Order
+     * @param $order WC_Order
      *
      * @return array
      *
@@ -507,6 +609,14 @@ class OrderExport extends AbstractExport
                 $data['attribute_option_ids'] = $attribute_ids;
             }
 
+            $extra = [
+                'wp_row_id' => $orderProduct->get_id(),
+                'wp_row_md5' => md5(json_encode($orderProduct->get_data(), JSON_THROW_ON_ERROR)),
+                'wp_row_type' => self::ROW_PRODUCT_TYPE,
+            ];
+
+            $data['extra'] = $extra;
+
             $order_items[] = $data;
 
             $this->debug($index.' Added product item');
@@ -518,12 +628,21 @@ class OrderExport extends AbstractExport
          * @var $fee \WC_Order_Item_Fee
          */
         foreach ($order->get_fees() as $fee) {
-            $order_items[] = [
+            $data = [
                 'sku' => strtolower($fee->get_name(self::CONTEXT)),
                 'ppu_wt' => $order->get_item_total($fee, true, false),
                 'quantity' => $fee->get_quantity(),
                 'name' => $fee->get_name(self::CONTEXT),
             ];
+
+            $extra = [
+                'wp_row_id' => $fee->get_id(),
+                'wp_row_md5' => md5(json_encode($fee->get_data(), JSON_THROW_ON_ERROR)),
+                'wp_row_type' => self::ROW_FEE_TYPE,
+            ];
+
+            $data['extra'] = $extra;
+            $order_items[] = $data;
         }
 
         $this->debug('Added fee items');
@@ -532,13 +651,23 @@ class OrderExport extends AbstractExport
          * @var $shipping_method \WC_Order_Item_Shipping
          */
         foreach ($order->get_shipping_methods() as $shipping_method) {
-            $order_items[] = [
+            $data = [
                 'sku' => strtolower($shipping_method->get_name(self::CONTEXT)),
                 'ppu_wt' => $order->get_item_total($shipping_method, true, false),
                 'quantity' => $shipping_method->get_quantity(),
                 'name' => $shipping_method->get_name(self::CONTEXT),
                 'is_shipping' => true,
             ];
+
+            $extra = [
+                'wp_row_id' => $shipping_method->get_id(),
+                'wp_row_md5' => md5(json_encode($shipping_method->get_data(), JSON_THROW_ON_ERROR)),
+                'wp_row_type' => self::ROW_SHIPPING_METHOD_TYPE,
+            ];
+
+            $data['extra'] = $extra;
+
+            $order_items[] = $data;
         }
         $this->debug('Added shipping items');
 
