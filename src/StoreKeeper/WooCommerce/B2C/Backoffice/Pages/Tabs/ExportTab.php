@@ -6,6 +6,8 @@ use Monolog\Logger;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
+use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
+use StoreKeeper\WooCommerce\B2C\Endpoints\FileExport\ExportEndpoint;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductHelper;
@@ -14,7 +16,6 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
-use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use Throwable;
 
@@ -24,13 +25,31 @@ class ExportTab extends AbstractTab
 
     const ACTION_EXPORT = 'export-action';
     const ACTION_GENERATE_SKU_FROM_TITLE = 'generate-sku-from-title';
+    const EXPORT_TAB_HOOK = 'init_export_tab';
 
     public function __construct(string $title, string $slug = '')
     {
         parent::__construct($title, $slug);
-
         $this->addAction(self::ACTION_EXPORT, [$this, 'exportAction']);
         $this->addAction(self::ACTION_GENERATE_SKU_FROM_TITLE, [$this, 'generateSkuFromTitleAction']);
+    }
+
+    public function register(): void
+    {
+        parent::register();
+        $this->doRegisterScripts();
+    }
+
+    private function doRegisterScripts(): void
+    {
+        wp_enqueue_script('exportScript', plugin_dir_url(__FILE__).'../../static/backoffice.pages.tabs.export.js');
+        wp_enqueue_script('exportSweetalertScript', plugin_dir_url(__FILE__).'../../static/vendors/sweetalert2/sweetalert.min.js');
+        // So we can pass values to javascript file
+        wp_localize_script('exportScript', 'exportSettings',
+        [
+            FileExportTypeHelper::CUSTOMER => FileExportTypeHelper::CUSTOMER,
+            'url' => rest_url(EndpointLoader::getFullNamespace().'/'.ExportEndpoint::ROUTE),
+        ]);
     }
 
     protected function exportAction()
@@ -79,7 +98,8 @@ class ExportTab extends AbstractTab
 
     protected function getStylePaths(): array
     {
-        return [];
+        return [
+        ];
     }
 
     public function render(): void
@@ -110,11 +130,10 @@ class ExportTab extends AbstractTab
         ];
         $connected = StoreKeeperOptions::isConnected();
         foreach ($exportTypes as $type => $label) {
-            $input = $this->getFormButton(
+            $input = $this->getFormLink(
+                'javascript:',
                 __('Download export (csv)', I18N::DOMAIN),
-                'button',
-                'type',
-                $type
+                "button $type",
             );
             if ($connected) {
                 $input .= ' '.$this->getFormLink(
@@ -192,28 +211,6 @@ class ExportTab extends AbstractTab
     })();
 </script>
 HTML;
-    }
-
-    private function runExport($type, $lang, OverlayRenderer $overlay)
-    {
-        FileExportTypeHelper::ensureType($type);
-
-        IniHelper::setIni(
-            'max_execution_time',
-            60 * 60 * 12, // Time in hours
-            [$overlay, 'renderMessage']
-        );
-        IniHelper::setIni(
-            'memory_limit',
-            '512M',
-            [$overlay, 'renderMessage']
-        );
-
-        $exportClass = FileExportTypeHelper::getClass($type);
-        $export = new $exportClass();
-        $export->runExport($lang);
-
-        return $export->getDownloadUrl();
     }
 
     private function getSelectedAttributes(): array
