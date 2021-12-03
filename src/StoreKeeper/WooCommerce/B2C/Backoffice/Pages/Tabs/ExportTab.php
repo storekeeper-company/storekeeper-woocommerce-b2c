@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use Monolog\Logger;
-use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
@@ -17,20 +16,17 @@ use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
-use Throwable;
 
 class ExportTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const ACTION_EXPORT = 'export-action';
     const ACTION_GENERATE_SKU_FROM_TITLE = 'generate-sku-from-title';
     const EXPORT_TAB_HOOK = 'init_export_tab';
 
     public function __construct(string $title, string $slug = '')
     {
         parent::__construct($title, $slug);
-        $this->addAction(self::ACTION_EXPORT, [$this, 'exportAction']);
         $this->addAction(self::ACTION_GENERATE_SKU_FROM_TITLE, [$this, 'generateSkuFromTitleAction']);
     }
 
@@ -49,21 +45,18 @@ class ExportTab extends AbstractTab
         [
             FileExportTypeHelper::CUSTOMER => FileExportTypeHelper::CUSTOMER,
             'url' => rest_url(EndpointLoader::getFullNamespace().'/'.ExportEndpoint::ROUTE),
+            'labels' => [
+                'Your file has been generated' => __('Your file has been generated', I18N::DOMAIN),
+                'Your download will start in a few seconds. If not, you can download the file manually using the link below' => __('Your download will start in a few seconds. If not, you can download the file manually using the link below', I18N::DOMAIN),
+                'Please wait and keep the page and popup window open while we are preparing your export' => __('Please wait and keep the page and popup window open while we are preparing your export', I18N::DOMAIN),
+                'Preparing export' => __('Preparing export', I18N::DOMAIN),
+                'Stop exporting' => __('Stop exporting', I18N::DOMAIN),
+                'Size' => __('Size', I18N::DOMAIN),
+            ],
         ]);
     }
 
-    protected function exportAction()
-    {
-        if (array_key_exists('type', $_REQUEST) && array_key_exists('lang', $_REQUEST)) {
-            $this->handleExport(
-                sanitize_key($_REQUEST['type']),
-                sanitize_key($_REQUEST['lang'])
-            );
-        }
-        wp_redirect(remove_query_arg(['type', 'action', 'lang']));
-    }
-
-    protected function generateSkuFromTitleAction()
+    protected function generateSkuFromTitleAction(): void
     {
         $ids = ProductHelper::getProductsIdsWithoutSku();
 
@@ -107,13 +100,11 @@ class ExportTab extends AbstractTab
         $this->renderExport();
     }
 
-    private function renderExport()
+    private function renderExport(): void
     {
         $this->renderFormStart();
 
         $this->renderRequestHiddenInputs();
-
-        $this->renderFormHiddenInput('action', self::ACTION_EXPORT);
 
         $this->renderInfo();
         $this->renderSelectedAttributes();
@@ -130,10 +121,11 @@ class ExportTab extends AbstractTab
         ];
         $connected = StoreKeeperOptions::isConnected();
         foreach ($exportTypes as $type => $label) {
-            $input = $this->getFormLink(
-                'javascript:',
+            $input = $this->getFormButton(
                 __('Download export (csv)', I18N::DOMAIN),
-                "button $type",
+                'button export-button',
+                'type',
+                $type
             );
             if ($connected) {
                 $input .= ' '.$this->getFormLink(
@@ -156,61 +148,13 @@ class ExportTab extends AbstractTab
             __('Export full package'),
             $this->getFormButton(
                 __('Download export (zip)', I18N::DOMAIN),
-                'button',
+                'button export-button',
                 'type',
                 FileExportTypeHelper::ALL
             )
         );
 
         $this->renderFormEnd();
-    }
-
-    private function handleExport(string $type, string $lang)
-    {
-        $typeName = FileExportTypeHelper::getTypePluralName($type);
-        $title = sprintf(
-            __('Please wait and keep the page open while we are exporting your %s.', I18N::DOMAIN),
-            strtolower($typeName)
-        );
-        $description = __('your export will be downloaded as soon the export finished.', I18N::DOMAIN);
-
-        $overlay = new OverlayRenderer();
-        $overlay->start($title, $description);
-
-        try {
-            $url = $this->runExport($type, $lang, $overlay);
-
-            $this->initializeDownload($url);
-
-            sleep(1); // wait for the download to start client sided
-
-            $overlay->endWithRedirectBack();
-        } catch (Throwable $throwable) {
-            $overlay->renderError(
-                $throwable->getMessage(),
-                $throwable->getTraceAsString()
-            );
-            $overlay->end();
-        } finally {
-            $overlay->end();
-        }
-    }
-
-    private function initializeDownload(string $url)
-    {
-        $basename = esc_js(basename($url));
-        $url = esc_url($url);
-        echo <<<HTML
-<script>
-    (function() {
-        const link = document.createElement('a');
-        link.setAttribute('target', '_blank');
-        link.setAttribute('href', '$url');
-        link.setAttribute('download', '$basename');
-        link.click();
-    })();
-</script>
-HTML;
     }
 
     private function getSelectedAttributes(): array

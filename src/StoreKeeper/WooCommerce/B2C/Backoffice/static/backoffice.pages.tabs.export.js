@@ -1,4 +1,7 @@
 jQuery(function($) {
+    const translate = function (key) {
+        return exportSettings.labels[key] ?? key;
+    };
     const openInNewTab = function (href) {
         Object.assign(document.createElement('a'), {
             target: '_blank',
@@ -6,26 +9,63 @@ jQuery(function($) {
         }).click();
     }
 
-    $('.customer-export').click(function (e) {
+    $('.export-button').click(function (e) {
         e.preventDefault();
+        const type = $(this).val();
         const language = $('select[name="lang"]').val();
+        let exportRequest = null;
         Swal.fire({
-            title: 'Preparing export',
-            text: 'Please wait...',
-            showConfirmButton: false
+            title: translate('Preparing export'),
+            text:  translate('Please wait and keep the page and popup window open while we are preparing your export'),
+            showConfirmButton: false,
+            showDenyButton: true,
+            denyButtonText: translate('Stop exporting'),
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then((result) => {
+            if (result.isDenied && exportRequest !== null) {
+                exportRequest.abort();
+            }
         });
 
-        $.get(exportSettings.url, {
-            type: exportSettings['customer-export'],
-            lang: language
-        }).done(function ({response}) {
-            swal.close();
-            if (response) {
-                openInNewTab(response);
-            }
+        exportRequest = $.ajax({
+            url: exportSettings.url,
+            data: {
+                type: type,
+                lang: language
+            },
+            timeout: 0
+        }).done(function ({ url, size, filename }) {
+            Swal.fire({
+                title: translate('Your file has been generated'),
+                html: `
+                    ${translate('Your download will start in a few seconds. If not, you can download the file manually using the link below')}
+                    <br><br>
+                    <a href="${url}" class="button button-secondary" target="_blank">${filename}<br>${translate(size)}: ${size}</a>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            });
+
+            setTimeout(function () {
+                if (url) {
+                    openInNewTab(url);
+                }
+            }, 1500);
+
         }).fail(function (xhrText, textStatus) {
-            swal.close();
-            alert(textStatus);
+            Swal.fire({
+                title: translate('Something went wrong while exporting'),
+                text:  translate('Do you want to try splitting export files by 100?'),
+                showDenyButton: true,
+                denyButtonText: 'No, thanks'
+            }).then(function (result) {
+                if (result.isConfirmed) {
+
+                }
+            });
         });
     });
 });
