@@ -43,7 +43,6 @@ class ExportTab extends AbstractTab
         // So we can pass values to javascript file
         wp_localize_script('exportScript', 'exportSettings',
         [
-            FileExportTypeHelper::CUSTOMER => FileExportTypeHelper::CUSTOMER,
             'url' => rest_url(EndpointLoader::getFullNamespace().'/'.ExportEndpoint::ROUTE),
             'labels' => [
                 'Your file has been generated' => __('Your file has been generated', I18N::DOMAIN),

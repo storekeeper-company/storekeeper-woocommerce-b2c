@@ -13,6 +13,7 @@ jQuery(function($) {
         e.preventDefault();
         const type = $(this).val();
         const language = $('select[name="lang"]').val();
+        let isCancelled = false;
         let exportRequest = null;
         Swal.fire({
             title: translate('Preparing export'),
@@ -24,6 +25,7 @@ jQuery(function($) {
             allowEscapeKey: false
         }).then((result) => {
             if (result.isDenied && exportRequest !== null) {
+                isCancelled = true;
                 exportRequest.abort();
             }
         });
@@ -41,7 +43,7 @@ jQuery(function($) {
                 html: `
                     ${translate('Your download will start in a few seconds. If not, you can download the file manually using the link below')}
                     <br><br>
-                    <a href="${url}" class="button button-secondary" target="_blank">${filename}<br>${translate(size)}: ${size}</a>
+                    <a href="${url}" class="button button-secondary" target="_blank">${filename}<br>${translate('Size')}: ${size}</a>
                 `,
                 showConfirmButton: false,
                 showCloseButton: true,
@@ -56,16 +58,18 @@ jQuery(function($) {
             }, 1500);
 
         }).fail(function (xhrText, textStatus) {
-            Swal.fire({
-                title: translate('Something went wrong while exporting'),
-                text:  translate('Do you want to try splitting export files by 100?'),
-                showDenyButton: true,
-                denyButtonText: 'No, thanks'
-            }).then(function (result) {
-                if (result.isConfirmed) {
+            if (!isCancelled) {
+                Swal.fire({
+                    title: translate('Something went wrong while exporting'),
+                    text:  translate('Do you want to try splitting export files by 100?'),
+                    showDenyButton: true,
+                    denyButtonText: 'No, thanks'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
 
-                }
-            });
+                    }
+                });
+            }
         });
     });
 });
