@@ -23,7 +23,6 @@ class ExportTab extends AbstractTab
     use FormElementTrait;
 
     const ACTION_GENERATE_SKU_FROM_TITLE = 'generate-sku-from-title';
-    const EXPORT_TAB_HOOK = 'init_export_tab';
 
     public function __construct(string $title, string $slug = '')
     {
