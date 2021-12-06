@@ -14,9 +14,6 @@ jQuery(function($) {
             href: href,
         }).click();
     }
-    const toggleHelp = function () {
-      $('.help-section').show();
-    };
 
     /* Triggers when download button is clicked */
     window.onfocus = function () {
