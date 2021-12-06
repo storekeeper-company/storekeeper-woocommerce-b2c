@@ -94,8 +94,7 @@ class ExportTab extends AbstractTab
 
     protected function getStylePaths(): array
     {
-        return [
-        ];
+        return [];
     }
 
     public function render(): void
