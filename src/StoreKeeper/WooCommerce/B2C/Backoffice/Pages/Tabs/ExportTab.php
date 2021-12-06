@@ -162,7 +162,7 @@ class ExportTab extends AbstractTab
         $this->renderFormEnd();
     }
 
-    private function renderHelp()
+    private function renderHelp(): void
     {
         $documentationText = __('See documentation', I18N::DOMAIN);
 
