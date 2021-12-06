@@ -45,16 +45,16 @@ class ExportTab extends AbstractTab
         [
             'url' => rest_url(EndpointLoader::getFullNamespace().'/'.ExportEndpoint::ROUTE),
             'translations' => [
-                'Your file has been generated' => __('Your file has been generated', I18N::DOMAIN),
-                'Your download will start in a few seconds. If not, you can download the file manually using the link below' => __('Your download will start in a few seconds. If not, you can download the file manually using the link below', I18N::DOMAIN),
-                'Please wait and keep the page and popup window open while we are preparing your export' => __('Please wait and keep the page and popup window open while we are preparing your export', I18N::DOMAIN),
-                'Preparing export' => __('Preparing export', I18N::DOMAIN),
-                'Stop exporting' => __('Stop exporting', I18N::DOMAIN),
-                'Size' => __('Size', I18N::DOMAIN),
-                'Export failed' => __('Export failed', I18N::DOMAIN),
-                'Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?' => __('Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?', I18N::DOMAIN),
-                'No, thanks' => __('No, thanks', I18N::DOMAIN),
-                'Yes, please' => __('Yes, please', I18N::DOMAIN),
+                'Your file has been generated' => esc_html__('Your file has been generated', I18N::DOMAIN),
+                'Your download will start in a few seconds. If not, you can download the file manually using the link below' => esc_html__('Your download will start in a few seconds. If not, you can download the file manually using the link below', I18N::DOMAIN),
+                'Please wait and keep the page and popup window open while we are preparing your export' => esc_html__('Please wait and keep the page and popup window open while we are preparing your export', I18N::DOMAIN),
+                'Preparing export' => esc_html__('Preparing export', I18N::DOMAIN),
+                'Stop exporting' => esc_html__('Stop exporting', I18N::DOMAIN),
+                'Size' => esc_html__('Size', I18N::DOMAIN),
+                'Export failed' => esc_html__('Export failed', I18N::DOMAIN),
+                'Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?' => esc_html__('Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?', I18N::DOMAIN),
+                'No, thanks' => esc_html__('No, thanks', I18N::DOMAIN),
+                'Yes, please' => esc_html__('Yes, please', I18N::DOMAIN),
             ],
         ]);
     }
@@ -162,26 +162,26 @@ class ExportTab extends AbstractTab
 
     private function renderHelp(): void
     {
-        $documentationText = __('See documentation', I18N::DOMAIN);
+        $documentationText = esc_html__('See documentation', I18N::DOMAIN);
 
         $guides = [
-            __('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
+            esc_html__('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
             " <a target='_blank' href='".BackofficeCore::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
-            __('Open command line and navigate to website directory', I18N::DOMAIN).': <code>cd '.ABSPATH.'</code>',
-            sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-all</code>', __('full package')),
+            esc_html__('Open command line and navigate to website directory', I18N::DOMAIN).': <code>cd '.ABSPATH.'</code>',
+            sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-all</code>', esc_html__('full package', I18N::DOMAIN)),
             [
-                'parent' => __('or alternatively, you can export per file.', I18N::DOMAIN),
+                'parent' => esc_html__('or alternatively, you can export per file.', I18N::DOMAIN),
                 'children' => [
-                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-customer</code>', __('customers')),
-                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-tag</code>', __('tags')),
-                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-category</code>', __('categories')),
-                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-attribute</code>', __('attributes')),
-                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-attribute-option</code>', __('attribute options')),
-                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-product-blueprint</code>', __('product blueprints')),
-                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-product</code>', __('products')),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-customer</code>', esc_html__('customers', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-tag</code>', esc_html__('tags', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-category</code>', esc_html__('categories', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-attribute</code>', esc_html__('attributes', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-attribute-option</code>', esc_html__('attribute options', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-product-blueprint</code>', esc_html__('product blueprints', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-product</code>', esc_html__('products', I18N::DOMAIN)),
                 ],
             ],
-            __('Each run will return the path of the exported file.', I18N::DOMAIN),
+            esc_html__('Each run will return the path of the exported file.', I18N::DOMAIN),
         ];
 
         $guidesHtml = '';

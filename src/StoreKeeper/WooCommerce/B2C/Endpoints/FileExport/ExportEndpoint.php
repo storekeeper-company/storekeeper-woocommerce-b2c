@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Endpoints\AbstractEndpoint;
-use StoreKeeper\WooCommerce\B2C\Exceptions\FileExportFailedException;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 
@@ -20,13 +19,13 @@ class ExportEndpoint extends AbstractEndpoint
         IniHelper::setIni(
             'max_execution_time',
             60 * 60 * 12, // Time in hours,
-            [$this, 'throwIniError']
+            [$this, 'logIniError']
         );
 
         IniHelper::setIni(
             'memory_limit',
             '512M',
-            [$this, 'throwIniError']
+            [$this, 'logIniError']
         );
 
         $exportClass = FileExportTypeHelper::getClass($type);
@@ -40,11 +39,8 @@ class ExportEndpoint extends AbstractEndpoint
         ];
     }
 
-    /**
-     * @throws FileExportFailedException
-     */
-    public function throwIniError(string $message): void
+    public function logIniError(string $message): void
     {
-        throw new FileExportFailedException($message);
+        $this->logger->error($message);
     }
 }
