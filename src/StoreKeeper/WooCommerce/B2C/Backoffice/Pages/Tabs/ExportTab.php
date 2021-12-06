@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use Monolog\Logger;
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
@@ -44,13 +45,17 @@ class ExportTab extends AbstractTab
         wp_localize_script('exportScript', 'exportSettings',
         [
             'url' => rest_url(EndpointLoader::getFullNamespace().'/'.ExportEndpoint::ROUTE),
-            'labels' => [
+            'translations' => [
                 'Your file has been generated' => __('Your file has been generated', I18N::DOMAIN),
                 'Your download will start in a few seconds. If not, you can download the file manually using the link below' => __('Your download will start in a few seconds. If not, you can download the file manually using the link below', I18N::DOMAIN),
                 'Please wait and keep the page and popup window open while we are preparing your export' => __('Please wait and keep the page and popup window open while we are preparing your export', I18N::DOMAIN),
                 'Preparing export' => __('Preparing export', I18N::DOMAIN),
                 'Stop exporting' => __('Stop exporting', I18N::DOMAIN),
                 'Size' => __('Size', I18N::DOMAIN),
+                'Export failed' => __('Export failed', I18N::DOMAIN),
+                'Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?' => __('Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?', I18N::DOMAIN),
+                'No, thanks' => __('No, thanks', I18N::DOMAIN),
+                'Yes, please' => __('Yes, please', I18N::DOMAIN),
             ],
         ]);
     }
@@ -107,6 +112,7 @@ class ExportTab extends AbstractTab
 
         $this->renderInfo();
         $this->renderSelectedAttributes();
+        $this->renderHelp();
         $this->renderLanguageSelector();
 
         $exportTypes = [
@@ -154,6 +160,57 @@ class ExportTab extends AbstractTab
         );
 
         $this->renderFormEnd();
+    }
+
+    private function renderHelp()
+    {
+        $documentationText = __('See documentation', I18N::DOMAIN);
+
+        $guides = [
+            __('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
+            " <a target='_blank' href='".BackofficeCore::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
+            __('Open command line and navigate to website directory', I18N::DOMAIN).': <code>cd '.ABSPATH.'</code>',
+            sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-all</code>', __('full package')),
+            [
+                'parent' => __('or alternatively, you can export per file.', I18N::DOMAIN),
+                'children' => [
+                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-customer</code>', __('customers')),
+                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-tag</code>', __('tags')),
+                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-category</code>', __('categories')),
+                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-attribute</code>', __('attributes')),
+                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-attribute-option</code>', __('attribute options')),
+                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-product-blueprint</code>', __('product blueprints')),
+                    sprintf(__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-product</code>', __('products')),
+                ],
+            ],
+            __('Each run will return the path of the exported file.', I18N::DOMAIN),
+        ];
+
+        $guidesHtml = '';
+        foreach ($guides as $key => $guide) {
+            if (!is_array($guide)) {
+                $guidesHtml .= '<p style="white-space: pre-line;">'.($key + 1).'. '.$guide.'</p>';
+            } else {
+                $alphabet = range('a', 'z');
+                $guidesHtml .= '<p style="white-space: pre-line;">'.($key + 1).'. '.$guide['parent'].'</p>';
+
+                $subGuides = $guide['children'];
+                $alphabetCounter = 0;
+                foreach ($subGuides as $subGuide) {
+                    $guidesHtml .= '<p style="white-space: pre-line; margin-left: 1.5rem;">'.$alphabet[$alphabetCounter].'. '.$subGuide.'</p>';
+                    ++$alphabetCounter;
+                }
+            }
+        }
+
+        echo $this->getFormLink('javascript:;', esc_html__('Manual export from command line using wp-cli'), 'toggle-help');
+
+        echo "<div class='help-section' style='display:none;'>";
+        $this->renderFormGroup(
+            esc_html__('Manual export guide', I18N::DOMAIN),
+            $guidesHtml
+        );
+        echo '</div>';
     }
 
     private function getSelectedAttributes(): array

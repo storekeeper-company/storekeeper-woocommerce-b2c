@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\TableRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
@@ -24,7 +25,6 @@ class SchedulerTab extends AbstractTab
 
     public const SAVE_ACTION = 'save-action';
     public const DOCS_WPCRON_TASK_SCHEDULER_LINK = 'https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler';
-    public const DOCS_WPCLI_LINK = 'https://wp-cli.org/#installing';
 
     public function __construct(string $title, string $slug = '')
     {
@@ -152,7 +152,7 @@ class SchedulerTab extends AbstractTab
             $commandPrefix = WpCliCommandRunner::command_prefix;
             $instructions = [
                 __('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
-                " <a target='_blank' href='".self::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
+                " <a target='_blank' href='".BackofficeCore::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
                 sprintf(__('Add %s to crontab.', I18N::DOMAIN), "<code>* * * * * wp {$commandPrefix} {$commandName} --path={$pluginPath} --quiet</code>"),
                 __('Upon changing runner, please make sure to remove the cron above from crontab.', I18N::DOMAIN),
             ];
