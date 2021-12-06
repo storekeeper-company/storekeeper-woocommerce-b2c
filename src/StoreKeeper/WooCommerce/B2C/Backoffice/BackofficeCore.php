@@ -9,6 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 
 class BackofficeCore
 {
+    public const DOCS_WPCLI_LINK = 'https://wp-cli.org/#installing';
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
      * the plugin.

@@ -82,6 +82,36 @@ abstract class AbstractFileExport implements IFileExport
         return content_url("$relativePath/$filename");
     }
 
+    /**
+     * Returns a relative file path for url usage.
+     */
+    public function getFilename(): string
+    {
+        return basename($this->filePath);
+    }
+
+    /**
+     * Returns a relative file path for url usage.
+     */
+    public function getSize(): string
+    {
+        $bytes = filesize($this->filePath);
+
+        if ($bytes >= 1048576) {
+            $bytes = number_format($bytes / 1048576, 2).' MB';
+        } elseif ($bytes >= 1024) {
+            $bytes = number_format($bytes / 1024, 2).' KB';
+        } elseif ($bytes > 1) {
+            $bytes .= ' bytes';
+        } elseif (1 === $bytes) {
+            $bytes .= ' byte';
+        } else {
+            $bytes = '0 bytes';
+        }
+
+        return $bytes;
+    }
+
     protected function reportUpdate(int $total, int $index, string $description)
     {
         $current = $index + 1;
