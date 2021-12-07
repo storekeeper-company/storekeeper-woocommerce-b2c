@@ -40,14 +40,14 @@ jobs:
       - name: Apply version with build
         if: ${{ ! startsWith( github.ref, 'refs/tags/' ) }}
         run: |
-          php dev-tools/set-version.php $RELEASE_VERSION-b$GITHUB_RUN_ID storekeeper-woocommerce-b2c.php
-          php dev-tools/set-version.php $RELEASE_VERSION-b$GITHUB_RUN_ID Readme.txt
+          php dev-tools/set-version.php $LAST_VERSION_TAG-b$GITHUB_RUN_ID storekeeper-woocommerce-b2c.php
+          php dev-tools/set-version.php $LAST_VERSION_TAG-b$GITHUB_RUN_ID Readme.txt
 
       - name: Set release version
         if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
         run: |
-          php dev-tools/set-version.php $RELEASE_VERSION storekeeper-woocommerce-b2c.php
-          php dev-tools/set-version.php $RELEASE_VERSION Readme.txt
+          php dev-tools/set-version.php $LAST_VERSION_TAG storekeeper-woocommerce-b2c.php
+          php dev-tools/set-version.php $LAST_VERSION_TAG Readme.txt
 
       - name: Create zip
         run: |
