@@ -14,6 +14,7 @@ jobs:
           workflow: build-zip.yml
           workflow_conclusion: success
           name: storekeeper-for-woocommerce
+          commit: ${{github.ref}}
 
       - name: Prepare directory
         run: |
