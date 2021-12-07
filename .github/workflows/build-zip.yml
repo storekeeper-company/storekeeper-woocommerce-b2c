@@ -16,10 +16,10 @@ jobs:
           LAST_VERSION_TAG=`git describe --tags --abbrev=0 --exclude=latest --exclude=development`
           echo ::set-output name=LAST_VERSION_TAG::${LAST_VERSION_TAG}
 
-      - name: Get latest tag
+      - name: Get stable tag
         if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
         id: version_tag
-        run: echo ::set-output name=LAST_VERSION_TAG::${GITHUB_REF#refs/tags/*/}
+        run: echo "LAST_VERSION_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
