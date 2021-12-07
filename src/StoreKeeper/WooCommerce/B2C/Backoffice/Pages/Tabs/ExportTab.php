@@ -184,22 +184,7 @@ class ExportTab extends AbstractTab
             esc_html__('Each run will return the path of the exported file.', I18N::DOMAIN),
         ];
 
-        $guidesHtml = '';
-        foreach ($guides as $key => $guide) {
-            if (!is_array($guide)) {
-                $guidesHtml .= '<p style="white-space: pre-line;">'.($key + 1).'. '.$guide.'</p>';
-            } else {
-                $alphabet = range('a', 'z');
-                $guidesHtml .= '<p style="white-space: pre-line;">'.($key + 1).'. '.$guide['parent'].'</p>';
-
-                $subGuides = $guide['children'];
-                $alphabetCounter = 0;
-                foreach ($subGuides as $subGuide) {
-                    $guidesHtml .= '<p style="white-space: pre-line; margin-left: 1.5rem;">'.$alphabet[$alphabetCounter].'. '.$subGuide.'</p>';
-                    ++$alphabetCounter;
-                }
-            }
-        }
+        $guidesHtml = static::generateOrderedListHtml($guides);
 
         echo $this->getFormLink('javascript:;', esc_html__('Manual export from command line using wp-cli'), 'toggle-help');
 
