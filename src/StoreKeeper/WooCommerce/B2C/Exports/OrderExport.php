@@ -321,10 +321,19 @@ class OrderExport extends AbstractExport
                         } else {
                             $provider_method_type_id = $response['data'][0]['id'];
                         }
-                        $comment = ucwords(str_replace('pay_gateway_', '', $WpObject->get_payment_method()));
-                        $payId = $WpObject->get_meta('transactionId');
-                        if (!empty($payId)) {
-                            $comment .= ' #'.$payId;
+
+                        $paymentGateway = wc_get_payment_gateway_by_order($WpObject);
+                        if ($paymentGateway) {
+                            $paymentGatewayTitle = $paymentGateway->get_method_title();
+                            $comment = $paymentGatewayTitle.' ('.__('Wordpress plugin').')';
+                        } else {
+                            $comment = ucwords(str_replace('pay_gateway_', '', $WpObject->get_payment_method()));
+                        }
+
+                        if (!empty($WpObject->get_meta('transactionId'))) {
+                            $comment .= ' #'.$WpObject->get_meta('transactionId');
+                        } elseif (!empty($WpObject->get_transaction_id())) {
+                            $comment .= ' #'.$WpObject->get_transaction_id();
                         }
 
                         $ShopModule->markOrderAsPaid(
