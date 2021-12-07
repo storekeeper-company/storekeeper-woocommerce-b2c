@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -75,15 +76,28 @@ class ConnectionTab extends AbstractTab
 
         $title = __('Steps', I18N::DOMAIN);
         $this->renderFormGroup('', "<b>$title</b>");
+        $documentationText = esc_html__('See documentation', I18N::DOMAIN);
 
         $steps = [
-            '1. '.__('Copy the "Backoffice API Key" from the text area.', I18n::DOMAIN),
-            '2. '.__('Log into your admin environment', I18n::DOMAIN),
-            '3. '.__('Navigate to settings > technical settings and click on the "webhook" tab.', I18n::DOMAIN),
-            '4. '.__('Paste your api key into the field that says "Api key" and click connect.', I18n::DOMAIN),
-            '5. '.__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
+            esc_html__('Copy the "Backoffice API key" from the text area above.', I18n::DOMAIN),
+            [
+                'parent' => esc_html__('Alternatively, you can get the API key via command line.', I18n::DOMAIN),
+                'children' => [
+                    esc_html__('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
+                    " <a target='_blank' href='".BackofficeCore::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
+                    esc_html__('Open command line and navigate to website directory', I18N::DOMAIN).': <code>cd '.ABSPATH.'</code>',
+                    sprintf(esc_html__('Run %s and copy the generated API key.', I18N::DOMAIN), '<code>wp sk connect-backend '.site_url().'</code>'),
+                ],
+            ],
+            esc_html__('Log into your backoffice admin environment.', I18n::DOMAIN),
+            esc_html__('On your sidebar, under "Sales channels", open your webshop and click "Settings".', I18n::DOMAIN),
+            esc_html__('On settings page, click "Connect sync" under "Actions" section.', I18n::DOMAIN),
+            esc_html__('Paste your API key into the field that says "Api key" and click connect.', I18n::DOMAIN),
+            esc_html__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
         ];
-        $this->renderFormGroup('', implode('<br/>', $steps));
+
+        $stepsHtml = static::generateOrderedListHtml($steps);
+        $this->renderFormGroup('', $stepsHtml);
 
         $this->renderFormEnd();
     }
