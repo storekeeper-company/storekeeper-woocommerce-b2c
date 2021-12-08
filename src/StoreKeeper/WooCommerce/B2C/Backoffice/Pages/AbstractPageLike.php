@@ -4,6 +4,15 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
 abstract class AbstractPageLike
 {
+    const REQUIRED_PHP_EXTENSION = [
+        'bcmath',
+        'json',
+        'mbstring',
+        'mysqli',
+        'openssl',
+        'zip',
+    ];
+
     public function register(): void
     {
         $this->doRegisterStyles();
