@@ -70,7 +70,7 @@ abstract class AbstractPage extends AbstractPageLike
     {
         $extensions = get_loaded_extensions();
         $missingExtensions = [];
-        foreach (self::REQUIRED_PHP_EXTENSION as $wantedExtension) {
+        foreach (static::REQUIRED_PHP_EXTENSION as $wantedExtension) {
             if (!in_array($wantedExtension, $extensions)) {
                 $missingExtensions[] = sprintf(__('PHP %s extension', I18N::DOMAIN), $wantedExtension);
             }
