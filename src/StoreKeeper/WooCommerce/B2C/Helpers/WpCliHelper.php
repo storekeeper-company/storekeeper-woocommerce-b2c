@@ -8,21 +8,21 @@ class WpCliHelper
 {
     public static function attemptLineOutput(string $message): void
     {
-        if (!Core::isTest() && class_exists('WP_CLI')) {
+        if (self::shouldPrint()) {
             \WP_CLI::line($message);
         }
     }
 
     public static function attemptSuccessOutput(string $message): void
     {
-        if (!Core::isTest() && class_exists('WP_CLI')) {
+        if (self::shouldPrint()) {
             \WP_CLI::success($message);
         }
     }
 
     public static function setYellowOutputColor(string $message): string
     {
-        if (!Core::isTest() && class_exists('WP_CLI')) {
+        if (self::shouldPrint()) {
             return \WP_CLI::colorize('%y'.$message.'%n');
         }
 
@@ -31,10 +31,15 @@ class WpCliHelper
 
     public static function setGreenOutputColor(string $message): string
     {
-        if (!Core::isTest() && class_exists('WP_CLI')) {
+        if (self::shouldPrint()) {
             return \WP_CLI::colorize('%G'.$message.'%n');
         }
 
         return $message;
+    }
+
+    public static function shouldPrint(): bool
+    {
+        return !Core::isTest() && class_exists('WP_CLI');
     }
 }
