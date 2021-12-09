@@ -174,9 +174,6 @@ class SchedulerTab extends AbstractTab
 
         if (!empty($instructions)) {
             $instructionsHTML = static::generateOrderedListHtml($instructions);
-            foreach ($instructions as $key => $instruction) {
-                $instructionsHTML .= '<p style="white-space: pre-line;">'.($key + 1).'. '.$instruction.'</p>';
-            }
 
             $this->renderFormGroup(
                 __('Instructions', I18N::DOMAIN),
