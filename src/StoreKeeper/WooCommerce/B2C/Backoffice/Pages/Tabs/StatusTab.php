@@ -31,15 +31,6 @@ class StatusTab extends AbstractTab
         WooCommerceOptions::WOOCOMMERCE_TOKEN,
     ];
 
-    const REQUIRED_PHP_EXTENSION = [
-        'bcmath',
-        'json',
-        'mbstring',
-        'mysqli',
-        'openssl',
-        'zip',
-    ];
-
     protected function getStylePaths(): array
     {
         return [
@@ -158,7 +149,7 @@ class StatusTab extends AbstractTab
         ];
 
         $extensions = get_loaded_extensions();
-        foreach (self::REQUIRED_PHP_EXTENSION as $wantedExtension) {
+        foreach (static::REQUIRED_PHP_EXTENSION as $wantedExtension) {
             $data[] = [
                 'title' => sprintf(__('PHP %s extension', I18N::DOMAIN), $wantedExtension),
                 'description' => sprintf(

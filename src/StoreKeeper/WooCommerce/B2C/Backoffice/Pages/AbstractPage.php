@@ -60,9 +60,31 @@ abstract class AbstractPage extends AbstractPageLike
 
     public function initialize()
     {
+        $this->checkExtensions();
         $this->triggerAction();
         $this->register();
         $this->render();
+    }
+
+    protected function checkExtensions(): void
+    {
+        $extensions = get_loaded_extensions();
+        $missingExtensions = [];
+        foreach (static::REQUIRED_PHP_EXTENSION as $wantedExtension) {
+            if (!in_array($wantedExtension, $extensions)) {
+                $missingExtensions[] = sprintf(__('PHP %s extension', I18N::DOMAIN), $wantedExtension);
+            }
+        }
+
+        if (!empty($missingExtensions)) {
+            AdminNotices::showError(
+                sprintf(
+                    esc_html__('The following required extensions are missing from your server: %s'),
+                    implode(', ', $missingExtensions),
+                ),
+                esc_html__('Contact your server provider to enable these extensions for the StoreKeeper synchronization plugin to function properly.')
+            );
+        }
     }
 
     private function triggerAction()
