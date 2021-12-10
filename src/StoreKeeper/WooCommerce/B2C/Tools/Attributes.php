@@ -483,6 +483,7 @@ class Attributes
 
             // Manually update attribute as wc_update_attribute reverts
             // attribute type to select when it does not exist
+            // Initially the fix was setting WP_ADMIN to true due to woocommerce-swatch, then it breaks
             self::updateAttributeType($existingAttribute);
         }
 
