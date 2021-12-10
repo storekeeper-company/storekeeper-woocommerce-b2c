@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Endpoints;
 
+use StoreKeeper\WooCommerce\B2C\Endpoints\FileExport\ExportEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Sso\SsoGetEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
@@ -54,6 +55,18 @@ class EndpointLoader
             [
                 'methods' => 'GET',
                 'callback' => [$taskProcessor, 'handleRequestSilently'],
+                'permission_callback' => '__return_true',
+            ]
+        );
+
+        $export = new ExportEndpoint();
+        $export->setLogger($logger);
+        register_rest_route(
+            $namespace,
+            ExportEndpoint::ROUTE,
+            [
+                'methods' => 'GET',
+                'callback' => [$export, 'handleRequest'],
                 'permission_callback' => '__return_true',
             ]
         );

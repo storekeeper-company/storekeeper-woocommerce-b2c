@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -75,15 +76,28 @@ class ConnectionTab extends AbstractTab
 
         $title = __('Steps', I18N::DOMAIN);
         $this->renderFormGroup('', "<b>$title</b>");
+        $documentationText = esc_html__('See documentation', I18N::DOMAIN);
 
         $steps = [
-            '1. '.__('Copy the "Backoffice API Key" from the text area.', I18n::DOMAIN),
-            '2. '.__('Log into your admin environment', I18n::DOMAIN),
-            '3. '.__('Navigate to settings > technical settings and click on the "webhook" tab.', I18n::DOMAIN),
-            '4. '.__('Paste your api key into the field that says "Api key" and click connect.', I18n::DOMAIN),
-            '5. '.__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
+            esc_html__('Copy the "Backoffice API key" from the text area above.', I18n::DOMAIN),
+            [
+                'parent' => esc_html__('Alternatively, you can get the API key via command line.', I18n::DOMAIN),
+                'children' => [
+                    esc_html__('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
+                    " <a target='_blank' href='".BackofficeCore::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
+                    esc_html__('Open command line and navigate to website directory', I18N::DOMAIN).': <code>cd '.ABSPATH.'</code>',
+                    sprintf(esc_html__('Run %s and copy the generated API key.', I18N::DOMAIN), '<code>wp sk connect-backend '.site_url().'</code>'),
+                ],
+            ],
+            esc_html__('Log into your backoffice admin environment.', I18n::DOMAIN),
+            esc_html__('On your sidebar, under "Sales channels", open your webshop and click "Settings".', I18n::DOMAIN),
+            esc_html__('On settings page, click "Connect sync" under "Actions" section.', I18n::DOMAIN),
+            esc_html__('Paste your API key into the field that says "Api key" and click connect.', I18n::DOMAIN),
+            esc_html__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
         ];
-        $this->renderFormGroup('', implode('<br/>', $steps));
+
+        $stepsHtml = static::generateOrderedListHtml($steps);
+        $this->renderFormGroup('', $stepsHtml);
 
         $this->renderFormEnd();
     }
@@ -137,9 +151,11 @@ class ConnectionTab extends AbstractTab
         $this->renderFormHeader(__('Synchronization settings', I18N::DOMAIN));
 
         $this->renderSyncModeSetting();
+        $this->renderOrderSyncFromDate();
         $this->renderPaymentSetting();
         $this->renderBackorderSetting();
         $this->renderBarcodeModeSetting();
+        $this->renderCategoryOptions();
 
         $this->renderFormActionGroup(
             $this->getFormButton(
@@ -197,16 +213,23 @@ class ConnectionTab extends AbstractTab
         $payment = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
         $backorder = StoreKeeperOptions::getConstant(StoreKeeperOptions::NOTIFY_ON_BACKORDER);
         $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
+        $orderSyncFromDate = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
         $barcode = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
+        $categoryHtml = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
 
         $data = [
             $payment => 'on' === sanitize_key($_POST[$payment]) ? 'yes' : 'no',
             $backorder => 'on' === sanitize_key($_POST[$backorder]) ? 'yes' : 'no',
+            $categoryHtml => 'on' === sanitize_key($_POST[$categoryHtml]) ? 'yes' : 'no',
         ];
         if (!empty($_POST[$mode])) {
             $data[$mode] = sanitize_key($_POST[$mode]);
         } else {
             $data[$mode] = StoreKeeperOptions::SYNC_MODE_FULL_SYNC;
+        }
+
+        if (!empty($_POST[$orderSyncFromDate])) {
+            $data[$orderSyncFromDate] = sanitize_key($_POST[$orderSyncFromDate]);
         }
 
         if (!empty($_POST[$barcode])) {
@@ -226,6 +249,8 @@ class ConnectionTab extends AbstractTab
     {
         $full = __('Full sync', I18N::DOMAIN);
         $order = __('Order only', I18N::DOMAIN);
+        $product = __('Products only', I18N::DOMAIN);
+        $none = __('No sync', I18N::DOMAIN);
 
         $fullDescription = esc_html__(
             'Products, categories, labels/tags, attributes with options, coupons, orders and customers are being synced',
@@ -235,15 +260,27 @@ class ConnectionTab extends AbstractTab
             'Orders and customers are being exported, order status and product stock with matching skus are being imports',
             I18N::DOMAIN
         );
+        $productDescription = esc_html__(
+            'Products, categories, labels/tags, attributes with options, and coupons are being synced',
+            I18N::DOMAIN
+        );
+        $noneDescription = esc_html__(
+            'Nothing will be synced',
+            I18N::DOMAIN
+        );
 
         $description = <<<HTML
-<b>$full:</b> $fullDescription</br>
-<b>$order:</b> $orderDescription
+<strong>$full:</strong> $fullDescription</br>
+<strong>$order:</strong> $orderDescription</br>
+<strong>$product:</strong> $productDescription</br>
+<strong>$none:</strong> $noneDescription
 HTML;
 
         $options = [];
         $options[StoreKeeperOptions::SYNC_MODE_FULL_SYNC] = $full;
         $options[StoreKeeperOptions::SYNC_MODE_ORDER_ONLY] = $order;
+        $options[StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY] = $product;
+        $options[StoreKeeperOptions::SYNC_MODE_NONE] = $none;
 
         $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
         $this->renderFormGroup(
@@ -278,16 +315,52 @@ HTML;
         $this->renderFormGroup('', $description);
     }
 
+    private function renderOrderSyncFromDate(): void
+    {
+        $orderSyncFromDateName = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
+
+        $this->renderFormGroup(
+            __('Order sync from date', I18N::DOMAIN),
+            $this->getFormInput($orderSyncFromDateName, '', StoreKeeperOptions::get($orderSyncFromDateName, ''), '', 'date')
+        );
+
+        $description = esc_html__(
+            'Order created before the date set will not be synchronized to backoffice.',
+            I18N::DOMAIN
+        );
+        $this->renderFormGroup('', $description);
+    }
+
     private function renderPaymentSetting(): void
     {
         $paymentName = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
+        $extraInfo = '';
+        if (!StoreKeeperOptions::isPaymentSyncEnabled()) {
+            $extraInfo = '<br><small>'.__('Payments are disabled in currently selected Synchronization mode').'</small>';
+        }
         $this->renderFormGroup(
             __('Activate StoreKeeper payments', I18N::DOMAIN),
             $this->getFormCheckbox(
                 $paymentName,
-                'yes' === StoreKeeperOptions::get($paymentName)
+                'yes' === StoreKeeperOptions::get($paymentName),
+                StoreKeeperOptions::isPaymentSyncEnabled() ? '' : 'disabled',
             ).' '.__(
                 'When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop\'s checkout',
+                I18N::DOMAIN
+            ).$extraInfo
+        );
+    }
+
+    private function renderCategoryOptions(): void
+    {
+        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
+        $this->renderFormGroup(
+            __('Import category description as HTML', I18N::DOMAIN),
+            $this->getFormCheckbox(
+                $name,
+                StoreKeeperOptions::getBoolOption($name, false)
+            ).' '.__(
+                'It will import the category descriptions as html, otherwise plain text. It requires a theme support for rendering it correctly.',
                 I18N::DOMAIN
             )
         );

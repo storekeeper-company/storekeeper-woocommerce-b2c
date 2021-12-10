@@ -5,7 +5,6 @@ namespace StoreKeeper\WooCommerce\B2C\Frontend;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\FormShortCode;
-use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 use StoreKeeper\WooCommerce\B2C\Tools\RedirectHandler;
 
@@ -52,7 +51,6 @@ class FrondendCore
     private function registerShortCodes()
     {
         $this->loader->add_filter('init', new FormShortCode(), 'load');
-        $this->loader->add_filter('init', new MarkdownCode(), 'load');
     }
 
     private function registerHandlers()

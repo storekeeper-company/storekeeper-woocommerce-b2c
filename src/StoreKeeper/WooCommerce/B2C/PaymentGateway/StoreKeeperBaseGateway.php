@@ -26,7 +26,8 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         $this->setIconUrl($icon_url);
         $this->title = $title;
 
-        $this->has_fields = true;
+        $this->has_fields = false;
+        $this->description = null;
         $this->method_title = 'StoreKeeper - '.$title;
 
         $this->init_form_fields();

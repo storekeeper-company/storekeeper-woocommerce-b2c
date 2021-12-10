@@ -57,4 +57,26 @@ abstract class AbstractTab extends AbstractPageLike
     {
         return $this->renderRestOtherTab;
     }
+
+    public static function generateOrderedListHtml(array $list)
+    {
+        $orderedListHtml = '';
+        foreach ($list as $key => $item) {
+            if (!is_array($item)) {
+                $orderedListHtml .= '<p style="white-space: pre-line;">'.($key + 1).'. '.$item.'</p>';
+            } else {
+                $alphabet = range('a', 'z');
+                $orderedListHtml .= '<p style="white-space: pre-line;">'.($key + 1).'. '.$item['parent'].'</p>';
+
+                $subGuides = $item['children'];
+                $alphabetCounter = 0;
+                foreach ($subGuides as $subGuide) {
+                    $orderedListHtml .= '<p style="white-space: pre-line; margin-left: 1.5rem;">'.$alphabet[$alphabetCounter].'. '.$subGuide.'</p>';
+                    ++$alphabetCounter;
+                }
+            }
+        }
+
+        return $orderedListHtml;
+    }
 }

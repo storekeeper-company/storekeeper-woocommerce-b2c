@@ -3,9 +3,11 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use Monolog\Logger;
-use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
+use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
+use StoreKeeper\WooCommerce\B2C\Endpoints\FileExport\ExportEndpoint;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductHelper;
@@ -14,37 +16,50 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
-use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
-use Throwable;
 
 class ExportTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const ACTION_EXPORT = 'export-action';
     const ACTION_GENERATE_SKU_FROM_TITLE = 'generate-sku-from-title';
 
     public function __construct(string $title, string $slug = '')
     {
         parent::__construct($title, $slug);
-
-        $this->addAction(self::ACTION_EXPORT, [$this, 'exportAction']);
         $this->addAction(self::ACTION_GENERATE_SKU_FROM_TITLE, [$this, 'generateSkuFromTitleAction']);
     }
 
-    protected function exportAction()
+    public function register(): void
     {
-        if (array_key_exists('type', $_REQUEST) && array_key_exists('lang', $_REQUEST)) {
-            $this->handleExport(
-                sanitize_key($_REQUEST['type']),
-                sanitize_key($_REQUEST['lang'])
-            );
-        }
-        wp_redirect(remove_query_arg(['type', 'action', 'lang']));
+        parent::register();
+        $this->doRegisterScripts();
     }
 
-    protected function generateSkuFromTitleAction()
+    private function doRegisterScripts(): void
+    {
+        wp_enqueue_script('exportScript', plugin_dir_url(__FILE__).'../../static/backoffice.pages.tabs.export.js');
+        wp_enqueue_script('exportSweetalertScript', plugin_dir_url(__FILE__).'../../static/vendors/sweetalert2/sweetalert.min.js');
+        // So we can pass values to javascript file
+        wp_localize_script('exportScript', 'exportSettings',
+        [
+            'url' => rest_url(EndpointLoader::getFullNamespace().'/'.ExportEndpoint::ROUTE),
+            'translations' => [
+                'Your file has been generated' => esc_html__('Your file has been generated', I18N::DOMAIN),
+                'Your download will start in a few seconds. If not, you can download the file manually using the link below' => esc_html__('Your download will start in a few seconds. If not, you can download the file manually using the link below', I18N::DOMAIN),
+                'Please wait and keep the page and popup window open while we are preparing your export' => esc_html__('Please wait and keep the page and popup window open while we are preparing your export', I18N::DOMAIN),
+                'Preparing export' => esc_html__('Preparing export', I18N::DOMAIN),
+                'Stop exporting' => esc_html__('Stop exporting', I18N::DOMAIN),
+                'Size' => esc_html__('Size', I18N::DOMAIN),
+                'Export failed' => esc_html__('Export failed', I18N::DOMAIN),
+                'Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?' => esc_html__('Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?', I18N::DOMAIN),
+                'No, thanks' => esc_html__('No, thanks', I18N::DOMAIN),
+                'Yes, please' => esc_html__('Yes, please', I18N::DOMAIN),
+            ],
+        ]);
+    }
+
+    protected function generateSkuFromTitleAction(): void
     {
         $ids = ProductHelper::getProductsIdsWithoutSku();
 
@@ -87,16 +102,15 @@ class ExportTab extends AbstractTab
         $this->renderExport();
     }
 
-    private function renderExport()
+    private function renderExport(): void
     {
         $this->renderFormStart();
 
         $this->renderRequestHiddenInputs();
 
-        $this->renderFormHiddenInput('action', self::ACTION_EXPORT);
-
         $this->renderInfo();
         $this->renderSelectedAttributes();
+        $this->renderHelp();
         $this->renderLanguageSelector();
 
         $exportTypes = [
@@ -112,7 +126,7 @@ class ExportTab extends AbstractTab
         foreach ($exportTypes as $type => $label) {
             $input = $this->getFormButton(
                 __('Download export (csv)', I18N::DOMAIN),
-                'button',
+                'button export-button',
                 'type',
                 $type
             );
@@ -137,7 +151,7 @@ class ExportTab extends AbstractTab
             __('Export full package'),
             $this->getFormButton(
                 __('Download export (zip)', I18N::DOMAIN),
-                'button',
+                'button export-button',
                 'type',
                 FileExportTypeHelper::ALL
             )
@@ -146,74 +160,40 @@ class ExportTab extends AbstractTab
         $this->renderFormEnd();
     }
 
-    private function handleExport(string $type, string $lang)
+    private function renderHelp(): void
     {
-        $typeName = FileExportTypeHelper::getTypePluralName($type);
-        $title = sprintf(
-            __('Please wait and keep the page open while we are exporting your %s.', I18N::DOMAIN),
-            strtolower($typeName)
+        $documentationText = esc_html__('See documentation', I18N::DOMAIN);
+
+        $guides = [
+            esc_html__('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
+            " <a target='_blank' href='".BackofficeCore::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
+            esc_html__('Open command line and navigate to website directory', I18N::DOMAIN).': <code>cd '.ABSPATH.'</code>',
+            sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-all</code>', esc_html__('full package', I18N::DOMAIN)),
+            [
+                'parent' => esc_html__('or alternatively, you can export per file.', I18N::DOMAIN),
+                'children' => [
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-customer</code>', esc_html__('customers', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-tag</code>', esc_html__('tags', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-category</code>', esc_html__('categories', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-attribute</code>', esc_html__('attributes', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-attribute-option</code>', esc_html__('attribute options', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-product-blueprint</code>', esc_html__('product blueprints', I18N::DOMAIN)),
+                    sprintf(esc_html__('Run %s to export %s.', I18N::DOMAIN), '<code>wp sk file-export-product</code>', esc_html__('products', I18N::DOMAIN)),
+                ],
+            ],
+            esc_html__('Each run will return the path of the exported file.', I18N::DOMAIN),
+        ];
+
+        $guidesHtml = static::generateOrderedListHtml($guides);
+
+        echo $this->getFormLink('javascript:;', esc_html__('Manual export from command line using wp-cli'), 'toggle-help');
+
+        echo "<div class='help-section' style='display:none;'>";
+        $this->renderFormGroup(
+            esc_html__('Manual export guide', I18N::DOMAIN),
+            $guidesHtml
         );
-        $description = __('your export will be downloaded as soon the export finished.', I18N::DOMAIN);
-
-        $overlay = new OverlayRenderer();
-        $overlay->start($title, $description);
-
-        try {
-            $url = $this->runExport($type, $lang, $overlay);
-
-            $this->initializeDownload($url);
-
-            sleep(1); // wait for the download to start client sided
-
-            $overlay->endWithRedirectBack();
-        } catch (Throwable $throwable) {
-            $overlay->renderError(
-                $throwable->getMessage(),
-                $throwable->getTraceAsString()
-            );
-            $overlay->end();
-        } finally {
-            $overlay->end();
-        }
-    }
-
-    private function initializeDownload(string $url)
-    {
-        $basename = esc_js(basename($url));
-        $url = esc_url($url);
-        echo <<<HTML
-<script>
-    (function() {
-        const link = document.createElement('a');
-        link.setAttribute('target', '_blank');
-        link.setAttribute('href', '$url');
-        link.setAttribute('download', '$basename');
-        link.click();
-    })();
-</script>
-HTML;
-    }
-
-    private function runExport($type, $lang, OverlayRenderer $overlay)
-    {
-        FileExportTypeHelper::ensureType($type);
-
-        IniHelper::setIni(
-            'max_execution_time',
-            60 * 60 * 12, // Time in hours
-            [$overlay, 'renderMessage']
-        );
-        IniHelper::setIni(
-            'memory_limit',
-            '512M',
-            [$overlay, 'renderMessage']
-        );
-
-        $exportClass = FileExportTypeHelper::getClass($type);
-        $export = new $exportClass();
-        $export->runExport($lang);
-
-        return $export->getDownloadUrl();
+        echo '</div>';
     }
 
     private function getSelectedAttributes(): array

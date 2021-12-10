@@ -14,11 +14,31 @@ class StoreKeeperOptions extends AbstractOptions
     const MAIN_CATEGORY_ID = 'main-category-id';
     const NOTIFY_ON_BACKORDER = 'notify-on-backorder';
     const PAYMENT_GATEWAY_ACTIVATED = 'payment-gateway-activated';
+    const CATEGORY_DESCRIPTION_HTML = 'category-description-html';
     const SYNC_MODE = 'sync-mode';
     const INSTALLED_VERSION = 'installed-version';
 
     const SYNC_MODE_FULL_SYNC = 'sync-mode-full-sync';
     const SYNC_MODE_ORDER_ONLY = 'sync-mode-order-only';
+    const SYNC_MODE_PRODUCT_ONLY = 'sync-mode-product-only';
+    const SYNC_MODE_NONE = 'sync-mode-none';
+
+    const MODES_WITH_CUSTOMERS_SYNC = [
+        StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
+        StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
+    ];
+
+    const MODES_WITH_ORDERS_SYNC = [
+        StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
+        StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
+    ];
+
+    const MODES_WITH_PAYMENTS = [
+        StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
+        StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
+    ];
+
+    const ORDER_SYNC_FROM_DATE = 'sync-order-from-date';
 
     const BARCODE_MODE = 'barcode-mode';
     const BARCODE_META_FALLBACK = 'storekeeper_barcode';
@@ -121,5 +141,20 @@ class StoreKeeperOptions extends AbstractOptions
         }
 
         return ['', '', '', ''];
+    }
+
+    public static function isOrderSyncEnabled(): bool
+    {
+        return in_array(self::getSyncMode(), self::MODES_WITH_ORDERS_SYNC, true);
+    }
+
+    public static function isCustomerSyncEnabled(): bool
+    {
+        return in_array(self::getSyncMode(), self::MODES_WITH_CUSTOMERS_SYNC, true);
+    }
+
+    public static function isPaymentSyncEnabled(): bool
+    {
+        return in_array(self::getSyncMode(), self::MODES_WITH_PAYMENTS, true);
     }
 }

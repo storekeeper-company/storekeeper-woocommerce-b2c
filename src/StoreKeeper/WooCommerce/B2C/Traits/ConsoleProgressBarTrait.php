@@ -2,32 +2,38 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Traits;
 
-use cli\progress\Bar;
+use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 
 trait ConsoleProgressBarTrait
 {
-    /* @var Bar $progressBar */
+    /* @var \cli\progress\Bar|null $progressBar */
     protected $progressBar;
 
-    public function createProgressBar(int $count, string $message): Bar
+    public function createProgressBar(int $count, string $message): void
     {
-        $progressBar = new Bar($message, $count);
-        $this->progressBar = $progressBar;
-        $this->progressBar->display();
+        if (WpCliHelper::shouldPrint()) {
+            $progressBar = null;
+            if (class_exists('WP_CLI') && class_exists('\cli\progress\Bar')) {
+                $progressBar = new \cli\progress\Bar($message, $count);
+            }
+            $this->progressBar = $progressBar;
 
-        return $this->progressBar;
+            if (!is_null($this->progressBar)) {
+                $this->progressBar->display();
+            }
+        }
     }
 
     public function tickProgressBar(): void
     {
-        if (!is_null($this->progressBar)) {
+        if (WpCliHelper::shouldPrint() && !is_null($this->progressBar)) {
             $this->progressBar->tick();
         }
     }
 
     public function endProgressBar(): void
     {
-        if (!is_null($this->progressBar)) {
+        if (WpCliHelper::shouldPrint() && !is_null($this->progressBar)) {
             $this->progressBar->finish();
         }
     }

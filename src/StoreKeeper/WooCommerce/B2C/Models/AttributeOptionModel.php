@@ -26,8 +26,10 @@ class AttributeOptionModel extends AbstractModel implements IModelPurge
 
     public static function createTable(): bool
     {
-        $name = self::getTableName();
         $wp = self::getWpPrefix();
+        self::checkTableEngineInnoDB("{$wp}terms");
+
+        $name = self::getTableName();
         $tableQuery = <<<SQL
     CREATE TABLE `$name` (
         `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,

@@ -4,9 +4,12 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use ReflectionClass;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\TableRenderer;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Models\AbstractModel;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
@@ -14,19 +17,18 @@ use WC_REST_System_Status_V2_Controller;
 
 class StatusTab extends AbstractTab
 {
+    use FormElementTrait;
+
+    const TABLES_IN_INNODB = [
+        'terms',
+    ];
+
+    const ACTION_SET_INNO_DB = 'set-inno-db';
+
     const DEVELOPER_OPTIONS = [
         StoreKeeperOptions::GUEST_AUTH,
         StoreKeeperOptions::SYNC_AUTH,
         WooCommerceOptions::WOOCOMMERCE_TOKEN,
-    ];
-
-    const REQUIRED_PHP_EXTENSION = [
-        'bcmath',
-        'json',
-        'mbstring',
-        'mysqli',
-        'openssl',
-        'zip',
     ];
 
     protected function getStylePaths(): array
@@ -36,12 +38,18 @@ class StatusTab extends AbstractTab
         ];
     }
 
+    public function __construct(string $title, string $slug = '')
+    {
+        parent::__construct($title, $slug);
+
+        $this->addAction(self::ACTION_SET_INNO_DB, [$this, 'setInnoDb']);
+    }
+
     public function render(): void
     {
         $this->renderServerStatus();
-
+        $this->renderInnodbStatus();
         $this->renderDatabaseStatus();
-
         $this->renderStoreKeeperOptions();
     }
 
@@ -72,6 +80,15 @@ class StatusTab extends AbstractTab
         $table->render();
     }
 
+    private function renderInnodbStatus()
+    {
+        $table = new TableRenderer('table-innodb');
+        $table->addColumn(__('Tables are using InnoDB engine', I18N::DOMAIN), 'title');
+        $table->addColumn('', 'value');
+        $table->setData($this->getInnoDBStatusData());
+        $table->render();
+    }
+
     private function getStoreKeeperOptionData(): array
     {
         $data = [];
@@ -82,7 +99,7 @@ class StatusTab extends AbstractTab
 
         $data = array_merge(
             $data,
-            $this->getOptionClassData(FeaturedAttributeExportOptions::class, 'getAttribute')
+            $this->getOptionClassData(FeaturedAttributeExportOptions::class, 'getAttributeExportOptionConstant')
         );
 
         return $data;
@@ -132,7 +149,7 @@ class StatusTab extends AbstractTab
         ];
 
         $extensions = get_loaded_extensions();
-        foreach (self::REQUIRED_PHP_EXTENSION as $wantedExtension) {
+        foreach (static::REQUIRED_PHP_EXTENSION as $wantedExtension) {
             $data[] = [
                 'title' => sprintf(__('PHP %s extension', I18N::DOMAIN), $wantedExtension),
                 'description' => sprintf(
@@ -206,6 +223,65 @@ class StatusTab extends AbstractTab
         }
 
         return $data;
+    }
+
+    private function getInnoDBStatusData(): array
+    {
+        global $wpdb;
+
+        $data = [];
+        foreach (self::TABLES_IN_INNODB as $table) {
+            $tableName = $wpdb->prefix.$table;
+            $data[] = [
+                'title' => $tableName,
+                'value' => AbstractModel::isTableEngineInnoDB($tableName),
+                'function::value' => function ($value, $item) use ($tableName) {
+                    $this->renderInnoDbCheck($value, $item, $tableName);
+                },
+                'description' => sprintf(
+                    __(
+                        'The %s table needs to be using Engine=InnoDB in order to use the plugin',
+                        I18N::DOMAIN
+                    ),
+                    $tableName
+                ),
+            ];
+        }
+
+        return $data;
+    }
+
+    public function renderInnoDbCheck($value, $item, $tableName)
+    {
+        $this->renderCheck($value, $item);
+        if (!$value) {
+            $this->renderFormStart();
+            $this->renderRequestHiddenInputs();
+            $this->renderFormHiddenInput('action', self::ACTION_SET_INNO_DB);
+            $this->renderFormActionGroup(
+                $this->getFormButton(
+                    __('Set InnoDb  on this table', I18N::DOMAIN),
+                    'button',
+                    'table',
+                    $tableName
+                )
+            );
+
+            $this->renderFormEnd();
+        }
+    }
+
+    public function setInnoDb()
+    {
+        $tableName = sanitize_key($_REQUEST['table']);
+        AbstractModel::setTableEngineToInnoDB($tableName);
+        AdminNotices::showSuccess(sprintf(
+            __(
+                'The %s table was set to Engine=InnoDB.',
+                I18N::DOMAIN
+            ),
+            $tableName
+        ), );
     }
 
     public function renderCheck($value, $item)

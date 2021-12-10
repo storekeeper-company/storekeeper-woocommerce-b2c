@@ -4,11 +4,11 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
-use WP_CLI;
 
 class SyncWoocommerceCrossSellProductPage extends AbstractSyncCommand implements WithConsoleProgressBarInterface
 {
@@ -53,15 +53,10 @@ class SyncWoocommerceCrossSellProductPage extends AbstractSyncCommand implements
      */
     private function syncCrossSellForProducts($products)
     {
-        $this->createProgressBar(count($products), WP_CLI::colorize(
-            '%G'.
-                sprintf(
-                    __('Syncing %s from Storekeeper backoffice', I18N::DOMAIN),
-                    __('cross-sell products', I18N::DOMAIN)
-                )
-                .'%n'
-            )
-        );
+        $this->createProgressBar(count($products), WpCliHelper::setGreenOutputColor(sprintf(
+            __('Syncing %s from Storekeeper backoffice', I18N::DOMAIN),
+            __('cross-sell products', I18N::DOMAIN)
+        )));
         foreach ($products as $index => $product) {
             $this->logger->debug(
                 'Processing product',

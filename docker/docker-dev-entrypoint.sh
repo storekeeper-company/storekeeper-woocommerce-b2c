@@ -16,6 +16,8 @@ then
 
   # set config
   chown www-data:www-data /app/src/wp-config.php
+  # set FS_METHOD to direct so we can upload/install plugin during development
+  wp config set FS_METHOD direct || exit 11
   wp config set WP_DEBUG true || exit 11
 
   # install plugins

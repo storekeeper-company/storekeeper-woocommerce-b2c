@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 abstract class AbstractPage extends AbstractPageLike
@@ -59,9 +60,31 @@ abstract class AbstractPage extends AbstractPageLike
 
     public function initialize()
     {
+        $this->checkExtensions();
         $this->triggerAction();
         $this->register();
         $this->render();
+    }
+
+    protected function checkExtensions(): void
+    {
+        $extensions = get_loaded_extensions();
+        $missingExtensions = [];
+        foreach (static::REQUIRED_PHP_EXTENSION as $wantedExtension) {
+            if (!in_array($wantedExtension, $extensions)) {
+                $missingExtensions[] = sprintf(__('PHP %s extension', I18N::DOMAIN), $wantedExtension);
+            }
+        }
+
+        if (!empty($missingExtensions)) {
+            AdminNotices::showError(
+                sprintf(
+                    esc_html__('The following required extensions are missing from your server: %s'),
+                    implode(', ', $missingExtensions),
+                ),
+                esc_html__('Contact your server provider to enable these extensions for the StoreKeeper synchronization plugin to function properly.')
+            );
+        }
     }
 
     private function triggerAction()
@@ -139,16 +162,23 @@ HTML;
 
     private function renderTab(): void
     {
-        if ($tab = $this->getCurrentTab()) {
-            $slug = esc_html($tab->slug);
-            echo "<div class='storekeeper-tab storekeeper-tab-$slug'>";
+        try {
+            if ($tab = $this->getCurrentTab()) {
+                $slug = esc_html($tab->slug);
+                echo "<div class='storekeeper-tab storekeeper-tab-$slug'>";
 
-            $tab->render();
+                $tab->render();
 
-            echo '</div>';
-        } else {
-            $text = esc_html__('No tabs set for this page', I18N::DOMAIN);
-            echo "<h1 style='text-align: center'>$text</h1>";
+                echo '</div>';
+            } else {
+                $text = esc_html__('No tabs set for this page', I18N::DOMAIN);
+                echo "<h1 style='text-align: center'>$text</h1>";
+            }
+        } catch (\Throwable $e) {
+            AdminNotices::showException(
+                $e,
+                __('Failed to render the tab')
+            );
         }
     }
 

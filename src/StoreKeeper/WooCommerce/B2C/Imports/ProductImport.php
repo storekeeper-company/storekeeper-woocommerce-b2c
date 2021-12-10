@@ -7,6 +7,7 @@ use Exception;
 use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -22,7 +23,6 @@ use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
-use WP_CLI;
 
 class ProductImport extends AbstractProductImport implements WithConsoleProgressBarInterface
 {
@@ -1334,7 +1334,7 @@ SQL;
             }
         }
 
-        WP_CLI::success(sprintf(
+        WpCliHelper::attemptSuccessOutput(sprintf(
             __('Done processing %s items of %s (%s new / %s updated)', I18N::DOMAIN),
             $this->getProcessedItemCount(),
             $this->getImportEntityName(),
