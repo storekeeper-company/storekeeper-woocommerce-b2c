@@ -23,8 +23,8 @@ class TaskRateCalculatorTest extends AbstractTest
     public function testTaskIncomingRate()
     {
         // make a task
-        $this->createTaskWithCreatedDate(1, '1970-01-01 01:30:00');
-        $this->createTaskWithCreatedDate(2, '1970-01-01 01:45:00');
+        $this->createTaskWithProcessedDate(1, '1970-01-01 01:30:00');
+        $this->createTaskWithProcessedDate(2, '1970-01-01 01:45:00');
         $now = '1970-01-01 02:00:00';
 
         $calculator = new TaskRateCalculator($now);
@@ -35,8 +35,8 @@ class TaskRateCalculatorTest extends AbstractTest
 
     public function testTaskProcessedRate()
     {
-        $task1 = $this->createTaskWithCreatedDate(1, '1970-01-01 01:30:00');
-        $task2 = $this->createTaskWithCreatedDate(2, '1970-01-01 01:45:00');
+        $task1 = $this->createTaskWithProcessedDate(1, '1970-01-01 01:30:00');
+        $task2 = $this->createTaskWithProcessedDate(2, '1970-01-01 01:45:00');
 
         $task1['execution_duration'] = 1.00; // 1 second execution
         TaskModel::update($task1['id'], $task1);
@@ -52,7 +52,7 @@ class TaskRateCalculatorTest extends AbstractTest
         $this->assertEquals(3600.0, $processedRate, 'Expected 3600 processing rate per hour for 2 tasks with 1 second execution');
     }
 
-    public function createTaskWithCreatedDate($id, string $createdDate)
+    public function createTaskWithProcessedDate($id, string $processedDate)
     {
         $task = TaskHandler::scheduleTask(
             TaskHandler::PRODUCT_IMPORT,
@@ -61,7 +61,7 @@ class TaskRateCalculatorTest extends AbstractTest
             true
         );
 
-        $task['date_created'] = $createdDate;
+        $task['date_last_processed'] = $processedDate;
         TaskModel::update($task['id'], $task);
 
         return $task;
