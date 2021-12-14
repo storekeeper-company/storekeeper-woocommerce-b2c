@@ -110,7 +110,6 @@ class OrderExport extends AbstractExport
         $this->debug('Added guest information', $callData);
 
         $ShopModule = $this->storekeeper_api->getModule('ShopModule');
-        $ShopModule->getConfiguration(1);
         /*
          * Order products
          */
