@@ -9,7 +9,6 @@ use Psr\Log\NullLogger;
 use stdClass;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
@@ -446,11 +445,6 @@ class Attributes
         string $alias,
         string $title
     ): int {
-        // Refer admin issue on StoreKeeper\WooCommerce\B2C\Commands\CommandRunner::32
-        if (!is_admin()) {
-            throw new WordpressException(__('Failed to execute attribute sync as WP_ADMIN constant is set to false', I18N::DOMAIN));
-        }
-
         $existingAttribute = self::getAttribute($storekeeper_id);
         if (empty($existingAttribute)) {
             // maybe the attribute was deleted on the StoreKeper site and recreated (alias cannot be changed)
@@ -486,6 +480,11 @@ class Attributes
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
                 wc_update_attribute($existingAttribute->id, $update_arguments)
             );
+
+            // Manually update attribute as wc_update_attribute reverts
+            // attribute type to select when it does not exist
+            // Initially the fix was setting WP_ADMIN to true due to woocommerce-swatch, then it breaks
+            self::updateAttributeType($existingAttribute);
         }
 
         AttributeModel::setAttributeStoreKeeperId(
@@ -493,6 +492,19 @@ class Attributes
         );
 
         return $attribute_id;
+    }
+
+    protected static function updateAttributeType(stdClass $existingAttribute): bool
+    {
+        global $wpdb;
+
+        $updated = $wpdb->update($wpdb->prefix.'woocommerce_attribute_taxonomies', [
+            'attribute_type' => $existingAttribute->type,
+        ], [
+            'attribute_id' => $existingAttribute->id,
+        ]);
+
+        return false !== $updated;
     }
 
     protected static function prepareNewAttributeSlug(string $slug): string
