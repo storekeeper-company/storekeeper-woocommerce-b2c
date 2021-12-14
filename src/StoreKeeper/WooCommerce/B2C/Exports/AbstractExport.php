@@ -4,8 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Exports;
 
 use StoreKeeper\ApiWrapper\ApiWrapper;
 use StoreKeeper\ApiWrapper\Exception\AuthException;
-use StoreKeeper\ApiWrapper\Exception\GeneralException;
-use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\PluginDisconnectedException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -135,16 +134,8 @@ abstract class AbstractExport
     protected function catchKnownExceptions($throwable)
     {
         if ($throwable instanceof AuthException) {
-            return new ExportException(
-                esc_html__('Failed to log in. Account data or password/hash can be wrong. You also may be banned due to multiple login errors.', I18N::DOMAIN),
-                $throwable->getCode(),
-                $throwable
-            );
-        }
-
-        if (($throwable instanceof GeneralException) && 'Permission' === $throwable->getApiExceptionClass()) {
-            return new ExportException(
-                esc_html__('No sufficient rights to call the function.', I18N::DOMAIN),
+            return new PluginDisconnectedException(
+                esc_html__('This channel was disconnected in StoreKeeper Backoffice, please reconnect it manually.', I18N::DOMAIN),
                 $throwable->getCode(),
                 $throwable
             );
