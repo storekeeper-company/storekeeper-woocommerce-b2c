@@ -191,7 +191,16 @@ SQL;
             ->bindValue('end', $end);
     }
 
-    public static function getExecutionDurationSumByCreatedDateTimeRange($start, $end): ?float
+    private static function prepareCreatedDateTimeRangeSelect($start, $end): SelectInterface
+    {
+        return static::getSelectHelper()
+            ->where('date_created >= :start')
+            ->where('date_created <= :end')
+            ->bindValue('start', $start)
+            ->bindValue('end', $end);
+    }
+
+    public static function getExecutionDurationSumByProcessedDateTimeRange($start, $end): ?float
     {
         global $wpdb;
 
@@ -204,6 +213,20 @@ SQL;
     }
 
     public static function countTasksByCreatedDateTimeRange($start, $end): int
+    {
+        global $wpdb;
+
+        $select = static::prepareCreatedDateTimeRangeSelect($start, $end);
+        $select->cols(['COUNT(id) AS tasks_count']);
+
+        $query = static::prepareQuery($select);
+
+        $tasksCount = $wpdb->get_row($query)->tasks_count;
+
+        return !is_null($tasksCount) ? $tasksCount : 0;
+    }
+
+    public static function countTasksByProcessedDateTimeRange($start, $end): int
     {
         global $wpdb;
 

@@ -23,8 +23,8 @@ class TaskRateCalculatorTest extends AbstractTest
     public function testTaskIncomingRate()
     {
         // make a task
-        $this->createTaskWithProcessedDate(1, '1970-01-01 01:30:00');
-        $this->createTaskWithProcessedDate(2, '1970-01-01 01:45:00');
+        $this->createTaskWithCreatedDate(1, '1970-01-01 01:30:00');
+        $this->createTaskWithCreatedDate(2, '1970-01-01 01:45:00');
         $now = '1970-01-01 02:00:00';
 
         $calculator = new TaskRateCalculator($now);
@@ -62,6 +62,21 @@ class TaskRateCalculatorTest extends AbstractTest
         );
 
         $task['date_last_processed'] = $processedDate;
+        TaskModel::update($task['id'], $task);
+
+        return $task;
+    }
+
+    public function createTaskWithCreatedDate($id, string $createdDate)
+    {
+        $task = TaskHandler::scheduleTask(
+            TaskHandler::PRODUCT_IMPORT,
+            $id,
+            ['storekeeper_id' => $id],
+            true
+        );
+
+        $task['date_created'] = $createdDate;
         TaskModel::update($task['id'], $task);
 
         return $task;
