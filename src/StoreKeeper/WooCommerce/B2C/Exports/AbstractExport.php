@@ -3,6 +3,10 @@
 namespace StoreKeeper\WooCommerce\B2C\Exports;
 
 use StoreKeeper\ApiWrapper\ApiWrapper;
+use StoreKeeper\ApiWrapper\Exception\AuthException;
+use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
@@ -98,7 +102,7 @@ abstract class AbstractExport
                 $this->debug('Found object', $wpObject);
                 $this->processItem($wpObject);
             } catch (\Throwable $exception) {
-                $exceptions[] = $exception;
+                $exceptions[] = $this->catchKnownExceptions($exception);
             }
         } else {
             $this->debug('Found multiple');
@@ -117,15 +121,36 @@ abstract class AbstractExport
                     try {
                         $this->processItem($wpObject);
                     } catch (\Throwable $exception) {
-                        $exceptions[] = $exception;
+                        $exceptions[] = $this->catchKnownExceptions($exception);
                     }
                 }
             } catch (\Throwable $exception) {
-                $exceptions[] = $exception;
+                $exceptions[] = $this->catchKnownExceptions($exception);
             }
         }
 
         return $exceptions;
+    }
+
+    protected function catchKnownExceptions($throwable)
+    {
+        if ($throwable instanceof AuthException) {
+            return new ExportException(
+                esc_html__('Failed to log in. Account data or password/hash can be wrong. You also may be banned due to multiple login errors.', I18N::DOMAIN),
+                $throwable->getCode(),
+                $throwable
+            );
+        }
+
+        if (($throwable instanceof GeneralException) && 'Permission' === $throwable->getApiExceptionClass()) {
+            return new ExportException(
+                esc_html__('No sufficient rights to call the function.', I18N::DOMAIN),
+                $throwable->getCode(),
+                $throwable
+            );
+        }
+
+        return $throwable;
     }
 
     /**

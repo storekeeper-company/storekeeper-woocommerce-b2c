@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Exports;
 
 use Exception;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
@@ -109,7 +110,7 @@ class OrderExport extends AbstractExport
         $this->debug('Added guest information', $callData);
 
         $ShopModule = $this->storekeeper_api->getModule('ShopModule');
-
+        $ShopModule->getConfiguration(1);
         /*
          * Order products
          */
@@ -726,5 +727,18 @@ class OrderExport extends AbstractExport
         }
 
         return null;
+    }
+
+    protected function catchKnownExceptions($throwable)
+    {
+        if (($throwable instanceof GeneralException) && 'ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
+            return new ExportException(
+                esc_html__('Order with this order number already exists.', I18N::DOMAIN),
+                $throwable->getCode(),
+                $throwable
+            );
+        }
+
+        return parent::catchKnownExceptions($throwable);
     }
 }
