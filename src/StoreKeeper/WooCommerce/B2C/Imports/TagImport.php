@@ -13,6 +13,7 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
 {
     use ConsoleProgressBarTrait;
     private $storekeeper_id = 0;
+    const WOOCOMMERCE_PRODUCT_TAG_TAXONOMY = 'product_tag';
 
     /**
      * CategoryImport constructor.
@@ -71,7 +72,7 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
         $labels = WordpressExceptionThrower::throwExceptionOnWpError(
             get_terms(
                 [
-                    'taxonomy' => 'product_tag',
+                    'taxonomy' => self::WOOCOMMERCE_PRODUCT_TAG_TAXONOMY,
                     'hide_empty' => false,
                     'number' => 1,
                     'meta_key' => 'storekeeper_id',
@@ -99,7 +100,7 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
         $labels = WordpressExceptionThrower::throwExceptionOnWpError(
             get_terms(
                 [
-                    'taxonomy' => 'product_tag',
+                    'taxonomy' => self::WOOCOMMERCE_PRODUCT_TAG_TAXONOMY,
                     'hide_empty' => false,
                     'number' => 1,
                     'meta_key' => 'slug',
@@ -110,6 +111,16 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
 
         if (1 === count($labels)) {
             return $labels[0];
+        }
+
+        if (empty($labels)) {
+            $productTag = WordpressExceptionThrower::throwExceptionOnWpError(
+                get_term_by('slug', $slug, self::WOOCOMMERCE_PRODUCT_TAG_TAXONOMY)
+            );
+
+            if ($productTag) {
+                return $productTag;
+            }
         }
 
         return false;
@@ -132,7 +143,7 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
         if (false !== $term) {
             // Check if the category is published
             if (!$dotObject->get('published')) {
-                WordpressExceptionThrower::throwExceptionOnWpError(wp_delete_term($term->ID, 'product_tag'));
+                WordpressExceptionThrower::throwExceptionOnWpError(wp_delete_term($term->ID, self::WOOCOMMERCE_PRODUCT_TAG_TAXONOMY));
 
                 return;
             }
@@ -147,7 +158,7 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
             WordpressExceptionThrower::throwExceptionOnWpError(
                 wp_update_term(
                     $term->term_id,
-                    'product_tag',
+                    self::WOOCOMMERCE_PRODUCT_TAG_TAXONOMY,
                     [
                         'name' => $title,
                         'slug' => $dotObject->get('slug', null),
@@ -161,13 +172,18 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
                 return;  // todo wtf?
             }
 
+            $slug = $dotObject->get('slug', null);
+            $slug = wp_unique_term_slug($slug, (object) [
+                'taxonomy' => self::WOOCOMMERCE_PRODUCT_TAG_TAXONOMY,
+            ]);
+
             // Create
             $term = WordpressExceptionThrower::throwExceptionOnWpError(
                 wp_insert_term(
                     $title,
-                    'product_tag',
+                    self::WOOCOMMERCE_PRODUCT_TAG_TAXONOMY,
                     [
-                        'slug' => $dotObject->get('slug', null),
+                        'slug' => $slug,
                     ]
                 )
             );
