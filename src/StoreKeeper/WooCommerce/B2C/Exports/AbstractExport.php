@@ -3,6 +3,9 @@
 namespace StoreKeeper\WooCommerce\B2C\Exports;
 
 use StoreKeeper\ApiWrapper\ApiWrapper;
+use StoreKeeper\ApiWrapper\Exception\AuthException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\PluginDisconnectedException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
@@ -98,7 +101,7 @@ abstract class AbstractExport
                 $this->debug('Found object', $wpObject);
                 $this->processItem($wpObject);
             } catch (\Throwable $exception) {
-                $exceptions[] = $exception;
+                $exceptions[] = $this->catchKnownExceptions($exception);
             }
         } else {
             $this->debug('Found multiple');
@@ -117,15 +120,28 @@ abstract class AbstractExport
                     try {
                         $this->processItem($wpObject);
                     } catch (\Throwable $exception) {
-                        $exceptions[] = $exception;
+                        $exceptions[] = $this->catchKnownExceptions($exception);
                     }
                 }
             } catch (\Throwable $exception) {
-                $exceptions[] = $exception;
+                $exceptions[] = $this->catchKnownExceptions($exception);
             }
         }
 
         return $exceptions;
+    }
+
+    protected function catchKnownExceptions($throwable)
+    {
+        if ($throwable instanceof AuthException) {
+            return new PluginDisconnectedException(
+                esc_html__('This channel was disconnected in StoreKeeper Backoffice, please reconnect it manually.', I18N::DOMAIN),
+                $throwable->getCode(),
+                $throwable
+            );
+        }
+
+        return $throwable;
     }
 
     /**
