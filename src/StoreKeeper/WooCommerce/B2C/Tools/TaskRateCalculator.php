@@ -26,7 +26,7 @@ class TaskRateCalculator
 
     public function calculateProcessed(): float
     {
-        $taskCount = TaskModel::countTasksByCreatedDateTimeRange($this->startDateTime, $this->endDateTime);
+        $taskCount = TaskModel::countTasksByProcessedDateTimeRange($this->startDateTime, $this->endDateTime);
 
         $taskDuration = $this->getTaskDurationSumInMinutes();
 
@@ -41,7 +41,7 @@ class TaskRateCalculator
 
     private function getTaskDurationSumInMinutes(): float
     {
-        $duration = TaskModel::getExecutionDurationSumByCreatedDateTimeRange($this->startDateTime, $this->endDateTime);
+        $duration = TaskModel::getExecutionDurationSumByProcessedDateTimeRange($this->startDateTime, $this->endDateTime);
         if (is_null($duration)) {
             return 0;
         }

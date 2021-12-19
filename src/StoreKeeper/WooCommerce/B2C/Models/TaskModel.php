@@ -9,7 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 class TaskModel extends AbstractModel implements IModelPurge
 {
     const TABLE_NAME = 'storekeeper_tasks';
-    const TABLE_VERSION = '1.1.0';
+    const TABLE_VERSION = '1.1.1';
 
     public static function getFieldsWithRequired(): array
     {
@@ -23,6 +23,7 @@ class TaskModel extends AbstractModel implements IModelPurge
             'type_group' => true,
             'storekeeper_id' => true,
             'execution_duration' => false,
+            'date_last_processed' => false,
             'meta_data' => false,
             'error_output' => false,
             'date_created' => false,
@@ -46,6 +47,7 @@ class TaskModel extends AbstractModel implements IModelPurge
         `storekeeper_id` INT(10) COLLATE utf8mb4_unicode_ci NOT NULL,
         `meta_data` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
         `execution_duration` TEXT COLLATE utf8mb4_unicode_ci,
+        `date_last_processed` TIMESTAMP NULL,
         `error_output` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
         `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
         `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
@@ -70,6 +72,11 @@ SQL;
         /* @since 5.3.2 */
         if (in_array('execution_duration', $difference, true)) {
             $wpdb->query('ALTER TABLE '.static::getTableName().' ADD execution_duration TEXT COLLATE utf8mb4_unicode_ci');
+        }
+
+        /* @since 7.6.10 */
+        if (in_array('date_last_processed', $difference, true)) {
+            $wpdb->query('ALTER TABLE '.static::getTableName().' ADD date_last_processed TIMESTAMP NULL');
         }
     }
 
@@ -175,6 +182,15 @@ SQL;
         return TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_SUCCESS]);
     }
 
+    private static function prepareProcessedDateTimeRangeSelect($start, $end): SelectInterface
+    {
+        return static::getSelectHelper()
+            ->where('date_last_processed >= :start')
+            ->where('date_last_processed <= :end')
+            ->bindValue('start', $start)
+            ->bindValue('end', $end);
+    }
+
     private static function prepareCreatedDateTimeRangeSelect($start, $end): SelectInterface
     {
         return static::getSelectHelper()
@@ -184,11 +200,11 @@ SQL;
             ->bindValue('end', $end);
     }
 
-    public static function getExecutionDurationSumByCreatedDateTimeRange($start, $end): ?float
+    public static function getExecutionDurationSumByProcessedDateTimeRange($start, $end): ?float
     {
         global $wpdb;
 
-        $select = static::prepareCreatedDateTimeRangeSelect($start, $end);
+        $select = static::prepareProcessedDateTimeRangeSelect($start, $end);
         $select->cols(['SUM(execution_duration) AS duration_total']);
 
         $query = static::prepareQuery($select);
@@ -201,6 +217,20 @@ SQL;
         global $wpdb;
 
         $select = static::prepareCreatedDateTimeRangeSelect($start, $end);
+        $select->cols(['COUNT(id) AS tasks_count']);
+
+        $query = static::prepareQuery($select);
+
+        $tasksCount = $wpdb->get_row($query)->tasks_count;
+
+        return !is_null($tasksCount) ? $tasksCount : 0;
+    }
+
+    public static function countTasksByProcessedDateTimeRange($start, $end): int
+    {
+        global $wpdb;
+
+        $select = static::prepareProcessedDateTimeRangeSelect($start, $end);
         $select->cols(['COUNT(id) AS tasks_count']);
 
         $query = static::prepareQuery($select);
