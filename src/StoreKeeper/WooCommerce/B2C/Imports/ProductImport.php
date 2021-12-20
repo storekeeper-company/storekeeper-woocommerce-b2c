@@ -811,10 +811,11 @@ SQL;
         $log_data['short_description'] = $shortDescription;
         $this->debug('Set short_description on product', $log_data);
 
+        $pricePerUnit = $dotObject->get('product_default_price.ppu_wt');
         /* Pricing */
         // Regular price
-        $newProduct->set_regular_price($dotObject->get('product_default_price.ppu_wt'));
-        $log_data['regular_price'] = $dotObject->get('product_default_price.ppu_wt');
+        $newProduct->set_regular_price($pricePerUnit);
+        $log_data['regular_price'] = $dotObject->get($pricePerUnit);
         $this->debug('Set regular_price on product', $log_data);
 
         // WooCommece will only allow setting the sale price when it's lower then the regular price
@@ -870,7 +871,8 @@ SQL;
 
             $post_id = $newProduct->save();
             $log_data['post_id'] = $post_id;
-            $this->updatePostStatus($post_id, 'publish');
+            $productStatus = $this->getProductStatusByPrice((float) $pricePerUnit);
+            $this->updatePostStatus($post_id, $productStatus);
             $this->debug('Simple product saved', $log_data);
         } else {
             $ShopModule = $this->storekeeper_api->getModule('ShopModule');
@@ -883,7 +885,8 @@ SQL;
             ProductAttributes::setConfigurableAttributes($newProduct, $dotObject, $optionsConfig);
 
             $post_id = $newProduct->save();
-            $this->updatePostStatus($post_id, 'publish');
+            $productStatus = $this->getProductStatusByPrice((float) $pricePerUnit);
+            $this->updatePostStatus($post_id, $productStatus);
             $log_data['post_id'] = $post_id;
             $this->debug('Configurable product saved', $log_data);
 
@@ -921,6 +924,11 @@ SQL;
         $this->debug('Configurable product finalized', $log_data);
 
         return $newProduct->get_id();
+    }
+
+    private function getProductStatusByPrice(float $price): string
+    {
+        return $price <= 0 ? 'private' : 'publish';
     }
 
     /**
