@@ -815,7 +815,7 @@ SQL;
         /* Pricing */
         // Regular price
         $newProduct->set_regular_price($pricePerUnit);
-        $log_data['regular_price'] = $dotObject->get($pricePerUnit);
+        $log_data['regular_price'] = $pricePerUnit;
         $this->debug('Set regular_price on product', $log_data);
 
         // WooCommece will only allow setting the sale price when it's lower then the regular price
