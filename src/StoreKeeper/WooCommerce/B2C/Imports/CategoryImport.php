@@ -4,6 +4,8 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo\YoastHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
@@ -14,6 +16,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\ParseDown;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
+use WP_Term;
 
 class CategoryImport extends AbstractImport implements WithConsoleProgressBarInterface
 {
@@ -210,6 +213,9 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         $description = $this->getTranslationIfRequired($dotObject, 'description');
         $summary = $this->getTranslationIfRequired($dotObject, 'summary');
 
+        // Handle seo
+        $this->processSeo($term, $dotObject);
+
         if ('' === trim($title)) {
             throw new Exception('No title set for category id='.$storekeeperId.' slug='.$slug);
         }
@@ -320,6 +326,32 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
                     );
                 }
             }
+        }
+    }
+
+    /**
+     * @throws WordpressException
+     */
+    protected function processSeo(WP_Term $term, Dot $dotObject): void
+    {
+        $seoTitle = null;
+        $seoDescription = null;
+        $seoKeywords = null;
+
+        if ($dotObject->has('seo_title')) {
+            $seoTitle = $dotObject->get('seo_title');
+        }
+
+        if ($dotObject->has('seo_description')) {
+            $seoDescription = $dotObject->get('seo_description');
+        }
+
+        if ($dotObject->has('seo_keywords')) {
+            $seoKeywords = $dotObject->get('seo_keywords');
+        }
+
+        if (YoastHandler::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
+            YoastHandler::addSeoToCategory($term->term_id, $seoTitle, $seoDescription, $seoKeywords);
         }
     }
 

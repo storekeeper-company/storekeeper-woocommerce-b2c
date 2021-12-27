@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
@@ -152,6 +153,7 @@ class ConnectionTab extends AbstractTab
 
         $this->renderSyncModeSetting();
         $this->renderOrderSyncFromDate();
+        $this->renderSeoSetting();
         $this->renderPaymentSetting();
         $this->renderBackorderSetting();
         $this->renderBarcodeModeSetting();
@@ -212,7 +214,8 @@ class ConnectionTab extends AbstractTab
     {
         $payment = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
         $backorder = StoreKeeperOptions::getConstant(StoreKeeperOptions::NOTIFY_ON_BACKORDER);
-        $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
+        $seoHandler = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
+        $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SEO_HANDLER);
         $orderSyncFromDate = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
         $barcode = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
         $categoryHtml = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
@@ -226,6 +229,12 @@ class ConnectionTab extends AbstractTab
             $data[$mode] = sanitize_key($_POST[$mode]);
         } else {
             $data[$mode] = StoreKeeperOptions::SYNC_MODE_FULL_SYNC;
+        }
+
+        if (!empty($_POST[$seoHandler])) {
+            $data[$seoHandler] = sanitize_key($_POST[$seoHandler]);
+        } else {
+            $data[$seoHandler] = Seo::STOREKEEPER_HANDLER;
         }
 
         if (!empty($_POST[$orderSyncFromDate])) {
@@ -293,6 +302,29 @@ HTML;
         );
 
         $this->renderFormGroup('', $description);
+    }
+
+    private function renderSeoSetting(): void
+    {
+        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::SEO_HANDLER);
+
+        $options = [
+            Seo::STOREKEEPER_HANDLER => esc_html__('Storekeeper SEO handler', I18N::DOMAIN),
+            Seo::NO_HANDLER => esc_html__('Don\'t handle SEO', I18N::DOMAIN),
+        ];
+
+        if (Seo::isYoastActive()) {
+            $options = [Seo::YOAST_HANDLER => esc_html__('Yoast SEO handler', I18N::DOMAIN)] + $options;
+        }
+
+        $this->renderFormGroup(
+            __('SEO handler', I18N::DOMAIN),
+            $this->getFormSelect(
+                $name,
+                $options,
+                StoreKeeperOptions::getSeoHandler()
+            )
+        );
     }
 
     private function renderBarcodeModeSetting(): void
