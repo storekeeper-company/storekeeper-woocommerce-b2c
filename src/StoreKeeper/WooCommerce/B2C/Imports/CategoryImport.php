@@ -213,9 +213,6 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         $description = $this->getTranslationIfRequired($dotObject, 'description');
         $summary = $this->getTranslationIfRequired($dotObject, 'summary');
 
-        // Handle seo
-        $this->processSeo($term, $dotObject);
-
         if ('' === trim($title)) {
             throw new Exception('No title set for category id='.$storekeeperId.' slug='.$slug);
         }
@@ -295,6 +292,9 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
             );
             $term_id = $term['term_id'];
         }
+
+        // Handle seo
+        $this->processSeo(get_term($term_id), $dotObject);
 
         update_term_meta($term_id, 'storekeeper_id', $storekeeperId);
         // Term summary for at the top of the page.
