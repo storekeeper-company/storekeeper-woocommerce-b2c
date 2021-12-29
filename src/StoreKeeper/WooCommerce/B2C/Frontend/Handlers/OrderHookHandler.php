@@ -37,7 +37,7 @@ class OrderHookHandler
         if (!empty($orderPageStatusUrl)) {
             $trackMessage = esc_html__('Your order is ready for track and trace.', I18N::DOMAIN);
             $trackLink = wp_kses(
-                '<a href="'.$orderPageStatusUrl.'">'.
+                '<a href="'.$orderPageStatusUrl.'" target="_blank">'.
                 esc_html__('View here').
                 '</a>',
                 HtmlEscape::ALLOWED_ANCHOR
