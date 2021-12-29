@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\Webhooks;
 
 use Adbar\Dot;
+use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
@@ -87,6 +88,17 @@ class UpdateOrderTest extends AbstractTest
     protected function executeOrderUpdateTest(): void
     {
         $this->syncShopInformation();
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) {
+                $module->shouldReceive('getOrderStatusPageUrl')->andReturnUsing(
+                    function ($got) {
+                        return 'https://test.storekeepercloud.com/apps/order-status/unit-test';
+                    }
+                );
+            }
+        );
 
         // Create order
         $wc_order_id = $this->createWooCommerceOrder();
