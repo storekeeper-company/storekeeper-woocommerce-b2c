@@ -4,12 +4,16 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use Exception;
+use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NonExistentObjectException;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WC_Order;
 
 class OrderImport extends AbstractImport
 {
+    public const ORDER_PAGE_META_KEY = 'order_page_url';
     private $storekeeper_id;
     private $new_order;
     private $old_order;
@@ -74,6 +78,13 @@ class OrderImport extends AbstractImport
         $is_paid = (bool) $dotObject->get('is_paid');
         $wc_status = $order->get_status('edit');
         $sk_status = self::getWoocommerceStatus($dotObject->get('status'));
+
+        if ($dotObject->has('shipped_item_no') && empty($order->get_meta(self::ORDER_PAGE_META_KEY, true))) {
+            $shippedItem = (int) $dotObject->get('shipped_item_no');
+            if ($shippedItem > 0) {
+                self::fetchOrderStatusUrl($order, $this->storekeeper_id);
+            }
+        }
 
         /*
          * We first check if we need to apply the storekeeper wc status to the order
@@ -198,5 +209,23 @@ SQL;
     protected function getImportEntityName(): string
     {
         return __('orders', I18N::DOMAIN);
+    }
+
+    /**
+     * @param $order
+     *
+     * @throws Exception
+     */
+    public static function fetchOrderStatusUrl(&$order, int $storekeeperId): void
+    {
+        $apiWrapper = StoreKeeperApi::getApiByAuthName();
+        $shopModule = $apiWrapper->getModule('ShopModule');
+        try {
+            $orderStatusPageUrl = $shopModule->getOrderStatusPageUrl($storekeeperId);
+            $order->update_meta_data(self::ORDER_PAGE_META_KEY, $orderStatusPageUrl);
+            $order->save();
+        } catch (GeneralException $generalException) {
+            LoggerFactory::create('order')->error($generalException->getMessage(), $generalException->getTrace());
+        }
     }
 }

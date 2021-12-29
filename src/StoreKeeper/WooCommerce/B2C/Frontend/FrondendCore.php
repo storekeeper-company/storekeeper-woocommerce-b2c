@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend;
 
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\FormShortCode;
@@ -29,6 +30,10 @@ class FrondendCore
 
         $seo = new Seo();
         $this->loader->add_filter('woocommerce_structured_data_product', $seo, 'addExtraSeoData', 10, 2);
+
+        $orderHookHandler = new OrderHookHandler();
+        $this->loader->add_action('woocommerce_view_order', $orderHookHandler, 'addOrderStatusLink', 9); // Set priority to 9 to show on top of order details
+
         $this->registerShortCodes();
         $this->registerHandlers();
         $this->loadWooCommerceTemplate();
