@@ -13,11 +13,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class PaymentGateway
 {
-    const STATUS_CANCELED = 'CANCELED';
-
-    const db_version = '1.1.0';
-    const STOREKEEPER_PAY_ORDERS_PAYMENTS_TABLE = 'storekeeper_pay_orders_payments';
-    const STOREKEEPER_PAY_DB_VERSION = 'storekeeper_pay_orders_payments_version';
+    public const STATUS_CANCELLED = 'CANCELED';
 
     protected static function querySql(string $sql): bool
     {
@@ -44,7 +40,7 @@ class PaymentGateway
 
     public static function registerCheckoutFlash()
     {
-        if (isset($_REQUEST['payment_status']) && self::STATUS_CANCELED == $_REQUEST['payment_status']) {
+        if (isset($_REQUEST['payment_status']) && self::STATUS_CANCELLED == $_REQUEST['payment_status']) {
             add_action('woocommerce_before_checkout_form', [__CLASS__, 'displayFlashCanceled'], 20);
         }
         if (isset($_REQUEST['payment_error'])) {
@@ -235,7 +231,7 @@ SQL;
                 // Payment done, mark order as completed
                 $order->set_status(StoreKeeperBaseGateway::STATUS_PROCESSING);
             } else {
-                $url = add_query_arg('payment_status', self::STATUS_CANCELED, $url);
+                $url = add_query_arg('payment_status', self::STATUS_CANCELLED, $url);
             }
 
             $order->save();
