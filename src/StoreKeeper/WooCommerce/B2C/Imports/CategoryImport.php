@@ -5,8 +5,8 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 use Adbar\Dot;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo\YoastHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
@@ -350,8 +350,8 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
             $seoKeywords = $dotObject->get('seo_keywords');
         }
 
-        if (YoastHandler::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
-            YoastHandler::addSeoToCategory($term->term_id, $seoTitle, $seoDescription, $seoKeywords);
+        if (YoastSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
+            YoastSeo::addSeoToCategory($term->term_id, $seoTitle, $seoDescription, $seoKeywords);
         }
     }
 

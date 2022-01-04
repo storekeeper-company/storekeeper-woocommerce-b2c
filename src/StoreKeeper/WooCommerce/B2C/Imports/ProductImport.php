@@ -7,7 +7,7 @@ use Exception;
 use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo\YoastHandler;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
@@ -958,8 +958,8 @@ SQL;
             $seoKeywords = $dotObject->get('flat_product.seo_keywords');
         }
 
-        if (YoastHandler::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
-            YoastHandler::addSeoToPost($product->get_id(), $seoTitle, $seoDescription, $seoKeywords);
+        if (YoastSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
+            YoastSeo::addSeoToPost($product->get_id(), $seoTitle, $seoDescription, $seoKeywords);
         }
     }
 

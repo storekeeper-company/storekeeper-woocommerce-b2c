@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo\StorekeeperHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo\YoastHandler;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class Seo
@@ -15,18 +14,9 @@ class Seo
     public function prepareSeo($markdown, $product)
     {
         $selectedHandler = StoreKeeperOptions::get(StoreKeeperOptions::SEO_HANDLER, self::STOREKEEPER_HANDLER);
-        $handler = null;
 
-        switch ($selectedHandler) {
-            case self::STOREKEEPER_HANDLER:
-                $handler = new StorekeeperHandler();
-                break;
-            case self::YOAST_HANDLER:
-                $handler = new YoastHandler();
-                break;
-        }
-
-        if (!is_null($handler)) {
+        if (self::STOREKEEPER_HANDLER === $selectedHandler) {
+            $handler = new StorekeeperHandler();
             $handler->handle($markdown, $product);
         }
     }
