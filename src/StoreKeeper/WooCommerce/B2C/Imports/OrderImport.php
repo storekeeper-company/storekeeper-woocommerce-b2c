@@ -13,7 +13,7 @@ use WC_Order;
 
 class OrderImport extends AbstractImport
 {
-    public const ORDER_PAGE_META_KEY = 'order_page_url';
+    public const ORDER_PAGE_META_KEY = 'storekeeper_order_page_url';
     private $storekeeper_id;
     private $new_order;
     private $old_order;
@@ -79,12 +79,7 @@ class OrderImport extends AbstractImport
         $wc_status = $order->get_status('edit');
         $sk_status = self::getWoocommerceStatus($dotObject->get('status'));
 
-        if ($dotObject->has('shipped_item_no') && empty($order->get_meta(self::ORDER_PAGE_META_KEY, true))) {
-            $shippedItem = (int) $dotObject->get('shipped_item_no');
-            if ($shippedItem > 0) {
-                self::fetchOrderStatusUrl($order, $this->storekeeper_id);
-            }
-        }
+        self::ensureOrderStatusUrl($order, $this->storekeeper_id);
 
         /*
          * We first check if we need to apply the storekeeper wc status to the order
@@ -211,21 +206,39 @@ SQL;
         return __('orders', I18N::DOMAIN);
     }
 
-    /**
-     * @param $order
-     *
-     * @throws Exception
-     */
-    public static function fetchOrderStatusUrl(&$order, int $storekeeperId): void
+    public static function ensureOrderStatusUrl(WC_Order $order, int $storekeeperId): ?string
     {
         $apiWrapper = StoreKeeperApi::getApiByAuthName();
         $shopModule = $apiWrapper->getModule('ShopModule');
+        $storekeeperOrder = $shopModule->getOrder($storekeeperId, null);
+        $orderStatusUrl = $order->get_meta(self::ORDER_PAGE_META_KEY, true);
+
+        if (isset($storekeeperOrder['shipped_item_no']) && empty($orderStatusUrl)) {
+            $shippedItem = (int) $storekeeperOrder['shipped_item_no'];
+            if ($shippedItem > 0) {
+                $orderStatusUrl = self::fetchOrderStatusUrl($order, $storekeeperId);
+            }
+        }
+
+        return $orderStatusUrl;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function fetchOrderStatusUrl(WC_Order $order, int $storekeeperId): ?string
+    {
+        $apiWrapper = StoreKeeperApi::getApiByAuthName();
+        $shopModule = $apiWrapper->getModule('ShopModule');
+        $orderStatusPageUrl = null;
         try {
             $orderStatusPageUrl = $shopModule->getOrderStatusPageUrl($storekeeperId);
             $order->update_meta_data(self::ORDER_PAGE_META_KEY, $orderStatusPageUrl);
             $order->save();
         } catch (GeneralException $generalException) {
-            LoggerFactory::create('order')->error($generalException->getMessage(), $generalException->getTrace());
+            LoggerFactory::create('order')->error($generalException->getMessage(), ['trace' => $generalException->getTrace()]);
         }
+
+        return $orderStatusPageUrl;
     }
 }

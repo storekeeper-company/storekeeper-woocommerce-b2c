@@ -2,49 +2,59 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
-use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
-use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class OrderHookHandler
 {
-    public function addOrderStatusLink(int $orderId)
-    {
-        $order = wc_get_order($orderId);
-        $orderPageStatusUrl = $order->get_meta(OrderImport::ORDER_PAGE_META_KEY, true);
-        $storekeeperId = $order->get_meta('storekeeper_id', true);
-        if (!empty($storekeeperId) && empty($orderPageStatusUrl)) {
-            try {
-                $apiWrapper = StoreKeeperApi::getApiByAuthName();
-                $shopModule = $apiWrapper->getModule('ShopModule');
-                $storekeeperOrder = $shopModule->getOrder($storekeeperId, null);
-                if (isset($storekeeperOrder['shipped_item_no'])) {
-                    $shippedItem = (int) $storekeeperOrder['shipped_item_no'];
-                    if ($shippedItem > 0) {
-                        OrderImport::fetchOrderStatusUrl($order, $storekeeperId);
-                    }
-                }
+    public const STOREKEEPER_ORDER_TRACK_HOOK = 'storekeeper_order_tracking_message';
 
-                $orderPageStatusUrl = $order->get_meta(OrderImport::ORDER_PAGE_META_KEY, true);
-            } catch (GeneralException $generalException) {
-                LoggerFactory::create('order')->error($generalException->getMessage(), $generalException->getTrace());
+    public function addOrderStatusLink(\WC_Order $order): void
+    {
+        $storekeeperId = $order->get_meta('storekeeper_id', true);
+
+        $orderPageStatusUrl = null;
+
+        if (!empty($storekeeperId)) {
+            try {
+                $orderPageStatusUrl = OrderImport::ensureOrderStatusUrl($order, $storekeeperId);
+            } catch (\Throwable $throwable) {
+                LoggerFactory::create('order')->error($throwable->getMessage(), ['trace' => $throwable->getTrace()]);
             }
         }
 
         if (!empty($orderPageStatusUrl)) {
             $trackMessage = esc_html__('Your order is ready for track and trace.', I18N::DOMAIN);
-            $trackLink = wp_kses(
-                '<a href="'.$orderPageStatusUrl.'" target="_blank">'.
+
+            $orderTrackingHtml = apply_filters(self::STOREKEEPER_ORDER_TRACK_HOOK, $trackMessage, $orderPageStatusUrl);
+            echo <<<HTML
+        $orderTrackingHtml
+HTML;
+        }
+    }
+
+    /**
+     * Creates a default order tracking message and to be overriden by storekeeper_order_tracking_message hook.
+     */
+    public function createOrderTrackingMessage(string $message, ?string $url = null): string
+    {
+        if (!is_null($url)) {
+            $link = wp_kses(
+                '<a href="'.$url.'" target="_blank">'.
                 esc_html__('View here').
                 '</a>',
                 HtmlEscape::ALLOWED_ANCHOR
             );
-            echo <<<HTML
-        $trackMessage $trackLink
+
+            return <<<HTML
+        $message $link
 HTML;
         }
+
+        return <<<HTML
+        $message
+HTML;
     }
 }
