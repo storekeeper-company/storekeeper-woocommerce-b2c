@@ -32,7 +32,7 @@ class FrondendCore
         $this->loader->add_filter('woocommerce_structured_data_product', $seo, 'addExtraSeoData', 10, 2);
 
         $orderHookHandler = new OrderHookHandler();
-        $this->loader->add_action('woocommerce_order_details_after_order_table', $orderHookHandler, 'addOrderStatusLink', 10); // Set priority to 9 to show on top of order details
+        $this->loader->add_action('woocommerce_order_details_after_order_table', $orderHookHandler, 'addOrderStatusLink');
         $this->loader->add_filter(OrderHookHandler::STOREKEEPER_ORDER_TRACK_HOOK, $orderHookHandler, 'createOrderTrackingMessage', 10, 2);
 
         $this->registerShortCodes();
