@@ -8,6 +8,12 @@ use StoreKeeper\WooCommerce\B2C\Tools\Language;
 
 abstract class AbstractFileExportCommand extends AbstractCommand implements IFileExportCommand
 {
+    public const LANGUAGE_OPTIONS = [
+        'en',
+        'nl',
+        'de',
+    ];
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         $lang = Language::getSiteLanguageIso2();

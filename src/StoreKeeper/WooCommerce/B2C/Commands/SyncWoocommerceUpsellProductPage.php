@@ -14,9 +14,35 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand implements Wi
 {
     use ConsoleProgressBarTrait;
 
+    public static function getShortDescription(): string
+    {
+        return __('Sync cross-sell products with limit and offset.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Sync upsell products from Storekeeper Backoffice with limit and offset.', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'assoc',
+                'name' => 'page',
+                'description' => __('Skip other upsell products and synchronize from specified starting point.', I18N::DOMAIN),
+                'optional' => false,
+            ],
+            [
+                'type' => 'assoc',
+                'name' => 'limit',
+                'description' => __('Determines how many upsell products will be synchronized from the starting point.', I18N::DOMAIN),
+                'optional' => false,
+            ],
+        ];
+    }
+
     /**
-     * Execute this command to sync the upsell products.
-     *
      * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException
      * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException
      */
@@ -26,7 +52,7 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand implements Wi
             if (key_exists('limit', $assoc_arguments) && key_exists('page', $assoc_arguments)) {
                 $this->runWithPagination($assoc_arguments);
             } else {
-                throw new BaseException('Limit and start attribute need to be set');
+                throw new BaseException('Limit and page attribute need to be set');
             }
         }
     }

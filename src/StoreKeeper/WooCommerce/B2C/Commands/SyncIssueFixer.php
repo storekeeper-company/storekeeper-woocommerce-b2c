@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WpCliException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\FullProductImportWithSelectiveIds;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductDeactivateTask;
@@ -12,19 +13,41 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class SyncIssueFixer extends AbstractSyncIssue
 {
-    /**
-     * This command checks if there are any issues with the sync. When it returns nothing it means there is nothing wrong. else there is an issue.
-     *
-     * [--email]
-     * : Requires the --password parameters to be set.
-     * This field is required if you want to fix the "products active in backend not active in woocommerce" issues.
-     * It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts.
-     *
-     * [--password]
-     * : Requires the --email parameters to be set.
-     * This field is required if you want to fix the "products active in backend not active in woocommerce" issues.
-     * It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts.
-     */
+    public static function getShortDescription(): string
+    {
+        return __('Fix if there are known issues with the sync.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        $examples = static::generateExamples([
+            'wp sk sync-issue-fixer',
+            'wp sk sync-issue-fixer --email=test@mail.com --password=testpassword',
+            'wp sk sync-issue-fixer --email=test@mail.com [This is invalid]',
+            'wp sk sync-issue-fixer --password=testpassword [This is invalid]',
+        ]);
+
+        return __('This command fixes any known issues with the sync possible. Not all issues can be fixed using this command.', I18N::DOMAIN).$examples;
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'assoc',
+                'name' => 'email',
+                'description' => __('Requires the --password parameters to be set. This field is required if you want to fix the "products active in backend not active in woocommerce" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts.', I18N::DOMAIN),
+                'optional' => true,
+            ],
+            [
+                'type' => 'assoc',
+                'name' => 'password',
+                'description' => __('Requires the --email parameters to be set. This field is required if you want to fix the "products active in backend not active in woocommerce" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts.', I18N::DOMAIN),
+                'optional' => true,
+            ],
+        ];
+    }
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         if (!$this->lock()) {
@@ -163,10 +186,8 @@ class SyncIssueFixer extends AbstractSyncIssue
     {
         if (array_key_exists('email', $assoc_arguments) && !array_key_exists('password', $assoc_arguments)) {
             throw new WpCliException('When using the --email argument, the --password arguments is required');
-        } else {
-            if (!array_key_exists('email', $assoc_arguments) && array_key_exists('password', $assoc_arguments)) {
-                throw new WpCliException('When using the --password argument, the --email arguments is required');
-            }
+        } elseif (!array_key_exists('email', $assoc_arguments) && array_key_exists('password', $assoc_arguments)) {
+            throw new WpCliException('When using the --password argument, the --email arguments is required');
         }
     }
 }

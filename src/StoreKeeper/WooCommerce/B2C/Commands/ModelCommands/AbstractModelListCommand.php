@@ -4,6 +4,11 @@ namespace StoreKeeper\WooCommerce\B2C\Commands\ModelCommands;
 
 abstract class AbstractModelListCommand extends AbstractModelCommand
 {
+    public static function getSynopsis(): array
+    {
+        return []; // No synopsis
+    }
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         global $wpdb;

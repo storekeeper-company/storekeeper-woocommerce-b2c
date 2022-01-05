@@ -61,6 +61,14 @@ abstract class AbstractCommand implements CommandInterface
         $this->runner = $runner;
     }
 
+    protected static function generateExamples(array $examples): string
+    {
+        $exampleBuilder = "\n\n## EXAMPLES\n\n";
+        $exampleBuilder .= implode("\n\n", $examples);
+
+        return $exampleBuilder;
+    }
+
     /**
      * @param AbstractCommand $command
      */
