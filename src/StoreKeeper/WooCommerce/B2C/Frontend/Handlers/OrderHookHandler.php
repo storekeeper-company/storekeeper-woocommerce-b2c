@@ -21,14 +21,16 @@ class OrderHookHandler
             try {
                 $orderPageStatusUrl = OrderImport::ensureOrderStatusUrl($order, $storekeeperId);
             } catch (\Throwable $throwable) {
-                LoggerFactory::create('order')->error($throwable->getMessage(), ['trace' => $throwable->getTrace()]);
+                LoggerFactory::create('order')->error($throwable->getMessage(), ['trace' => $throwable->getTraceAsString()]);
             }
         }
 
         if (!empty($orderPageStatusUrl)) {
-            $trackMessage = esc_html__('Your order is ready for track and trace.', I18N::DOMAIN);
-
-            $orderTrackingHtml = apply_filters(self::STOREKEEPER_ORDER_TRACK_HOOK, $trackMessage, $orderPageStatusUrl);
+            $message = wp_kses(
+                sprintf(__('To check your parcel status, go to <a href="%s">Track & Trace page</a>.', I18N::DOMAIN), $orderPageStatusUrl),
+                HtmlEscape::ALLOWED_ANCHOR
+            );
+            $orderTrackingHtml = apply_filters(self::STOREKEEPER_ORDER_TRACK_HOOK, $message, $orderPageStatusUrl);
             echo <<<HTML
         $orderTrackingHtml
 HTML;
@@ -38,23 +40,12 @@ HTML;
     /**
      * Creates a default order tracking message and to be overriden by storekeeper_order_tracking_message hook.
      */
-    public function createOrderTrackingMessage(string $message, ?string $url = null): string
+    public function createOrderTrackingMessage(string $message): string
     {
-        if (!is_null($url)) {
-            $link = wp_kses(
-                '<a href="'.$url.'" target="_blank">'.
-                esc_html__('View here').
-                '</a>',
-                HtmlEscape::ALLOWED_ANCHOR
-            );
-
-            return <<<HTML
-        $message $link
-HTML;
-        }
-
         return <<<HTML
+    <div class='storekeeeper-track-trace-box'>
         $message
+    </div>
 HTML;
     }
 }

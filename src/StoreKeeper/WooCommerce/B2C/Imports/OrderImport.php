@@ -236,7 +236,7 @@ SQL;
             $order->update_meta_data(self::ORDER_PAGE_META_KEY, $orderStatusPageUrl);
             $order->save();
         } catch (GeneralException $generalException) {
-            LoggerFactory::create('order')->error($generalException->getMessage(), ['trace' => $generalException->getTrace()]);
+            LoggerFactory::create('order')->error($generalException->getMessage(), ['trace' => $generalException->getTraceAsString()]);
         }
 
         return $orderStatusPageUrl;
