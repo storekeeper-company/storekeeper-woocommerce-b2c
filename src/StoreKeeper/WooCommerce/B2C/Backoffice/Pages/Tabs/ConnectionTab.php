@@ -9,6 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
+use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
@@ -313,7 +314,7 @@ HTML;
             Seo::NO_HANDLER => esc_html__('Don\'t handle SEO', I18N::DOMAIN),
         ];
 
-        if (Seo::isYoastActive()) {
+        if (PluginStatus::isYoastSeoEnabled()) {
             $options = [Seo::YOAST_HANDLER => esc_html__('Yoast SEO handler', I18N::DOMAIN)] + $options;
         }
 

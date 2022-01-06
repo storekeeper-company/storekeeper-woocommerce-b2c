@@ -20,17 +20,4 @@ class Seo
             $handler->handle($markdown, $product);
         }
     }
-
-    public static function isYoastActive(): bool
-    {
-        $activePlugins = apply_filters('active_plugins', get_option('active_plugins'));
-
-        foreach ($activePlugins as $plugin) {
-            if (strpos($plugin, 'wp-seo')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

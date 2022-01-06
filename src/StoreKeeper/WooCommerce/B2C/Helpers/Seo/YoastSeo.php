@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Helpers\Seo;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
+use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
@@ -23,7 +24,7 @@ class YoastSeo
             get_post($postId)
         );
         $yoastSeoTitle = '';
-        if (Seo::isYoastActive() && !is_null($post)) {
+        if (PluginStatus::isYoastSeoEnabled() && !is_null($post)) {
             $yoastSeoTitle = WordpressExceptionThrower::throwExceptionOnWpError(
                 get_post_meta($postId, '_yoast_wpseo_title', true)
             );
@@ -49,7 +50,7 @@ class YoastSeo
             get_post($postId)
         );
         $yoastSeoDescription = '';
-        if (Seo::isYoastActive() && !is_null($post)) {
+        if (PluginStatus::isYoastSeoEnabled() && !is_null($post)) {
             $yoastSeoDescription = WordpressExceptionThrower::throwExceptionOnWpError(
                 get_post_meta($postId, '_yoast_wpseo_metadesc', true)
             );
@@ -75,7 +76,7 @@ class YoastSeo
             get_post($postId)
         );
         $yoastSeoDescription = '';
-        if (Seo::isYoastActive() && !is_null($post)) {
+        if (PluginStatus::isYoastSeoEnabled() && !is_null($post)) {
             $yoastSeoDescription = WordpressExceptionThrower::throwExceptionOnWpError(
                 get_post_meta($postId, '_yoast_wpseo_metakeywords', true)
             );
@@ -90,7 +91,7 @@ class YoastSeo
     public static function getCategoryTitle(int $termId): string
     {
         $yoastSeoTitle = '';
-        if (Seo::isYoastActive()) {
+        if (PluginStatus::isYoastSeoEnabled()) {
             $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
                 get_option(self::YOAST_SEO_OPTION_KEY)
             );
@@ -112,7 +113,7 @@ class YoastSeo
     public static function getCategoryDescription(int $termId): string
     {
         $yoastSeoTitle = '';
-        if (Seo::isYoastActive()) {
+        if (PluginStatus::isYoastSeoEnabled()) {
             $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
                 get_option(self::YOAST_SEO_OPTION_KEY)
             );
@@ -133,7 +134,7 @@ class YoastSeo
      */
     public static function addSeoToPost(int $postId, ?string $title = null, ?string $description = null, ?string $keywords = null): void
     {
-        if (Seo::isYoastActive()) {
+        if (PluginStatus::isYoastSeoEnabled()) {
             if (!is_null($title)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
                     update_post_meta($postId, '_yoast_wpseo_title', $title)
@@ -159,7 +160,7 @@ class YoastSeo
      */
     public static function addSeoToCategory(int $termId, ?string $title = null, ?string $description = null, ?string $keywords = null): void
     {
-        if (Seo::isYoastActive()) {
+        if (PluginStatus::isYoastSeoEnabled()) {
             $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
                 get_option(self::YOAST_SEO_OPTION_KEY)
             );
@@ -195,6 +196,6 @@ class YoastSeo
 
     public static function isSelectedHandler(): bool
     {
-        return Seo::isYoastActive() && Seo::YOAST_HANDLER === StoreKeeperOptions::get(StoreKeeperOptions::SEO_HANDLER);
+        return PluginStatus::isYoastSeoEnabled() && Seo::YOAST_HANDLER === StoreKeeperOptions::get(StoreKeeperOptions::SEO_HANDLER);
     }
 }
