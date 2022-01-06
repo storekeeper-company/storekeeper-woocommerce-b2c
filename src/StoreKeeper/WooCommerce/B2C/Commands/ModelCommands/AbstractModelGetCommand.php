@@ -3,9 +3,22 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands\ModelCommands;
 
 use Exception;
+use StoreKeeper\WooCommerce\B2C\I18N;
 
 abstract class AbstractModelGetCommand extends AbstractModelCommand
 {
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'positional',
+                'name' => 'id',
+                'description' => __('The ID of the object to be retrieved.', I18N::DOMAIN),
+                'optional' => false,
+            ],
+        ];
+    }
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         global $wpdb;

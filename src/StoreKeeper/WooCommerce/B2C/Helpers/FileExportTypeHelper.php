@@ -71,6 +71,8 @@ final class FileExportTypeHelper
                 return __('Products', I18N::DOMAIN);
             case self::PRODUCT_BLUEPRINT:
                 return __('Product blueprints', I18N::DOMAIN);
+            case self::TAG:
+                return __('Tags', I18N::DOMAIN);
             case self::ALL:
                 return __('All', I18N::DOMAIN);
             default:

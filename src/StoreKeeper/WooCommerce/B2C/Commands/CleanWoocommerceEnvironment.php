@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 use StoreKeeper\WooCommerce\B2C\Tools\StringFunctions;
@@ -48,15 +49,34 @@ class CleanWoocommerceEnvironment extends AbstractCommand
         }
     }
 
-    /**
-     * Execute this command to delete all tags, coupons, attribute values, attributes, categories, products, orders, tasks and web hook logs.
-     *
-     * [--yes]
-     * : To skip the confirm whether or not you are you sure to continue
-     *
-     * [--silent]
-     * : If there should be anything logged
-     */
+    public static function getShortDescription(): string
+    {
+        return __('Purge all Storekeeper WooCommerce related entities/objects.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Execute this command to delete all tags, coupons, attribute values, attributes, categories, products, orders, tasks and web hook logs.', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'flag',
+                'name' => 'yes',
+                'description' => __('Skips the confirmation whether or not you are sure to continue.', I18N::DOMAIN),
+                'optional' => true,
+            ],
+            [
+                'type' => 'flag',
+                'name' => 'silent',
+                'description' => __('Suppress the logs of this command.', I18N::DOMAIN),
+                'optional' => true,
+            ],
+        ];
+    }
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         global $wpdb;

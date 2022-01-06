@@ -3,13 +3,39 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\AttributeOptionImport;
 
 class SyncWoocommerceAttributeOptionPage extends AbstractSyncCommand
 {
-    /**
-     * Sync all product attribute options (should be done after attributes are there).
-     */
+    public static function getShortDescription(): string
+    {
+        return __('Sync product attribute options with limit and offset.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Sync product attribute options from Storekeeper Backoffice with limit and offset. Note that this should be executed when attributes are already synchronized.', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'assoc',
+                'name' => 'start',
+                'description' => __('Skip other attribute options and synchronize from specified starting point.', I18N::DOMAIN),
+                'optional' => false,
+            ],
+            [
+                'type' => 'assoc',
+                'name' => 'limit',
+                'description' => __('Determines how many attribute options will be synchronized from the starting point.', I18N::DOMAIN),
+                'optional' => false,
+            ],
+        ];
+    }
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         if ($this->prepareExecute()) {
