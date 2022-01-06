@@ -9,12 +9,18 @@ class MarkTasksAsSuccess extends AbstractMarkTasksAs
 {
     public static function getShortDescription(): string
     {
-        return __('Mark tasks to "status-success" status.', I18N::DOMAIN);
+        return sprintf(
+            __('Mark tasks to "%s" status.', I18N::DOMAIN),
+            TaskHandler::STATUS_SUCCESS
+        );
     }
 
     public static function getLongDescription(): string
     {
-        return __('Mark selected tasks to "status-success" status', I18N::DOMAIN);
+        return sprintf(
+            __('Mark selected tasks to "%s" status.', I18N::DOMAIN),
+            TaskHandler::STATUS_SUCCESS
+        );
     }
 
     public static function getCommandName(): string

@@ -28,6 +28,12 @@ class SyncWoocommerceAttributeOptions extends AbstractSyncCommand
                 'description' => __('Specify total amount of attribute options from Storekeeper Backoffice. By default, counts the total amount of attribute options by checking the Storekeeper Backoffice', I18N::DOMAIN),
                 'optional' => true,
             ],
+            [
+                'type' => 'flag',
+                'name' => WpCliCommandRunner::SINGLE_PROCESS,
+                'description' => __('Flag to prevent spawning of child processes. Having this might cause timeouts during execution.', I18N::DOMAIN),
+                'optional' => true,
+            ],
         ];
     }
 
