@@ -5,15 +5,29 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueCheck\OrderChecker;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueCheck\ProductChecker;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueCheck\TaskChecker;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class SyncIssueCheck extends AbstractSyncIssue
 {
     const REPORT_FILE = 'syncIssueCheck.json';
 
+    public static function getShortDescription(): string
+    {
+        return __('Checks if there are any issues with the sync.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('This command checks if there are any issues with the sync. When it returns nothing it means there is nothing wrong. Otherwise, there is an issue.', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return []; // No synopsis
+    }
+
     /**
-     * This command checks if there are any issues with the sync. When it returns nothing it means there is nothing wrong. else there is an issue.
-     *
      * @return mixed|void
      */
     public function execute(array $arguments, array $assoc_arguments)

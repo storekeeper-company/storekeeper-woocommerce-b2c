@@ -3,10 +3,26 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\Task;
 
 use StoreKeeper\WooCommerce\B2C\Commands\AbstractCommand;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
 
 class TaskPurgeOld extends AbstractCommand
 {
+    public static function getShortDescription(): string
+    {
+        return __('Purge old task types.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Purge all old task types', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return []; // No synopsis
+    }
+
     public static function getCommandName(): string
     {
         return 'task purge-old';

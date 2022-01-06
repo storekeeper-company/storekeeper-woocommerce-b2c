@@ -11,6 +11,7 @@ use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
@@ -59,6 +60,14 @@ abstract class AbstractCommand implements CommandInterface
     public function setRunner(CommandRunner $runner): void
     {
         $this->runner = $runner;
+    }
+
+    protected static function generateExamples(array $examples): string
+    {
+        $exampleBuilder = "\n\n## ".__('EXAMPLES', I18N::DOMAIN)."\n\n";
+        $exampleBuilder .= implode("\n\n", $examples);
+
+        return $exampleBuilder;
     }
 
     /**

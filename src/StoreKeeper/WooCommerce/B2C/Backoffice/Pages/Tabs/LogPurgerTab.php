@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -32,9 +33,18 @@ class LogPurgerTab extends AbstractTab
 
     public function render(): void
     {
+        $this->renderSuccess();
         $this->renderTasks();
 
         $this->renderWebhooks();
+    }
+
+    private function renderSuccess()
+    {
+        if (array_key_exists('success-message', $_REQUEST)) {
+            $message = sanitize_text_field($_REQUEST['success-message']);
+            AdminNotices::showSuccess($message);
+        }
     }
 
     private function renderTasks()
@@ -112,7 +122,7 @@ class LogPurgerTab extends AbstractTab
         $this->renderFormEnd();
     }
 
-    public function purgeTasks()
+    public function purgeTasks(): void
     {
         $overlay = new OverlayRenderer();
         $overlay->start(
@@ -135,10 +145,16 @@ class LogPurgerTab extends AbstractTab
         );
 
         $url = remove_query_arg('action');
+        $url = add_query_arg([
+            'success-message' => sprintf(
+                __('%s tasks has been successfully purged', I18N::DOMAIN),
+                $purged
+            ),
+        ], $url);
         $overlay->endWithRedirect($url);
     }
 
-    public function purgeWebhooks()
+    public function purgeWebhooks(): void
     {
         $overlay = new OverlayRenderer();
         $overlay->start(
@@ -161,6 +177,12 @@ class LogPurgerTab extends AbstractTab
         );
 
         $url = remove_query_arg('action');
+        $url = add_query_arg([
+            'success-message' => sprintf(
+                __('%s webhooks has been successfully purged', I18N::DOMAIN),
+                $purged
+            ),
+        ], $url);
         $overlay->endWithRedirect($url);
     }
 }
