@@ -959,7 +959,7 @@ SQL;
         }
 
         if (YoastSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
-            YoastSeo::addSeoToPost($product->get_id(), $seoTitle, $seoDescription, $seoKeywords);
+            YoastSeo::addSeoToWoocommerceProduct($product, $seoTitle, $seoDescription, $seoKeywords);
         }
     }
 

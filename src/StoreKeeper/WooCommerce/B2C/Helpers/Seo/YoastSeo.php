@@ -7,6 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use WC_Product;
 
 /**
  * Tested up to Yoast SEO version 17.8.
@@ -132,24 +133,24 @@ class YoastSeo
     /**
      * @throws WordpressException
      */
-    public static function addSeoToPost(int $postId, ?string $title = null, ?string $description = null, ?string $keywords = null): void
+    public static function addSeoToWoocommerceProduct(WC_Product $product, ?string $title = null, ?string $description = null, ?string $keywords = null): void
     {
         if (PluginStatus::isYoastSeoEnabled()) {
             if (!is_null($title)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    update_post_meta($postId, '_yoast_wpseo_title', $title)
+                    $product->update_meta_data('_yoast_wpseo_title', $title)
                 );
             }
 
             if (!is_null($description)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    update_post_meta($postId, '_yoast_wpseo_metadesc', $description)
+                    $product->update_meta_data('_yoast_wpseo_metadesc', $description)
                 );
             }
 
             if (!is_null($keywords)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    update_post_meta($postId, '_yoast_wpseo_metakeywords', $keywords)
+                    $product->update_meta_data('_yoast_wpseo_metakeywords', $keywords)
                 );
             }
         }
