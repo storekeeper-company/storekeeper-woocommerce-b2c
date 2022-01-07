@@ -52,7 +52,7 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
                 'redirect' => $this->getPaymentUrl($order),
             ];
         } catch (\Throwable $exception) {
-            LoggerFactory::create('checkout')->error($exception->getMessage(), $exception->getTrace());
+            LoggerFactory::create('checkout')->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             LoggerFactory::createErrorTask('process-payment', $exception);
         }
 

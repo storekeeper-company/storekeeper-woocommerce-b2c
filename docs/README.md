@@ -130,3 +130,10 @@ Tagging a commit will trigger a release build on github.
 git tag 5.2.0
 git push origin 5.2.0
 ```
+## Development notes
+
+### Hooks
+1. `storekeeper_order_tracking_message` - Used for overriding the default message for track & trace on customer order page.
+   1. Type - `Filter`
+   2. Parameters - `$message`,`$url`
+   3. Triggering class - `StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler`
