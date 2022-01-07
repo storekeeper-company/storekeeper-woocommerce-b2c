@@ -270,7 +270,7 @@ SQL;
             $order->save();
         } catch (\Throwable $exception) {
             // Log error
-            LoggerFactory::create('checkout')->error($exception->getMessage(), $exception->getTrace());
+            LoggerFactory::create('checkout')->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             LoggerFactory::createErrorTask('payment-error', $exception);
 
             // Update url
@@ -382,7 +382,7 @@ SQL;
                 );
             }
         } catch (AuthException $authException) {
-            LoggerFactory::create('checkout')->error($authException->getMessage(), $authException->getTrace());
+            LoggerFactory::create('checkout')->error($authException->getMessage(), ['trace' => $authException->getTraceAsString()]);
             LoggerFactory::createErrorTask('add-storeKeeper-gateway-auth', $authException);
 
             return $default_gateway_classes;

@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\Webhooks;
 
 use Adbar\Dot;
+use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
@@ -88,6 +89,31 @@ class UpdateOrderTest extends AbstractTest
     {
         $this->syncShopInformation();
 
+        $expectedOrderStatusUrl = 'https://test.storekeepercloud.com/apps/order-status/unit-test';
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($expectedOrderStatusUrl) {
+                $module->shouldReceive('getOrderStatusPageUrl')->andReturnUsing(
+                    function ($got) use ($expectedOrderStatusUrl) {
+                        return $expectedOrderStatusUrl;
+                    }
+                );
+            }
+        );
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) {
+                $module->shouldReceive('getOrder')->andReturnUsing(
+                    function ($got) {
+                        return [
+                            'shipped_item_no' => 1, // Simply mock shipped item to test order status URL
+                        ];
+                    }
+                );
+            }
+        );
+
         // Create order
         $wc_order_id = $this->createWooCommerceOrder();
 
@@ -131,5 +157,9 @@ class UpdateOrderTest extends AbstractTest
 
         // assert the status
         $this->assertEquals($storekeeper_status, $wc_status, 'Order status update');
+
+        // assert the order status url
+        $actualOrderStatusUrl = $wc_order->get_meta(OrderImport::ORDER_PAGE_META_KEY, true);
+        $this->assertEquals($expectedOrderStatusUrl, $actualOrderStatusUrl, 'Order status URL should be saved to order meta');
     }
 }
