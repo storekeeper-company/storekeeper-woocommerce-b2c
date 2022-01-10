@@ -12,12 +12,15 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
+use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 
-abstract class AbstractCommand implements CommandInterface
+abstract class AbstractCommand implements CommandInterface, WithConsoleProgressBarInterface
 {
     use LoggerAwareTrait;
+    use ConsoleProgressBarTrait;
 
     const AMOUNT = 100;
 
@@ -109,7 +112,8 @@ abstract class AbstractCommand implements CommandInterface
         $name,
         array $arguments = [],
         array $assoc_arguments = [],
-        bool $isOutputEcho = false
+        bool $isOutputEcho = false,
+        bool $hideSubprocessProgressBar = false
     ): int {
         if (Core::isTest()) {
             // for tests we skip all the sub processing,
@@ -117,7 +121,7 @@ abstract class AbstractCommand implements CommandInterface
             $result = $this->runner->execute($name, $arguments, $assoc_arguments);
             $this->logger->warning(__CLASS__.'::'.__FILE__.' timeout option ignored');
         } else {
-            $result = $this->runner->executeAsSubProcess($name, $arguments, $assoc_arguments, $isOutputEcho);
+            $result = $this->runner->executeAsSubProcess($name, $arguments, $assoc_arguments, $isOutputEcho, $hideSubprocessProgressBar);
         }
 
         return $result;
@@ -132,21 +136,41 @@ abstract class AbstractCommand implements CommandInterface
      *
      * @throws SubProcessException|BaseException
      */
-    protected function runSubCommandWithPagination(string $command_name, int $total_amount, int $amount = self::AMOUNT, bool $isOutputEcho = false): void
-    {
+    protected function runSubCommandWithPagination(
+        string $command_name,
+        int $total_amount,
+        int $amount = self::AMOUNT,
+        bool $isOutputEcho = false,
+        bool $hasPageArgument = false,
+        bool $hasStartArgument = false,
+        bool $hideSubprocessProgressBar = false
+    ): void {
         $page = 0;
+        $this->createProgressBar(ceil($total_amount / $amount), __('Syncing from Storekeeper backoffice', I18N::DOMAIN));
         for ($start = 0; $start < $total_amount; $start += $amount) {
+            $assocArguments = [
+                'limit' => $amount,
+            ];
+
+            if ($hasStartArgument) {
+                $assocArguments['start'] = $start;
+            }
+
+            if ($hasPageArgument) {
+                $assocArguments['page'] = $page;
+            }
+
             $this->executeSubCommand(
                 $command_name,
                 [],
-                [
-                    'start' => $start,
-                    'limit' => $amount,
-                    'page' => $page,
-                ],
-                $isOutputEcho
+                $assocArguments,
+                $isOutputEcho,
+                $hideSubprocessProgressBar
             );
+            $this->tickProgressBar();
             ++$page;
         }
+
+        $this->endProgressBar();
     }
 }

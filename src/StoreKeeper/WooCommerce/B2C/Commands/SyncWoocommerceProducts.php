@@ -52,6 +52,9 @@ class SyncWoocommerceProducts extends AbstractSyncCommand
                 SyncWoocommerceProductPage::getCommandName(),
                 $total_amount,
                 self::AMOUNT,
+                true,
+                false,
+                true,
                 true
             );
         }
