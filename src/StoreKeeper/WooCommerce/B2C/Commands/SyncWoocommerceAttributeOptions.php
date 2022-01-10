@@ -54,8 +54,9 @@ class SyncWoocommerceAttributeOptions extends AbstractSyncCommand
                 SyncWoocommerceAttributeOptionPage::getCommandName(),
                 $total_amount,
                 self::AMOUNT,
+                true,
                 false,
-                false,
+                true,
                 true
             );
         }

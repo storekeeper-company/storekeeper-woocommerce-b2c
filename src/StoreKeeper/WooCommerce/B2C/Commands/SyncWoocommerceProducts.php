@@ -54,6 +54,7 @@ class SyncWoocommerceProducts extends AbstractSyncCommand
                 self::AMOUNT,
                 true,
                 false,
+                true,
                 true
             );
         }
