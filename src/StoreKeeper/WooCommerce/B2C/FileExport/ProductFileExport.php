@@ -29,6 +29,12 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
 
     protected $tax_rate_country_iso = null;
     protected $price_field = null;
+    private $shouldExportActiveProductsOnly = true;
+
+    public function setShouldExportActiveProductsOnly(bool $shouldExportActiveProductsOnly): void
+    {
+        $this->shouldExportActiveProductsOnly = $shouldExportActiveProductsOnly;
+    }
 
     public static function getTaxRate(WC_Product $product, string $country_iso): ?object
     {
@@ -195,7 +201,7 @@ class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpre
     {
         global $wpdb;
 
-        $query = ProductQueryBuilder::getProductIdsByPostType('product', $index);
+        $query = ProductQueryBuilder::getProductIdsByPostType('product', $index, $this->shouldExportActiveProductsOnly);
         $results = $wpdb->get_results($query);
         $result = current($results);
         if (false !== $result) {

@@ -20,6 +20,13 @@ class AllFileExport extends AbstractFileExport
         FileExportTypeHelper::PRODUCT_BLUEPRINT,
     ];
 
+    private $shouldExportActiveProductsOnly = true;
+
+    public function setShouldExportActiveProductsOnly(bool $shouldExportActiveProductsOnly): void
+    {
+        $this->shouldExportActiveProductsOnly = $shouldExportActiveProductsOnly;
+    }
+
     public function getType(): string
     {
         return FileExportTypeHelper::ALL;
@@ -67,6 +74,11 @@ class AllFileExport extends AbstractFileExport
     {
         $exportClass = FileExportTypeHelper::getClass($exportType);
         $export = new $exportClass();
+
+        if (ProductFileExport::class === $exportClass) {
+            /* @var ProductFileExport $export */
+            $export->setShouldExportActiveProductsOnly($this->shouldExportActiveProductsOnly);
+        }
 
         return $export->runExport($exportLanguage);
     }
