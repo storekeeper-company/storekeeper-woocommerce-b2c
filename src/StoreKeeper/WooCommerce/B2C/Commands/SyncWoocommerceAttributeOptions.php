@@ -53,7 +53,10 @@ class SyncWoocommerceAttributeOptions extends AbstractSyncCommand
             $this->runSubCommandWithPagination(
                 SyncWoocommerceAttributeOptionPage::getCommandName(),
                 $total_amount,
-                self::AMOUNT
+                self::AMOUNT,
+                false,
+                false,
+                true
             );
         }
     }

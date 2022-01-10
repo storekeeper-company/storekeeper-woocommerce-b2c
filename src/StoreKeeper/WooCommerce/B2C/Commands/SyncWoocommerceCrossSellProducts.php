@@ -54,7 +54,9 @@ class SyncWoocommerceCrossSellProducts extends AbstractSyncCommand
             $this->runSubCommandWithPagination(
                 SyncWoocommerceCrossSellProductPage::getCommandName(),
                 $total_amount,
-                self::AMOUNT_PER_PAGE
+                self::AMOUNT_PER_PAGE,
+                false,
+                true
             );
         }
     }

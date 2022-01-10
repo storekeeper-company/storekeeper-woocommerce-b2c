@@ -54,7 +54,9 @@ class SyncWoocommerceUpsellProducts extends AbstractSyncCommand
             $this->runSubCommandWithPagination(
                 SyncWoocommerceUpsellProductPage::getCommandName(),
                 $total_amount,
-                self::AMOUNT_PER_PAGE
+                self::AMOUNT_PER_PAGE,
+                false,
+                true
             );
         }
     }

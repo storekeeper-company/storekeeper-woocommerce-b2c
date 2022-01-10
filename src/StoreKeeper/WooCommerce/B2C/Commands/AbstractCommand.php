@@ -132,18 +132,32 @@ abstract class AbstractCommand implements CommandInterface
      *
      * @throws SubProcessException|BaseException
      */
-    protected function runSubCommandWithPagination(string $command_name, int $total_amount, int $amount = self::AMOUNT, bool $isOutputEcho = false): void
-    {
+    protected function runSubCommandWithPagination(
+        string $command_name,
+        int $total_amount,
+        int $amount = self::AMOUNT,
+        bool $isOutputEcho = false,
+        bool $hasPageArgument = false,
+        bool $hasStartArgument = false
+    ): void {
         $page = 0;
         for ($start = 0; $start < $total_amount; $start += $amount) {
+            $assocArguments = [
+                'limit' => $amount,
+            ];
+
+            if ($hasStartArgument) {
+                $assocArguments['start'] = $start;
+            }
+
+            if ($hasPageArgument) {
+                $assocArguments['page'] = $page;
+            }
+
             $this->executeSubCommand(
                 $command_name,
                 [],
-                [
-                    'start' => $start,
-                    'limit' => $amount,
-                    'page' => $page,
-                ],
+                $assocArguments,
                 $isOutputEcho
             );
             ++$page;
