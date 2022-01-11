@@ -6,6 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Endpoints\AbstractEndpoint;
 use StoreKeeper\WooCommerce\B2C\FileExport\AllFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\ProductFileExport;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
+use StoreKeeper\WooCommerce\B2C\Interfaces\ProductExportInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 
 class ExportEndpoint extends AbstractEndpoint
@@ -33,9 +34,8 @@ class ExportEndpoint extends AbstractEndpoint
         $exportClass = FileExportTypeHelper::getClass($type);
         $export = new $exportClass();
 
-        if (ProductFileExport::class === $exportClass || AllFileExport::class === $exportClass) {
+        if ($export instanceof ProductExportInterface) {
             $activeProductsOnly = 'true' === $this->wrappedRequest->getRequest()->get_param('activeProductsOnly');
-            /* @var ProductFileExport|AllFileExport $export */
             $export->setShouldExportActiveProductsOnly($activeProductsOnly);
         }
 

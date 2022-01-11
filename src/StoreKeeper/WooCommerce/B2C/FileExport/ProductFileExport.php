@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\ProductSkuEmptyException;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
-use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExportSpreadSheet;
+use StoreKeeper\WooCommerce\B2C\Interfaces\ProductExportInterface;
 use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Base36Coder;
@@ -15,7 +15,7 @@ use WC_Product_Variable;
 use WC_Product_Variation;
 use WC_Tax;
 
-class ProductFileExport extends AbstractCSVFileExport implements IFileExportSpreadSheet
+class ProductFileExport extends AbstractCSVFileExport implements ProductExportInterface
 {
     const TYPE_SIMPLE = 'simple';
     const TYPE_CONFIGURABLE = 'configurable';

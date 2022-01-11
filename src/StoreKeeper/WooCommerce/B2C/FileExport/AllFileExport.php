@@ -5,10 +5,11 @@ namespace StoreKeeper\WooCommerce\B2C\FileExport;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\FileExportFailedException;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
+use StoreKeeper\WooCommerce\B2C\Interfaces\ProductExportInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use ZipArchive;
 
-class AllFileExport extends AbstractFileExport
+class AllFileExport extends AbstractFileExport implements ProductExportInterface
 {
     const EXPORTS = [
         FileExportTypeHelper::ATTRIBUTE,
@@ -75,8 +76,7 @@ class AllFileExport extends AbstractFileExport
         $exportClass = FileExportTypeHelper::getClass($exportType);
         $export = new $exportClass();
 
-        if (ProductFileExport::class === $exportClass) {
-            /* @var ProductFileExport $export */
+        if ($export instanceof ProductExportInterface) {
             $export->setShouldExportActiveProductsOnly($this->shouldExportActiveProductsOnly);
         }
 
