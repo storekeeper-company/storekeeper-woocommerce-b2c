@@ -259,7 +259,7 @@ class OrderExport extends AbstractExport
         $this->debug('Saved order data', $storekeeper_id);
 
         // Handle payments and refunds
-        $storekeeper_order = $this->processPaymentsAndRefunds($WpObject, $storekeeper_id);
+        $this->processPaymentsAndRefunds($WpObject, $storekeeper_id);
 
         /**
          * Status.
@@ -274,9 +274,11 @@ class OrderExport extends AbstractExport
 
         // Check if we should update the status
         if ($this->shouldUpdateStatus($storekeeper_status, $woocommerce_status)) {
-            // TODO: Still not working
             if (self::STATUS_REFUNDED === $woocommerce_status) {
-                $ShopModule->markOrderAsRefunded($storekeeper_id);
+                // This will change the status of order to refunded
+                $ShopModule->refundAllOrderItems([
+                    'id' => $storekeeper_id,
+                ]);
             } else {
                 $ShopModule->updateOrderStatus(['status' => $woocommerce_status], $storekeeper_id);
             }
@@ -510,10 +512,12 @@ class OrderExport extends AbstractExport
             if (count($attribute_ids) > 0) {
                 $data['attribute_option_ids'] = $attribute_ids;
             }
-
+            $productData = $orderProduct->get_data();
+            // Need to unset meta_data as it changes like '_reduced_stock' which causes order difference error
+            unset($productData['meta_data']);
             $extra = [
                 'wp_row_id' => $orderProduct->get_id(),
-                'wp_row_md5' => md5(json_encode($orderProduct->get_data(), JSON_THROW_ON_ERROR)),
+                'wp_row_md5' => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
                 'wp_row_type' => self::ROW_PRODUCT_TYPE,
             ];
 
