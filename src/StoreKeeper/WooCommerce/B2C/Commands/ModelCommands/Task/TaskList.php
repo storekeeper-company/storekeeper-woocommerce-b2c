@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\Task;
 
 use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\AbstractModelListCommand;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
@@ -23,6 +24,29 @@ class TaskList extends AbstractModelListCommand
     public function getModelClass(): string
     {
         return TaskModel::class;
+    }
+
+    public static function getShortDescription(): string
+    {
+        return __('Retrieve all tasks.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Retrieve all tasks from the database.', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'assoc',
+                'name' => 'status',
+                'description' => __('The status of tasks to be retrieved.', I18N::DOMAIN),
+                'optional' => true,
+                'options' => self::AVAILABLE_STATUSES,
+            ],
+        ];
     }
 
     public function execute(array $arguments, array $assoc_arguments)

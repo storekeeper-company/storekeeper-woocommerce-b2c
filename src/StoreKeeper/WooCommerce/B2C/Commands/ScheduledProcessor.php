@@ -4,9 +4,15 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WpCliException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 
 class ScheduledProcessor extends ProcessAllTasks
 {
+    public static function getLongDescription(): string
+    {
+        return parent::getLongDescription().__(' This is used for cron and has cron checks so you should execute wp sk process-all-tasks instead.', I18N::DOMAIN);
+    }
+
     /**
      * {@inheritDoc}
      */

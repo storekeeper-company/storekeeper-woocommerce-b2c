@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
@@ -13,6 +14,28 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
      * @var DatabaseConnection
      */
     protected $db;
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'assoc',
+                'name' => 'select_status',
+                'description' => __('The status of tasks to be marked.', I18N::DOMAIN),
+                'optional' => true,
+                'default' => TaskHandler::STATUS_FAILED,
+                'options' => self::ALLOWED_TASK_STATUSES,
+            ],
+            [
+                'type' => 'assoc',
+                'name' => 'select_type',
+                'description' => __('The type of tasks to be marked.', I18N::DOMAIN),
+                'optional' => true,
+                'default' => null,
+                'options' => TaskHandler::TYPE_GROUPS,
+            ],
+        ];
+    }
 
     /**
      * @return mixed|void

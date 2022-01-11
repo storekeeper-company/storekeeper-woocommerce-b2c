@@ -8,9 +8,22 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class SyncWoocommerceShopInfo extends AbstractSyncCommand
 {
+    public static function getShortDescription(): string
+    {
+        return __('Sync shop details.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Sync shop details from Storekeeper Backoffice to WooCommerce (address, currency, email, etc.).', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return []; // No synopsis
+    }
+
     /**
-     * Execute this command to fully sync your backend products to WooCommerce.
-     *
      * @throws \Exception
      */
     public function execute(array $arguments, array $assoc_arguments)

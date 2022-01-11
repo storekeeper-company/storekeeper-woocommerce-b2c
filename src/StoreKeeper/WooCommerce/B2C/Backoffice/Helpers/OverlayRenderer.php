@@ -106,7 +106,7 @@ HTML;
 
     private function doRedirect($redirectTo)
     {
-        $redirectTo = esc_js($redirectTo);
+        $redirectTo = esc_url_raw($redirectTo);
         echo <<<HTML
 <script type="text/javascript">
 (function (){

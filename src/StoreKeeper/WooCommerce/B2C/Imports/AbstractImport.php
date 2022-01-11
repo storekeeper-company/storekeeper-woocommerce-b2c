@@ -48,6 +48,18 @@ abstract class AbstractImport
 
     protected $processedItemCount = 0;
 
+    protected $isProgressBarShown = true;
+
+    public function setIsProgressBarShown(bool $isProgressBarShown): void
+    {
+        $this->isProgressBarShown = $isProgressBarShown;
+    }
+
+    protected function shouldShowProgressBar(): bool
+    {
+        return $this->isProgressBarShown && $this instanceof WithConsoleProgressBarInterface;
+    }
+
     /**
      * AbstractImport constructor.
      *
@@ -235,7 +247,7 @@ abstract class AbstractImport
                 $last_fetched_amount = (int) $response['count'];
                 $start = $start + ($last_fetched_amount - 1);
                 $items = $response['data'];
-                if ($this instanceof WithConsoleProgressBarInterface) {
+                if ($this->shouldShowProgressBar()) {
                     $this->createProgressBar(
                         $last_fetched_amount,
                         WpCliHelper::setGreenOutputColor(sprintf(
@@ -273,7 +285,7 @@ abstract class AbstractImport
                         );
                         throw $exception;
                     } finally {
-                        if ($this instanceof WithConsoleProgressBarInterface) {
+                        if ($this->shouldShowProgressBar()) {
                             $this->tickProgressBar();
                         }
                     }
@@ -281,7 +293,7 @@ abstract class AbstractImport
                 unset($items);
                 unset($response);
 
-                if ($this instanceof WithConsoleProgressBarInterface) {
+                if ($this->shouldShowProgressBar()) {
                     $this->endProgressBar();
                 }
             }

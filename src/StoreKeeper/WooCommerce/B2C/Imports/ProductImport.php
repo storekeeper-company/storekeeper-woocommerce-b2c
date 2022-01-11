@@ -119,6 +119,14 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
         return false;
     }
 
+    public function __construct(array $settings = [])
+    {
+        if (array_key_exists('hide-progress-bar', $settings)) {
+            $this->setIsProgressBarShown(false);
+        }
+        parent::__construct($settings);
+    }
+
     /**
      * @param Dot $dotObject
      *

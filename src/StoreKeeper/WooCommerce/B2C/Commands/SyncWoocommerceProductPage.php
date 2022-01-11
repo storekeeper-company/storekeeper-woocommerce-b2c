@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -12,6 +13,40 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class SyncWoocommerceProductPage extends AbstractSyncCommand
 {
+    public static function getShortDescription(): string
+    {
+        return __('Sync products with limit and offset.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Sync products from Storekeeper Backoffice with limit and offset.', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'assoc',
+                'name' => 'start',
+                'description' => __('Skip other products and synchronize from specified starting point.', I18N::DOMAIN),
+                'optional' => false,
+            ],
+            [
+                'type' => 'assoc',
+                'name' => 'limit',
+                'description' => __('Determines how many products will be synchronized from the starting point.', I18N::DOMAIN),
+                'optional' => false,
+            ],
+            [
+                'type' => 'flag',
+                'name' => 'hide-progress-bar',
+                'description' => __('Hide displaying of progress bar while executing command.', I18N::DOMAIN),
+                'optional' => true,
+            ],
+        ];
+    }
+
     /**
      * @return mixed|void
      *

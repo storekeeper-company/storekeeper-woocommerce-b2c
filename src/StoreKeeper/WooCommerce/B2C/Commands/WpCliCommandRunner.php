@@ -22,15 +22,19 @@ class WpCliCommandRunner extends CommandRunner
     public function load()
     {
         foreach ($this->getCommands() as $name => $command) {
-            $this->registerCommand($name);
+            $this->registerCommand($name, $command);
         }
     }
 
     /**
      * @throws \Exception
      */
-    private function registerCommand($name)
+    private function registerCommand(string $name, string $commandClass)
     {
+        $help = [];
+        $help['shortdesc'] = call_user_func("$commandClass::getShortDescription");
+        $help['longdesc'] = call_user_func("$commandClass::getLongDescription");
+        $help['synopsis'] = call_user_func("$commandClass::getSynopsis");
         \WP_CLI::add_command(
             self::command_prefix.' '.$name,
             function (array $arguments, array $assoc_arguments) use ($name) {
@@ -40,7 +44,8 @@ class WpCliCommandRunner extends CommandRunner
                     $this->shouldSpawnSubProcess = $this->isSubProcessesAvailable($name);
                 }
                 $this->execute($name, $arguments, $assoc_arguments);
-            }
+            },
+            $help
         );
     }
 

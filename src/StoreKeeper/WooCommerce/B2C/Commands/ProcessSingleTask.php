@@ -3,11 +3,34 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use Exception;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class ProcessSingleTask extends AbstractCommand
 {
+    public static function getShortDescription(): string
+    {
+        return __('Process a single task by providing task ID.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Process a single task at any given status by providing task ID.', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'positional',
+                'name' => 'task-id',
+                'description' => __('The ID of the task to be processed.', I18N::DOMAIN),
+                'optional' => false,
+            ],
+        ];
+    }
+
     /**
      * @return mixed|void
      *

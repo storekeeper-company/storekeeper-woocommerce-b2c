@@ -5,11 +5,15 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Query\CronQueryBuilder;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use Throwable;
 
+/**
+ * Processes all tasks on queue.
+ */
 class ProcessAllTasks extends AbstractCommand
 {
     const HAS_ERROR_TRANSIENT_KEY = 'process_has_error';
@@ -21,11 +25,35 @@ class ProcessAllTasks extends AbstractCommand
      */
     protected $db;
 
-    /**
-     * @return mixed|void
-     *
-     * @throws Throwable
-     */
+    public static function getShortDescription(): string
+    {
+        return __('Process all queued synchronization tasks.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        return __('Process all queued synchronization tasks for products, categories, product stocks, tags, coupon codes, menu items, redirects and orders.', I18N::DOMAIN);
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'assoc',
+                'name' => 'limit',
+                'description' => __('Set how many tasks will be processed. Setting limit to 0 means all tasks will be processed.', I18N::DOMAIN),
+                'optional' => true,
+                'default' => 0,
+            ],
+            [
+                'type' => 'flag',
+                'name' => WpCliCommandRunner::SINGLE_PROCESS,
+                'description' => __('Flag to prevent spawning of child processes. Having this might cause timeouts during execution.', I18N::DOMAIN),
+                'optional' => true,
+            ],
+        ];
+    }
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         if (!$this->lock()) {

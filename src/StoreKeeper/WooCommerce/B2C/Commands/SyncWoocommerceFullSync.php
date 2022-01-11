@@ -8,29 +8,54 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class SyncWoocommerceFullSync extends AbstractSyncCommand
 {
-    /**
-     * Sync everything to WooCommerce.
-     *
-     * [--skip-products]
-     * : Then you use this flag, it will import everything except the products.
-     *
-     * [--skip-upsell-products]
-     * : Skip syncing the upsell products, this can save an significant amount of time when the user does not use them
-     *
-     * [--skip-cross-sell-products]
-     * : Skip syncing the cross sell products, this can save an significant amount of time when the user does not use them
-     *
-     * Order of sync:
-     * - Shop info (SyncWoocommerceShopInfo) (sync-woocommerce-shop-info)
-     * - Categories (SyncWoocommerceCategories) (sync-woocommerce-categories)
-     * - Tags (SyncWoocommerceTags) (sync-woocommerce-tags)
-     * - Attributes (SyncWoocommerceAttributes) (sync-woocommerce-attributes)
-     * - Featured Attributes (SyncWoocommerceFeaturedAttributes) (sync-woocommerce-featured-attributes)
-     * - Attribute Options (SyncWoocommerceAttributeOptions) (sync-woocommerce-attribute-options)
-     * - Products (SyncWoocommerceProducts) (sync-woocommerce-products)
-     * - Upsell Products (SyncWoocommerceUpsellProducts) (sync-woocommerce-upsell-products)
-     * - Cross Sell Products (SyncWoocommerceCrossSellProducts) (sync-woocommerce-cross-sell-products)
-     */
+    public static function getShortDescription(): string
+    {
+        return __('Sync everything to WooCommerce.', I18N::DOMAIN);
+    }
+
+    public static function getLongDescription(): string
+    {
+        $description = __('Sync everything (shop info, categories, tags, attributes, featured attributes, attribute options, products, upsell products, cross-sell products) from Storekeeper Backoffice to WooCommerce.', I18N::DOMAIN);
+        $orderSyncLabel = "\n## ".__('SYNCHRONIZATION SEQUENCE', I18N::DOMAIN)."\n";
+        $description .= "
+        $orderSyncLabel
+  - Shop info (SyncWoocommerceShopInfo) (sync-woocommerce-shop-info)\n
+  - Categories (SyncWoocommerceCategories) (sync-woocommerce-categories)\n
+  - Tags (SyncWoocommerceTags) (sync-woocommerce-tags)\n
+  - Attributes (SyncWoocommerceAttributes) (sync-woocommerce-attributes)\n
+  - Featured Attributes (SyncWoocommerceFeaturedAttributes) (sync-woocommerce-featured-attributes)\n
+  - Attribute Options (SyncWoocommerceAttributeOptions) (sync-woocommerce-attribute-options)\n
+  - Products (SyncWoocommerceProducts) (sync-woocommerce-products)\n
+  - Upsell Products (SyncWoocommerceUpsellProducts) (sync-woocommerce-upsell-products)\n
+  - Cross Sell Products (SyncWoocommerceCrossSellProducts) (sync-woocommerce-cross-sell-products)";
+
+        return $description;
+    }
+
+    public static function getSynopsis(): array
+    {
+        return [
+            [
+                'type' => 'flag',
+                'name' => 'skip-products',
+                'description' => __('Skip synchronization of products', I18N::DOMAIN),
+                'optional' => true,
+            ],
+            [
+                'type' => 'flag',
+                'name' => 'skip-upsell-products',
+                'description' => __('Skip synchronization of upsell products, this will save a significant amount of time when the user does not have them', I18N::DOMAIN),
+                'optional' => true,
+            ],
+            [
+                'type' => 'flag',
+                'name' => 'skip-cross-sell-products',
+                'description' => __('Skip synchronization of cross-sell products, this will save a significant amount of time when the user does not have them', I18N::DOMAIN),
+                'optional' => true,
+            ],
+        ];
+    }
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         if ($this->prepareExecute()) {
@@ -67,10 +92,10 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
             $attribute_options_totals = $this->getAmountOfAttributeOptionsInBackend();
             $this->executeSubCommand(
                 SyncWoocommerceAttributeOptions::getCommandName(),
-                [
-                    'total_amount' => $attribute_options_totals,
-                ],
                 [],
+                [
+                    'total-amount' => $attribute_options_totals,
+                ],
                 true
             );
 
@@ -80,10 +105,10 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
                 $product_totals = $this->getAmountOfProductsInBackend();
                 $this->executeSubCommand(
                     SyncWoocommerceProducts::getCommandName(),
-                    [
-                        'total_amount' => $product_totals,
-                    ],
                     [],
+                    [
+                        'total-amount' => $product_totals,
+                    ],
                     true
                 );
             }
@@ -96,7 +121,7 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
                 // Get the total amount of products that should be sync
                 $cross_up_sell_product_totals = ProductHelper::getAmountOfProductsInWooCommerce();
                 $args = [
-                    'total_amount' => $cross_up_sell_product_totals,
+                    'total-amount' => $cross_up_sell_product_totals,
                 ];
 
                 if ($sync_upsell) {

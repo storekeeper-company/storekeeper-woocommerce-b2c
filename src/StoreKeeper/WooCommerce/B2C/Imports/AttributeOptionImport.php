@@ -26,9 +26,12 @@ class AttributeOptionImport extends AbstractImport implements WithConsoleProgres
      */
     public function __construct(array $settings = [])
     {
-        $this->storekeeper_id = key_exists('storekeeper_id', $settings) ? (int) $settings['storekeeper_id'] : 0;
-        $this->attribute_id = key_exists('attribute_id', $settings) ? (int) $settings['attribute_id'] : 0;
-        $this->attribute_option_ids = key_exists(
+        if (array_key_exists('hide-progress-bar', $settings)) {
+            $this->setIsProgressBarShown(false);
+        }
+        $this->storekeeper_id = array_key_exists('storekeeper_id', $settings) ? (int) $settings['storekeeper_id'] : 0;
+        $this->attribute_id = array_key_exists('attribute_id', $settings) ? (int) $settings['attribute_id'] : 0;
+        $this->attribute_option_ids = array_key_exists(
             'attribute_option_ids',
             $settings
         ) ? (array) $settings['attribute_option_ids'] : [];

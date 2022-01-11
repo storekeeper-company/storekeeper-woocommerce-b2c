@@ -80,11 +80,11 @@ class SubscribeHandler
             if ('Subuser with this email already exists' === $e->getMessage()) {
                 self::stateRedirect('already_subscribed');
             } else {
-                $logger->error($e->getMessage(), $e->getTrace());
+                $logger->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
                 self::stateRedirect('error');
             }
         } catch (\Throwable $e) {
-            $logger->error($e->getMessage(), $e->getTrace());
+            $logger->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
         }
     }
 }
