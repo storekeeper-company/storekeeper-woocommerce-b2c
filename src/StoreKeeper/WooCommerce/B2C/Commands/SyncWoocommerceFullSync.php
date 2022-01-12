@@ -92,10 +92,10 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
             $attribute_options_totals = $this->getAmountOfAttributeOptionsInBackend();
             $this->executeSubCommand(
                 SyncWoocommerceAttributeOptions::getCommandName(),
-                [
-                    'total_amount' => $attribute_options_totals,
-                ],
                 [],
+                [
+                    'total-amount' => $attribute_options_totals,
+                ],
                 true
             );
 
@@ -105,10 +105,10 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
                 $product_totals = $this->getAmountOfProductsInBackend();
                 $this->executeSubCommand(
                     SyncWoocommerceProducts::getCommandName(),
-                    [
-                        'total_amount' => $product_totals,
-                    ],
                     [],
+                    [
+                        'total-amount' => $product_totals,
+                    ],
                     true
                 );
             }
@@ -121,7 +121,7 @@ class SyncWoocommerceFullSync extends AbstractSyncCommand
                 // Get the total amount of products that should be sync
                 $cross_up_sell_product_totals = ProductHelper::getAmountOfProductsInWooCommerce();
                 $args = [
-                    'total_amount' => $cross_up_sell_product_totals,
+                    'total-amount' => $cross_up_sell_product_totals,
                 ];
 
                 if ($sync_upsell) {

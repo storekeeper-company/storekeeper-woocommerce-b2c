@@ -38,6 +38,12 @@ class SyncWoocommerceProductPage extends AbstractSyncCommand
                 'description' => __('Determines how many products will be synchronized from the starting point.', I18N::DOMAIN),
                 'optional' => false,
             ],
+            [
+                'type' => 'flag',
+                'name' => 'hide-progress-bar',
+                'description' => __('Hide displaying of progress bar while executing command.', I18N::DOMAIN),
+                'optional' => true,
+            ],
         ];
     }
 
