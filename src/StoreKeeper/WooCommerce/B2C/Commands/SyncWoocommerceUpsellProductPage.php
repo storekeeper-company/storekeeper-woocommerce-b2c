@@ -7,12 +7,15 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
-use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
-use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 
-class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand implements WithConsoleProgressBarInterface
+class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand
 {
-    use ConsoleProgressBarTrait;
+    protected $isProgressBarShown = true;
+
+    public function setIsProgressBarShown(bool $isProgressBarShown): void
+    {
+        $this->isProgressBarShown = $isProgressBarShown;
+    }
 
     public static function getShortDescription(): string
     {
@@ -39,6 +42,12 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand implements Wi
                 'description' => __('Determines how many upsell products will be synchronized from the starting point.', I18N::DOMAIN),
                 'optional' => false,
             ],
+            [
+                'type' => 'flag',
+                'name' => 'hide-progress-bar',
+                'description' => __('Hide displaying of progress bar while executing command.', I18N::DOMAIN),
+                'optional' => true,
+            ],
         ];
     }
 
@@ -49,7 +58,10 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand implements Wi
     public function execute(array $arguments, array $assoc_arguments)
     {
         if ($this->prepareExecute()) {
-            if (key_exists('limit', $assoc_arguments) && key_exists('page', $assoc_arguments)) {
+            if (array_key_exists('hide-progress-bar', $assoc_arguments)) {
+                $this->setIsProgressBarShown(false);
+            }
+            if (array_key_exists('limit', $assoc_arguments) && array_key_exists('page', $assoc_arguments)) {
                 $this->runWithPagination($assoc_arguments);
             } else {
                 throw new BaseException('Limit and page attribute need to be set');
@@ -79,10 +91,12 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand implements Wi
      */
     private function syncUpsellForProducts($products)
     {
-        $this->createProgressBar(count($products), WpCliHelper::setGreenOutputColor(sprintf(
-            __('Syncing %s from Storekeeper backoffice', I18N::DOMAIN),
-            __('upsell products', I18N::DOMAIN)
-        )));
+        if ($this->isProgressBarShown) {
+            $this->createProgressBar(count($products), WpCliHelper::setGreenOutputColor(sprintf(
+                __('Syncing %s from Storekeeper backoffice', I18N::DOMAIN),
+                __('upsell products', I18N::DOMAIN)
+            )));
+        }
         foreach ($products as $index => $product) {
             $this->logger->debug(
                 'Processing product',
@@ -99,11 +113,14 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand implements Wi
                     'post_id' => $product->get_id(),
                 ]
             );
-
-            $this->tickProgressBar();
+            if ($this->isProgressBarShown) {
+                $this->tickProgressBar();
+            }
         }
 
-        $this->endProgressBar();
+        if ($this->isProgressBarShown) {
+            $this->endProgressBar();
+        }
     }
 
     /**

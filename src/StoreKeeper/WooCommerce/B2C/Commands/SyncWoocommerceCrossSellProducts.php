@@ -46,7 +46,7 @@ class SyncWoocommerceCrossSellProducts extends AbstractSyncCommand
     {
         if ($this->prepareExecute()) {
             // Try to get the total amount from the assoc arguments, if they are not there calculate the total amount.
-            $total_amount = key_exists('total-amount', $assoc_arguments) ?
+            $total_amount = array_key_exists('total-amount', $assoc_arguments) ?
                 $assoc_arguments['total-amount'] :
                 ProductHelper::getAmountOfProductsInWooCommerce();
 
@@ -54,7 +54,11 @@ class SyncWoocommerceCrossSellProducts extends AbstractSyncCommand
             $this->runSubCommandWithPagination(
                 SyncWoocommerceCrossSellProductPage::getCommandName(),
                 $total_amount,
-                self::AMOUNT_PER_PAGE
+                self::AMOUNT_PER_PAGE,
+                true,
+                true,
+                false,
+                true
             );
         }
     }

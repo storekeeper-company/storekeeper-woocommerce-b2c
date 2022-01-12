@@ -141,9 +141,14 @@ class CommandRunner
         string $name,
         array $arguments = [],
         array $assoc_arguments = [],
-        bool $isOutputEcho = false
+        bool $isOutputEcho = false,
+        bool $hideSubprocessProgressBar = false
     ): int {
         global $argv;
+        if ($hideSubprocessProgressBar) {
+            $assoc_arguments['hide-progress-bar'] = true;
+        }
+
         $input = self::getSubProcessInputString($name, $arguments, $assoc_arguments);
 
         if ($this->shouldSpawnSubProcess && !is_null($argv)) {
@@ -160,7 +165,7 @@ class CommandRunner
                 $params,
                 null,
                 600,
-                $isOutputEcho
+                $isOutputEcho,
             );
 
             return $process->getExitCode();
@@ -233,8 +238,12 @@ class CommandRunner
     /**
      * @throws SubProcessException
      */
-    protected function spawnSubProcess(array $params, string $input = null, int $timeout = 0, bool $isOutputEcho = false): Process
-    {
+    protected function spawnSubProcess(
+        array $params,
+        string $input = null,
+        int $timeout = 0,
+        bool $isOutputEcho = false
+    ): Process {
         $phpBinary = PHP_BINARY === '' ? 'php' : PHP_BINARY;
         $command = [$phpBinary];
         list($xdebug_on, $command) = $this->setXdebugCmsArgs($command);
