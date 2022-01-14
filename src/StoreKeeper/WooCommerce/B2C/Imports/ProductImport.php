@@ -7,6 +7,7 @@ use Exception;
 use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
@@ -788,6 +789,9 @@ SQL;
             }
         }
 
+        // Handle seo
+        $this->processSeo($newProduct, $dotObject);
+
         // set StoreKeeperId
         $wp_type = WooCommerceOptions::getWooCommerceTypeFromProductType($importProductType);
         ShopProductCache::set($dotObject->get('id'), $wp_type);
@@ -937,6 +941,34 @@ SQL;
     private function getProductStatusByPrice(float $price): string
     {
         return $price <= 0 ? 'private' : 'publish';
+    }
+
+    /**
+     * @param WC_Product_Simple|WC_Product_Variable $product
+     *
+     * @throws WordpressException
+     */
+    protected function processSeo($product, Dot $dotObject): void
+    {
+        $seoTitle = null;
+        $seoDescription = null;
+        $seoKeywords = null;
+
+        if ($dotObject->has('flat_product.seo_title')) {
+            $seoTitle = $dotObject->get('flat_product.seo_title');
+        }
+
+        if ($dotObject->has('flat_product.seo_description')) {
+            $seoDescription = $dotObject->get('flat_product.seo_description');
+        }
+
+        if ($dotObject->has('flat_product.seo_keywords')) {
+            $seoKeywords = $dotObject->get('flat_product.seo_keywords');
+        }
+
+        if (YoastSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
+            YoastSeo::addSeoToWoocommerceProduct($product, $seoTitle, $seoDescription, $seoKeywords);
+        }
     }
 
     /**
