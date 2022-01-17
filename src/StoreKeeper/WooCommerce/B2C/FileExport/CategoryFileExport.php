@@ -3,7 +3,9 @@
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
+use WP_Term;
 
 class CategoryFileExport extends AbstractCSVFileExport
 {
@@ -55,10 +57,14 @@ class CategoryFileExport extends AbstractCSVFileExport
 
         $total = count($map);
         $index = 0;
+        /* @var WP_Term $item */
         foreach ($map as $id => $item) {
             // Default category for when a product does not has a category.
             if ('uncategorized' !== $item->slug) {
                 $lineData = [];
+
+                $lineData = $this->exportSEO($lineData, $item);
+
                 $lineData['title'] = $item->name;
                 $lineData['translatable.lang'] = $exportLanguage;
                 $lineData['slug'] = $item->slug;
@@ -77,6 +83,19 @@ class CategoryFileExport extends AbstractCSVFileExport
         }
 
         return $this->filePath;
+    }
+
+    private function exportSEO(array $lineData, WP_Term $category): array
+    {
+        $lineData['seo_title'] = $category->name;
+        $lineData['seo_description'] = $category->description;
+
+        if (YoastSeo::isSelectedHandler()) {
+            $lineData['seo_title'] = YoastSeo::getCategoryTitle($category->term_id);
+            $lineData['seo_description'] = YoastSeo::getCategoryDescription($category->term_id);
+        }
+
+        return $lineData;
     }
 
     /**

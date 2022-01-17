@@ -11,7 +11,7 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 use StoreKeeper\WooCommerce\B2C\Tools\RedirectHandler;
 
-class FrondendCore
+class FrontendCore
 {
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
@@ -31,7 +31,7 @@ class FrondendCore
         $this->loader = new ActionFilterLoader();
 
         $seo = new Seo();
-        $this->loader->add_filter('woocommerce_structured_data_product', $seo, 'addExtraSeoData', 10, 2);
+        $this->loader->add_filter('woocommerce_structured_data_product', $seo, 'prepareSeo', 10, 2);
 
         $orderHookHandler = new OrderHookHandler();
         $this->loader->add_action('woocommerce_order_details_after_order_table', $orderHookHandler, 'addOrderStatusLink');
