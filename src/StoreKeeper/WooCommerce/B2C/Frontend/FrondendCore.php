@@ -44,24 +44,29 @@ class FrondendCore
         $this->registerRedirects();
 
         if ('yes' === StoreKeeperOptions::get(StoreKeeperOptions::VALIDATE_CUSTOMER_ADDRESS, 'yes')) {
-            $addressFormHandler = new AddressFormHandler();
-
-            $this->loader->add_filter('woocommerce_default_address_fields', $addressFormHandler, 'alterAddressForm', 11);
-            $this->loader->add_filter('woocommerce_get_country_locale', $addressFormHandler, 'customLocale', 11);
-            $this->loader->add_filter('woocommerce_localisation_address_formats', $addressFormHandler, 'customAddressFormats', 11);
-            $this->loader->add_filter('woocommerce_formatted_address_replacements', $addressFormHandler, 'customAddressReplacements', 11, 2);
-            $this->loader->add_filter('woocommerce_my_account_my_address_formatted_address', $addressFormHandler, 'addCustomAddressArguments', 11, 3);
-            $this->loader->add_filter('woocommerce_country_locale_field_selectors', $addressFormHandler, 'customSelectors', 11);
-            $this->loader->add_action('woocommerce_account_edit-address_endpoint', $addressFormHandler, 'enqueueScriptsAndStyles');
-            $this->loader->add_action('woocommerce_after_save_address_validation', $addressFormHandler, 'validateCustomFields', 11, 2);
-            $this->loader->add_action('woocommerce_checkout_process', $addressFormHandler, 'validateCustomFieldsForCheckout', 11, 2);
-            $this->loader->add_action('woocommerce_before_checkout_form', $addressFormHandler, 'addCheckoutScripts', 11);
+            $this->registerAddressFormHandler();
         }
     }
 
     public function run()
     {
         $this->loader->run();
+    }
+
+    private function registerAddressFormHandler(): void
+    {
+        $addressFormHandler = new AddressFormHandler();
+
+        $this->loader->add_filter('woocommerce_default_address_fields', $addressFormHandler, 'alterAddressForm', 11);
+        $this->loader->add_filter('woocommerce_get_country_locale', $addressFormHandler, 'customLocale', 11);
+        $this->loader->add_filter('woocommerce_localisation_address_formats', $addressFormHandler, 'customAddressFormats', 11);
+        $this->loader->add_filter('woocommerce_formatted_address_replacements', $addressFormHandler, 'customAddressReplacements', 11, 2);
+        $this->loader->add_filter('woocommerce_my_account_my_address_formatted_address', $addressFormHandler, 'addCustomAddressArguments', 11, 3);
+        $this->loader->add_filter('woocommerce_country_locale_field_selectors', $addressFormHandler, 'customSelectors', 11);
+        $this->loader->add_action('woocommerce_account_edit-address_endpoint', $addressFormHandler, 'enqueueScriptsAndStyles');
+        $this->loader->add_action('woocommerce_after_save_address_validation', $addressFormHandler, 'validateCustomFields', 11, 2);
+        $this->loader->add_action('woocommerce_checkout_process', $addressFormHandler, 'validateCustomFieldsForCheckout', 11, 2);
+        $this->loader->add_action('woocommerce_before_checkout_form', $addressFormHandler, 'addCheckoutScripts', 11);
     }
 
     private function registerRedirects()
