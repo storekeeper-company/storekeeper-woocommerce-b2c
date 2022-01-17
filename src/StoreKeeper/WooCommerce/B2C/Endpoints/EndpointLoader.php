@@ -6,6 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Endpoints\FileExport\ExportEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Sso\SsoGetEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
+use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 
 class EndpointLoader
@@ -67,6 +68,17 @@ class EndpointLoader
             [
                 'methods' => 'GET',
                 'callback' => [$export, 'handleRequest'],
+                'permission_callback' => '__return_true',
+            ]
+        );
+
+        $addressSearch = new AddressSearchEndpoint();
+        register_rest_route(
+            $namespace,
+            AddressSearchEndpoint::ROUTE,
+            [
+                'methods' => 'GET',
+                'callback' => [$addressSearch, 'handleRequest'],
                 'permission_callback' => '__return_true',
             ]
         );

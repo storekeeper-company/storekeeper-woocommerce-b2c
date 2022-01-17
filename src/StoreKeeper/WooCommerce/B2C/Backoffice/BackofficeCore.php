@@ -30,6 +30,23 @@ class BackofficeCore
         $this->settings();
         $this->adminNotices();
         $this->metaBoxes();
+        $this->loader->add_action('user_new_form', $this, 'test', 10, 1);
+    }
+
+    public function test($user)
+    {
+        $s = $user;
+        echo <<<HTML
+    <h3>Extra test field</h3>
+    <table class="form-table">
+        <tr>
+            <th><label for="company">House number</label></th>
+            <td>
+                <input type="text" class="regular-text" name="company" value="" id="company" /><br />
+            </td>
+        </tr>
+    </table>
+HTML;
     }
 
     private function settings()

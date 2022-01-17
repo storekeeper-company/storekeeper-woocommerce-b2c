@@ -6,42 +6,45 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class StoreKeeperOptions extends AbstractOptions
 {
-    const API_URL = 'api-url';
-    const OLD_API_URL = 'old-api-url';
-    const GUEST_AUTH = 'guest-auth';
-    const SYNC_AUTH = 'sync-auth';
-    const SYNC_PROFILE = 'sync-profile';
-    const MAIN_CATEGORY_ID = 'main-category-id';
-    const NOTIFY_ON_BACKORDER = 'notify-on-backorder';
-    const PAYMENT_GATEWAY_ACTIVATED = 'payment-gateway-activated';
-    const CATEGORY_DESCRIPTION_HTML = 'category-description-html';
-    const SYNC_MODE = 'sync-mode';
-    const INSTALLED_VERSION = 'installed-version';
+    public const API_URL = 'api-url';
+    public const OLD_API_URL = 'old-api-url';
+    public const GUEST_AUTH = 'guest-auth';
+    public const SYNC_AUTH = 'sync-auth';
+    public const SYNC_PROFILE = 'sync-profile';
+    public const MAIN_CATEGORY_ID = 'main-category-id';
+    public const NOTIFY_ON_BACKORDER = 'notify-on-backorder';
+    public const PAYMENT_GATEWAY_ACTIVATED = 'payment-gateway-activated';
+    public const CATEGORY_DESCRIPTION_HTML = 'category-description-html';
+    public const SYNC_MODE = 'sync-mode';
+    public const INSTALLED_VERSION = 'installed-version';
 
-    const SYNC_MODE_FULL_SYNC = 'sync-mode-full-sync';
-    const SYNC_MODE_ORDER_ONLY = 'sync-mode-order-only';
-    const SYNC_MODE_PRODUCT_ONLY = 'sync-mode-product-only';
-    const SYNC_MODE_NONE = 'sync-mode-none';
+    public const SYNC_MODE_FULL_SYNC = 'sync-mode-full-sync';
+    public const SYNC_MODE_ORDER_ONLY = 'sync-mode-order-only';
+    public const SYNC_MODE_PRODUCT_ONLY = 'sync-mode-product-only';
+    public const SYNC_MODE_NONE = 'sync-mode-none';
 
-    const MODES_WITH_CUSTOMERS_SYNC = [
+    public const MODES_WITH_CUSTOMERS_SYNC = [
         StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
         StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
     ];
 
-    const MODES_WITH_ORDERS_SYNC = [
+    public const MODES_WITH_ORDERS_SYNC = [
         StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
         StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
     ];
 
-    const MODES_WITH_PAYMENTS = [
+    public const MODES_WITH_PAYMENTS = [
         StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
         StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
     ];
 
-    const ORDER_SYNC_FROM_DATE = 'sync-order-from-date';
+    public const ORDER_SYNC_FROM_DATE = 'sync-order-from-date';
 
-    const BARCODE_MODE = 'barcode-mode';
-    const BARCODE_META_FALLBACK = 'storekeeper_barcode';
+    public const BARCODE_MODE = 'barcode-mode';
+    public const BARCODE_META_FALLBACK = 'storekeeper_barcode';
+
+    // Frontend
+    public const VALIDATE_CUSTOMER_ADDRESS = 'validate-customer-address';
 
     /**
      * returns true if the WooCommerce is connected to the StoreKeeper backend.

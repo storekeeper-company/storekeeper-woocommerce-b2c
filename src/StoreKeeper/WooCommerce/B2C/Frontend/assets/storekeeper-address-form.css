@@ -1,0 +1,4 @@
+form.storekeeper-loading {
+    opacity: .5;
+    pointer-events: none;
+}

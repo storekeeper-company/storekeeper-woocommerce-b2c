@@ -2,10 +2,12 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend;
 
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\FormShortCode;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 use StoreKeeper\WooCommerce\B2C\Tools\RedirectHandler;
 
@@ -40,6 +42,21 @@ class FrondendCore
         $this->loadWooCommerceTemplate();
         $this->registerStyle();
         $this->registerRedirects();
+
+        if ('yes' === StoreKeeperOptions::get(StoreKeeperOptions::VALIDATE_CUSTOMER_ADDRESS, 'yes')) {
+            $addressFormHandler = new AddressFormHandler();
+
+            $this->loader->add_filter('woocommerce_default_address_fields', $addressFormHandler, 'alterAddressForm', 11);
+            $this->loader->add_filter('woocommerce_get_country_locale', $addressFormHandler, 'customLocale', 11);
+            $this->loader->add_filter('woocommerce_localisation_address_formats', $addressFormHandler, 'customAddressFormats', 11);
+            $this->loader->add_filter('woocommerce_formatted_address_replacements', $addressFormHandler, 'customAddressReplacements', 11, 2);
+            $this->loader->add_filter('woocommerce_my_account_my_address_formatted_address', $addressFormHandler, 'addCustomAddressArguments', 11, 3);
+            $this->loader->add_filter('woocommerce_country_locale_field_selectors', $addressFormHandler, 'customSelectors', 11);
+            $this->loader->add_action('woocommerce_account_edit-address_endpoint', $addressFormHandler, 'enqueueScriptsAndStyles');
+            $this->loader->add_action('woocommerce_after_save_address_validation', $addressFormHandler, 'validateCustomFields', 11, 2);
+            $this->loader->add_action('woocommerce_checkout_process', $addressFormHandler, 'validateCustomFieldsForCheckout', 11, 2);
+            $this->loader->add_action('woocommerce_before_checkout_form', $addressFormHandler, 'addCheckoutScripts', 11);
+        }
     }
 
     public function run()
