@@ -9,6 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Endpoints\FileExport\ExportEndpoint;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
+use StoreKeeper\WooCommerce\B2C\FileExport\ProductFileExport;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductSkuGenerator;
@@ -130,6 +131,7 @@ class ExportTab extends AbstractTab
                 'type',
                 $type
             );
+
             if ($connected) {
                 $input .= ' '.$this->getFormLink(
                     $this->getImportExportCenterUrl($type),
@@ -138,6 +140,15 @@ class ExportTab extends AbstractTab
                     '_blank'
                 );
             }
+
+            $exportClass = FileExportTypeHelper::getClass($type);
+            if (ProductFileExport::class === $exportClass) {
+                $input .= '<br><div class="mt-1">'.$this->getFormCheckbox($type.'-all-products').' '.__(
+                        'Include all not active products',
+                        I18N::DOMAIN
+                    ).'</div>';
+            }
+
             $this->renderFormGroup($label, $input);
         }
 
@@ -154,7 +165,10 @@ class ExportTab extends AbstractTab
                 'button export-button',
                 'type',
                 FileExportTypeHelper::ALL
-            )
+            ).'<br><div class="mt-1">'.$this->getFormCheckbox(FileExportTypeHelper::ALL.'-all-products').' '.__(
+                'Include all not active products',
+                I18N::DOMAIN
+            ).'</div>'
         );
 
         $this->renderFormEnd();

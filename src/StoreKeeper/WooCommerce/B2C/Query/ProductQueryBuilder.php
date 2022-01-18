@@ -4,14 +4,20 @@ namespace StoreKeeper\WooCommerce\B2C\Query;
 
 class ProductQueryBuilder
 {
-    public static function getProductIdsByPostType(string $postType, int $index)
+    public static function getProductIdsByPostType(string $postType, int $index, bool $activeProductsOnly = false)
     {
         global $table_prefix, $wpdb;
-
+        $activeCondition = '';
+        if ($activeProductsOnly) {
+            $activeCondition = <<<SQL
+    AND post_status = "publish"
+SQL;
+        }
         $query = <<<SQL
     SELECT ID as product_id
     FROM {$table_prefix}posts
     WHERE post_type = %s
+    {$activeCondition}
     ORDER BY ID
     LIMIT 1
     OFFSET %d;
