@@ -13,6 +13,9 @@ class AddressFormHandler
     public const HOUSE_NUMBER_FIELD = 'address_house_number';
     public const DEFAULT_ADDRESS_TYPES = ['shipping', 'billing'];
 
+    /**
+     * Add javascript and css for postcode and house number validation on checkout page.
+     */
     public function addCheckoutScripts(): void
     {
         if (is_checkout()) {
@@ -39,11 +42,17 @@ class AddressFormHandler
             ]);
     }
 
+    /**
+     * Add house number field to the default address form to be used by NL country.
+     */
     public function alterAddressForm(array $fields): array
     {
         return $this->addFields($fields);
     }
 
+    /**
+     * Alter fields locale/options for NL.
+     */
     public function customLocale(array $locale): array
     {
         $locale['NL'][self::HOUSE_NUMBER_FIELD] = [
@@ -63,6 +72,9 @@ class AddressFormHandler
         return $locale;
     }
 
+    /**
+     * Add the custom fields to the WooCommerce default selectors so that WooCommerce scripts can alter the display.
+     */
     public function customSelectors(array $fieldSelectors): array
     {
         $fieldSelectors[self::HOUSE_NUMBER_FIELD] = '#billing_'.self::HOUSE_NUMBER_FIELD.'_field, #shipping_'.self::HOUSE_NUMBER_FIELD.'_field';
@@ -70,50 +82,21 @@ class AddressFormHandler
         return $fieldSelectors;
     }
 
-    public function customAddressFormats(array $formats): array
-    {
-        $formats['NL'] = "{company}\n{name}\n{address_house_number} {address_1}\n{address_2}\n{postcode} {city}\n{country}";
-
-        return $formats;
-    }
-
-    public function addCustomAddressArguments(array $address, int $customerId, string $addressType): array
-    {
-        if (0 !== $customerId) {
-            $customer = new \WC_Customer($customerId);
-            $houseNumber = $customer->get_meta($addressType.'_address_house_number', true);
-            if (!empty($houseNumber)) {
-                $address['address_house_number'] = $houseNumber;
-            } else {
-                $address['address_house_number'] = '';
-            }
-        }
-
-        return $address;
-    }
-
-    public function customAddressReplacements(array $replacements, array $arguments): array
-    {
-        $replacements['{address_house_number}'] = $arguments['address_house_number'] ?? '';
-
-        return $replacements;
-    }
-
-    protected function validateStreet(string $addressType, array $inputs): void
+    protected function validateStreet(string $addressType): void
     {
         $countryKey = $addressType.'_country';
 
-        if (isset($inputs[$countryKey]) && AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $inputs[$countryKey]) {
+        if (isset($_POST[$countryKey]) && AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === sanitize_text_field($_POST[$countryKey])) {
             try {
                 $postCodeKey = $addressType.'_postcode';
                 $houseNumberKey = $addressType.'_address_house_number';
 
-                if (isset($inputs[$postCodeKey])) {
-                    $postCode = $inputs[$postCodeKey];
+                if (isset($_POST[$postCodeKey])) {
+                    $postCode = sanitize_text_field($_POST[$postCodeKey]);
                 }
 
-                if (isset($inputs[$houseNumberKey])) {
-                    $houseNumber = $inputs[$houseNumberKey];
+                if (isset($_POST[$houseNumberKey])) {
+                    $houseNumber = sanitize_text_field($_POST[$houseNumberKey]);
                 }
                 AddressSearchEndpoint::validateAddress($postCode, $houseNumber);
             } catch (\Throwable $throwable) {
@@ -129,9 +112,8 @@ class AddressFormHandler
      */
     public function validateCustomFieldsForCheckout(): void
     {
-        $inputs = $_POST;
         foreach (self::DEFAULT_ADDRESS_TYPES as $addressType) {
-            $this->validateStreet($addressType, $inputs);
+            $this->validateStreet($addressType);
         }
     }
 
@@ -146,8 +128,7 @@ class AddressFormHandler
             return;
         }
 
-        $inputs = $_POST;
-        $this->validateStreet($addressType, $inputs);
+        $this->validateStreet($addressType);
     }
 
     private function addFields(array $fields)

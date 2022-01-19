@@ -28,12 +28,17 @@ jQuery(function ($) {
             return new Promise(function (resolve, reject) {
                 let isValid = true;
                 window.storekeeperBlockForm(parentForm);
-                const postCode = $(`#${formPrefix}_postcode`).val();
-                const houseNumber = $(`#${formPrefix}_address_house_number`).val();
-                $(`#${formPrefix}_postcode`).parent().parent().removeClass('woocommerce-validated').removeClass('woocommerce-invalid');
-                $(`#${formPrefix}_address_house_number`).parent().parent().removeClass('woocommerce-validated').removeClass('woocommerce-invalid');
-                $(`#${formPrefix}_address_house_number`).parent().find('.postcode-housenr-validation-message').remove();
-                $(`#${formPrefix}_address_house_number`).parent().append(`<small class="postcode-housenr-validation-message">${window.storekeeperTranslate('Validating postcode and house number. Please wait...')}</small>`);
+                const postCodeContainer = $(`#${formPrefix}_postcode_field`);
+                const postCodeInput = $(postCodeContainer).find('input');
+                const houseNumberContainer = $(`#${formPrefix}_address_house_number_field`);
+                const houseNumberInput = $(houseNumberContainer).find('input');
+
+                const postCode = $(postCodeInput).val();
+                const houseNumber = $(houseNumberInput).val();
+                $(postCodeContainer).removeClass('woocommerce-validated').removeClass('woocommerce-invalid');
+                $(houseNumberContainer).removeClass('woocommerce-validated').removeClass('woocommerce-invalid');
+                $(houseNumberContainer).find('.postcode-housenr-validation-message').remove();
+                $(houseNumberContainer).append(`<small class="postcode-housenr-validation-message">${window.storekeeperTranslate('Validating postcode and house number. Please wait...')}</small>`);
                 $.ajax({
                     url: settings.url,
                     data: {
@@ -44,17 +49,17 @@ jQuery(function ($) {
                     window.storekeeperUnblockForm(parentForm);
                     $(`#${formPrefix}_address_1`).val(street);
                     $(`#${formPrefix}_city`).val(city);
-                    $(`#${formPrefix}_postcode`).parent().parent().addClass('woocommerce-validated');
-                    $(`#${formPrefix}_address_house_number`).parent().parent().addClass('woocommerce-validated');
-                    $(`#${formPrefix}_address_house_number`).parent().find('.postcode-housenr-validation-message').remove();
-                    $(`#${formPrefix}_address_house_number`).parent().append(`<small class="postcode-housenr-validation-message" style="color: green">${window.storekeeperTranslate('Valid postcode and house number')}</small>`);
+                    $(postCodeContainer).addClass('woocommerce-validated');
+                    $(houseNumberContainer).addClass('woocommerce-validated');
+                    $(houseNumberContainer).find('.postcode-housenr-validation-message').remove();
+                    $(houseNumberContainer).append(`<small class="postcode-housenr-validation-message" style="color: green">${window.storekeeperTranslate('Valid postcode and house number')}</small>`);
                     resolve();
                 }).fail(function (xhrText, textStatus) {
                     window.storekeeperUnblockForm(parentForm);
-                    $(`#${formPrefix}_postcode`).parent().parent().addClass('woocommerce-invalid');
-                    $(`#${formPrefix}_address_house_number`).parent().parent().addClass('woocommerce-invalid');
-                    $(`#${formPrefix}_address_house_number`).parent().find('.postcode-housenr-validation-message').remove();
-                    $(`#${formPrefix}_address_house_number`).parent().append(`<small class="postcode-housenr-validation-message" style="color: red">${window.storekeeperTranslate('Invalid postcode or house number')}</small>`);
+                    $(postCodeContainer).addClass('woocommerce-invalid');
+                    $(houseNumberContainer).addClass('woocommerce-invalid');
+                    $(houseNumberContainer).find('.postcode-housenr-validation-message').remove();
+                    $(houseNumberContainer).append(`<small class="postcode-housenr-validation-message" style="color: red">${window.storekeeperTranslate('Invalid postcode or house number')}</small>`);
                     reject();
                 });
             });
@@ -88,14 +93,18 @@ jQuery(function ($) {
         $(`#${formPrefix}_postcode`).keyup(delay(
             function () {
                 isValid = false;
+                const postCodeContainer = $(`#${formPrefix}_postcode_field`);
+                const postCodeInput = $(postCodeContainer).find('input');
+                const houseNumberContainer = $(`#${formPrefix}_address_house_number_field`);
+                const houseNumberInput = $(houseNumberContainer).find('input');
                 const country = $(`#${formPrefix}_country`).val();
                 if (country === 'NL') {
-                    const postCode = $(`#${formPrefix}_postcode`).val();
+                    const postCode = $(postCodeInput).val();
                     if (!dutchPostcodeRegex.test(postCode)) {
                         isValid = false;
-                        $(`#${formPrefix}_postcode`).parent().parent().addClass('woocommerce-invalid');
-                        $(`#${formPrefix}_address_house_number`).parent().find('.postcode-housenr-validation-message').remove();
-                        $(`#${formPrefix}_address_house_number`).parent().append(`<small class="postcode-housenr-validation-message" style="color: red">${window.storekeeperTranslate('Postcode format for NL address is invalid')}</small>`);
+                        $(postCodeContainer).addClass('woocommerce-invalid');
+                        $(houseNumberContainer).find('.postcode-housenr-validation-message').remove();
+                        $(houseNumberContainer).append(`<small class="postcode-housenr-validation-message" style="color: red">${window.storekeeperTranslate('Postcode format for NL address is invalid')}</small>`);
                     } else {
                         isValid = true;
                         window.storekeeperFetchAddressFromBackend(formPrefix, form).then(function () {

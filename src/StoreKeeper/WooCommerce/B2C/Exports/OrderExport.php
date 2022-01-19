@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Exports;
 
 use Exception;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -159,6 +160,15 @@ class OrderExport extends AbstractExport
         /*
          * Billing address
          */
+        $customerId = $WpObject->get_customer_id();
+        $billingHouseNumber = '';
+        if (0 !== $customerId && AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
+            $customer = new \WC_Customer($customerId);
+            $houseNumber = $customer->get_meta('billing_address_house_number', true);
+            if (!empty($houseNumber)) {
+                $billingHouseNumber = $houseNumber.' ';
+            }
+        }
 
         $callData['billing_address'] = [
             'name' => $WpObject->get_formatted_billing_full_name(),
@@ -166,7 +176,7 @@ class OrderExport extends AbstractExport
                 'state' => $WpObject->get_billing_state(self::CONTEXT),
                 'city' => $WpObject->get_billing_city(self::CONTEXT),
                 'zipcode' => $WpObject->get_billing_postcode(self::CONTEXT),
-                'street' => trim($WpObject->get_billing_address_1(self::CONTEXT)).' '.trim(
+                'street' => $billingHouseNumber.trim($WpObject->get_billing_address_1(self::CONTEXT)).' '.trim(
                         $WpObject->get_billing_address_2(self::CONTEXT)
                     ),
                 'country_iso2' => $WpObject->get_billing_country(self::CONTEXT),
@@ -194,6 +204,15 @@ class OrderExport extends AbstractExport
         /*
          * Shipping address
          */
+        $customerId = $WpObject->get_customer_id();
+        $shippingHouseNumber = '';
+        if (0 !== $customerId && AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
+            $customer = new \WC_Customer($customerId);
+            $houseNumber = $customer->get_meta('shipping_address_house_number', true);
+            if (!empty($houseNumber)) {
+                $shippingHouseNumber = $houseNumber.' ';
+            }
+        }
         if ($WpObject->has_shipping_address()) {
             $callData['shipping_address'] = [
                 'name' => $WpObject->get_formatted_shipping_full_name(),
@@ -201,7 +220,7 @@ class OrderExport extends AbstractExport
                     'state' => $WpObject->get_shipping_state(self::CONTEXT),
                     'city' => $WpObject->get_shipping_city(self::CONTEXT),
                     'zipcode' => $WpObject->get_shipping_postcode(self::CONTEXT),
-                    'street' => trim($WpObject->get_shipping_address_1(self::CONTEXT)).' '.trim(
+                    'street' => $shippingHouseNumber.trim($WpObject->get_shipping_address_1(self::CONTEXT)).' '.trim(
                             $WpObject->get_shipping_address_2(self::CONTEXT)
                         ),
                     'country_iso2' => $WpObject->get_shipping_country(self::CONTEXT),
