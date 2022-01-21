@@ -94,7 +94,10 @@ RUN set -eux; \
 		echo 'RemoteIPTrustedProxy 127.0.0.0/8'; \
 	} > /etc/apache2/conf-available/remoteip.conf; \
 	a2enconf remoteip; \
-# https://github.com/docker-library/wordpress/issues/383#issuecomment-507886512
+# https://github.com/docker-library/wordpress/issues/383#issuecomment-50788 \
+    \
+    \
+    6512
 # (replace all instances of "%h" with "%a" in LogFormat)
 	find /etc/apache2 -type f -name '*.conf' -exec sed -ri 's/([[:space:]]*LogFormat[[:space:]]+"[^"]*)%h([^"]*")/\1%a\2/g' '{}' +
 
@@ -225,7 +228,7 @@ ENV APP_ENV=test \
 
 FROM test as dev
 ENV APP_ENV=dev \
-    WORPRESS_URL=localhost:80 \
+    WORPRESS_URL=localhost:8888 \
     WORPRESS_TITLE='WP-DEV'
 
 COPY docker/disable-canonical-url.php /app/src/wp-content/plugins/

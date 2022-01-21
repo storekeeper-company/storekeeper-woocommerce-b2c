@@ -16,7 +16,7 @@ services:
     depends_on:
       - db
     ports:
-      - 80:80
+      - 8888:80
     restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: db
