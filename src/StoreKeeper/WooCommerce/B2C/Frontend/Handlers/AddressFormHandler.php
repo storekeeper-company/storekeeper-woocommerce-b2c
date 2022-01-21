@@ -131,6 +131,30 @@ class AddressFormHandler
         $this->validateStreet($addressType);
     }
 
+    /**
+     * Save house number to order metadata be retrieved for displaying.
+     */
+    public function saveCustomFields(\WC_Order $order): void
+    {
+        if ($order->has_billing_address()) {
+            $billingHouseNumberKey = 'billing_address_house_number';
+
+            if (isset($_POST[$billingHouseNumberKey])) {
+                $houseNumber = sanitize_text_field($_POST[$billingHouseNumberKey]);
+                $order->update_meta_data($billingHouseNumberKey, $houseNumber);
+            }
+        }
+
+        if ($order->has_shipping_address()) {
+            $shippingHouseNumberKey = 'shipping_address_house_number';
+
+            if (isset($_POST[$shippingHouseNumberKey])) {
+                $houseNumber = sanitize_text_field($_POST[$shippingHouseNumberKey]);
+                $order->update_meta_data($shippingHouseNumberKey, $houseNumber);
+            }
+        }
+    }
+
     private function addFields(array $fields)
     {
         $updatedFields = $this->insertFieldsAtPosition($fields, [

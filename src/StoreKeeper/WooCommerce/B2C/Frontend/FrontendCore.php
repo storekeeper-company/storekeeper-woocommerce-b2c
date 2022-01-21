@@ -64,6 +64,7 @@ class FrontendCore
         $this->loader->add_action('woocommerce_account_edit-address_endpoint', $addressFormHandler, 'enqueueScriptsAndStyles');
         $this->loader->add_action('woocommerce_after_save_address_validation', $addressFormHandler, 'validateCustomFields', 11, 2);
         $this->loader->add_action('woocommerce_checkout_process', $addressFormHandler, 'validateCustomFieldsForCheckout', 11, 2);
+        $this->loader->add_action('woocommerce_checkout_create_order', $addressFormHandler, 'saveCustomFields');
         $this->loader->add_action('woocommerce_before_checkout_form', $addressFormHandler, 'addCheckoutScripts', 11);
     }
 

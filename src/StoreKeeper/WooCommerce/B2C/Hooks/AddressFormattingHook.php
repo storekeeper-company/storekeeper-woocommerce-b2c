@@ -33,7 +33,17 @@ class AddressFormattingHook
      */
     public function addCustomAddressArguments(array $address, int $customerId, string $addressType): array
     {
-        return $this->getAddressWithCustomFields($customerId, $addressType, $address);
+        if (0 !== $customerId) {
+            $customer = new \WC_Customer($customerId);
+            $houseNumber = $customer->get_meta($addressType.'_address_house_number', true);
+            if (!empty($houseNumber)) {
+                $address['address_house_number'] = $houseNumber;
+            } else {
+                $address['address_house_number'] = '';
+            }
+        }
+
+        return $address;
     }
 
     /**
@@ -43,24 +53,11 @@ class AddressFormattingHook
      */
     public function addCustomAddressArgumentsForOrder(array $address, string $addressType, \WC_Order $order): array
     {
-        $customerId = $order->get_customer_id();
-
-        return $this->getAddressWithCustomFields($customerId, $addressType, $address);
-    }
-
-    /**
-     * @throws Exception
-     */
-    protected function getAddressWithCustomFields(int $customerId, string $addressType, array $address): array
-    {
-        if (0 !== $customerId) {
-            $customer = new \WC_Customer($customerId);
-            $houseNumber = $customer->get_meta($addressType.'_address_house_number', true);
-            if (!empty($houseNumber)) {
-                $address['address_house_number'] = $houseNumber;
-            } else {
-                $address['address_house_number'] = '';
-            }
+        $houseNumber = $order->get_meta($addressType.'_address_house_number', true);
+        if (!empty($houseNumber)) {
+            $address['address_house_number'] = $houseNumber;
+        } else {
+            $address['address_house_number'] = '';
         }
 
         return $address;

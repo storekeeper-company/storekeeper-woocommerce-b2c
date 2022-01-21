@@ -160,11 +160,9 @@ class OrderExport extends AbstractExport
         /*
          * Billing address
          */
-        $customerId = $WpObject->get_customer_id();
         $billingHouseNumber = '';
-        if (0 !== $customerId && AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
-            $customer = new \WC_Customer($customerId);
-            $houseNumber = $customer->get_meta('billing_address_house_number', true);
+        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
+            $houseNumber = $WpObject->get_meta('billing_address_house_number', true);
             if (!empty($houseNumber)) {
                 $billingHouseNumber = $houseNumber.' ';
             }
@@ -204,11 +202,9 @@ class OrderExport extends AbstractExport
         /*
          * Shipping address
          */
-        $customerId = $WpObject->get_customer_id();
         $shippingHouseNumber = '';
-        if (0 !== $customerId && AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
-            $customer = new \WC_Customer($customerId);
-            $houseNumber = $customer->get_meta('shipping_address_house_number', true);
+        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_shipping_country(self::CONTEXT)) {
+            $houseNumber = $WpObject->get_meta('shipping_address_house_number', true);
             if (!empty($houseNumber)) {
                 $shippingHouseNumber = $houseNumber.' ';
             }

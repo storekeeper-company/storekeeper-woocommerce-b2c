@@ -25,7 +25,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('STOREKEEPER_WOOCOMMERCE_B2C_VERSION', '0.0.1');
+define('STOREKEEPER_WOOCOMMERCE_B2C_VERSION', '0.0.8');
 define('STOREKEEPER_WOOCOMMERCE_FILE', plugin_basename(__FILE__));
 
 include_once __DIR__.'/autoload.php';

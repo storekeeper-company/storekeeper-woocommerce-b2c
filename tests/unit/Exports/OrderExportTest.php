@@ -61,6 +61,11 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->assertEquals(1, $shipping['quantity'], 'quantity');
         $this->assertEquals(10, $shipping['ppu_wt'], 'ppu_wt');
 
+        $expectedBillingStreet = $new_order['billing_address_1'].' '.$new_order['billing_address_2'];
+        if ('NL' === $wc_order->get_billing_country()) {
+            $expectedBillingStreet = $new_order['billing_address_house_number'].' '.$new_order['billing_address_1'].' '.$new_order['billing_address_2'];
+        }
+
         $expect_billing = [
             'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
             'isprivate' => empty($new_order['billing_company']),
@@ -68,7 +73,7 @@ class OrderExportTest extends AbstractOrderExportTest
                     'state' => $new_order['billing_state'],
                     'city' => $new_order['billing_city'],
                     'zipcode' => $new_order['billing_postcode'],
-                    'street' => $new_order['billing_address_1'].' '.$new_order['billing_address_2'],
+                    'street' => $expectedBillingStreet,
                     'country_iso2' => $new_order['billing_country'],
                     'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
                 ],
@@ -91,6 +96,11 @@ class OrderExportTest extends AbstractOrderExportTest
 
         $expect_shipping = $expect_billing;
         if ($wc_order->has_shipping_address()) {
+            $expectedShippingStreet = $new_order['shipping_address_1'].' '.$new_order['shipping_address_2'];
+            if ('NL' === $wc_order->get_shipping_country()) {
+                $expectedShippingStreet = $new_order['shipping_address_house_number'].' '.$new_order['shipping_address_1'].' '.$new_order['shipping_address_2'];
+            }
+
             $expect_shipping = [
                 'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
                 'isprivate' => empty($new_order['shipping_company']),
@@ -98,7 +108,7 @@ class OrderExportTest extends AbstractOrderExportTest
                         'state' => $new_order['shipping_state'],
                         'city' => $new_order['shipping_city'],
                         'zipcode' => $new_order['shipping_postcode'],
-                        'street' => $new_order['shipping_address_1'].' '.$new_order['shipping_address_2'],
+                        'street' => $expectedShippingStreet,
                         'country_iso2' => $new_order['shipping_country'],
                         'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
                     ],
@@ -412,6 +422,23 @@ class OrderExportTest extends AbstractOrderExportTest
         $new_order = $this->getOrderProps();
         $new_order_id = $this->createWooCommerceOrder($new_order);
         $this->processNewOrder($new_order_id, $new_order);
+    }
+
+    public function testOrderCreateWithNlCountry()
+    {
+        $this->initApiConnection();
+
+        $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER_CREATE, true);
+
+        $this->emptyEnvironment();
+
+        $newOrderWithNlCountry = $this->getOrderProps(true);
+        $newOrderWithNlCountryId = $this->createWooCommerceOrder($newOrderWithNlCountry);
+        $woocommerceOrder = new \WC_Order($newOrderWithNlCountryId);
+        $woocommerceOrder->update_meta_data('billing_address_house_number', $newOrderWithNlCountry['billing_address_house_number']);
+        $woocommerceOrder->update_meta_data('shipping_address_house_number', $newOrderWithNlCountry['shipping_address_house_number']);
+        $woocommerceOrder->save();
+        $this->processNewOrder($newOrderWithNlCountryId, $newOrderWithNlCountry);
     }
 
     public function testWooCommerceOnlyProduct()
