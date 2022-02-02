@@ -98,8 +98,13 @@ jQuery(function ($) {
                 const houseNumberContainer = $(`#${formPrefix}_address_house_number_field`);
                 const houseNumberInput = $(houseNumberContainer).find('input');
                 const country = $(`#${formPrefix}_country`).val();
+                const postCode = $(postCodeInput).val();
+                const houseNumber = $(houseNumberInput).val();
+
+                if (!postCode || !houseNumber) {
+                    return;
+                }
                 if (country === 'NL') {
-                    const postCode = $(postCodeInput).val();
                     if (!dutchPostcodeRegex.test(postCode)) {
                         isValid = false;
                         $(postCodeContainer).addClass('woocommerce-invalid');
@@ -120,6 +125,16 @@ jQuery(function ($) {
 
         $(`#${formPrefix}_address_house_number`).keyup(delay(
             function () {
+                const postCodeContainer = $(`#${formPrefix}_postcode_field`);
+                const postCodeInput = $(postCodeContainer).find('input');
+                const houseNumberContainer = $(`#${formPrefix}_address_house_number_field`);
+                const houseNumberInput = $(houseNumberContainer).find('input');
+                const postCode = $(postCodeInput).val();
+                const houseNumber = $(houseNumberInput).val();
+
+                if (!postCode || !houseNumber) {
+                    return;
+                }
                 isValid = false;
                 window.storekeeperFetchAddressFromBackend(formPrefix, form).then(function () {
                     isValid = true;

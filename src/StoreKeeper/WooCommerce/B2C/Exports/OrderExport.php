@@ -160,21 +160,13 @@ class OrderExport extends AbstractExport
         /*
          * Billing address
          */
-        $billingHouseNumber = '';
-        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
-            $houseNumber = $WpObject->get_meta('billing_address_house_number', true);
-            if (!empty($houseNumber)) {
-                $billingHouseNumber = $houseNumber.' ';
-            }
-        }
-
         $callData['billing_address'] = [
             'name' => $WpObject->get_formatted_billing_full_name(),
             'address_billing' => [
                 'state' => $WpObject->get_billing_state(self::CONTEXT),
                 'city' => $WpObject->get_billing_city(self::CONTEXT),
                 'zipcode' => $WpObject->get_billing_postcode(self::CONTEXT),
-                'street' => $billingHouseNumber.trim($WpObject->get_billing_address_1(self::CONTEXT)).' '.trim(
+                'street' => trim($WpObject->get_billing_address_1(self::CONTEXT)).' '.trim(
                         $WpObject->get_billing_address_2(self::CONTEXT)
                     ),
                 'country_iso2' => $WpObject->get_billing_country(self::CONTEXT),
@@ -197,18 +189,25 @@ class OrderExport extends AbstractExport
                 'country_iso2' => $WpObject->get_billing_country(self::CONTEXT),
             ];
         }
+
+        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
+            $houseNumber = $WpObject->get_meta('billing_address_house_number', true);
+            if (!empty($houseNumber)) {
+                $splitStreet = self::splitStreetNumber($houseNumber);
+                $streetNumber = $splitStreet['streetnumber'];
+                $callData['billing_address']['address_billing']['streetnumber'] = $streetNumber;
+
+                if (!empty($splitStreet['flatnumber'])) {
+                    $callData['billing_address']['address_billing']['flatnumber'] = $splitStreet['flatnumber'];
+                }
+            }
+        }
+
         $this->debug('Added billing_address information', $callData);
 
         /*
          * Shipping address
          */
-        $shippingHouseNumber = '';
-        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_shipping_country(self::CONTEXT)) {
-            $houseNumber = $WpObject->get_meta('shipping_address_house_number', true);
-            if (!empty($houseNumber)) {
-                $shippingHouseNumber = $houseNumber.' ';
-            }
-        }
         if ($WpObject->has_shipping_address()) {
             $callData['shipping_address'] = [
                 'name' => $WpObject->get_formatted_shipping_full_name(),
@@ -216,7 +215,7 @@ class OrderExport extends AbstractExport
                     'state' => $WpObject->get_shipping_state(self::CONTEXT),
                     'city' => $WpObject->get_shipping_city(self::CONTEXT),
                     'zipcode' => $WpObject->get_shipping_postcode(self::CONTEXT),
-                    'street' => $shippingHouseNumber.trim($WpObject->get_shipping_address_1(self::CONTEXT)).' '.trim(
+                    'street' => trim($WpObject->get_shipping_address_1(self::CONTEXT)).' '.trim(
                             $WpObject->get_shipping_address_2(self::CONTEXT)
                         ),
                     'country_iso2' => $WpObject->get_shipping_country(self::CONTEXT),
@@ -238,6 +237,19 @@ class OrderExport extends AbstractExport
                     'name' => $WpObject->get_shipping_company(self::CONTEXT),
                     'country_iso2' => $WpObject->get_shipping_country(self::CONTEXT),
                 ];
+            }
+
+            if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_shipping_country(self::CONTEXT)) {
+                $houseNumber = $WpObject->get_meta('shipping_address_house_number', true);
+                if (!empty($houseNumber)) {
+                    $splitStreet = self::splitStreetNumber($houseNumber);
+                    $streetNumber = $splitStreet['streetnumber'];
+                    $callData['shipping_address']['contact_address']['streetnumber'] = $streetNumber;
+
+                    if (!empty($splitStreet['flatnumber'])) {
+                        $callData['shipping_address']['contact_address']['flatnumber'] = $splitStreet['flatnumber'];
+                    }
+                }
             }
             $this->debug('Added shipping_address information', $callData);
         } else {
@@ -754,5 +766,20 @@ class OrderExport extends AbstractExport
         }
 
         return parent::catchKnownExceptions($throwable);
+    }
+
+    public static function splitStreetNumber(string $streetNumber): array
+    {
+        if (preg_match('/^(?P<streetnumber>\d*+)-?(?P<flatnumber>[A-Za-z\d]+|[A-Za-z\d-]+)$/i', $streetNumber, $matches)) {
+            return [
+                'streetnumber' => $matches['streetnumber'],
+                'flatnumber' => $matches['flatnumber'],
+            ];
+        }
+
+        return [
+            'streetnumber' => $streetNumber,
+            'flatnumber' => '',
+        ];
     }
 }

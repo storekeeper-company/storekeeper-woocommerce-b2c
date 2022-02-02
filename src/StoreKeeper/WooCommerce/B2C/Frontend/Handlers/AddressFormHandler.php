@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\AbstractOptions;
 
@@ -98,7 +99,10 @@ class AddressFormHandler
                 if (isset($_POST[$houseNumberKey])) {
                     $houseNumber = sanitize_text_field($_POST[$houseNumberKey]);
                 }
-                AddressSearchEndpoint::validateAddress($postCode, $houseNumber);
+
+                $splitStreet = OrderExport::splitStreetNumber($houseNumber);
+                $streetNumber = $splitStreet['streetnumber'];
+                AddressSearchEndpoint::validateAddress($postCode, $streetNumber);
             } catch (\Throwable $throwable) {
                 wc_add_notice(sprintf(__('Invalid %s postcode or house number', I18N::DOMAIN), $addressType), 'error');
             }

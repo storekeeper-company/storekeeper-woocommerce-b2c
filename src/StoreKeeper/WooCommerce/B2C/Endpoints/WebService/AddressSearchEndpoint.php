@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Endpoints\WebService;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Endpoints\AbstractEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WpRestException;
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class AddressSearchEndpoint extends AbstractEndpoint
@@ -24,8 +25,11 @@ class AddressSearchEndpoint extends AbstractEndpoint
             throw new WpRestException(__('Postcode and house number parameter is required.'), 400);
         }
 
+        $splitStreet = OrderExport::splitStreetNumber($houseNumber);
+        $streetNumber = $splitStreet['streetnumber'];
+
         try {
-            $response = self::validateAddress($postCode, $houseNumber);
+            $response = self::validateAddress($postCode, $streetNumber);
         } catch (GeneralException $exception) {
             throw new WpRestException('General exception  - '.$exception->getMessage(), 500, $exception);
         } catch (\Throwable $exception) {

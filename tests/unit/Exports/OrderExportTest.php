@@ -62,9 +62,6 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->assertEquals(10, $shipping['ppu_wt'], 'ppu_wt');
 
         $expectedBillingStreet = $new_order['billing_address_1'].' '.$new_order['billing_address_2'];
-        if ('NL' === $wc_order->get_billing_country()) {
-            $expectedBillingStreet = $new_order['billing_address_house_number'].' '.$new_order['billing_address_1'].' '.$new_order['billing_address_2'];
-        }
 
         $expect_billing = [
             'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
@@ -87,6 +84,10 @@ class OrderExportTest extends AbstractOrderExportTest
                     'familyname' => $new_order['billing_last_name'],
                 ],
         ];
+
+        if ('NL' === $wc_order->get_billing_country()) {
+            $expect_billing['address_billing']['streetnumber'] = $new_order['billing_address_house_number'];
+        }
         if (!empty($new_order['billing_company'])) {
             $expect_billing['business_data'] = [
                 'name' => $new_order['billing_company'],
@@ -97,9 +98,6 @@ class OrderExportTest extends AbstractOrderExportTest
         $expect_shipping = $expect_billing;
         if ($wc_order->has_shipping_address()) {
             $expectedShippingStreet = $new_order['shipping_address_1'].' '.$new_order['shipping_address_2'];
-            if ('NL' === $wc_order->get_shipping_country()) {
-                $expectedShippingStreet = $new_order['shipping_address_house_number'].' '.$new_order['shipping_address_1'].' '.$new_order['shipping_address_2'];
-            }
 
             $expect_shipping = [
                 'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
@@ -122,6 +120,10 @@ class OrderExportTest extends AbstractOrderExportTest
                         'familyname' => $new_order['shipping_last_name'],
                     ],
             ];
+
+            if ('NL' === $wc_order->get_shipping_country()) {
+                $expect_shipping['contact_address']['streetnumber'] = $new_order['shipping_address_house_number'];
+            }
         }
 
         if (!empty($new_order['shipping_company'])) {
@@ -604,5 +606,57 @@ class OrderExportTest extends AbstractOrderExportTest
             get_post_meta($new_order_id, 'storekeeper_id', true),
             'storekeeper_id is assigned on wordpress order'
         );
+    }
+
+    public function dataProviderStreetNumber()
+    {
+        $streetNumbers = [];
+        $streetNumbers['160'] = [
+            'streetnumber' => '160',
+            'flatnumber' => '',
+        ];
+        $streetNumbers['23'] = [
+            'streetnumber' => '23',
+            'flatnumber' => '',
+        ];
+        $streetNumbers['23-9'] = [
+            'streetnumber' => '23',
+            'flatnumber' => '9',
+        ];
+        $streetNumbers['23-9-A'] = [
+            'streetnumber' => '23',
+            'flatnumber' => '9-A',
+        ];
+        $streetNumbers['146A02'] = [
+            'streetnumber' => '146',
+            'flatnumber' => 'A02',
+        ];
+        $streetNumbers['146A02B'] = [
+            'streetnumber' => '146',
+            'flatnumber' => 'A02B',
+        ];
+        $streetNumbers['20hs'] = [
+            'streetnumber' => '20',
+            'flatnumber' => 'hs',
+        ];
+        $streetNumbers['1011'] = [
+            'streetnumber' => '1011',
+            'flatnumber' => '',
+        ];
+
+        $entries = [];
+        foreach ($streetNumbers as $streetNumber => $expect) {
+            $entries['Street number: '.$streetNumber] = [$streetNumber, $expect];
+        }
+
+        return $entries;
+    }
+
+    /**
+     * @dataProvider dataProviderStreetNumber
+     */
+    public function testStreetNumberSplit($streetNumber, $expected): void
+    {
+        $this->assertEquals($expected, OrderExport::splitStreetNumber($streetNumber));
     }
 }
