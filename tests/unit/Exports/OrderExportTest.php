@@ -643,6 +643,18 @@ class OrderExportTest extends AbstractOrderExportTest
             'streetnumber' => '1011',
             'flatnumber' => '',
         ];
+        $streetNumbers[' 146 A02B'] = [
+            'streetnumber' => '146',
+            'flatnumber' => 'A02B',
+        ];
+        $streetNumbers['146/01'] = [
+            'streetnumber' => '146',
+            'flatnumber' => '01',
+        ];
+        $streetNumbers['146 01'] = [
+            'streetnumber' => '146',
+            'flatnumber' => '01',
+        ];
 
         $entries = [];
         foreach ($streetNumbers as $streetNumber => $expect) {

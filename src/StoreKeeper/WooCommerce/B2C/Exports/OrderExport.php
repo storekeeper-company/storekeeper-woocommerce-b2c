@@ -770,7 +770,7 @@ class OrderExport extends AbstractExport
 
     public static function splitStreetNumber(string $streetNumber): array
     {
-        if (preg_match('/^(?P<streetnumber>\d*+)-?(?P<flatnumber>[A-Za-z\d]+|[A-Za-z\d-]+)$/i', $streetNumber, $matches)) {
+        if (preg_match('/^\s*(?P<streetnumber>\d*+)\s*[\-\/]?\s*(?P<flatnumber>[A-Za-z\d]+|[A-Za-z\d\-\s*]+)$/i', $streetNumber, $matches)) {
             return [
                 'streetnumber' => $matches['streetnumber'],
                 'flatnumber' => $matches['flatnumber'],
