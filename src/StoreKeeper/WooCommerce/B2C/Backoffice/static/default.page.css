@@ -98,6 +98,10 @@ p.storekeeper-form-note {
     color: #3498db !important;
 }
 
+.mt-1 {
+    margin-top: .25rem;
+}
+
 /* Making sure disabled inputs by classes are not clickable */
 input[type="checkbox"].disabled {
     pointer-events: none;

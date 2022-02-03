@@ -19,8 +19,39 @@ class FileExportProduct extends AbstractFileExportCommand
         return __('Generate and export CSV files for products which will be used to import to Storekeeper Backoffice.', I18N::DOMAIN);
     }
 
+    public static function getSynopsis(): array
+    {
+        $synopsis = parent::getSynopsis();
+        $synopsis[] = [
+            'type' => 'flag',
+            'name' => 'export-not-active-products',
+            'description' => __('Include products that are not published on export.', I18N::DOMAIN),
+            'optional' => true,
+        ];
+
+        return $synopsis;
+    }
+
+    /* @var null|ProductFileExport $productFileExport */
+    protected $productFileExport = null;
+
+    public function execute(array $arguments, array $assoc_arguments)
+    {
+        if (array_key_exists('export-not-active-products', $assoc_arguments)) {
+            $this->getNewFileExportInstance()->setShouldExportActiveProductsOnly(false);
+        }
+        parent::execute($arguments, $assoc_arguments);
+    }
+
+    /**
+     * @return ProductFileExport
+     */
     public function getNewFileExportInstance(): IFileExport
     {
-        return new ProductFileExport(new WpCLILogger());
+        if (is_null($this->productFileExport)) {
+            $this->productFileExport = new ProductFileExport(new WpCLILogger());
+        }
+
+        return $this->productFileExport;
     }
 }

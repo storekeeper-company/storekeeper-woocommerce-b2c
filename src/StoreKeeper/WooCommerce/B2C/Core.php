@@ -52,7 +52,7 @@ use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
-use StoreKeeper\WooCommerce\B2C\Frontend\FrondendCore;
+use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Hooks\CustomerHook;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -364,7 +364,7 @@ HTML;
         if (is_admin()) {
             $core = new BackofficeCore();
         } else {
-            $core = new FrondendCore();
+            $core = new FrontendCore();
         }
         $core->run();
     }

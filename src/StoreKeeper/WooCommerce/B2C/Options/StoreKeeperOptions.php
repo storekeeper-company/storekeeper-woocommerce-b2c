@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Options;
 
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 class StoreKeeperOptions extends AbstractOptions
@@ -22,6 +23,8 @@ class StoreKeeperOptions extends AbstractOptions
     const SYNC_MODE_ORDER_ONLY = 'sync-mode-order-only';
     const SYNC_MODE_PRODUCT_ONLY = 'sync-mode-product-only';
     const SYNC_MODE_NONE = 'sync-mode-none';
+
+    const SEO_HANDLER = 'seo-handler';
 
     const MODES_WITH_CUSTOMERS_SYNC = [
         StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
@@ -121,6 +124,11 @@ class StoreKeeperOptions extends AbstractOptions
     public static function getBarcodeMode()
     {
         return self::get(self::BARCODE_MODE, self::BARCODE_META_FALLBACK);
+    }
+
+    public static function getSeoHandler()
+    {
+        return self::get(self::SEO_HANDLER, Seo::STOREKEEPER_HANDLER);
     }
 
     public static function getExplorerUrl()

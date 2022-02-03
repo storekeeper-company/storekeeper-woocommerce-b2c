@@ -61,12 +61,18 @@ jQuery(function($) {
             }
         });
 
+        let data = {
+            type: type,
+            lang: language
+        };
+
+        if ($(`input[type="checkbox"][name="${type}-all-products"]`).length > 0) {
+            data.activeProductsOnly = !$(`input[type="checkbox"][name="${type}-all-products"]`).is(':checked');
+        }
+
         exportRequest = $.ajax({
             url: exportSettings.url,
-            data: {
-                type: type,
-                lang: language
-            },
+            data: data,
             timeout: 0
         }).done(function ({ url, size, filename }) {
             Swal.fire({
