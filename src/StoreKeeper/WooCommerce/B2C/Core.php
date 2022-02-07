@@ -54,6 +54,7 @@ use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
+use StoreKeeper\WooCommerce\B2C\Hooks\AddressFormattingHook;
 use StoreKeeper\WooCommerce\B2C\Hooks\CustomerHook;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -149,6 +150,7 @@ class Core
         }
         $this->versionChecks();
         $this->registerMarkDown();
+        $this->registerAddressFormatting();
     }
 
     private function prepareCron()
@@ -253,6 +255,17 @@ class Core
 
             $this->loader->add_filter('init', $PaymentGateway, 'registerCheckoutFlash');
         }
+    }
+
+    private function registerAddressFormatting(): void
+    {
+        $addressFormatting = new AddressFormattingHook();
+
+        // Address display and formatting
+        $this->loader->add_filter('woocommerce_localisation_address_formats', $addressFormatting, 'customAddressFormats', 11);
+        $this->loader->add_filter('woocommerce_formatted_address_replacements', $addressFormatting, 'customAddressReplacements', 11, 2);
+        $this->loader->add_filter('woocommerce_my_account_my_address_formatted_address', $addressFormatting, 'addCustomAddressArguments', 11, 3);
+        $this->loader->add_filter('woocommerce_get_order_address', $addressFormatting, 'addCustomAddressArgumentsForOrder', 11, 3);
     }
 
     private function versionChecks()
