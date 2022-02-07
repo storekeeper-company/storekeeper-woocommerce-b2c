@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\PaymentGateway;
 
 use StoreKeeper\ApiWrapper\Exception\AuthException;
+use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
@@ -10,6 +11,7 @@ use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class PaymentGateway
 {
@@ -119,10 +121,11 @@ SQL;
     /**
      * @param $order_id
      * @param $payment_id
+     * @param $amount
      *
      * @return bool whenever the payment update was success or not
      */
-    public static function updatePayment($order_id, $payment_id)
+    public static function updatePayment($order_id, $payment_id, $amount)
     {
         global $wpdb;
 
@@ -133,6 +136,7 @@ SQL;
                 [
                     'payment_id' => $payment_id,
                     'is_synced' => false, // Update un sets the payment sync status.
+                    'amount' => $amount,
                 ],
                 // where
                 ['order_id' => $order_id],
@@ -140,6 +144,7 @@ SQL;
                 [
                     '%d',
                     '%d',
+                    '%s',
                 ],
                     // where format
                 ['%d']
@@ -149,10 +154,11 @@ SQL;
     /**
      * @param $order_id
      * @param $payment_id
+     * @param $amount
      *
      * @return bool
      */
-    public static function addPayment($order_id, $payment_id)
+    public static function addPayment($order_id, $payment_id, $amount)
     {
         global $wpdb;
 
@@ -163,24 +169,26 @@ SQL;
                 [
                     'order_id' => $order_id,
                     'payment_id' => $payment_id,
+                    'amount' => $amount,
                 ],
                 // format
                 [
                     '%d',
                     '%d',
+                    '%s',
                 ]
             );
     }
 
     /**
      * @param $orderId
-     * @param $paymentId
+     * @param $skRefundId
      * @param $refundId
      * @param $amount
      *
      * @return bool
      */
-    public static function addRefund($orderId, $paymentId, $refundId, $amount)
+    public static function addRefund($orderId, $skRefundId, $refundId, $amount)
     {
         global $wpdb;
 
@@ -189,9 +197,9 @@ SQL;
                 RefundModel::getTableName(),
                 // data
                 [
-                    'order_id' => $orderId,
-                    'payment_id' => $paymentId,
-                    'refund_id' => $refundId,
+                    'wc_order_id' => $orderId,
+                    'sk_refund_id' => $skRefundId,
+                    'wc_refund_id' => $refundId,
                     'amount' => $amount,
                 ],
                 // format
@@ -199,8 +207,34 @@ SQL;
                     '%d',
                     '%d',
                     '%d',
-                    '%d',
+                    '%s',
                 ]
+            );
+    }
+
+    public static function updateRefund($id, $skRefundId, $amount, $isSynced = false)
+    {
+        global $wpdb;
+
+        return false !== $wpdb->update(
+            // table
+                RefundModel::getTableName(),
+                // data
+                [
+                    'sk_refund_id' => $skRefundId,
+                    'is_synced' => $isSynced,
+                    'amount' => $amount,
+                ],
+                // where
+                ['id' => $id],
+                // data format
+                [
+                    '%d',
+                    '%d',
+                    '%s',
+                ],
+                // where format
+                ['%d']
             );
     }
 
@@ -247,23 +281,16 @@ SQL;
         wp_redirect($url);
     }
 
-    public function createRefundPayment($orderId, $refundId)
+    public function createRefundPayment($orderId, $refundId): void
     {
         $refund = wc_get_order($refundId);
         $refundAmount = $refund->get_total();
 
-        $api = StoreKeeperApi::getApiByAuthName();
-        $paymentModule = $api->getModule('PaymentModule');
+        $payOrderRefundId = false;
         try {
-            if (!self::refundExists($orderId, $refundId)) {
-                $paymentId = $paymentModule->newWebPayment([
-                    'amount' => -abs($refundAmount), // Refund should be negative
-                    'description' => sprintf(
-                        __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
-                        $refundId
-                    ),
-                ]);
-                self::addRefund($orderId, $paymentId, $refundId, $refundAmount);
+            $storekeeperId = get_post_meta($orderId, 'storekeeper_id', true);
+            if (!is_null($storekeeperId) && !self::refundExists($orderId, $refundId)) {
+                $payOrderRefundId = self::doCreateRefundPayment($orderId, $refundAmount, $refundId, $storekeeperId);
 
                 $orderHandler = new OrderHandler();
                 $task = $orderHandler->create($orderId);
@@ -272,9 +299,75 @@ SQL;
                     throw new \Exception('Order export task was not created');
                 }
             }
+        } catch (GeneralException $generalException) {
+            if ('Only invoiced orders can be refunded' === $generalException->getMessage()) {
+                self::createRefundAsPayment($orderId, $refundId, $refundAmount);
+                self::scheduleRefundTask($orderId, $refundId, $refundAmount);
+            }
         } catch (\Throwable $exception) {
             LoggerFactory::create('refund')->error($exception->getMessage(), $exception->getTrace());
+            // This will create a refund record without payment ID, which the OrderRefundTask will use to retry.
+            // This basically means that the newWebPayment api call failed.
+            if (false === $payOrderRefundId) {
+                self::scheduleRefundTask($orderId, $refundId, $refundAmount);
+            }
         }
+    }
+
+    public static function doCreateRefundPayment($orderId, $refundAmount, $refundId, $storekeeperId)
+    {
+        $api = StoreKeeperApi::getApiByAuthName();
+        $shopModule = $api->getModule('ShopModule');
+        if (self::hasPayment($orderId)) {
+            $storekeeperPaymentId = self::getPaymentId($orderId);
+            $storekeeperRefundId = $shopModule->refundAllOrderItems([
+                'id' => $storekeeperId,
+                'refund_payments' => [
+                    [
+                        'payment_id' => $storekeeperPaymentId,
+                        'amount' => -abs($refundAmount),
+                        'description' => sprintf(
+                            __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
+                            $refundId
+                        ),
+                    ],
+                ],
+            ]);
+            $payOrderRefundId = self::addRefund($orderId, $storekeeperRefundId, $refundId, $refundAmount);
+            self::markRefundAsSynced($orderId, $storekeeperRefundId, $refundId);
+        } else {
+            $payOrderRefundId = self::createRefundAsPayment($orderId, $refundId, $refundAmount);
+        }
+
+        return $payOrderRefundId;
+    }
+
+    public static function createRefundAsPayment($orderId, $refundId, $refundAmount)
+    {
+        $api = StoreKeeperApi::getApiByAuthName();
+        $paymentModule = $api->getModule('PaymentModule');
+        $storekeeperRefundId = $paymentModule->newWebPayment([
+            'amount' => -abs($refundAmount), // Refund should be negative
+            'description' => sprintf(
+                __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
+                $refundId
+            ),
+        ]);
+
+        return self::addRefund($orderId, $storekeeperRefundId, $refundId, $refundAmount);
+    }
+
+    public static function scheduleRefundTask($orderId, $refundId, $refundAmount): void
+    {
+        if (!self::refundExists($orderId, $refundId)) {
+            self::addRefund($orderId, null, $refundId, $refundAmount);
+        }
+        TaskHandler::scheduleTask(
+            TaskHandler::ORDERS_REFUND_EXPORT,
+            get_post_meta($orderId, 'storekeeper_id', true) ?? 0,
+            ['woocommerce_order_id' => $orderId],
+            true
+        );
     }
 
     public static function hasUnsyncedRefunds($orderId): bool
@@ -289,10 +382,28 @@ SQL;
         $table_name = RefundModel::getTableName();
 
         $sql = <<<SQL
-SELECT payment_id, refund_id
+SELECT sk_refund_id, wc_refund_id, amount
 FROM `$table_name`
-WHERE order_id = '$orderId'
+WHERE wc_order_id = '$orderId'
+AND sk_refund_id IS NOT NULL
 AND is_synced = false
+SQL;
+
+        return $wpdb->get_results($sql, ARRAY_A);
+    }
+
+    public static function getUnsyncedRefundsWithoutPaymentIds($orderId): array
+    {
+        global $wpdb;
+
+        $table_name = RefundModel::getTableName();
+
+        $sql = <<<SQL
+SELECT id, wc_refund_id, amount
+FROM `$table_name`
+WHERE wc_order_id = '$orderId'
+AND is_synced = false
+AND sk_refund_id IS NULL
 SQL;
 
         return $wpdb->get_results($sql, ARRAY_A);
@@ -300,12 +411,12 @@ SQL;
 
     /**
      * @param $orderId
-     * @param $paymentId
+     * @param $skRefundId
      * @param $refundId
      *
      * @return bool whenever the payment update was success or not
      */
-    public static function markRefundAsSynced($orderId, $paymentId, $refundId): bool
+    public static function markRefundAsSynced($orderId, $skRefundId, $refundId): bool
     {
         global $wpdb;
 
@@ -313,9 +424,9 @@ SQL;
                 RefundModel::getTableName(), // table
                 ['is_synced' => true], // data
                 [
-                    'order_id' => $orderId,
-                    'payment_id' => $paymentId,
-                    'refund_id' => $refundId,
+                    'wc_order_id' => $orderId,
+                    'sk_refund_id' => $skRefundId,
+                    'wc_refund_id' => $refundId,
                 ] // where
             );
     }
@@ -334,17 +445,17 @@ SQL;
         $table_name = RefundModel::getTableName();
 
         $sql = <<<SQL
-SELECT payment_id
+SELECT sk_refund_id
 FROM `$table_name`
-WHERE order_id = '$orderId'
-AND refund_id = '$refundId'
+WHERE wc_order_id = '$orderId'
+AND wc_refund_id = '$refundId'
 LIMIT 1
 SQL;
 
         // Getting the results and getting the first one.
         $results = $wpdb->get_results($sql, ARRAY_A);
         if (!empty($results)) {
-            $payment_id = array_shift($results)['payment_id'];
+            $payment_id = array_shift($results)['sk_refund_id'];
         }
 
         return $payment_id;
@@ -372,6 +483,29 @@ SQL;
         }
 
         return $payment_id;
+    }
+
+    public static function getPaymentAmount($order_id)
+    {
+        global $wpdb;
+
+        $amount = null;
+        $table_name = PaymentModel::getTableName();
+
+        $sql = <<<SQL
+SELECT amount
+FROM `$table_name`
+WHERE order_id = '$order_id'
+LIMIT 1
+SQL;
+
+        // Getting the results and getting the first one.
+        $results = $wpdb->get_results($sql, ARRAY_A);
+        if (!empty($results)) {
+            $amount = array_shift($results)['amount'];
+        }
+
+        return $amount;
     }
 
     public static function getOrderReturnUrl(\WC_Order $order)

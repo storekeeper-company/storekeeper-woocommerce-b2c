@@ -90,9 +90,9 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         //we insert the order id with payment id here so on the detail page later on we can check
         //whether or not the order is paid
         if (PaymentGateway::hasPayment($order->get_id())) {
-            $update = PaymentGateway::updatePayment($order->get_id(), $payment['id']);
+            $update = PaymentGateway::updatePayment($order->get_id(), $payment['id'], $order->get_total());
         } else {
-            $update = PaymentGateway::addPayment($order->get_id(), $payment['id']);
+            $update = PaymentGateway::addPayment($order->get_id(), $payment['id'], $order->get_total());
         }
 
         if (!$update) {

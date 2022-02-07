@@ -5,7 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Models;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 
 /**
- * @since 7.6.10
+ * @since 8.1.0
  */
 class RefundModel extends AbstractModel implements IModelPurge
 {
@@ -16,9 +16,9 @@ class RefundModel extends AbstractModel implements IModelPurge
     {
         return [
             'id' => true,
-            'order_id' => true,
-            'refund_id' => true,
-            'payment_id' => true,
+            'wc_order_id' => true,
+            'wc_refund_id' => true,
+            'sk_refund_id' => false,
             'amount' => false,
             'is_synced' => true,
         ];
@@ -31,9 +31,9 @@ class RefundModel extends AbstractModel implements IModelPurge
         $tableQuery = <<<SQL
     CREATE TABLE `$name` (
         `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-        `order_id` bigint(20) NOT NULL,
-        `refund_id` bigint(20) NOT NULL,
-        `payment_id` bigint(20) NOT NULL,
+        `wc_order_id` bigint(20) NOT NULL,
+        `wc_refund_id` bigint(20) NOT NULL,
+        `sk_refund_id` bigint(20) NULL,
         `amount` TEXT COLLATE utf8mb4_unicode_ci NULL,
         `is_synced` boolean NOT NULL DEFAULT 0,
         PRIMARY KEY (`id`)

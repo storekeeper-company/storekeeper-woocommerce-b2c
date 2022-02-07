@@ -74,7 +74,7 @@ SQL;
             $wpdb->query('ALTER TABLE '.static::getTableName().' ADD execution_duration TEXT COLLATE utf8mb4_unicode_ci');
         }
 
-        /* @since 7.6.10 */
+        /* @since 8.0.0 */
         if (in_array('date_last_processed', $difference, true)) {
             $wpdb->query('ALTER TABLE '.static::getTableName().' ADD date_last_processed TIMESTAMP NULL');
         }

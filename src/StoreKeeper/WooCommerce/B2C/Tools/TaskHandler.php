@@ -19,6 +19,7 @@ use StoreKeeper\WooCommerce\B2C\Tasks\MenuItemImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\OrderDeleteTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\OrderExportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\OrderImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\OrderRefundTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ParentProductRecalculationTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductActivateTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductDeactivateTask;
@@ -63,6 +64,7 @@ class TaskHandler
     const COUPON_CODE_DELETE = 'coupon-code-delete';
 
     const ORDERS_EXPORT = 'orders-export';
+    const ORDERS_REFUND_EXPORT = 'orders-refund-export';
     const ORDERS_IMPORT = 'orders-import';
     const ORDERS_DELETE = 'orders-delete';
 
@@ -189,6 +191,7 @@ class TaskHandler
             case self::COUPON_CODE_DELETE:
                 return self::COUPON_CODE_TYPE_GROUP;
             case self::ORDERS_EXPORT:
+            case self::ORDERS_REFUND_EXPORT:
             case self::ORDERS_IMPORT:
             case self::ORDERS_DELETE:
                 return self::ORDER_TYPE_GROUP;
@@ -265,6 +268,9 @@ class TaskHandler
                 break;
             case self::ORDERS_EXPORT:
                 $title = __('Order export', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::ORDERS_REFUND_EXPORT:
+                $title = __('Order refund export', I18N::DOMAIN)."(id=$id)";
                 break;
             case self::ORDERS_IMPORT:
                 $title = __('Order import', I18N::DOMAIN)."(id=$id)";
@@ -431,6 +437,9 @@ class TaskHandler
                 break;
             case self::ORDERS_EXPORT:
                 $import = new OrderExportTask();
+                break;
+            case self::ORDERS_REFUND_EXPORT:
+                $import = new OrderRefundTask();
                 break;
             case self::ORDERS_IMPORT:
                 $import = new OrderImportTask();

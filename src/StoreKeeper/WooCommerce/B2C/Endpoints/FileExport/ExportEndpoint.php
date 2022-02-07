@@ -3,8 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Endpoints\AbstractEndpoint;
-use StoreKeeper\WooCommerce\B2C\FileExport\AllFileExport;
-use StoreKeeper\WooCommerce\B2C\FileExport\ProductFileExport;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Interfaces\ProductExportInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
