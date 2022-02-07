@@ -674,10 +674,7 @@ class OrderExport extends AbstractExport
         return parent::catchKnownExceptions($throwable);
     }
 
-    /**
-     * @return mixed
-     */
-    protected function processPaymentsAndRefunds(WC_Order $WpObject, int $storekeeper_id)
+    protected function processPaymentsAndRefunds(WC_Order $WpObject, int $storekeeper_id): void
     {
         $shopModule = $this->storekeeper_api->getModule('ShopModule');
         $storekeeper_order = $shopModule->getOrder($storekeeper_id, null);
@@ -685,8 +682,6 @@ class OrderExport extends AbstractExport
         $woocommerceOrderId = $WpObject->get_id();
         $this->processRefunds($woocommerceOrderId, $storekeeper_id);
         $this->processPayments($WpObject, $storekeeper_id, $storekeeper_order);
-
-        return $storekeeper_order;
     }
 
     protected function processRefunds($woocommerceOrderId, $storekeeperId): void
@@ -734,7 +729,7 @@ class OrderExport extends AbstractExport
                             'refund_payments' => [
                                 [
                                     'payment_id' => $storekeeperPaymentId,
-                                    'amount' => -abs($refundAmount),
+                                    'amount' => round(-abs($refundAmount), 2),
                                     'description' => sprintf(
                                         __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
                                         $refundId
@@ -747,7 +742,7 @@ class OrderExport extends AbstractExport
                         PaymentGateway::markRefundAsSynced($woocommerceOrderId, $storekeeperRefundId, $refundId);
                     } else {
                         $storekeeperRefundId = $paymentModule->newWebPayment([
-                            'amount' => -abs($refundAmount), // Refund should be negative
+                            'amount' => round(-abs($refundAmount), 2), // Refund should be negative
                             'description' => sprintf(
                                 __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
                                 $refundId
@@ -804,7 +799,7 @@ class OrderExport extends AbstractExport
             } catch (GeneralException $generalException) {
                 // Check if the payment is already attached to the order, we can ignore it an move on.
                 $strpos = strpos($generalException->getMessage(), 'This payment is already linked');
-                if (!is_numeric($strpos)) {
+                if (false === $strpos) {
                     throw $generalException;
                 }
             }

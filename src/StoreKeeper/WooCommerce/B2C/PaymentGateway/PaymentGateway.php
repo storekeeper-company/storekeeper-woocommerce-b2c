@@ -302,8 +302,8 @@ SQL;
         } catch (GeneralException $generalException) {
             if ('Only invoiced orders can be refunded' === $generalException->getMessage()) {
                 self::createRefundAsPayment($orderId, $refundId, $refundAmount);
-                self::scheduleRefundTask($orderId, $refundId, $refundAmount);
             }
+            self::scheduleRefundTask($orderId, $refundId, $refundAmount);
         } catch (\Throwable $exception) {
             LoggerFactory::create('refund')->error($exception->getMessage(), $exception->getTrace());
             // This will create a refund record without payment ID, which the OrderRefundTask will use to retry.
@@ -325,7 +325,7 @@ SQL;
                 'refund_payments' => [
                     [
                         'payment_id' => $storekeeperPaymentId,
-                        'amount' => -abs($refundAmount),
+                        'amount' => round(-abs($refundAmount)),
                         'description' => sprintf(
                             __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
                             $refundId
@@ -347,7 +347,7 @@ SQL;
         $api = StoreKeeperApi::getApiByAuthName();
         $paymentModule = $api->getModule('PaymentModule');
         $storekeeperRefundId = $paymentModule->newWebPayment([
-            'amount' => -abs($refundAmount), // Refund should be negative
+            'amount' => round(-abs($refundAmount)), // Refund should be negative
             'description' => sprintf(
                 __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
                 $refundId
