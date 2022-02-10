@@ -104,11 +104,13 @@ class Attributes
         $option_sk_to_wc = [];
         foreach ($sk_options as $sk_option) {
             $attribute_id = $attribute_sk_to_wc[$sk_option['attribute_id']];
+            $attributeImage = $sk_option['image_url'] ?? null;
             $option_sk_to_wc[$sk_option['id']] = self::importAttributeOption(
                 $attribute_id,
                 $sk_option['id'],
                 $sk_option['name'],
                 $sk_option['label'],
+                $attributeImage,
             );
         }
 
