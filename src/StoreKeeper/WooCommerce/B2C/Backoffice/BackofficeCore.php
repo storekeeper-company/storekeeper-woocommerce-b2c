@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
+use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductImageMetabox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -53,6 +54,7 @@ class BackofficeCore
     {
         $orderSyncMetaBox = new OrderSyncMetaBox();
         $productSyncMetaBox = new ProductSyncMetaBox();
+        $productImageMetabox = new ProductImageMetabox();
 
         // Order sync meta box
         $this->loader->add_action('add_meta_boxes', $orderSyncMetaBox, 'register');
@@ -61,6 +63,9 @@ class BackofficeCore
         // Product sync meta box
         $this->loader->add_action('add_meta_boxes', $productSyncMetaBox, 'register');
         $this->loader->add_action('post_action_'.ProductSyncMetaBox::ACTION_NAME, $productSyncMetaBox, 'doSync');
+
+        $this->loader->add_action('add_meta_boxes', $productImageMetabox, 'register');
+        $this->loader->add_action('post_action_'.ProductImageMetabox::ACTION_NAME, $productImageMetabox, 'doSync');
     }
 
     private function loadStorekeeperMenu()

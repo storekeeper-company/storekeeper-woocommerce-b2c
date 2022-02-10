@@ -850,13 +850,13 @@ SQL;
         $this->setTags($newProduct, $dotObject);
         $this->debug('Set Tags on product', $log_data);
 
-        /** Main image */
-        $main_image_id = $this->setImage($newProduct, $dotObject);
-        $this->debug('Set main Image on product', $log_data);
+        /* Main image */
+//        $main_image_id = $this->setImage($newProduct, $dotObject);
+//        $this->debug('Set main Image on product', $log_data);
 
         /* Additional images */
-        $this->setGalleryImages($newProduct, $dotObject, $main_image_id);
-        $this->debug('Set GalleryImages on product', $log_data);
+//        $this->setGalleryImages($newProduct, $dotObject, $main_image_id);
+//        $this->debug('Set GalleryImages on product', $log_data);
 
         if (!array_key_exists('skip_upsell', $options) || !$options['skip_upsell']) {
             /** Upsell */
