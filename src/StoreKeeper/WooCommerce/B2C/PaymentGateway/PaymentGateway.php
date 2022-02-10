@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\PaymentGateway;
 
 use StoreKeeper\ApiWrapper\Exception\AuthException;
-use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
@@ -11,7 +10,6 @@ use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
-use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class PaymentGateway
 {
@@ -284,90 +282,32 @@ SQL;
     public function createRefundPayment($orderId, $refundId): void
     {
         $refund = wc_get_order($refundId);
-        $refundAmount = $refund->get_total();
+        $refundAmount = $refund->get_amount();
 
-        $payOrderRefundId = false;
-        try {
-            $storekeeperId = get_post_meta($orderId, 'storekeeper_id', true);
-            if (!is_null($storekeeperId) && !self::refundExists($orderId, $refundId)) {
-                $payOrderRefundId = self::doCreateRefundPayment($orderId, $refundAmount, $refundId, $storekeeperId);
+        if (!self::refundExists($orderId, $refundId)) {
+            self::addRefund($orderId, null, $refundId, $refundAmount);
+        }
 
-                $orderHandler = new OrderHandler();
-                $task = $orderHandler->create($orderId);
+        $orderHandler = new OrderHandler();
+        $task = $orderHandler->create($orderId);
 
-                if (!$task) {
-                    throw new \Exception('Order export task was not created');
-                }
-            }
-        } catch (GeneralException $generalException) {
-            if ('Only invoiced orders can be refunded' === $generalException->getMessage()) {
-                self::createRefundAsPayment($orderId, $refundId, $refundAmount);
-            }
-            self::scheduleRefundTask($orderId, $refundId, $refundAmount);
-        } catch (\Throwable $exception) {
-            LoggerFactory::create('refund')->error($exception->getMessage(), $exception->getTrace());
-            // This will create a refund record without payment ID, which the OrderRefundTask will use to retry.
-            // This basically means that the newWebPayment api call failed.
-            if (false === $payOrderRefundId) {
-                self::scheduleRefundTask($orderId, $refundId, $refundAmount);
-            }
+        if (!$task) {
+            throw new \Exception('Order export task was not created');
         }
     }
 
-    public static function doCreateRefundPayment($orderId, $refundAmount, $refundId, $storekeeperId)
-    {
-        $api = StoreKeeperApi::getApiByAuthName();
-        $shopModule = $api->getModule('ShopModule');
-        if (self::hasPayment($orderId)) {
-            $storekeeperPaymentId = self::getPaymentId($orderId);
-            $storekeeperRefundId = $shopModule->refundAllOrderItems([
-                'id' => $storekeeperId,
-                'refund_payments' => [
-                    [
-                        'payment_id' => $storekeeperPaymentId,
-                        'amount' => round(-abs($refundAmount)),
-                        'description' => sprintf(
-                            __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
-                            $refundId
-                        ),
-                    ],
-                ],
-            ]);
-            $payOrderRefundId = self::addRefund($orderId, $storekeeperRefundId, $refundId, $refundAmount);
-            self::markRefundAsSynced($orderId, $storekeeperRefundId, $refundId);
-        } else {
-            $payOrderRefundId = self::createRefundAsPayment($orderId, $refundId, $refundAmount);
-        }
-
-        return $payOrderRefundId;
-    }
-
-    public static function createRefundAsPayment($orderId, $refundId, $refundAmount)
+    public static function createRefundAsPayment($refundId, $refundAmount)
     {
         $api = StoreKeeperApi::getApiByAuthName();
         $paymentModule = $api->getModule('PaymentModule');
-        $storekeeperRefundId = $paymentModule->newWebPayment([
+
+        return $paymentModule->newWebPayment([
             'amount' => round(-abs($refundAmount)), // Refund should be negative
             'description' => sprintf(
                 __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
                 $refundId
             ),
         ]);
-
-        return self::addRefund($orderId, $storekeeperRefundId, $refundId, $refundAmount);
-    }
-
-    public static function scheduleRefundTask($orderId, $refundId, $refundAmount): void
-    {
-        if (!self::refundExists($orderId, $refundId)) {
-            self::addRefund($orderId, null, $refundId, $refundAmount);
-        }
-        TaskHandler::scheduleTask(
-            TaskHandler::ORDERS_REFUND_EXPORT,
-            get_post_meta($orderId, 'storekeeper_id', true) ?? 0,
-            ['woocommerce_order_id' => $orderId],
-            true
-        );
     }
 
     public static function hasUnsyncedRefunds($orderId): bool
@@ -375,6 +315,11 @@ SQL;
         return count(self::getUnsyncedRefundsPaymentIds($orderId)) > 0;
     }
 
+    /**
+     * All refunds that have Storekeeper refund ID but is not synced yet.
+     *
+     * @param $orderId
+     */
     public static function getUnsyncedRefundsPaymentIds($orderId): array
     {
         global $wpdb;
@@ -392,6 +337,11 @@ SQL;
         return $wpdb->get_results($sql, ARRAY_A);
     }
 
+    /**
+     * Refunds that are not totally synced yet, and has no Storekeeper refund ID.
+     *
+     * @param $orderId
+     */
     public static function getUnsyncedRefundsWithoutPaymentIds($orderId): array
     {
         global $wpdb;
