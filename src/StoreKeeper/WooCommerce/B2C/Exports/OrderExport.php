@@ -11,6 +11,7 @@ use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use Throwable;
 use WC_Order;
 use WC_Product;
 use WC_Product_Factory;
@@ -684,107 +685,6 @@ class OrderExport extends AbstractExport
         $this->processRefunds($woocommerceOrderId, $storekeeper_id);
     }
 
-    protected function processRefunds($woocommerceOrderId, $storekeeperId): void
-    {
-        $shopModule = $this->storekeeper_api->getModule('ShopModule');
-        // Attach refunds to order
-        if (PaymentGateway::hasUnsyncedRefunds($woocommerceOrderId)) {
-            $refundPayments = PaymentGateway::getUnsyncedRefundsPaymentIds($woocommerceOrderId);
-
-            foreach ($refundPayments as $refundPayment) {
-                $refundPaymentId = $refundPayment['sk_refund_id'];
-                $refundId = $refundPayment['wc_refund_id'];
-                $this->debug(
-                    'Attaching payment refund to order',
-                    ['order_id' => $storekeeperId, 'payment_id' => $refundPaymentId]
-                );
-
-                try {
-                    $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$refundPaymentId]], $storekeeperId);
-                    PaymentGateway::markRefundAsSynced($woocommerceOrderId, $refundPaymentId, $refundId);
-                } catch (\Throwable $exception) {
-                    $this->debug('Refund was not attached to order', [
-                        'order_id' => $storekeeperId,
-                        'payment_id' => $refundPaymentId,
-                    ]);
-
-                    throw $exception;
-                }
-            }
-        }
-
-        $unsyncedRefundsWithoutPaymentIds = PaymentGateway::getUnsyncedRefundsWithoutPaymentIds($woocommerceOrderId);
-        if (count($unsyncedRefundsWithoutPaymentIds) > 0) {
-            foreach ($unsyncedRefundsWithoutPaymentIds as $unsyncedRefundsWithoutPaymentId) {
-                try {
-                    $id = $unsyncedRefundsWithoutPaymentId['id'];
-                    $refundId = $unsyncedRefundsWithoutPaymentId['wc_refund_id'];
-                    $refundAmount = $unsyncedRefundsWithoutPaymentId['amount'];
-                    if (PaymentGateway::hasPayment($woocommerceOrderId)) {
-                        $storekeeperPaymentId = PaymentGateway::getPaymentId($woocommerceOrderId);
-                        try {
-                            $storekeeperRefundId = $shopModule->refundAllOrderItems([
-                                'id' => $storekeeperId,
-                                'refund_payments' => [
-                                    [
-                                        'payment_id' => $storekeeperPaymentId,
-                                        'amount' => round(-abs($refundAmount), 2),
-                                        'description' => sprintf(
-                                            __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
-                                            $refundId
-                                        ),
-                                    ],
-                                ],
-                            ]);
-                            PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
-                        } catch (GeneralException $generalException) {
-                            if ('Only invoiced orders can be refunded' === $generalException->getMessage()) {
-                                $storekeeperRefundId = PaymentGateway::createRefundAsPayment($refundId, $refundAmount);
-                                PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
-
-                                try {
-                                    $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$storekeeperRefundId]], $storekeeperId);
-                                } catch (\Throwable $generalException) {
-                                    $this->debug('Refund was not attached to order', [
-                                        'order_id' => $storekeeperId,
-                                        'payment_id' => $storekeeperRefundId,
-                                    ]);
-
-                                    throw $generalException;
-                                }
-                            } else {
-                                throw $generalException;
-                            }
-                        }
-
-                        PaymentGateway::markRefundAsSynced($woocommerceOrderId, $storekeeperRefundId, $refundId);
-                    } else {
-                        $storekeeperRefundId = PaymentGateway::createRefundAsPayment($refundId, $refundAmount);
-                        PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
-
-                        try {
-                            $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$storekeeperRefundId]], $storekeeperId);
-                            PaymentGateway::markRefundAsSynced($woocommerceOrderId, $storekeeperRefundId, $refundId);
-                        } catch (\Throwable $generalException) {
-                            $this->debug('Refund was not attached to order', [
-                                'order_id' => $storekeeperId,
-                                'payment_id' => $storekeeperRefundId,
-                            ]);
-
-                            throw $generalException;
-                        }
-                    }
-                } catch (\Throwable $exception) {
-                    $this->debug('Failed to refund order', [
-                        'order_id' => $storekeeperId,
-                    ]);
-
-                    throw $exception;
-                }
-            }
-        }
-    }
-
     protected function processPayments(WC_Order $WpObject, int $storekeeper_id, $storekeeperOrder): void
     {
         $isPaid = $storekeeperOrder['is_paid'];
@@ -881,6 +781,118 @@ class OrderExport extends AbstractExport
             } else {
                 $this->debug('Did not mark the order as paid since it was not needed');
             }
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    protected function processRefunds($woocommerceOrderId, $storekeeperId): void
+    {
+        $shopModule = $this->storekeeper_api->getModule('ShopModule');
+        // Attach refunds to order
+        if (PaymentGateway::hasUnsyncedRefunds($woocommerceOrderId)) {
+            $refundPayments = PaymentGateway::getUnsyncedRefundsPaymentIds($woocommerceOrderId);
+
+            foreach ($refundPayments as $refundPayment) {
+                $refundPaymentId = $refundPayment['sk_refund_id'];
+                $refundId = $refundPayment['wc_refund_id'];
+                $this->debug(
+                    'Attaching payment refund to order',
+                    ['order_id' => $storekeeperId, 'payment_id' => $refundPaymentId]
+                );
+
+                try {
+                    $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$refundPaymentId]], $storekeeperId);
+                    PaymentGateway::markRefundAsSynced($woocommerceOrderId, $refundPaymentId, $refundId);
+                } catch (Throwable $exception) {
+                    $this->debug('Refund was not attached to order', [
+                        'order_id' => $storekeeperId,
+                        'payment_id' => $refundPaymentId,
+                    ]);
+
+                    throw $exception;
+                }
+            }
+        }
+
+        $unsyncedRefundsWithoutIds = PaymentGateway::getUnsyncedRefundsWithoutPaymentIds($woocommerceOrderId);
+        if (count($unsyncedRefundsWithoutIds) > 0) {
+            foreach ($unsyncedRefundsWithoutIds as $unsyncedRefundsWithoutId) {
+                try {
+                    $this->doProcessRefundsWithoutIds($unsyncedRefundsWithoutId, $woocommerceOrderId, $storekeeperId);
+                } catch (Throwable $exception) {
+                    $this->debug('Failed to refund order', [
+                        'order_id' => $storekeeperId,
+                    ]);
+
+                    throw $exception;
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $unsyncedRefundsWithoutId
+     * @param $woocommerceOrderId
+     * @param $storekeeperId
+     *
+     * @throws Throwable
+     */
+    protected function doProcessRefundsWithoutIds($unsyncedRefundsWithoutId, $woocommerceOrderId, $storekeeperId): void
+    {
+        $shopModule = $this->storekeeper_api->getModule('ShopModule');
+
+        $id = $unsyncedRefundsWithoutId['id'];
+        $refundId = $unsyncedRefundsWithoutId['wc_refund_id'];
+        $refundAmount = $unsyncedRefundsWithoutId['amount'];
+        if (PaymentGateway::hasPayment($woocommerceOrderId)) {
+            $storekeeperPaymentId = PaymentGateway::getPaymentId($woocommerceOrderId);
+            try {
+                $storekeeperRefundId = $shopModule->refundAllOrderItems([
+                    'id' => $storekeeperId,
+                    'refund_payments' => [
+                        [
+                            'payment_id' => $storekeeperPaymentId,
+                            'amount' => round(-abs($refundAmount), 2),
+                            'description' => sprintf(
+                                __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
+                                $refundId
+                            ),
+                        ],
+                    ],
+                ]);
+                $this->debug('Storekeeper refund was created', [
+                    'order_id' => $storekeeperId,
+                    'payment_id' => $storekeeperRefundId,
+                ]);
+                PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
+            } catch (GeneralException $generalException) {
+                if ('Only invoiced orders can be refunded' === $generalException->getMessage()) {
+                    $storekeeperRefundId = PaymentGateway::createRefundAsPayment($refundId, $refundAmount);
+                    $this->debug('Storekeeper refund was created', [
+                        'order_id' => $storekeeperId,
+                        'payment_id' => $storekeeperRefundId,
+                    ]);
+                    PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
+
+                    $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$storekeeperRefundId]], $storekeeperId);
+                } else {
+                    throw $generalException;
+                }
+            }
+
+            PaymentGateway::markRefundAsSynced($woocommerceOrderId, $storekeeperRefundId, $refundId);
+        } else {
+            $storekeeperRefundId = PaymentGateway::createRefundAsPayment($refundId, $refundAmount);
+            $this->debug('Storekeeper refund was created', [
+                'order_id' => $storekeeperId,
+                'payment_id' => $storekeeperRefundId,
+            ]);
+            PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
+
+            $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$storekeeperRefundId]], $storekeeperId);
+            PaymentGateway::markRefundAsSynced($woocommerceOrderId, $storekeeperRefundId, $refundId);
         }
     }
 

@@ -302,7 +302,7 @@ SQL;
         $paymentModule = $api->getModule('PaymentModule');
 
         return $paymentModule->newWebPayment([
-            'amount' => round(-abs($refundAmount)), // Refund should be negative
+            'amount' => round(-abs($refundAmount), 2), // Refund should be negative
             'description' => sprintf(
                 __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
                 $refundId
