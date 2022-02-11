@@ -249,6 +249,10 @@ class Core
             // check the order status
             $this->loader->add_filter('woocommerce_api_backoffice_pay_gateway_return', $PaymentGateway, 'onReturn');
 
+            // Handle payment refunds
+            $this->loader->add_action('woocommerce_order_refunded', $PaymentGateway, 'createRefundPayment', 10, 2);
+            $this->loader->add_action('woocommerce_order_partially_refunded', $PaymentGateway, 'createRefundPayment', 10, 2);
+
             $this->loader->add_filter('init', $PaymentGateway, 'registerCheckoutFlash');
         }
     }

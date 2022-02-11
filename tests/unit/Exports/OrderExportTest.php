@@ -482,6 +482,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             return [
                                 'id' => current($got),
                                 'status' => OrderExport::STATUS_NEW,
+                                'is_paid' => false,
                             ];
                         }
                     );
@@ -576,6 +577,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             return [
                                 'id' => $sk_order_id,
                                 'status' => OrderExport::STATUS_NEW,
+                                'is_paid' => false,
                             ];
                         }
                     );

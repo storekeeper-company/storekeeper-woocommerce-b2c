@@ -4,11 +4,12 @@ namespace StoreKeeper\WooCommerce\B2C;
 
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
+use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
+use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
-use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\RedirectHandler;
 
 class Activator
@@ -20,7 +21,6 @@ class Activator
         $this->setOrderPrefix();
         $this->setMainCategoryId();
         $this->ensureModelTables();
-        $this->createOrdersPaymentsTable();
         $this->createRedirectTable();
         $this->setVersion();
     }
@@ -40,11 +40,6 @@ class Activator
             $uuid = wp_generate_uuid4();
             WooCommerceOptions::set(WooCommerceOptions::WOOCOMMERCE_UUID, $uuid);
         }
-    }
-
-    private function createOrdersPaymentsTable()
-    {
-        PaymentGateway::createTable(); // Create the orders payments table if it doesn't exists
     }
 
     private function createRedirectTable()
@@ -77,5 +72,7 @@ class Activator
         TaskModel::ensureTable();
         AttributeModel::ensureTable();
         AttributeOptionModel::ensureTable();
+        PaymentModel::ensureTable();
+        RefundModel::ensureTable();
     }
 }

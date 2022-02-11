@@ -5,42 +5,15 @@ namespace StoreKeeper\WooCommerce\B2C\PaymentGateway;
 use StoreKeeper\ApiWrapper\Exception\AuthException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
+use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
+use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class PaymentGateway
 {
-    const STATUS_CANCELED = 'CANCELED';
-
-    const db_version = 1.0;
-    const STOREKEEPER_PAY_ORDERS_PAYMENTS_TABLE = 'storekeeper_pay_orders_payments';
-    const STOREKEEPER_PAY_DB_VERSION = 'storekeeper_pay_orders_payments_version';
-
-    public static function createTable()
-    {
-        global $wpdb;
-
-        require_once ABSPATH.'wp-admin/includes/upgrade.php';
-
-        self::upgradeOldNamespace();
-
-        $db_version = get_option(self::STOREKEEPER_PAY_DB_VERSION);
-        $table_name_orders_payments = self::getDatabaseTable();
-
-        if (empty($db_version)) {
-            $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS `$table_name_orders_payments` (
-	`order_id` bigint(20) NOT NULL,
-	`payment_id` bigint(20) NOT NULL,
-	`is_synced` boolean NOT NULL DEFAULT 0,
-	PRIMARY KEY (`order_id`)
-);
-SQL;
-
-            self::querySql($sql);
-            add_option(self::STOREKEEPER_PAY_DB_VERSION, self::db_version);
-        }
-    }
+    public const STATUS_CANCELLED = 'CANCELED';
 
     protected static function querySql(string $sql): bool
     {
@@ -51,18 +24,6 @@ SQL;
         }
 
         return true;
-    }
-
-    /**
-     * @param \wpdb $wpdb
-     *
-     * @return string
-     */
-    protected static function getDatabaseTable()
-    {
-        global $wpdb;
-
-        return $wpdb->prefix.self::STOREKEEPER_PAY_ORDERS_PAYMENTS_TABLE;
     }
 
     public static function getReturnUrl($order_id)
@@ -79,7 +40,7 @@ SQL;
 
     public static function registerCheckoutFlash()
     {
-        if (isset($_REQUEST['payment_status']) && self::STATUS_CANCELED == $_REQUEST['payment_status']) {
+        if (isset($_REQUEST['payment_status']) && self::STATUS_CANCELLED == $_REQUEST['payment_status']) {
             add_action('woocommerce_before_checkout_form', [__CLASS__, 'displayFlashCanceled'], 20);
         }
         if (isset($_REQUEST['payment_error'])) {
@@ -109,7 +70,7 @@ SQL;
         global $wpdb;
 
         $is_synced = null;
-        $table_name = self::getDatabaseTable();
+        $table_name = PaymentModel::getTableName();
 
         $sql = <<<SQL
 SELECT is_synced
@@ -147,7 +108,7 @@ SQL;
         global $wpdb;
 
         return false !== $wpdb->update(
-                self::getDatabaseTable(), // table
+                PaymentModel::getTableName(), // table
                 ['is_synced' => true], // data
                 ['order_id' => $order_id], // where
                 ['%d'], // data format
@@ -158,20 +119,22 @@ SQL;
     /**
      * @param $order_id
      * @param $payment_id
+     * @param $amount
      *
      * @return bool whenever the payment update was success or not
      */
-    public static function updatePayment($order_id, $payment_id)
+    public static function updatePayment($order_id, $payment_id, $amount)
     {
         global $wpdb;
 
         return false !== $wpdb->update(
             // table
-                self::getDatabaseTable(),
+                PaymentModel::getTableName(),
                 // data
                 [
                     'payment_id' => $payment_id,
                     'is_synced' => false, // Update un sets the payment sync status.
+                    'amount' => $amount,
                 ],
                 // where
                 ['order_id' => $order_id],
@@ -179,6 +142,7 @@ SQL;
                 [
                     '%d',
                     '%d',
+                    '%s',
                 ],
                     // where format
                 ['%d']
@@ -188,53 +152,88 @@ SQL;
     /**
      * @param $order_id
      * @param $payment_id
+     * @param $amount
      *
      * @return bool
      */
-    public static function addPayment($order_id, $payment_id)
+    public static function addPayment($order_id, $payment_id, $amount)
     {
         global $wpdb;
 
         return false !== $wpdb->insert(
             // table
-                self::getDatabaseTable(),
+                PaymentModel::getTableName(),
                 // data
                 [
                     'order_id' => $order_id,
                     'payment_id' => $payment_id,
+                    'amount' => $amount,
                 ],
                 // format
                 [
                     '%d',
                     '%d',
+                    '%s',
                 ]
             );
     }
 
     /**
-     * @throws \Exception
+     * @param $orderId
+     * @param $skRefundId
+     * @param $refundId
+     * @param $amount
+     *
+     * @return bool
      */
-    protected static function upgradeOldNamespace(): array
+    public static function addRefund($orderId, $skRefundId, $refundId, $amount)
     {
         global $wpdb;
 
-        $new_db_version = get_option(self::STOREKEEPER_PAY_DB_VERSION);
-        $old_version = 'upx_pay_db_version';
-        $db_version = get_option($old_version);
-        $sql = null;
-        if (1.0 == $db_version && !$new_db_version) {
-            $old_table = $wpdb->prefix.'upx_pay_orders_payments';
-            $table_name_orders_payments = self::getDatabaseTable();
-            $sql = <<<SQL
-RENAME TABLE `$old_table` TO `$table_name_orders_payments`;
-SQL;
+        return false !== $wpdb->insert(
+            // table
+                RefundModel::getTableName(),
+                // data
+                [
+                    'wc_order_id' => $orderId,
+                    'sk_refund_id' => $skRefundId,
+                    'wc_refund_id' => $refundId,
+                    'amount' => $amount,
+                ],
+                // format
+                [
+                    '%d',
+                    '%d',
+                    '%d',
+                    '%s',
+                ]
+            );
+    }
 
-            self::querySql($sql);
-            add_option(self::STOREKEEPER_PAY_DB_VERSION, $db_version);
-        }
-        delete_option($old_version);
+    public static function updateRefund($id, $skRefundId, $amount, $isSynced = false)
+    {
+        global $wpdb;
 
-        return [$db_version, $sql];
+        return false !== $wpdb->update(
+            // table
+                RefundModel::getTableName(),
+                // data
+                [
+                    'sk_refund_id' => $skRefundId,
+                    'is_synced' => $isSynced,
+                    'amount' => $amount,
+                ],
+                // where
+                ['id' => $id],
+                // data format
+                [
+                    '%d',
+                    '%d',
+                    '%s',
+                ],
+                // where format
+                ['%d']
+            );
     }
 
     public function onReturn()
@@ -264,7 +263,7 @@ SQL;
                 // Payment done, mark order as completed
                 $order->set_status(StoreKeeperBaseGateway::STATUS_PROCESSING);
             } else {
-                $url = add_query_arg('payment_status', self::STATUS_CANCELED, $url);
+                $url = add_query_arg('payment_status', self::STATUS_CANCELLED, $url);
             }
 
             $order->save();
@@ -280,13 +279,145 @@ SQL;
         wp_redirect($url);
     }
 
+    public function createRefundPayment($orderId, $refundId): void
+    {
+        $refund = wc_get_order($refundId);
+        $refundAmount = $refund->get_amount();
+
+        if (!self::refundExists($orderId, $refundId)) {
+            self::addRefund($orderId, null, $refundId, $refundAmount);
+        }
+
+        $orderHandler = new OrderHandler();
+        $task = $orderHandler->create($orderId);
+
+        if (!$task) {
+            throw new \Exception('Order export task was not created');
+        }
+    }
+
+    public static function createRefundAsPayment($refundId, $refundAmount)
+    {
+        $api = StoreKeeperApi::getApiByAuthName();
+        $paymentModule = $api->getModule('PaymentModule');
+
+        return $paymentModule->newWebPayment([
+            'amount' => round(-abs($refundAmount), 2), // Refund should be negative
+            'description' => sprintf(
+                __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
+                $refundId
+            ),
+        ]);
+    }
+
+    public static function hasUnsyncedRefunds($orderId): bool
+    {
+        return count(self::getUnsyncedRefundsPaymentIds($orderId)) > 0;
+    }
+
+    /**
+     * All refunds that have Storekeeper refund ID but is not synced yet.
+     *
+     * @param $orderId
+     */
+    public static function getUnsyncedRefundsPaymentIds($orderId): array
+    {
+        global $wpdb;
+
+        $table_name = RefundModel::getTableName();
+
+        $sql = <<<SQL
+SELECT sk_refund_id, wc_refund_id, amount
+FROM `$table_name`
+WHERE wc_order_id = '$orderId'
+AND sk_refund_id IS NOT NULL
+AND is_synced = false
+SQL;
+
+        return $wpdb->get_results($sql, ARRAY_A);
+    }
+
+    /**
+     * Refunds that are not totally synced yet, and has no Storekeeper refund ID.
+     *
+     * @param $orderId
+     */
+    public static function getUnsyncedRefundsWithoutPaymentIds($orderId): array
+    {
+        global $wpdb;
+
+        $table_name = RefundModel::getTableName();
+
+        $sql = <<<SQL
+SELECT id, wc_refund_id, amount
+FROM `$table_name`
+WHERE wc_order_id = '$orderId'
+AND is_synced = false
+AND sk_refund_id IS NULL
+SQL;
+
+        return $wpdb->get_results($sql, ARRAY_A);
+    }
+
+    /**
+     * @param $orderId
+     * @param $skRefundId
+     * @param $refundId
+     *
+     * @return bool whenever the payment update was success or not
+     */
+    public static function markRefundAsSynced($orderId, $skRefundId, $refundId): bool
+    {
+        global $wpdb;
+
+        return false !== $wpdb->update(
+                RefundModel::getTableName(), // table
+                ['is_synced' => true], // data
+                [
+                    'wc_order_id' => $orderId,
+                    'sk_refund_id' => $skRefundId,
+                    'wc_refund_id' => $refundId,
+                ] // where
+            );
+    }
+
+    /**
+     * @param $orderId
+     * @param $refundId
+     *
+     * @return bool
+     */
+    public static function refundExists($orderId, $refundId): ?bool
+    {
+        global $wpdb;
+
+        $payment_id = null;
+        $table_name = RefundModel::getTableName();
+
+        $sql = <<<SQL
+SELECT sk_refund_id
+FROM `$table_name`
+WHERE wc_order_id = '$orderId'
+AND wc_refund_id = '$refundId'
+LIMIT 1
+SQL;
+
+        // Getting the results and getting the first one.
+        $results = $wpdb->get_results($sql, ARRAY_A);
+        if (!empty($results)) {
+            $payment_id = array_shift($results)['sk_refund_id'];
+        }
+
+        return $payment_id;
+    }
+
     public static function getPaymentId($order_id)
     {
         global $wpdb;
 
         // Pay NL
         $payment_id = null;
-        $table_name = self::getDatabaseTable();
+        $table_name = PaymentModel::getTableName();
 
         $sql = <<<SQL
 SELECT payment_id
@@ -302,6 +433,29 @@ SQL;
         }
 
         return $payment_id;
+    }
+
+    public static function getPaymentAmount($order_id)
+    {
+        global $wpdb;
+
+        $amount = null;
+        $table_name = PaymentModel::getTableName();
+
+        $sql = <<<SQL
+SELECT amount
+FROM `$table_name`
+WHERE order_id = '$order_id'
+LIMIT 1
+SQL;
+
+        // Getting the results and getting the first one.
+        $results = $wpdb->get_results($sql, ARRAY_A);
+        if (!empty($results)) {
+            $amount = array_shift($results)['amount'];
+        }
+
+        return $amount;
     }
 
     public static function getOrderReturnUrl(\WC_Order $order)
