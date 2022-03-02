@@ -215,6 +215,8 @@ class EventsHandler
         switch ($eventType) {
             // ShopModule::ShopProduct
             case 'ShopModule::ShopProduct::updated':
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_UPDATE, $this->getId(), $taskData);
+                break;
             case 'ShopModule::ShopProduct::created':
                 TaskHandler::scheduleTask(TaskHandler::PRODUCT_IMPORT, $this->getId(), $taskData);
                 break;

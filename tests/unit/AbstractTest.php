@@ -21,7 +21,6 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\TestLib\DumpFileHelper;
 use StoreKeeper\WooCommerce\B2C\TestLib\MediaHelper;
-use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
@@ -443,7 +442,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         );
     }
 
-    public function assertProduct(Dot $original_product, WC_Product $wc_product)
+    public function assertProduct(Dot $original_product, WC_Product $wc_product, bool $isFullTest = true)
     {
         $sku = $wc_product->get_sku();
 
@@ -503,86 +502,9 @@ abstract class AbstractTest extends WP_UnitTestCase
             );
         }
 
-        // Regular price (not applicable for configurable products)
-        if (self::WC_TYPE_CONFIGURABLE !== $wc_product->get_type()) {
-            $expected_regular_price = $original_product->get('product_default_price.ppu_wt');
-            $this->assertEquals(
-                $expected_regular_price,
-                $wc_product->get_regular_price(),
-                "[sku=$sku] WooCommerce regular price doesn't match the expected regular price"
-            );
-        }
-
-        // Discounted price (not applicable for configurable products). Only applicable when not equal to regular price
-        if (self::WC_TYPE_CONFIGURABLE !== $wc_product->get_type() &&
-            $original_product->get('product_price.ppu_wt') !== $expected_regular_price) {
-            $expected_discounted_price = $original_product->get('product_price.ppu_wt');
-            $this->assertEquals(
-                $expected_discounted_price,
-                $wc_product->get_sale_price(),
-                "[sku=$sku] WooCommerce discount price doesn't match the expected discount price"
-            );
-        }
-
-        // Stock
-        $expected_in_stock = $original_product->get('flat_product.product.product_stock.in_stock');
-        if ($expected_in_stock) {
-            // Manage stock is based on stock unlimited. unlimited equals no stock management
-            $expected_manage_stock = !$original_product->get('flat_product.product.product_stock.unlimited');
-            $this->assertEquals(
-                $expected_manage_stock,
-                $wc_product->get_manage_stock(self::WC_CONTEXT_EDIT),
-                "[sku=$sku] WooCommerce manage stock doesn't match the expected manage stock"
-            );
-
-            // Stock quantity is set to one when stock isn't managed
-            $expected_stock_quantity = $expected_manage_stock ?
-                $original_product->get('flat_product.product.product_stock.value') : 1;
-            if (!$expected_manage_stock) {
-                // When we don't manage stock, the quantity will be null
-                $expected_stock_quantity = null;
-            }
-            $this->assertEquals(
-                $expected_stock_quantity,
-                $wc_product->get_stock_quantity(),
-                "[sku=$sku] WooCommerce stock quantity doesn't match the expected stock quantity"
-            );
-
-            // Stock status
-            $expected_stock_status = self::WC_STATUS_INSTOCK;
-            if (self::WC_TYPE_CONFIGURABLE === $wc_product->get_type()) {
-                $expected_stock_status = $expected_manage_stock ? self::WC_STATUS_INSTOCK : self::WC_STATUS_OUTOFSTOCK;
-            }
-
-            $this->assertEquals(
-                $expected_stock_status,
-                $wc_product->get_stock_status(),
-                "[sku=$sku] WooCommerce stock status doesn't match the expected stock status"
-            );
-        } else {
-            // Manage stock is always set to true when product is out of stock
-            $expected_manage_stock = true;
-            $this->assertEquals(
-                $expected_manage_stock,
-                $wc_product->get_manage_stock(self::WC_CONTEXT_EDIT),
-                "[sku=$sku] WooCommerce manage stock doesn't match the expected manage stock"
-            );
-
-            // Stock quantity is always set to 0 when product is out of stock
-            $expected_stock_quantity = 0;
-            $this->assertEquals(
-                $expected_stock_quantity,
-                $wc_product->get_stock_quantity(),
-                "[sku=$sku] WooCommerce stock quantity doesn't match the expected stock quantity"
-            );
-
-            // Stock status
-            $expected_stock_status = self::WC_STATUS_OUTOFSTOCK;
-            $this->assertEquals(
-                $expected_stock_status,
-                $wc_product->get_stock_status(),
-                "[sku=$sku] WooCommerce stock status doesn't match the expected stock status"
-            );
+        if ($isFullTest) {
+            $this->assertProductStock($original_product, $wc_product, $sku);
+            $this->assertProductPrices($wc_product, $original_product, $sku);
         }
 
         // Backorder
@@ -729,5 +651,101 @@ abstract class AbstractTest extends WP_UnitTestCase
             TaskModel::count(),
             $message
         );
+    }
+
+    protected function assertProductPrices(WC_Product $wc_product, Dot $original_product, string $sku): void
+    {
+        // Regular price (not applicable for configurable products)
+        if (self::WC_TYPE_CONFIGURABLE !== $wc_product->get_type()) {
+            $expected_regular_price = $original_product->get('product_default_price.ppu_wt');
+            $this->assertEquals(
+                $expected_regular_price,
+                $wc_product->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price doesn't match the expected regular price"
+            );
+
+            // Discounted price (not applicable for configurable products). Only applicable when not equal to regular price
+            if ($original_product->get('product_price.ppu_wt') !== $expected_regular_price) {
+                $expected_discounted_price = $original_product->get('product_price.ppu_wt');
+                $this->assertEquals(
+                    $expected_discounted_price,
+                    $wc_product->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price doesn't match the expected discount price"
+                );
+            }
+        }
+    }
+
+    protected function assertProductStock(Dot $original_product, WC_Product $wc_product, string $sku): void
+    {
+        // Stock
+        $expected_in_stock = $original_product->get('flat_product.product.product_stock.in_stock');
+        if ($expected_in_stock) {
+            // Manage stock is based on stock unlimited. unlimited equals no stock management
+            $expected_manage_stock = !$original_product->get('flat_product.product.product_stock.unlimited');
+            $this->assertEquals(
+                $expected_manage_stock,
+                $wc_product->get_manage_stock(self::WC_CONTEXT_EDIT),
+                "[sku=$sku] WooCommerce manage stock doesn't match the expected manage stock"
+            );
+
+            // Stock quantity is set to one when stock isn't managed
+            $expected_stock_quantity = $expected_manage_stock ?
+                $original_product->get('flat_product.product.product_stock.value') : 1;
+
+            // Added orderable stock on test
+            if ($original_product->has('orderable_stock_value')) {
+                // set stock based on orderable stock instead
+                $stock_quantity = $original_product->get('orderable_stock_value');
+                $expected_stock_quantity = $stock_quantity > 0;
+            }
+
+            if (!$expected_manage_stock) {
+                // When we don't manage stock, the quantity will be null
+                $expected_stock_quantity = null;
+            }
+
+            $this->assertEquals(
+                $expected_stock_quantity,
+                $wc_product->get_stock_quantity(),
+                "[sku=$sku] WooCommerce stock quantity doesn't match the expected stock quantity"
+            );
+
+            // Stock status
+            $expected_stock_status = self::WC_STATUS_INSTOCK;
+            if (self::WC_TYPE_CONFIGURABLE === $wc_product->get_type()) {
+                $expected_stock_status = $expected_manage_stock ? self::WC_STATUS_INSTOCK : self::WC_STATUS_OUTOFSTOCK;
+            }
+
+            $this->assertEquals(
+                $expected_stock_status,
+                $wc_product->get_stock_status(),
+                "[sku=$sku] WooCommerce stock status doesn't match the expected stock status"
+            );
+        } else {
+            // Manage stock is always set to true when product is out of stock
+            $expected_manage_stock = true;
+            $this->assertEquals(
+                $expected_manage_stock,
+                $wc_product->get_manage_stock(self::WC_CONTEXT_EDIT),
+                "[sku=$sku] WooCommerce manage stock doesn't match the expected manage stock"
+            );
+
+            // Stock quantity is always set to 0 when product is out of stock
+            $expected_stock_quantity = 0;
+            $this->assertEquals(
+                $expected_stock_quantity,
+                $wc_product->get_stock_quantity(),
+                "[sku=$sku] WooCommerce stock quantity doesn't match the expected stock quantity"
+            );
+
+            // Stock status
+            $expected_stock_status = self::WC_STATUS_OUTOFSTOCK;
+            $this->assertEquals(
+                $expected_stock_status,
+                $wc_product->get_stock_status(),
+                "[sku=$sku] WooCommerce stock status doesn't match the expected stock status"
+            );
+        }
     }
 }

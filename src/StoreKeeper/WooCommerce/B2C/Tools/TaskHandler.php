@@ -25,6 +25,7 @@ use StoreKeeper\WooCommerce\B2C\Tasks\ProductDeactivateTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductDeleteTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductStockUpdateTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ProductUpdateImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\RedirectDeleteTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\RedirectImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TagDeleteTask;
@@ -44,6 +45,7 @@ class TaskHandler
     const ATTRIBUTE_IMPORT = 'attribute-import';
     const CATEGORY_IMPORT = 'category-import';
     const PRODUCT_IMPORT = 'product-import';
+    const PRODUCT_UPDATE = 'product-update';
     const PRODUCT_STOCK_UPDATE = 'product-stock-update';
     const TAG_IMPORT = 'tag-import';
     const COUPON_CODE_IMPORT = 'coupon-code-import';
@@ -176,6 +178,7 @@ class TaskHandler
             case self::CATEGORY_DELETE:
                 return self::CATEGORY_TYPE_GROUP;
             case self::PRODUCT_IMPORT:
+            case self::PRODUCT_UPDATE:
             case self::PRODUCT_DELETE:
             case self::PRODUCT_DEACTIVATED:
             case self::PRODUCT_ACTIVATED:
@@ -253,6 +256,9 @@ class TaskHandler
                 break;
             case self::PRODUCT_IMPORT:
                 $title = __('Product import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::PRODUCT_UPDATE:
+                $title = __('Product update', I18N::DOMAIN)."(id=$id)";
                 break;
             case self::PRODUCT_STOCK_UPDATE:
                 $title = __('Product stock update', I18N::DOMAIN)."(id=$id)";
@@ -422,6 +428,9 @@ class TaskHandler
                 break;
             case self::PRODUCT_IMPORT:
                 $import = new ProductImportTask();
+                break;
+            case self::PRODUCT_UPDATE:
+                $import = new ProductUpdateImportTask();
                 break;
             case self::PRODUCT_STOCK_UPDATE:
                 $import = new ProductStockUpdateTask();

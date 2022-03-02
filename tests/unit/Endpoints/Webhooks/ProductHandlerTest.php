@@ -8,6 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractProductTest;
 use WC_Helper_Product;
+use WC_Product;
 
 class ProductHandlerTest extends AbstractProductTest
 {
@@ -33,29 +34,7 @@ class ProductHandlerTest extends AbstractProductTest
 
     public function testCreateProduct()
     {
-        // Handle the product creation hook event
-        $original_options = $this->handle_hook_request(
-            self::CREATE_DATADUMP_DIRECTORY,
-            self::CREATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-
-        // Retrieve the product from wordpress using the storekeeper id
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $original_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
-
-        $wc_created_product = $wc_products[0];
+        $wc_created_product = $this->mockCreateProductRequestWithTest();
 
         // Get the updated data dump as a dotnotated collection
         $create_file = $this->getDataDump(self::CREATE_DATADUMP_DIRECTORY.'/'.self::CREATE_DATADUMP_PRODUCT);
@@ -68,58 +47,121 @@ class ProductHandlerTest extends AbstractProductTest
         $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
     }
 
-    public function testUpdateProduct()
+    public function testUpdateProductByDateUpdated()
     {
-        // Handle the product creation hook event so there is a product to update
-        $creation_options = $this->handle_hook_request(
-            self::CREATE_DATADUMP_DIRECTORY,
-            self::CREATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-        // Fetch the product that was created by the creation hook
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $creation_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
+        $createdProduct = $this->mockCreateProductRequestWithTest();
 
-        // Handle the product update hook event
-        $update_options = $this->handle_hook_request(
-            self::UPDATE_DATADUMP_DIRECTORY,
-            self::UPDATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-        // Fetch the product that was created by the update hook
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $update_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
-        $wc_updated_product = $wc_products[0];
+        // Hours later than product stock and product price updated date from updateProduct mock data
+        $lastSyncDate = '2022-03-02 20:00:00';
+        update_post_meta($createdProduct->get_id(), 'storekeeper_sync_date', $lastSyncDate);
+        // This test should not update the stock and product prices
+        $this->subtestStockAndPriceNotUpdated();
+
+        // 30 minutes earlier than product stock updated date from updateProduct mock data
+        $lastSyncDate = '2022-03-02 18:00:00';
+        update_post_meta($createdProduct->get_id(), 'storekeeper_sync_date', $lastSyncDate);
+        // This test should update the stock
+        $this->subtestStockOnly();
+
+        // 30 minutes earlier than product price updated date from updateProduct mock data
+        $lastSyncDate = '2022-03-02 15:00:00';
+        update_post_meta($createdProduct->get_id(), 'storekeeper_sync_date', $lastSyncDate);
+        // This test should update the prices
+        $this->subtestProductPrices();
+    }
+
+    protected function subtestStockAndPriceNotUpdated(): void
+    {
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest();
 
         // Get the updated data dump as a dotnotated collection
-        $updated_file = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
-        $updated_product_data = $updated_file->getReturn()['data'];
-        $updated_product_data = new Dot($updated_product_data[0]);
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
 
         // Compare the values of the updated data dump against the updated wordpress product
-        $this->assertProduct($updated_product_data, $wc_updated_product);
+        $this->assertProduct($updatedProductData, $woocommerceUpdatedProduct, false);
+        $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+
+        $sku = $woocommerceUpdatedProduct->get_sku();
+        // Stock quantity should not be updated
+        $expectedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
+        $this->assertNotEquals(
+            $expectedStockQuantity,
+            $woocommerceUpdatedProduct->get_stock_quantity(),
+            "[sku=$sku] WooCommerce stock quantity should not match"
+        );
+
+        // Regular price should not be updated
+        if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
+            $expectedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $this->assertNotEquals(
+                $expectedRegularPrice,
+                $woocommerceUpdatedProduct->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price should not match expected regular price"
+            );
+
+            // Discounted price should not be updated
+            if ($updatedProductData->get('product_price.ppu_wt') !== $expectedRegularPrice) {
+                $expected_discounted_price = $updatedProductData->get('product_price.ppu_wt');
+                $this->assertNotEquals(
+                    $expected_discounted_price,
+                    $woocommerceUpdatedProduct->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price should not match the expected discount price"
+                );
+            }
+        }
+    }
+
+    protected function subtestStockOnly(): void
+    {
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest();
+
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        // Compare the values of the updated data dump against the updated wordpress product
+        $this->assertProduct($updatedProductData, $woocommerceUpdatedProduct, false);
+
+        $sku = $woocommerceUpdatedProduct->get_sku();
+        $this->assertProductStock($updatedProductData, $woocommerceUpdatedProduct, $sku);
+
+        $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+    }
+
+    protected function subtestProductPrices(): void
+    {
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest();
+
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        // Compare the values of the updated data dump against the updated wordpress product
+        $this->assertProduct($updatedProductData, $woocommerceUpdatedProduct, false);
+        $sku = $woocommerceUpdatedProduct->get_sku();
+        $this->assertProductPrices($woocommerceUpdatedProduct, $updatedProductData, $sku);
+
+        $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+    }
+
+    public function testUpdateProduct()
+    {
+        $createdProduct = $this->mockCreateProductRequestWithTest();
+        $lastSyncDate = '1990-01-01 01:00:00';
+        update_post_meta($createdProduct->get_id(), 'storekeeper_sync_date', $lastSyncDate);
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest();
+
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        // Compare the values of the updated data dump against the updated wordpress product
+        $this->assertProduct($updatedProductData, $woocommerceUpdatedProduct);
 
         $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
     }
@@ -173,27 +215,9 @@ class ProductHandlerTest extends AbstractProductTest
     public function testDeactivateProduct()
     {
         // Handle the product creation hook event so there is a product to deactivate
-        $creation_options = $this->handle_hook_request(
-            self::CREATE_DATADUMP_DIRECTORY,
-            self::CREATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-        // Fetch the product that was created by the creation hook
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $creation_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
+        $product = $this->mockCreateProductRequestWithTest();
 
-        $original_post_id = $wc_products[0]->get_id();
+        $original_post_id = $product->get_id();
 
         // Handle the product deactivation hook
         $deactivation_options = $this->handle_hook_request(
@@ -268,25 +292,7 @@ class ProductHandlerTest extends AbstractProductTest
         // see : https://app.clickup.com/t/3cp0b5?comment=38147526
 
         // Handle the product creation hook event so there is a product to deactivate
-        $creation_options = $this->handle_hook_request(
-            self::CREATE_DATADUMP_DIRECTORY,
-            self::CREATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-        // Fetch the product that was created by the creation hook
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $creation_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
+        $this->mockCreateProductRequestWithTest();
 
         // Handle the product deactivation hook
         $deactivation_options = $this->handle_hook_request(
@@ -393,5 +399,58 @@ class ProductHandlerTest extends AbstractProductTest
         }
 
         return $original_options;
+    }
+
+    protected function mockCreateProductRequestWithTest(): WC_Product
+    {
+        // Handle the product creation hook event
+        $creationOptions = $this->handle_hook_request(
+            self::CREATE_DATADUMP_DIRECTORY,
+            self::CREATE_DATADUMP_HOOK,
+            'ShopModule::ShopProduct',
+            'events'
+        );
+
+        // Retrieve the product from wordpress using the storekeeper id
+        $products = wc_get_products(
+            [
+                'post_type' => 'product',
+                'meta_key' => 'storekeeper_id',
+                'meta_value' => $creationOptions['id'],
+            ]
+        );
+        $this->assertCount(
+            1,
+            $products,
+            'Actual size of the retrieved product collection is not equal to one'
+        );
+
+        return $products[0];
+    }
+
+    protected function mockUpdateProductRequestWithTest(): WC_Product
+    {
+        // Handle the product update hook event
+        $updateOptions = $this->handle_hook_request(
+            self::UPDATE_DATADUMP_DIRECTORY,
+            self::UPDATE_DATADUMP_HOOK,
+            'ShopModule::ShopProduct',
+            'events'
+        );
+        // Fetch the product that was created by the update hook
+        $products = wc_get_products(
+            [
+                'post_type' => 'product',
+                'meta_key' => 'storekeeper_id',
+                'meta_value' => $updateOptions['id'],
+            ]
+        );
+        $this->assertCount(
+            1,
+            $products,
+            'Actual size of the retrieved product collection is not equal to one'
+        );
+
+        return $products[0];
     }
 }
