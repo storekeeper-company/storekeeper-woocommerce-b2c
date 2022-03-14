@@ -3,10 +3,13 @@
 namespace StoreKeeper\WooCommerce\B2C\PaymentGateway;
 
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
+use WC_Order_Item_Product;
+use WC_Product_Factory;
 
 class StoreKeeperBaseGateway extends \WC_Payment_Gateway
 {
@@ -74,6 +77,37 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
             LoggerFactory::createErrorTask('order-payment-url', $exception, $order->get_id(), $order->get_data());
         }
 
+        $products = [];
+        $productFactory = new WC_Product_Factory();
+
+        /* @var WC_Order_Item_Product $orderProduct */
+        foreach ($order->get_items() as $index => $orderProduct) {
+            $variationProductId = $orderProduct->get_variation_id();
+            $isVariation = $variationProductId > 0; // Variation_id is 0 by default, if it is any other, it's a variation product;
+
+            if ($isVariation) {
+                $productId = $variationProductId;
+            } else {
+                $productId = $orderProduct->get_product_id();
+            }
+            $currentProduct = $productFactory->get_product($productId);
+
+            $data = [
+                'sku' => $currentProduct ? $currentProduct->get_sku(OrderExport::CONTEXT) : $orderProduct->get_name(
+                    OrderExport::CONTEXT
+                ),
+                'name' => $currentProduct ? $currentProduct->get_name(OrderExport::CONTEXT) : $orderProduct->get_name(
+                    OrderExport::CONTEXT
+                ),
+                'ppu_wt' => $order->get_item_total($orderProduct, true, false),
+                'quantity' => $orderProduct->get_quantity(OrderExport::CONTEXT),
+                'is_shipping' => 'false',
+                'is_payment' => 'false',
+                'is_discount' => 'false',
+            ];
+
+            $products[] = $data;
+        }
         // Create payment
         $payment = $shop_module->newWebShopPaymentWithReturn(
             [
@@ -84,6 +118,7 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
                 'relation_data_id' => $relation_data_id,
                 'relation_data_snapshot' => CustomerFinder::extractSnapshotDataFromOrder($order),
                 'end_user_ip' => $this->getUserIp(),
+                'products' => $products,
             ]
         );
 
