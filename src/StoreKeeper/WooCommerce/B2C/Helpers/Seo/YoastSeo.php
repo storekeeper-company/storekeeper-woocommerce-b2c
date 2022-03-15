@@ -152,6 +152,9 @@ class YoastSeo
                 WordpressExceptionThrower::throwExceptionOnWpError(
                     $product->update_meta_data('_yoast_wpseo_metakeywords', $keywords)
                 );
+                WordpressExceptionThrower::throwExceptionOnWpError(
+                    $product->update_meta_data('_yoast_wpseo_focuskw', $keywords)
+                );
             }
         }
     }
