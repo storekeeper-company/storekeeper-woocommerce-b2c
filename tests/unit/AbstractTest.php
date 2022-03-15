@@ -206,7 +206,7 @@ abstract class AbstractTest extends WP_UnitTestCase
     /**
      * @throws \Throwable
      */
-    protected function initApiConnection(): void
+    protected function initApiConnection(string $syncMode = StoreKeeperOptions::SYNC_MODE_FULL_SYNC): void
     {
         $file = $this->getHookDataDump('hook.init.json');
         $rest = $this->getRestWithToken($file);
@@ -217,7 +217,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         $this->api_url = $rest_data->get('payload.api_url');
 
         // set to fullsync, because it's order only by default
-        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
+        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, $syncMode);
     }
 
     protected function getRestWithToken(HookDumpFile $file): WP_REST_Request
@@ -442,7 +442,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         );
     }
 
-    public function assertProduct(Dot $original_product, WC_Product $wc_product, bool $isFullTest = true)
+    public function assertProduct(Dot $original_product, WC_Product $wc_product)
     {
         $sku = $wc_product->get_sku();
 
@@ -502,10 +502,8 @@ abstract class AbstractTest extends WP_UnitTestCase
             );
         }
 
-        if ($isFullTest) {
-            $this->assertProductStock($original_product, $wc_product, $sku);
-            $this->assertProductPrices($wc_product, $original_product, $sku);
-        }
+        $this->assertProductStock($original_product, $wc_product, $sku);
+        $this->assertProductPrices($wc_product, $original_product, $sku);
 
         // Backorder
         $expected_backorder = $original_product->get('backorder_enabled') ?
@@ -604,6 +602,17 @@ abstract class AbstractTest extends WP_UnitTestCase
                     "[sku=$sku] WooCommerce attribute option value doesn't match the expected value"
                 );
             }
+        }
+
+        $galleryImages = $wc_product->get_gallery_image_ids();
+        $productImages = $original_product->get('flat_product.product_images');
+        if (!empty($productImages)) {
+            foreach ($productImages as $index => $images) {
+                if ($images['id'] === $original_product->get('flat_product.main_image.id')) {
+                    unset($productImages[$index]);
+                }
+            }
+            $this->assertSameSize($galleryImages, $productImages, 'Product images should updated');
         }
     }
 
@@ -747,5 +756,23 @@ abstract class AbstractTest extends WP_UnitTestCase
                 "[sku=$sku] WooCommerce stock status doesn't match the expected stock status"
             );
         }
+    }
+
+    protected function assertProductCrossSell(WC_Product $wc_product, string $sku): void
+    {
+        $crossSellIds = $wc_product->get_cross_sell_ids();
+        $this->assertNotEmpty(
+            $crossSellIds,
+            "[sku=$sku] WooCommerce cross-sell IDs should not be empty"
+        );
+    }
+
+    protected function assertProductUpSell(WC_Product $wc_product, string $sku): void
+    {
+        $upSellIds = $wc_product->get_upsell_ids();
+        $this->assertNotEmpty(
+            $upSellIds,
+            "[sku=$sku] WooCommerce up-sell IDs should not be empty"
+        );
     }
 }

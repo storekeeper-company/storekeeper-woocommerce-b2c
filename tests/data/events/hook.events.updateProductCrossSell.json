@@ -1,0 +1,42 @@
+{
+    "success": true,
+    "call_id": "622f2a99223f2",
+    "request": {
+        "headers": {
+            "host": [
+                "dev.storekeeper.eu.ngrok.io"
+            ],
+            "user_agent": [
+                "GuzzleHttp\/7"
+            ],
+            "content_length": [
+                "231"
+            ],
+            "content_type": [
+                "application\/json"
+            ],
+            "upxhooktoken": [
+                "f127ca8c85d3d6a1949f5095c0f5142214068e63a21f515418e1e62e07b04763"
+            ],
+            "x_forwarded_proto": [
+                "https"
+            ],
+            "accept_encoding": [
+                "gzip"
+            ]
+        },
+        "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2022-03-14 12:43:30+01\",\"backref\":\"ShopModule::ShopProduct(id=9)\",\"events\":{\"2490\":{\"id\":2490,\"event\":\"updated\",\"scope\":\"product.cross_sell_products\",\"date\":\"2022-03-14 12:43:30+01\"}}}}",
+        "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+        "method": "POST",
+        "query_params": {
+            "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+        },
+        "file_params": []
+    },
+    "hook_action": "events",
+    "return": true,
+    "_type": "hook",
+    "time_ms": 1514.0,
+    "_version": "1.0",
+    "_timestamp": "2022-03-14T11:44:26+00:00"
+}
