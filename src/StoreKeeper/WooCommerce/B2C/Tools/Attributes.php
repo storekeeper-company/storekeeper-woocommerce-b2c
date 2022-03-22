@@ -289,7 +289,7 @@ class Attributes
     /**
      * registers the taxonomy, so we can fo wp_query on it.
      */
-    public static function registerAttributeTemporary($taxonomy_name, $label)
+    protected static function registerAttributeTemporary($taxonomy_name, $label)
     {
         // Register as taxonomy while importing.
         WordpressExceptionThrower::throwExceptionOnWpError(
