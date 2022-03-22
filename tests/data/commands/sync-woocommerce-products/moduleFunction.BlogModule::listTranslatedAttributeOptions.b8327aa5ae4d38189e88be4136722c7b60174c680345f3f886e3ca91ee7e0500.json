@@ -45,7 +45,7 @@
                 "attribute_id": 13,
                 "name": "zwart",
                 "label": "Zwart",
-                "order": 0,
+                "order": 4,
                 "is_default": false,
                 "date_created": "2020-02-10 10:51:51+01:00",
                 "translatable_id": 31,

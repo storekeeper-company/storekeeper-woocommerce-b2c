@@ -111,6 +111,7 @@ class Attributes
                 $sk_option['name'],
                 $sk_option['label'],
                 $attributeImage,
+                $sk_option['order'] ?? 0
             );
         }
 
