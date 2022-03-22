@@ -111,6 +111,7 @@ class Attributes
                 $sk_option['name'],
                 $sk_option['label'],
                 $attributeImage,
+                $sk_option['order'] ?? 0
             );
         }
 
@@ -288,7 +289,7 @@ class Attributes
     /**
      * registers the taxonomy, so we can fo wp_query on it.
      */
-    protected static function registerAttributeTemporary($taxonomy_name, $label)
+    public static function registerAttributeTemporary($taxonomy_name, $label)
     {
         // Register as taxonomy while importing.
         WordpressExceptionThrower::throwExceptionOnWpError(

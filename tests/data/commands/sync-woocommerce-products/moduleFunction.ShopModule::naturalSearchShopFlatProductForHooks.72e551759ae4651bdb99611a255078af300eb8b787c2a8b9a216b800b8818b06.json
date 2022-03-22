@@ -122,7 +122,7 @@
                             "name": "kleur",
                             "value": "wit",
                             "attribute_published": true,
-                            "attribute_option_order": 0,
+                            "attribute_option_order": 3,
                             "attribute_order": 3
                         }
                     ],
@@ -379,7 +379,7 @@
                             "name": "kleur",
                             "value": "zwart",
                             "attribute_published": true,
-                            "attribute_option_order": 0,
+                            "attribute_option_order": 4,
                             "attribute_order": 3
                         },
                         {
@@ -500,7 +500,7 @@
                             "name": "kleur",
                             "value": "wit",
                             "attribute_published": true,
-                            "attribute_option_order": 0,
+                            "attribute_option_order": 3,
                             "attribute_order": 3
                         }
                     ],
