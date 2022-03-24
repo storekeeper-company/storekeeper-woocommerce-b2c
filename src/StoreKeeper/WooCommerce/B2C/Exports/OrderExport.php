@@ -687,7 +687,7 @@ class OrderExport extends AbstractExport
 
     protected function processPayments(WC_Order $WpObject, int $storekeeper_id, $storekeeperOrder): void
     {
-        $isPaid = $storekeeperOrder['is_paid'];
+        $isPaidInBackoffice = $storekeeperOrder['is_paid'];
         $shopModule = $this->storekeeper_api->getModule('ShopModule');
         /*
          * Attach payment to order
@@ -717,15 +717,21 @@ class OrderExport extends AbstractExport
             PaymentGateway::markPaymentAsSynced($WpObject->get_id());
         } else { // Check if the WP order is paid and has not PaymentGateway payment.
             // Example: the order was paid using the PayNL plugin
+
             if (
-                $WpObject->is_paid() &&
-                !PaymentGateway::hasPayment($WpObject->get_id())
+                ($WpObject->is_paid() && !PaymentGateway::hasPayment($WpObject->get_id())) || // Paid in WordPress, but no payment from payment gateway
+                (
+                    $WpObject->is_paid() &&
+                    PaymentGateway::hasPayment($WpObject->get_id()) &&
+                    PaymentGateway::isPaymentSynced($WpObject->get_id()) &&
+                    !$isPaidInBackoffice
+                ) // Paid in WordPress, has payment in payment gateway, but not marked as paid in WordPress
             ) {
                 /**
                  * Retrieve the current payment status of the order from the backend.
                  * When the invoice is already payed, we should't set the payment again.
                  */
-                $storekeeper_is_paid = (bool) $isPaid;
+                $storekeeper_is_paid = (bool) $isPaidInBackoffice;
                 $this->debug('Backend payment state of this order', json_encode($storekeeper_is_paid));
 
                 // Order paid in WP but not in the Backoffice.
