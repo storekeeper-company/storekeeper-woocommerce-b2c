@@ -23,7 +23,7 @@ class OrderRefundTask extends AbstractTask
                 ]
             );
 
-            return $this->throwExceptionArray($refundExport->run());
+            $this->throwExceptionArray($refundExport->run());
         }
 
         return true;

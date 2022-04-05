@@ -503,7 +503,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         }
 
         $this->assertProductStock($original_product, $wc_product, $sku);
-        $this->assertProductPrices($wc_product, $original_product, $sku);
+        $this->assertProductPrices($original_product, $wc_product, $sku);
 
         // Backorder
         $expected_backorder = $original_product->get('backorder_enabled') ?
@@ -654,7 +654,6 @@ abstract class AbstractTest extends WP_UnitTestCase
 
     protected function assertTaskNotCount(int $expected, string $message)
     {
-        global $wpdb;
         $this->assertNotEquals(
             $expected,
             TaskModel::count(),
@@ -662,7 +661,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         );
     }
 
-    protected function assertProductPrices(WC_Product $wc_product, Dot $original_product, string $sku): void
+    protected function assertProductPrices(Dot $original_product, WC_Product $wc_product, string $sku): void
     {
         // Regular price (not applicable for configurable products)
         if (self::WC_TYPE_CONFIGURABLE !== $wc_product->get_type()) {

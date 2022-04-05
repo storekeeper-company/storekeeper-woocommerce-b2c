@@ -54,7 +54,11 @@ class ProductHandlerTest extends AbstractProductTest
 
     public function testUpdateProductStockOnly()
     {
-        $this->mockCreateProductRequestWithTest();
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+        $expectedSku = $woocommerceCreatedProduct->get_sku();
+        $expectedGalleryImages = $woocommerceCreatedProduct->get_gallery_image_ids();
+        $expectedRegularPrice = $woocommerceCreatedProduct->get_regular_price();
+        $expectedSalePrice = $woocommerceCreatedProduct->get_sale_price();
         $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest(self::UPDATE_STOCK_DATADUMP_HOOK);
 
         // Get the updated data dump as a dotnotated collection
@@ -67,6 +71,7 @@ class ProductHandlerTest extends AbstractProductTest
         // Other details like SKU and images should not be updated
         $sku = $woocommerceUpdatedProduct->get_sku();
         $this->assertNotEquals($updatedProductData['sku'], $sku, 'Product\'s SKU should not be updated');
+        $this->assertEquals($expectedSku, $sku, 'Product\'s SKU be the same as when it was created');
 
         $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
         $productImages = $updatedProductData->get('flat_product.product_images');
@@ -76,24 +81,27 @@ class ProductHandlerTest extends AbstractProductTest
             }
         }
         $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
 
         // Regular price should not be updated
         if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
-            $expectedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $updatedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
             $this->assertNotEquals(
-                $expectedRegularPrice,
+                $updatedRegularPrice,
                 $woocommerceUpdatedProduct->get_regular_price(),
                 "[sku=$sku] WooCommerce regular price should not match expected regular price"
             );
+            $this->assertEquals($expectedRegularPrice, $woocommerceUpdatedProduct->get_regular_price(), 'Product regular prices should be the same when it was created');
 
             // Discounted price should not be updated
-            if ($updatedProductData->get('product_price.ppu_wt') !== $expectedRegularPrice) {
-                $expected_discounted_price = $updatedProductData->get('product_price.ppu_wt');
+            if ($updatedProductData->get('product_price.ppu_wt') !== $updatedRegularPrice) {
+                $updatedDiscountedPrice = $updatedProductData->get('product_price.ppu_wt');
                 $this->assertNotEquals(
-                    $expected_discounted_price,
+                    $updatedDiscountedPrice,
                     $woocommerceUpdatedProduct->get_sale_price(),
                     "[sku=$sku] WooCommerce discount price should not match the expected discount price"
                 );
+                $this->assertEquals($expectedSalePrice, $woocommerceUpdatedProduct->get_sale_price(), 'Product sale prices should be the same when it was created');
             }
         }
 
@@ -110,7 +118,10 @@ class ProductHandlerTest extends AbstractProductTest
 
     public function testUpdateProductPricesOnly()
     {
-        $this->mockCreateProductRequestWithTest();
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+        $expectedSku = $woocommerceCreatedProduct->get_sku();
+        $expectedGalleryImages = $woocommerceCreatedProduct->get_gallery_image_ids();
+        $expectedStockQuantity = $woocommerceCreatedProduct->get_stock_quantity();
         $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest(self::UPDATE_PRICES_DATADUMP_HOOK);
 
         // Get the updated data dump as a dotnotated collection
@@ -123,6 +134,7 @@ class ProductHandlerTest extends AbstractProductTest
         // Other details like SKU and images should not be updated
         $sku = $woocommerceUpdatedProduct->get_sku();
         $this->assertNotEquals($updatedProductData['sku'], $sku, 'Product\'s SKU should not be updated');
+        $this->assertEquals($expectedSku, $sku, 'Product\'s SKU be the same as when it was created');
 
         $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
         $productImages = $updatedProductData->get('flat_product.product_images');
@@ -132,14 +144,16 @@ class ProductHandlerTest extends AbstractProductTest
             }
         }
         $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
 
         // Stock quantity should not be updated
-        $expectedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
+        $updatedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
         $this->assertNotEquals(
-            $expectedStockQuantity,
+            $updatedStockQuantity,
             $woocommerceUpdatedProduct->get_stock_quantity(),
             "[sku=$sku] WooCommerce stock quantity should not match"
         );
+        $this->assertEquals($expectedStockQuantity, $woocommerceUpdatedProduct->get_stock_quantity(), 'Product stock quantity should be same as when it was created');
 
         // No cross-sell products should be set
         $crossSellIds = $woocommerceUpdatedProduct->get_cross_sell_ids();
@@ -149,12 +163,17 @@ class ProductHandlerTest extends AbstractProductTest
         $upSellIds = $woocommerceUpdatedProduct->get_upsell_ids();
         $this->assertEmpty($upSellIds, 'Up-sell products should not be set');
 
-        $this->assertProductPrices($woocommerceUpdatedProduct, $updatedProductData, $sku);
+        $this->assertProductPrices($updatedProductData, $woocommerceUpdatedProduct, $sku);
     }
 
     public function testUpdateProductCrossSellOnly()
     {
-        $this->mockCreateProductRequestWithTest();
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+        $expectedSku = $woocommerceCreatedProduct->get_sku();
+        $expectedGalleryImages = $woocommerceCreatedProduct->get_gallery_image_ids();
+        $expectedStockQuantity = $woocommerceCreatedProduct->get_stock_quantity();
+        $expectedRegularPrice = $woocommerceCreatedProduct->get_regular_price();
+        $expectedSalePrice = $woocommerceCreatedProduct->get_sale_price();
         $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest(self::UPDATE_CROSS_SELL_DATADUMP_HOOK);
 
         // Get the updated data dump as a dotnotated collection
@@ -167,6 +186,7 @@ class ProductHandlerTest extends AbstractProductTest
         // Other details like SKU and images should not be updated
         $sku = $woocommerceUpdatedProduct->get_sku();
         $this->assertNotEquals($updatedProductData['sku'], $sku, 'Product\'s SKU should not be updated');
+        $this->assertEquals($expectedSku, $sku, 'Product\'s SKU be the same as when it was created');
 
         $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
         $productImages = $updatedProductData->get('flat_product.product_images');
@@ -176,14 +196,38 @@ class ProductHandlerTest extends AbstractProductTest
             }
         }
         $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
 
         // Stock quantity should not be updated
-        $expectedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
+        $updatedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
         $this->assertNotEquals(
-            $expectedStockQuantity,
+            $updatedStockQuantity,
             $woocommerceUpdatedProduct->get_stock_quantity(),
             "[sku=$sku] WooCommerce stock quantity should not match"
         );
+        $this->assertEquals($expectedStockQuantity, $woocommerceUpdatedProduct->get_stock_quantity(), 'Product stock quantity should be same as when it was created');
+
+        // Regular price should not be updated
+        if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
+            $updatedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $this->assertNotEquals(
+                $updatedRegularPrice,
+                $woocommerceUpdatedProduct->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price should not match expected regular price"
+            );
+            $this->assertEquals($expectedRegularPrice, $woocommerceUpdatedProduct->get_regular_price(), 'Product regular prices should be the same when it was created');
+
+            // Discounted price should not be updated
+            if ($updatedProductData->get('product_price.ppu_wt') !== $updatedRegularPrice) {
+                $updatedDiscountedPrice = $updatedProductData->get('product_price.ppu_wt');
+                $this->assertNotEquals(
+                    $updatedDiscountedPrice,
+                    $woocommerceUpdatedProduct->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price should not match the expected discount price"
+                );
+                $this->assertEquals($expectedSalePrice, $woocommerceUpdatedProduct->get_sale_price(), 'Product sale prices should be the same when it was created');
+            }
+        }
 
         // No up-sell products should be set
         $upSellIds = $woocommerceUpdatedProduct->get_upsell_ids();
@@ -194,7 +238,12 @@ class ProductHandlerTest extends AbstractProductTest
 
     public function testUpdateProductUpsellOnly()
     {
-        $this->mockCreateProductRequestWithTest();
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+        $expectedSku = $woocommerceCreatedProduct->get_sku();
+        $expectedGalleryImages = $woocommerceCreatedProduct->get_gallery_image_ids();
+        $expectedStockQuantity = $woocommerceCreatedProduct->get_stock_quantity();
+        $expectedRegularPrice = $woocommerceCreatedProduct->get_regular_price();
+        $expectedSalePrice = $woocommerceCreatedProduct->get_sale_price();
         $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest(self::UPDATE_UP_SELL_DATADUMP_HOOK);
 
         // Get the updated data dump as a dotnotated collection
@@ -207,6 +256,7 @@ class ProductHandlerTest extends AbstractProductTest
         // Other details like SKU and images should not be updated
         $sku = $woocommerceUpdatedProduct->get_sku();
         $this->assertNotEquals($updatedProductData['sku'], $sku, 'Product\'s SKU should not be updated');
+        $this->assertEquals($expectedSku, $sku, 'Product\'s SKU be the same as when it was created');
 
         $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
         $productImages = $updatedProductData->get('flat_product.product_images');
@@ -216,14 +266,38 @@ class ProductHandlerTest extends AbstractProductTest
             }
         }
         $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
 
         // Stock quantity should not be updated
-        $expectedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
+        $updatedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
         $this->assertNotEquals(
-            $expectedStockQuantity,
+            $updatedStockQuantity,
             $woocommerceUpdatedProduct->get_stock_quantity(),
             "[sku=$sku] WooCommerce stock quantity should not match"
         );
+        $this->assertEquals($expectedStockQuantity, $woocommerceUpdatedProduct->get_stock_quantity(), 'Product stock quantity should be same as when it was created');
+
+        // Regular price should not be updated
+        if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
+            $updatedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $this->assertNotEquals(
+                $updatedRegularPrice,
+                $woocommerceUpdatedProduct->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price should not match expected regular price"
+            );
+            $this->assertEquals($expectedRegularPrice, $woocommerceUpdatedProduct->get_regular_price(), 'Product regular prices should be the same when it was created');
+
+            // Discounted price should not be updated
+            if ($updatedProductData->get('product_price.ppu_wt') !== $updatedRegularPrice) {
+                $updatedDiscountedPrice = $updatedProductData->get('product_price.ppu_wt');
+                $this->assertNotEquals(
+                    $updatedDiscountedPrice,
+                    $woocommerceUpdatedProduct->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price should not match the expected discount price"
+                );
+                $this->assertEquals($expectedSalePrice, $woocommerceUpdatedProduct->get_sale_price(), 'Product sale prices should be the same when it was created');
+            }
+        }
 
         // No cross-sell products should be set
         $crossSellIds = $woocommerceUpdatedProduct->get_cross_sell_ids();
@@ -255,13 +329,18 @@ class ProductHandlerTest extends AbstractProductTest
     public function testOrderOnlySyncMode()
     {
         $this->assertProductCount(0, 'Environment not empty');
-
+        $sku = 'MD826ZM/A2';
         $product = WC_Helper_Product::create_simple_product(false);
-        $product->set_sku('MD826ZM/A2');
-        $product->set_stock_quantity(9001);
-        $product->set_manage_stock(true);
-        $product->set_backorders('yes');
+        $product->set_sku($sku);
+        $product->set_stock_quantity(null);
+        $product->set_manage_stock(false);
+        $product->set_backorders('no');
+        $product->set_stock_status(self::WC_STATUS_OUTOFSTOCK);
         $product->save();
+
+        $expectedGalleryImages = $product->get_gallery_image_ids();
+        $expectedRegularPrice = $product->get_regular_price();
+        $expectedSalePrice = $product->get_sale_price();
 
         $this->handle_hook_request(
             self::UPDATE_DATADUMP_DIRECTORY,
@@ -277,11 +356,52 @@ class ProductHandlerTest extends AbstractProductTest
         // Process all the tasks
         $this->runner->execute(ProcessAllTasks::getCommandName());
 
-        $product = wc_get_product($product);
-        $this->assertNull($product->get_stock_quantity(), 'Stock quantity was not updated.');
-        $this->assertFalse($product->get_manage_stock(), 'Stock manage was not updated.');
-        $this->assertEquals('no', $product->get_backorders(), 'Stock backorders was not updated.');
-        $this->assertEquals(self::WC_STATUS_INSTOCK, $product->get_stock_status(), 'Stock manage was not updated.');
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        // Get product again after task processing
+        $woocommerceUpdatedProduct = wc_get_product($product);
+
+        $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
+        $productImages = $updatedProductData->get('flat_product.product_images');
+        foreach ($productImages as $index => $images) {
+            if ($images['id'] === $updatedProductData->get('flat_product.main_image.id')) {
+                unset($productImages[$index]);
+            }
+        }
+        $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
+
+        // Regular price should not be updated
+        if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
+            $updatedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $this->assertNotEquals(
+                $updatedRegularPrice,
+                $woocommerceUpdatedProduct->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price should not match expected regular price"
+            );
+            $this->assertEquals($expectedRegularPrice, $woocommerceUpdatedProduct->get_regular_price(), 'Product regular prices should be the same when it was created');
+
+            // Discounted price should not be updated
+            if ($updatedProductData->get('product_price.ppu_wt') !== $updatedRegularPrice) {
+                $updatedDiscountedPrice = $updatedProductData->get('product_price.ppu_wt');
+                $this->assertNotEquals(
+                    $updatedDiscountedPrice,
+                    $woocommerceUpdatedProduct->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price should not match the expected discount price"
+                );
+                $this->assertEquals($expectedSalePrice, $woocommerceUpdatedProduct->get_sale_price(), 'Product sale prices should be the same when it was created');
+            }
+        }
+
+        $this->assertNotNull($woocommerceUpdatedProduct->get_stock_quantity(), 'Stock quantity was not updated.');
+        $this->assertTrue($woocommerceUpdatedProduct->get_manage_stock(), 'Stock manage was not updated.');
+        $this->assertEquals('yes', $woocommerceUpdatedProduct->get_backorders(), 'Stock backorders was not updated.');
+        $this->assertEquals(self::WC_STATUS_INSTOCK, $woocommerceUpdatedProduct->get_stock_status(), 'Stock manage was not updated.');
+
+        $this->assertProductStock($updatedProductData, $woocommerceUpdatedProduct, $sku);
     }
 
     private function assertProductCount(int $expected, string $message)

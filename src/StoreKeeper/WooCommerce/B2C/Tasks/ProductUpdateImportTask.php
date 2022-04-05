@@ -25,7 +25,7 @@ class ProductUpdateImportTask extends AbstractTask
             $product->setTaskHandler($this->getTaskHandler());
             $exceptions = array_merge($exceptions, $product->run());
 
-            return $this->throwExceptionArray($exceptions);
+            $this->throwExceptionArray($exceptions);
         }
 
         return true;

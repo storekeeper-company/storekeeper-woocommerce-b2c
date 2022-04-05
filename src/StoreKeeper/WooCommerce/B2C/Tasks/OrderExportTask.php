@@ -23,7 +23,7 @@ class OrderExportTask extends AbstractTask
                 ]
             );
 
-            return $this->throwExceptionArray($prod->run());
+            $this->throwExceptionArray($prod->run());
         }
 
         return true;

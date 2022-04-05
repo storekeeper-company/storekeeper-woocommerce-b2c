@@ -20,7 +20,7 @@ class AttributeImportTask extends AbstractTask
             $tag->setLogger($this->logger);
             $exceptions = array_merge($exceptions, $tag->run());
 
-            return $this->throwExceptionArray($exceptions);
+            $this->throwExceptionArray($exceptions);
         }
 
         return true;
