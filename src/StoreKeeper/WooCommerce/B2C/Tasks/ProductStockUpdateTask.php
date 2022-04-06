@@ -20,7 +20,7 @@ class ProductStockUpdateTask extends AbstractTask
             $productStock->setTaskHandler($this->getTaskHandler());
             $exceptions = array_merge($exceptions, $productStock->run());
 
-            return $this->throwExceptionArray($exceptions);
+            $this->throwExceptionArray($exceptions);
         }
 
         return true;

@@ -18,7 +18,7 @@ class CouponCodeImportTask extends AbstractTask
                 ]
             );
 
-            return $this->throwExceptionArray($coupon_code_import->run());
+            $this->throwExceptionArray($coupon_code_import->run());
         }
 
         return true;

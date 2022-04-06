@@ -152,10 +152,15 @@ class EventsHandler
 
         foreach ($events as $id => $event) {
             $details = $event['details'] ?? [];
+            $scope = $event['scope'] ?? '';
             $eventType = $event['event'];
             $fullEventType = "$module::$eventType";
 
-            $this->handleProductEvents($fullEventType, $taskData);
+            if (empty($scope) && is_string($details)) {
+                $scope = $details;
+            }
+
+            $this->handleProductEvents($fullEventType, $taskData, $scope);
             $this->handleCategoryEvents($fullEventType, $taskData, $categoryType);
             $this->handleCouponCodeEvents($fullEventType, $taskData, $details);
             $this->handleOrderEvents($fullEventType, $taskData, $details);
@@ -178,10 +183,15 @@ class EventsHandler
 
         foreach ($events as $id => $event) {
             $details = $event['details'] ?? [];
+            $scope = $event['scope'] ?? '';
             $eventType = $event['event'];
             $fullEventType = "$module::$eventType";
 
-            $this->handleProductEvents($fullEventType, $taskData);
+            if (empty($scope) && is_string($details)) {
+                $scope = $details;
+            }
+
+            $this->handleProductEvents($fullEventType, $taskData, $scope);
             $this->handleCategoryEvents($fullEventType, $taskData, $categoryType);
             $this->handleCouponCodeEvents($fullEventType, $taskData, $details);
             $this->handleFeaturedAttributeEvents($fullEventType, $details);
@@ -210,11 +220,16 @@ class EventsHandler
         }
     }
 
-    private function handleProductEvents(string $eventType, array $taskData): void
+    private function handleProductEvents(string $eventType, array $taskData, string $scope): void
     {
         switch ($eventType) {
             // ShopModule::ShopProduct
             case 'ShopModule::ShopProduct::updated':
+                $metaData = [
+                    'scope' => $scope,
+                ];
+                TaskHandler::scheduleTask(TaskHandler::PRODUCT_UPDATE, $this->getId(), array_merge($taskData, $metaData));
+                break;
             case 'ShopModule::ShopProduct::created':
                 TaskHandler::scheduleTask(TaskHandler::PRODUCT_IMPORT, $this->getId(), $taskData);
                 break;

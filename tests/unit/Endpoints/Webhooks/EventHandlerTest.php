@@ -53,9 +53,9 @@ class EventHandlerTest extends AbstractTest
         $this->runner->execute(ProcessAllTasks::getCommandName());
 
         $product = ProductImport::findBackendShopProductId($options['id']);
-        $this->assertNotFalse($product, 'product created');
+        $this->assertNotFalse($product, 'product not created');
 
         $used_keys = StoreKeeperApi::$mockAdapter->getUsedReturns();
-        $this->assertCount(3, $used_keys, 'call made');
+        $this->assertCount(4, $used_keys, 'call made');
     }
 }

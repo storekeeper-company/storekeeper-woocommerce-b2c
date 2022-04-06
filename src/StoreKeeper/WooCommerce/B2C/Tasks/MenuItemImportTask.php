@@ -27,7 +27,7 @@ class MenuItemImportTask extends AbstractTask
                 ]
             );
 
-            return $this->throwExceptionArray($tag->run());
+            $this->throwExceptionArray($tag->run());
         }
 
         return true;

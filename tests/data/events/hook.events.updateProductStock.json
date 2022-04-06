@@ -1,6 +1,6 @@
 {
     "success": true,
-    "call_id": "621e31f6dab5a",
+    "call_id": "622f275a35b1f",
     "request": {
         "headers": {
             "host": [
@@ -10,7 +10,7 @@
                 "GuzzleHttp\/7"
             ],
             "content_length": [
-                "192"
+                "399"
             ],
             "content_type": [
                 "application\/json"
@@ -25,7 +25,7 @@
                 "gzip"
             ]
         },
-        "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2022-03-01 15:46:30+01\",\"backref\":\"ShopModule::ShopProduct(id=9)\",\"events\":{\"2299\":{\"id\":2299,\"event\":\"updated\",\"date\":\"2022-03-01 15:46:30+01\"}}}}",
+        "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2022-03-14 12:30:26+01\",\"backref\":\"ShopModule::ShopProduct(id=9)\",\"events\":{\"2485\":{\"id\":2485,\"event\":\"updated\",\"details\":\"orderable_stock_value\",\"date\":\"2022-03-14 12:30:26+01\"},\"2484\":{\"id\":2484,\"event\":\"updated\",\"details\":\"product.product_stock\",\"date\":\"2022-03-14 12:30:26+01\"}}}}",
         "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
         "method": "POST",
         "query_params": {
@@ -36,7 +36,7 @@
     "hook_action": "events",
     "return": true,
     "_type": "hook",
-    "time_ms": 1530.0,
+    "time_ms": 1403.0,
     "_version": "1.0",
-    "_timestamp": "2022-03-01T14:47:20+00:00"
+    "_timestamp": "2022-03-14T11:30:35+00:00"
 }

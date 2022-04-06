@@ -21,6 +21,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
+use WC_Data_Exception;
 use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
@@ -134,7 +135,7 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
      * @return bool|int
      *
      * @throws WordpressException
-     * @throws \WC_Data_Exception
+     * @throws WC_Data_Exception
      */
     protected function processItem($dotObject, array $options = [])
     {
@@ -239,7 +240,7 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
         return true;
     }
 
-    private function updatePostStatus($post_id, $status)
+    protected function updatePostStatus($post_id, $status)
     {
         global $wpdb;
         $sql = <<<SQL
@@ -256,7 +257,7 @@ SQL;
      *
      * @throws WordpressException
      */
-    private function setCategories(&$newProduct, $product)
+    protected function setCategories(&$newProduct, $product)
     {
         $categoryIds = [];
 
@@ -278,7 +279,7 @@ SQL;
      *
      * @throws WordpressException
      */
-    private function setTags(&$newProduct, $product)
+    protected function setTags(&$newProduct, $product)
     {
         $tagIds = [];
 
@@ -328,7 +329,7 @@ SQL;
      *
      * @return mixed
      */
-    private function setImage(&$newProduct, $product)
+    protected function setImage(&$newProduct, $product)
     {
         if ($product->has('flat_product.main_image')) {
             $attachment_id = Media::createAttachment($product->get('flat_product.main_image.big_url'));
@@ -350,7 +351,7 @@ SQL;
      * @param $product
      * @param null $main_image_id
      */
-    private function setGalleryImages(&$newProduct, $product, $main_image_id = null)
+    protected function setGalleryImages(&$newProduct, $product, $main_image_id = null)
     {
         $attachment_ids = [];
         $count = 0;
@@ -380,7 +381,7 @@ SQL;
      * @return array
      *
      * @throws WordpressException
-     * @throws \WC_Data_Exception
+     * @throws WC_Data_Exception
      */
     protected function setUpsellIds(&$newProduct, $product)
     {
@@ -758,19 +759,45 @@ SQL;
     }
 
     /**
-     * @param Dot $dotObject
-     *
-     * @return int
-     *
+     * @throws WC_Data_Exception
      * @throws WordpressException
-     * @throws \WC_Data_Exception
      */
     protected function processSimpleAndConfigurableProduct(
-        $dotObject,
+        Dot $dotObject,
         array $log_data,
         array $options,
-        $importProductType
-    ) {
+        string $importProductType
+    ): int {
+        // Get the product entity
+        $newProduct = $this->getNewProduct($dotObject, $importProductType);
+        // Handle seo
+        $this->processSeo($newProduct, $dotObject);
+        // Product variables/details
+        $log_data = $this->setProductDetails($newProduct, $dotObject, $importProductType, $log_data);
+        // Product prices
+        $log_data = $this->setProductPrice($newProduct, $dotObject, $log_data);
+        // Product stock
+        $log_data = $this->setProductStock($newProduct, $dotObject, $log_data);
+        // Upsell products
+        $log_data = $this->handleUpsellProducts($newProduct, $dotObject, $options, $log_data);
+        // Cross-sell products
+        $log_data = $this->handleCrossSellProducts($newProduct, $dotObject, $options, $log_data);
+        // Save the product changes
+        $log_data = $this->saveProduct($newProduct, $dotObject, $log_data);
+        // Update product object's metadata
+        $this->updateProductMeta($newProduct, $dotObject, $log_data);
+
+        return $newProduct->get_id();
+    }
+
+    /**
+     * @return WC_Product_Simple|WC_Product_Variable
+     *
+     * @throws WordpressException
+     */
+    protected function getNewProduct(Dot $dotObject, string $importProductType)
+    {
+        $newProduct = null;
         $productCheck = self::gettingSimpleOrConfigurableProduct($dotObject);
 
         $product_id = 0;
@@ -783,15 +810,46 @@ SQL;
 
         if ('simple' === $importProductType) {
             $newProduct = new WC_Product_Simple($product_id);
-        } else {
-            if ('configurable' === $importProductType) {
-                $newProduct = new WC_Product_Variable($product_id);
-            }
+        } elseif ('configurable' === $importProductType) {
+            $newProduct = new WC_Product_Variable($product_id);
         }
 
-        // Handle seo
-        $this->processSeo($newProduct, $dotObject);
+        if (is_null($newProduct)) {
+            throw new Exception("No product is association with id={$product_id['id']}");
+        }
 
+        return $newProduct;
+    }
+
+    /**
+     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     */
+    protected function setProductPrice($newProduct, Dot $dotObject, array $log_data): array
+    {
+        $regularPricePerUnit = $dotObject->get('product_default_price.ppu_wt');
+        /* Pricing */
+        // Regular price
+        $newProduct->set_regular_price($regularPricePerUnit);
+        $log_data['regular_price'] = $regularPricePerUnit;
+        $this->debug('Set regular_price on product', $log_data);
+
+        // WooCommece will only allow setting the sale price when it's lower then the regular price
+        // When the two values are the same or the sale price is higher, it will default to no sales price
+        $discountedPricePerUnit = $dotObject->get('product_price.ppu_wt');
+        $newProduct->set_sale_price($discountedPricePerUnit);
+        $log_data['sale_price'] = $discountedPricePerUnit;
+        $this->debug('Set sale_Price on product', $log_data);
+
+        return $log_data;
+    }
+
+    /**
+     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     *
+     * @throws WordpressException|WC_Data_Exception
+     */
+    protected function setProductDetails($newProduct, Dot $dotObject, string $importProductType, array $log_data): array
+    {
         // set StoreKeeperId
         $wp_type = WooCommerceOptions::getWooCommerceTypeFromProductType($importProductType);
         ShopProductCache::set($dotObject->get('id'), $wp_type);
@@ -823,22 +881,6 @@ SQL;
         $log_data['short_description'] = $shortDescription;
         $this->debug('Set short_description on product', $log_data);
 
-        $pricePerUnit = $dotObject->get('product_default_price.ppu_wt');
-        /* Pricing */
-        // Regular price
-        $newProduct->set_regular_price($pricePerUnit);
-        $log_data['regular_price'] = $pricePerUnit;
-        $this->debug('Set regular_price on product', $log_data);
-
-        // WooCommece will only allow setting the sale price when it's lower then the regular price
-        // When the two values are the same or the sale price is higher, it will default to no sales price
-        $newProduct->set_sale_price($dotObject->get('product_price.ppu_wt'));
-        $log_data['sale_price'] = $dotObject->get('product_price.ppu_wt');
-        $this->debug('Set sale_Price on product', $log_data);
-
-        /** Stock */
-        $log_data = $this->setProductStock($newProduct, $dotObject, $log_data);
-
         /* Backorder */
         $this->setProductBackorder($newProduct, $dotObject);
 
@@ -858,6 +900,17 @@ SQL;
         $this->setGalleryImages($newProduct, $dotObject, $main_image_id);
         $this->debug('Set GalleryImages on product', $log_data);
 
+        return $log_data;
+    }
+
+    /**
+     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     *
+     * @throws WordpressException
+     * @throws WC_Data_Exception
+     */
+    protected function handleUpsellProducts($newProduct, Dot $dotObject, array $options, array $log_data): array
+    {
         if (!array_key_exists('skip_upsell', $options) || !$options['skip_upsell']) {
             /** Upsell */
             $upsell_ids = $this->setUpsellIds($newProduct, $dotObject);
@@ -867,8 +920,16 @@ SQL;
             $this->debug('Skipped UpsellIds on product', $options);
         }
 
+        return $log_data;
+    }
+
+    /**
+     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     */
+    protected function handleCrossSellProducts($newProduct, Dot $dotObject, array $options, array $log_data): array
+    {
         if (!array_key_exists('skip_cross_sell', $options) || !$options['skip_cross_sell']) {
-            /** cross sell */
+            /** Cross-sell */
             $cross_sell_ids = $this->setCrossSellIds($newProduct, $dotObject);
             $log_data['cross_sell_ids'] = $cross_sell_ids;
             $this->debug('Set crossSellIds on product', $log_data);
@@ -876,6 +937,49 @@ SQL;
             $this->debug('Skipped crossSellIds on product', $options);
         }
 
+        return $log_data;
+    }
+
+    /**
+     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     */
+    protected function updateProductMeta($newProduct, Dot $dotObject, array $log_data): void
+    {
+        update_post_meta($newProduct->get_id(), 'storekeeper_id', $dotObject->get('id'));
+
+        // Add last sync date meta for products
+        // Time will be based on user's selected timezone on wordpress
+        $date = current_time('mysql');
+        update_post_meta($newProduct->get_id(), 'storekeeper_sync_date', $date);
+        $this->debug('storekeeper_id added to post.', $log_data);
+
+        if ($dotObject->has('flat_product.content_vars')) {
+            $nonAttributeOptions = array_filter(
+                $dotObject->get('flat_product.content_vars'),
+                function ($attribute) {
+                    return !key_exists('attribute_option_id', $attribute);
+                }
+            );
+            foreach ($nonAttributeOptions as $attribute) {
+                if (key_exists('attribute_id', $attribute)) {
+                    $label = sanitize_title($attribute['label']);
+                    $attribute_id = $attribute['attribute_id'];
+                    update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
+                }
+            }
+        }
+
+        $this->debug('Configurable product finalized', $log_data);
+    }
+
+    /**
+     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     *
+     * @throws WordpressException
+     */
+    protected function saveProduct($newProduct, Dot $dotObject, array $log_data): array
+    {
+        $pricePerUnit = $dotObject->get('product_default_price.ppu_wt');
         if ('simple' === $newProduct->get_type()) {
             $this->debug('Going to set attributes', $log_data);
             ProductAttributes::setSimpleAttributes($newProduct, $dotObject);
@@ -909,36 +1013,10 @@ SQL;
             }
         }
 
-        update_post_meta($newProduct->get_id(), 'storekeeper_id', $dotObject->get('id'));
-
-        // Add last sync date meta for products
-        // Time will be based on user's selected timezone on wordpress
-        $date = current_time('mysql');
-        update_post_meta($newProduct->get_id(), 'storekeeper_sync_date', $date);
-        $this->debug('storekeeper_id added to post.', $log_data);
-
-        if ($dotObject->has('flat_product.content_vars')) {
-            $nonAttributeOptions = array_filter(
-                $dotObject->get('flat_product.content_vars'),
-                function ($attribute) {
-                    return !key_exists('attribute_option_id', $attribute);
-                }
-            );
-            foreach ($nonAttributeOptions as $attribute) {
-                if (key_exists('attribute_id', $attribute)) {
-                    $label = sanitize_title($attribute['label']);
-                    $attribute_id = $attribute['attribute_id'];
-                    update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
-                }
-            }
-        }
-
-        $this->debug('Configurable product finalized', $log_data);
-
-        return $newProduct->get_id();
+        return $log_data;
     }
 
-    private function getProductStatusByPrice(float $price): string
+    protected function getProductStatusByPrice(float $price): string
     {
         return $price <= 0 ? 'private' : 'publish';
     }
@@ -977,7 +1055,7 @@ SQL;
      *
      * @throws WordpressException
      */
-    private function syncProductVariations($parentProduct, $optionsConfig, $log_data)
+    protected function syncProductVariations($parentProduct, $optionsConfig, $log_data)
     {
         // Sorting?
         $data_store = $parentProduct->get_data_store();
@@ -1038,7 +1116,7 @@ SQL;
     /**
      * @throws WordpressException
      */
-    private function reorderProductVariations($optionsConfig): void
+    protected function reorderProductVariations($optionsConfig): void
     {
         $associatedShopProducts = $optionsConfig->get('configurable_associated_shop_products');
         if (count($associatedShopProducts) > 0) {

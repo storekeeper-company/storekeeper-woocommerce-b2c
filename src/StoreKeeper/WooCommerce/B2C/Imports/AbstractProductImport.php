@@ -176,8 +176,9 @@ abstract class AbstractProductImport extends AbstractImport
             $manage_stock = true;
             $stock_quantity = 0;
         }
+        $dateUpdated = $dot->get($this->cleanDotPath($stock_path.'.date_updated'));
 
-        return [$in_stock, $manage_stock, $stock_quantity];
+        return [$in_stock, $manage_stock, $stock_quantity, $dateUpdated];
     }
 
     protected function cleanDotPath(string $shop_product_path): string
