@@ -533,18 +533,24 @@ class OrderExport extends AbstractExport
             $this->debug('Got product', $currentProduct);
 
             $data = [
-                'sku' => $currentProduct ? $currentProduct->get_sku(self::CONTEXT) : $orderProduct->get_name(
-                    self::CONTEXT
-                ),
+                'sku' => $orderProduct->get_name(self::CONTEXT),
                 'ppu_wt' => $order->get_item_total($orderProduct, true, false), //get price with discount
                 'before_discount_ppu_wt' => $order->get_item_subtotal($orderProduct, true, false), //get without discount
                 'quantity' => $orderProduct->get_quantity(self::CONTEXT),
-                'name' => $currentProduct ? $currentProduct->get_name(self::CONTEXT) : $orderProduct->get_name(
-                    self::CONTEXT
-                ),
+                'name' => $orderProduct->get_name(self::CONTEXT),
                 'description' => $description,
                 'shop_product_id' => $shop_product_id,
             ];
+
+            if ($currentProduct) {
+                // use the current products as fallback
+                if (empty($data['sku'])) {
+                    $data['sku'] = $currentProduct->get_sku(self::CONTEXT);
+                }
+                if (empty($data['name'])) {
+                    $data['name'] = $currentProduct->get_name(self::CONTEXT);
+                }
+            }
 
             if (count($attribute_ids) > 0) {
                 $data['attribute_option_ids'] = $attribute_ids;
