@@ -151,13 +151,13 @@ class StatusTab extends AbstractTab
             'title' => __('Writable tmp directory', I18N::DOMAIN),
             'description' => sprintf(
                 __(
-                    'Contact your allow one of the those directories to be writable: %s',
+                    'Contact your server provider to allow one of the those directories to be writable: %s',
                     I18N::DOMAIN
                 ),
                 implode(', ', Core::getPossibleTmpDirs())
             ),
             'value' => Core::getTmpBaseDir(),
-            'function::value' => [$this, 'renderCheck'],
+            'function::value' => [$this, 'renderCheckWithValue'],
         ];
 
         $extensions = get_loaded_extensions();
@@ -310,5 +310,13 @@ HTML;
         }
 
         echo $html;
+    }
+
+    public function renderCheckWithValue($value, $item)
+    {
+        $this->renderCheck($value, $item);
+        if ($value) {
+            echo esc_html($value) ;
+        }
     }
 }
