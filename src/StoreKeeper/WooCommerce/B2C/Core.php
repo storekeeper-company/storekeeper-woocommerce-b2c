@@ -413,10 +413,8 @@ HTML;
         $dirs = self::getPossibleTmpDirs();
 
         foreach ($dirs as $dir) {
-            if (!file_exists($dir)) {
-                if (false === mkdir($dir, '0777', true)) {
-                    continue; // failed to create
-                }
+            if (!file_exists($dir) && !mkdir($dir, '0777', true) && !is_dir($dir)) {
+                continue; // failed to create
             }
             if (is_writable($dir)) {
                 return $dir;
