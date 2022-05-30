@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Factories;
 
+use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use StoreKeeper\WooCommerce\B2C\Core;
@@ -17,9 +18,13 @@ class LoggerFactory
      *
      * @return string
      */
-    public static function getWpLogDirectory($suffix = '')
+    public static function getWpLogDirectory($suffix = ''): ?string
     {
-        $log_dir = self::getLogBaseDir().DIRECTORY_SEPARATOR.self::LOG_DIRECTORY;
+        $tmpBaseDir = Core::getTmpBaseDir();
+        if (is_null($tmpBaseDir)) {
+            return null;
+        }
+        $log_dir = $tmpBaseDir.DIRECTORY_SEPARATOR.self::LOG_DIRECTORY;
         if (!empty($suffix)) {
             $log_dir .= DIRECTORY_SEPARATOR.$suffix;
         }
@@ -60,11 +65,16 @@ class LoggerFactory
      */
     public static function create($type)
     {
-        $logLocation = self::getWpLogDirectory()."/$type.log";
-        $streamHandler = new StreamHandler(
-            $logLocation,
-            self::getLogLevel()
-        );
+        $wpLogDirectory = self::getWpLogDirectory();
+        if (is_null($wpLogDirectory)) {
+            $streamHandler = new NullHandler(); // fallback when no directory found
+        } else {
+            $logLocation = $wpLogDirectory."/$type.log";
+            $streamHandler = new StreamHandler(
+                $logLocation,
+                self::getLogLevel()
+            );
+        }
 
         return new Logger($type, [$streamHandler]);
     }
@@ -95,21 +105,6 @@ class LoggerFactory
         $logger->pushHandler($handler);
 
         return $logger;
-    }
-
-    /**
-     * @return string ~/logs or writable tmp
-     */
-    private static function getLogBaseDir(): string
-    {
-        $processUser = posix_getpwuid(posix_geteuid());
-        $user = $processUser['name'];
-        $dir = "/home/$user/";
-        if (is_writable($dir)) {
-            return $dir.'logs';
-        }
-
-        return sys_get_temp_dir();
     }
 
     /**

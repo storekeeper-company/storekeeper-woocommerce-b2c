@@ -408,6 +408,42 @@ HTML;
         }
     }
 
+    public static function getTmpBaseDir(): ?string
+    {
+        $dirs = self::getPossibleTmpDirs();
+
+        foreach ($dirs as $dir) {
+            if (!file_exists($dir)) {
+                if (false === mkdir($dir, '0777', true)) {
+                    continue; // failed to create
+                }
+            }
+            if (is_writable($dir)) {
+                return $dir;
+            }
+        }
+        trigger_error('storekeeper-woocommerce-b2c plugin: No writable directory found for logging. Searched: '.
+            implode(':', $dirs));
+
+        return null;
+    }
+
+    public static function getPossibleTmpDirs(): array
+    {
+        $dirs = [];
+        if (function_exists('posix_getpwuid') &&
+            function_exists('posix_geteuid')
+        ) {
+            $processUser = posix_getpwuid(posix_geteuid());
+            $user = $processUser['name'];
+            $dirs[] = "/home/$user/tmp";
+        }
+        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_WOOCOMMERCE_B2C_NAME;
+        $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.DIRECTORY_SEPARATOR.'tmp';
+
+        return $dirs;
+    }
+
     public function renderBootError(BootError $e)
     {
         if (!self::isTest()) {

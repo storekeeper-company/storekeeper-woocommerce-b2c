@@ -147,6 +147,18 @@ class StatusTab extends AbstractTab
             'value' => phpversion() >= STOREKEEPER_WOOCOMMERCE_B2C_PHP_VERSION,
             'function::value' => [$this, 'renderCheck'],
         ];
+        $data[] = [
+            'title' => __('Writable tmp directory', I18N::DOMAIN),
+            'description' => sprintf(
+                __(
+                    'Contact your allow one of the those directories to be writable: %s',
+                    I18N::DOMAIN
+                ),
+                implode(', ', Core::getPossibleTmpDirs())
+            ),
+            'value' => Core::getTmpBaseDir(),
+            'function::value' => [$this, 'renderCheck'],
+        ];
 
         $extensions = get_loaded_extensions();
         foreach (static::REQUIRED_PHP_EXTENSION as $wantedExtension) {

@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 
 abstract class AbstractSyncIssue extends AbstractCommand
@@ -47,27 +48,12 @@ abstract class AbstractSyncIssue extends AbstractCommand
 
     protected function getReportsDir()
     {
-        $processUser = $this->getProcessUser();
-
-        // Check if the home dir of this processUser exists, else error.
-        $homeDir = "/home/$processUser";
-        if (!is_dir($homeDir)) {
-            throw new BaseException("Home directory does not exists: $homeDir");
-        }
-
         // Check if report dir exists, else create it
-        $reportsDir = "$homeDir/tmp/reports";
+        $reportsDir = Core::getTmpBaseDir().DIRECTORY_SEPARATOR.'reports';
         if (!file_exists($reportsDir)) {
             mkdir($reportsDir, 0770, true);
         }
 
         return $reportsDir;
-    }
-
-    private function getProcessUser()
-    {
-        $processUser = posix_getpwuid(posix_geteuid());
-
-        return $processUser['name'];
     }
 }

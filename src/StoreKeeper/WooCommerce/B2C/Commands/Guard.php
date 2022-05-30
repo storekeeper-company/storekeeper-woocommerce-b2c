@@ -28,7 +28,11 @@ class Guard
         if (!is_writable($tmp)) {
             throw new \Exception("$tmp is not writable");
         }
-        $processUser = posix_geteuid();
+        if (function_exists('posix_geteuid')) {
+            $processUser = posix_geteuid();
+        } else {
+            $processUser = sha1(__FILE__); // fallback to have it working per installation
+        }
         $this->type = preg_replace('/\\\\+/', '_', $class);
         $file = "$tmp/user.$processUser.$this->type.lock";
         $this->file = $file;
