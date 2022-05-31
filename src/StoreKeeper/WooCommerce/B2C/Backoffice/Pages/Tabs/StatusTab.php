@@ -175,6 +175,20 @@ class StatusTab extends AbstractTab
                 'function::value' => [$this, 'renderCheck'],
             ];
         }
+        foreach (static::OPTIONAL_PHP_EXTENSION as $wantedExtension) {
+            $data[] = [
+                'title' => sprintf(__('PHP %s extension', I18N::DOMAIN), $wantedExtension),
+                'description' => sprintf(
+                    __(
+                        'Contact your server provider to enable the PHP %s extension to improve the performance and stability',
+                        I18N::DOMAIN
+                    ),
+                    $wantedExtension
+                ),
+                'value' => in_array($wantedExtension, $extensions),
+                'function::value' => [$this, 'renderCheck'],
+            ];
+        }
 
         return $data;
     }

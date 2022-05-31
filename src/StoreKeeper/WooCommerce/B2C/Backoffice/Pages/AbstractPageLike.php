@@ -11,6 +11,8 @@ abstract class AbstractPageLike
         'mysqli',
         'openssl',
         'zip',
+    ];
+    const OPTIONAL_PHP_EXTENSION = [
         'posix',
     ];
 
