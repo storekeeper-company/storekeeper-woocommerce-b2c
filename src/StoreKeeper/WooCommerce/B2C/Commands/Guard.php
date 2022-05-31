@@ -28,7 +28,7 @@ class Guard
     {
         $tmp = Core::getTmpBaseDir();
         if (is_null($tmp)) {
-            throw new \Exception('Cannot find writable directory for lock file.');
+            throw new \Exception('Cannot find writable directory for lock file. Searched: '.implode(':', Core::getPossibleTmpDirs()));
         }
         if (function_exists('posix_geteuid')) {
             $processUser = posix_geteuid();
