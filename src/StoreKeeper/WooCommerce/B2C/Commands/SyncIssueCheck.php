@@ -69,7 +69,11 @@ class SyncIssueCheck extends AbstractSyncIssue
     {
         // Getting the process owner: https://stackoverflow.com/a/16448131/6475074
         $hostname = gethostname();
-        $processUser = posix_getpwuid(posix_geteuid());
+        if (function_exists('posix_geteuid')) {
+            $processUser = posix_geteuid();
+        } else {
+            $processUser = 'UNKNOWN';
+        }
         $user = $processUser['name'];
         $website = get_site_url();
         $api = StoreKeeperOptions::get(StoreKeeperOptions::API_URL);

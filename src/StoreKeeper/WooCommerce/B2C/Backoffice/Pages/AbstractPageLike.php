@@ -11,6 +11,7 @@ abstract class AbstractPageLike
         'mysqli',
         'openssl',
         'zip',
+        'posix',
     ];
 
     public function register(): void
