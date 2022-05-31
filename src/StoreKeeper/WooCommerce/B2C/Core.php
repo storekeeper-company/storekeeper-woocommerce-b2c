@@ -427,8 +427,6 @@ HTML;
                 return $dir;
             }
         }
-        trigger_error('storekeeper-woocommerce-b2c plugin: No writable directory found for logging. Searched: '.
-            implode(':', $dirs));
 
         return null;
     }
