@@ -10,6 +10,7 @@ services:
         - PHP_VERSION
         - WORDPRESS_VERSION
         - WOOCOMMERCE_VERSION
+        - WORDPRESS_DOCKER_PHP_VERSION
     environment:
       WORDPRESS_DB_HOST: db-test
       WORDPRESS_DB_USER: exampleuser
