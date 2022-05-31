@@ -233,7 +233,12 @@ class Core
 
     public static function getDumpDir(): string
     {
-        return sys_get_temp_dir().'/storekeeper-woocommerce-b2c/dumps/';
+        $tmp = Core::getTmpBaseDir();
+        if (is_null($tmp)) {
+            throw new \Exception('Cannot find writable directory, for dumping api calls. Disable WP_DEBUG or STOREKEEPER_WOOCOMMERCE_B2C_DEBUG to prevent dumping api calls.');
+        }
+
+        return $tmp.'/dumps/';
     }
 
     private function registerPaymentGateway()

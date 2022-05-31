@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use StoreKeeper\WooCommerce\B2C\Core;
+
 class Guard
 {
     /**
@@ -24,9 +26,9 @@ class Guard
      */
     public function __construct(string $class)
     {
-        $tmp = sys_get_temp_dir();
-        if (!is_writable($tmp)) {
-            throw new \Exception("$tmp is not writable");
+        $tmp = Core::getTmpBaseDir();
+        if (is_null($tmp)) {
+            throw new \Exception('Cannot find writable directory for lock file.');
         }
         if (function_exists('posix_geteuid')) {
             $processUser = posix_geteuid();
