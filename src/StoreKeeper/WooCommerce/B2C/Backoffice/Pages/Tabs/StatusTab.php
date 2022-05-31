@@ -316,7 +316,7 @@ HTML;
     {
         $this->renderCheck($value, $item);
         if ($value) {
-            echo esc_html($value) ;
+            echo esc_html($value);
         }
     }
 }
