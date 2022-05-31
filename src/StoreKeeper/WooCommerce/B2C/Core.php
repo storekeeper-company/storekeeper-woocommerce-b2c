@@ -443,6 +443,10 @@ HTML;
             $user = $processUser['name'];
             $dirs[] = "/home/$user/tmp";
         }
+        if (!empty($_SERVER['HOME'])) {
+            $dirs[] = $_SERVER['HOME'].'/tmp';
+        }
+
         $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_WOOCOMMERCE_B2C_NAME;
         $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.DIRECTORY_SEPARATOR.'tmp';
 
