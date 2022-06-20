@@ -73,7 +73,7 @@ class SyncIssueFixer extends AbstractSyncIssue
         IniHelper::setIni(
             'memory_limit',
             '512M',
-            [$this->logger, 'warning']
+            [$this->logger, 'notice']
         );
 
         list(
