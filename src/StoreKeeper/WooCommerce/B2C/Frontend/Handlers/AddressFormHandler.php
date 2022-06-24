@@ -69,6 +69,7 @@ class AddressFormHandler
         $locale['NL']['postcode']['placeholder'] = __('Postcode / ZIP', I18N::DOMAIN);
 
         $locale['NL']['address_1'] = [
+            'label' => __('Street address', I18N::DOMAIN),
             'placeholder' => __('Street name', I18N::DOMAIN),
             'priority' => 55,
         ];
