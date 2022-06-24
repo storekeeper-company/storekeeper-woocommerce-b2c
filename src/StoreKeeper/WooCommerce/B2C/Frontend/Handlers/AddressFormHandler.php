@@ -48,7 +48,10 @@ class AddressFormHandler
      */
     public function alterAddressForm(array $fields): array
     {
-        return $this->addFields($fields);
+        $fields = $this->addFields($fields);
+        $fields = $this->updateFields($fields);
+
+        return $fields;
     }
 
     /**
@@ -62,7 +65,7 @@ class AddressFormHandler
         ];
 
         $locale['NL']['postcode']['priority'] = 45;
-        $locale['NL']['postcode']['label'] = __('Postcode / ZIP & House number', I18N::DOMAIN);
+        $locale['NL']['postcode']['label'] = __('Postcode / ZIP', I18N::DOMAIN);
         $locale['NL']['postcode']['placeholder'] = __('Postcode / ZIP', I18N::DOMAIN);
 
         $locale['NL']['address_1'] = [
@@ -159,7 +162,7 @@ class AddressFormHandler
         }
     }
 
-    private function addFields(array $fields)
+    private function addFields(array $fields): array
     {
         $updatedFields = $this->insertFieldsAtPosition($fields, [
             self::HOUSE_NUMBER_FIELD => [
@@ -168,15 +171,23 @@ class AddressFormHandler
                 'type' => 'text',
                 'priority' => 50,
                 'hidden' => true,
-                'class' => ['form-row-wide', 'address-field'],
+                'class' => ['form-row-last', 'address-field'],
                 'label' => __('House number', I18N::DOMAIN),
-                'label_class' => ['screen-reader-text'],
             ],
         ],
             self::STREET_ADDRESS_POSITION
         );
 
         return $updatedFields;
+    }
+
+    private function updateFields(array $fields): array
+    {
+        $fields['address_1']['custom_attributes'] = ['readonly' => 'readonly'];
+        $fields['city']['custom_attributes'] = ['readonly' => 'readonly'];
+        $fields['postcode']['class'] = ['form-row-first', 'address-field'];
+
+        return $fields;
     }
 
     private function insertFieldsAtPosition(array $originalFields, array $newFields, int $position): array
