@@ -215,17 +215,26 @@ class ConnectionTab extends AbstractTab
     {
         $payment = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
         $backorder = StoreKeeperOptions::getConstant(StoreKeeperOptions::NOTIFY_ON_BACKORDER);
-        $seoHandler = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
-        $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SEO_HANDLER);
+        $seoHandler = StoreKeeperOptions::getConstant(StoreKeeperOptions::SEO_HANDLER);
+        $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
         $orderSyncFromDate = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
         $barcode = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
         $categoryHtml = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
 
         $data = [
-            $payment => 'on' === sanitize_key($_POST[$payment]) ? 'yes' : 'no',
             $backorder => 'on' === sanitize_key($_POST[$backorder]) ? 'yes' : 'no',
             $categoryHtml => 'on' === sanitize_key($_POST[$categoryHtml]) ? 'yes' : 'no',
         ];
+
+        if (in_array($_POST[$mode], StoreKeeperOptions::MODES_WITH_PAYMENTS, true)) {
+            if (!StoreKeeperOptions::isPaymentSyncEnabled()) {
+                // Retain the old value
+                $data[$payment] = StoreKeeperOptions::get($payment);
+            } else {
+                $data[$payment] = 'on' === sanitize_key($_POST[$payment]) ? 'yes' : 'no';
+            }
+        }
+
         if (!empty($_POST[$mode])) {
             $data[$mode] = sanitize_key($_POST[$mode]);
         } else {
@@ -375,7 +384,7 @@ HTML;
             __('Activate StoreKeeper payments', I18N::DOMAIN),
             $this->getFormCheckbox(
                 $paymentName,
-                'yes' === StoreKeeperOptions::get($paymentName),
+                'yes' === StoreKeeperOptions::get($paymentName) && StoreKeeperOptions::isPaymentSyncEnabled(),
                 StoreKeeperOptions::isPaymentSyncEnabled() ? '' : 'disabled',
             ).' '.__(
                 'When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop\'s checkout',

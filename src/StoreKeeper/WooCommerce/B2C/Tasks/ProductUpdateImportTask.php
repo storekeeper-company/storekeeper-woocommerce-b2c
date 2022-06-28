@@ -2,18 +2,23 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tasks;
 
-use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
+use StoreKeeper\WooCommerce\B2C\Imports\ProductUpdateImport;
 
-class ProductImportTask extends AbstractTask
+class ProductUpdateImportTask extends AbstractTask
 {
     public function run($task_options = [])
     {
-        if ($this->taskMetaExists('storekeeper_id')) {
-            $storekeeper_id = $this->getTaskMeta('storekeeper_id');
+        if (
+            $this->taskMetaExists('storekeeper_id') &&
+            $this->taskMetaExists('scope')
+        ) {
+            $storekeeperId = $this->getTaskMeta('storekeeper_id');
+            $scope = $this->getTaskMeta('scope');
             $exceptions = [];
-            $product = new ProductImport(
+            $product = new ProductUpdateImport(
                 [
-                    'storekeeper_id' => $storekeeper_id,
+                    'storekeeper_id' => $storekeeperId,
+                    'scope' => $scope,
                     'debug' => key_exists('debug', $task_options) ? $task_options['debug'] : false,
                 ]
             );

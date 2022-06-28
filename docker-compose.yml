@@ -9,6 +9,7 @@ services:
       args:
         PHP_VERSION: $PHP_VERSION
         WORDPRESS_VERSION: $WORDPRESS_VERSION
+        WORDPRESS_DOCKER_PHP_VERSION: $WORDPRESS_DOCKER_PHP_VERSION
         WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
         STOREFRONT_VERSION: $STOREFRONT_VERSION
         USER_ID: ${USER_ID:-1000}
@@ -29,8 +30,8 @@ services:
     volumes:
       - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - wp-content:/app/src/wp-content
-      - ./tmp/sk-log:/tmp/sk-log/:rw
-      - ./tmp/sk-tmp:/tmp/storekeeper-woocommerce-b2c/:rw
+      - ./tmp/sk-log:/tmp/sk-log:rw
+      - ./tmp/sk-tmp:/tmp/storekeeper-woocommerce-b2c:rw
       - .:/app/src/wp-content/plugins/storekeeper-woocommerce-b2c:ro
 
   db:

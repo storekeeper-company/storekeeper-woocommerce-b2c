@@ -1,7 +1,8 @@
 
 ARG PHP_VERSION
 ARG WORDPRESS_VERSION
-FROM wordpress:${WORDPRESS_VERSION}-php${PHP_VERSION}-apache AS wordpress-docker
+ARG WORDPRESS_DOCKER_PHP_VERSION
+FROM wordpress:${WORDPRESS_VERSION}-php${WORDPRESS_DOCKER_PHP_VERSION}-apache AS wordpress-docker
 FROM php:${PHP_VERSION}-apache as wordpress-distro
 
 # copied from https://raw.githubusercontent.com/docker-library/wordpress/master/php7.3/apache/Dockerfile

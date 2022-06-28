@@ -438,6 +438,8 @@ class OrderPaymentTest extends AbstractOrderExportTest
                         return [
                             'id' => $sk_order_id,
                             'status' => $getOrderStatus,
+                            'is_paid' => false,
+                            'order_items' => [],
                         ];
                     }
                 );
@@ -558,7 +560,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
 
         // Constants
         $OrderHandler = new OrderHandler();
-        $sk_provider_method_type_id = rand();
+        $skPaymentId = rand();
         $sk_order_id = rand();
         $sk_customer_id = rand();
         $getOrderStatus = OrderExport::STATUS_NEW;
@@ -568,17 +570,11 @@ class OrderPaymentTest extends AbstractOrderExportTest
         // Setup calls
         StoreKeeperApi::$mockAdapter->withModule(
             'PaymentModule',
-            function (MockInterface $module) use ($sk_provider_method_type_id) {
-                $module->shouldReceive('listProviderMethodTypes')->andReturnUsing(
-                    function ($got) use ($sk_provider_method_type_id) {
+            function (MockInterface $module) use ($skPaymentId) {
+                $module->shouldReceive('newWebPayment')->andReturnUsing(
+                    function ($got) use ($skPaymentId) {
                         // return the only used data
-                        return [
-                            'data' => [
-                                [
-                                    'id' => $sk_provider_method_type_id,
-                                ],
-                            ],
-                        ];
+                        return $skPaymentId;
                     }
                 );
             }
@@ -592,7 +588,6 @@ class OrderPaymentTest extends AbstractOrderExportTest
                 $sk_customer_id,
                 $new_order_id,
                 &$updateStatusCount,
-                $sk_provider_method_type_id,
                 &$getOrderStatus
             ) {
                 $module->shouldReceive('naturalSearchShopFlatProductForHooks')->andReturnUsing(
@@ -611,22 +606,9 @@ class OrderPaymentTest extends AbstractOrderExportTest
                     }
                 );
 
-                $module->shouldReceive('markOrderAsPaid')->andReturnUsing(
-                    function ($got) use ($sk_order_id, $sk_provider_method_type_id) {
-                        $order_id = $got[0];
-                        $payment_id_array = $got[1];
-                        $provider_method_type_id = $payment_id_array['provider_method_type_id'];
-
-                        $this->assertEquals(
-                            $sk_provider_method_type_id,
-                            $provider_method_type_id,
-                            'Check attach provider method type id'
-                        );
-                        $this->assertEquals(
-                            $sk_order_id,
-                            $order_id,
-                            'Check attach order id'
-                        );
+                $module->shouldReceive('attachPaymentIdsToOrder')->andReturnUsing(
+                    function ($got) {
+                        return [];
                     }
                 );
 
@@ -642,6 +624,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
                             'id' => $sk_order_id,
                             'status' => $getOrderStatus,
                             'is_paid' => false,
+                            'order_items' => [],
                         ];
                     }
                 );

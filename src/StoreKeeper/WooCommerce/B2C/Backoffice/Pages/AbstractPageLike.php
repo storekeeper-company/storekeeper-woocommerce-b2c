@@ -12,6 +12,9 @@ abstract class AbstractPageLike
         'openssl',
         'zip',
     ];
+    const OPTIONAL_PHP_EXTENSION = [
+        'posix',
+    ];
 
     public function register(): void
     {

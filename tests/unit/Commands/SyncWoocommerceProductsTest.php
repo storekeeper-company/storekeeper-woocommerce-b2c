@@ -8,6 +8,8 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceSingleProduct;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 
 class SyncWoocommerceProductsTest extends AbstractTest
 {
@@ -115,6 +117,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
             $this->assertProduct($original, $wc_simple_product);
         }
+
+        $this->assertAttributeOptionOrder();
     }
 
     public function testOrderableSimpleProductStock()
@@ -225,6 +229,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
             $actualAttributeOptionPosition,
             'Menu order for '.$variationProduct->get_title()
         );
+
+        $this->assertAttributeOptionOrder();
     }
 
     public function cleanAttributeName($name)
@@ -270,6 +276,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
             'Amount of synchronised configurable products doesn\'t match source data'
         );
 
+        $this->assertAttributeOptionOrder();
+
         foreach ($original_product_data as $product_data) {
             $original = new Dot($product_data);
 
@@ -296,6 +304,28 @@ class SyncWoocommerceProductsTest extends AbstractTest
             );
 
             $this->assertProduct($original, $wc_configurable_product);
+        }
+    }
+
+    protected function assertAttributeOptionOrder()
+    {
+        // Read the original data from the data dump
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
+        $configurableProductOptions = $file->getReturn();
+        $attributeOptions = $configurableProductOptions['attribute_options'];
+
+        foreach ($attributeOptions as $attributeOption) {
+            $woocommerceAttribute = AttributeModel::getAttributeByStoreKeeperId($attributeOption['attribute_id']);
+
+            $termId = AttributeOptionModel::getTermIdByStorekeeperId(
+                $woocommerceAttribute->id,
+                $attributeOption['id']
+            );
+
+            $woocommerceOptionOrder = get_term_meta($termId, 'order', true);
+            $storekeeperOptionOrder = $attributeOption['order'];
+
+            $this->assertEquals($storekeeperOptionOrder, $woocommerceOptionOrder, 'Product option order did not update');
         }
     }
 

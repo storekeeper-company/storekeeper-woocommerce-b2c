@@ -7,7 +7,9 @@ use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractProductTest;
+use Throwable;
 use WC_Helper_Product;
+use WC_Product;
 
 class ProductHandlerTest extends AbstractProductTest
 {
@@ -19,6 +21,10 @@ class ProductHandlerTest extends AbstractProductTest
 
     const UPDATE_DATADUMP_DIRECTORY = 'events/products/updateProduct';
     const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateProduct.json';
+    const UPDATE_PRICES_DATADUMP_HOOK = 'events/hook.events.updateProductPrices.json';
+    const UPDATE_STOCK_DATADUMP_HOOK = 'events/hook.events.updateProductStock.json';
+    const UPDATE_CROSS_SELL_DATADUMP_HOOK = 'events/hook.events.updateProductCrossSell.json';
+    const UPDATE_UP_SELL_DATADUMP_HOOK = 'events/hook.events.updateProductUpSell.json';
     const UPDATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
 
     const DEACTIVATE_DATADUMP_DIRECTORY = 'events/products/deactivateProduct';
@@ -33,29 +39,7 @@ class ProductHandlerTest extends AbstractProductTest
 
     public function testCreateProduct()
     {
-        // Handle the product creation hook event
-        $original_options = $this->handle_hook_request(
-            self::CREATE_DATADUMP_DIRECTORY,
-            self::CREATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-
-        // Retrieve the product from wordpress using the storekeeper id
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $original_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
-
-        $wc_created_product = $wc_products[0];
+        $wc_created_product = $this->mockCreateProductRequestWithTest();
 
         // Get the updated data dump as a dotnotated collection
         $create_file = $this->getDataDump(self::CREATE_DATADUMP_DIRECTORY.'/'.self::CREATE_DATADUMP_PRODUCT);
@@ -65,84 +49,306 @@ class ProductHandlerTest extends AbstractProductTest
         // Compare the values of the updated data dump against the updated wordpress product
         $this->assertProduct($created_product_data, $wc_created_product);
 
-        $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
+    }
+
+    public function testUpdateProductStockOnly()
+    {
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+        $expectedSku = $woocommerceCreatedProduct->get_sku();
+        $expectedGalleryImages = $woocommerceCreatedProduct->get_gallery_image_ids();
+        $expectedRegularPrice = $woocommerceCreatedProduct->get_regular_price();
+        $expectedSalePrice = $woocommerceCreatedProduct->get_sale_price();
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest(self::UPDATE_STOCK_DATADUMP_HOOK);
+
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
+
+        // Other details like SKU and images should not be updated
+        $sku = $woocommerceUpdatedProduct->get_sku();
+        $this->assertNotEquals($updatedProductData['sku'], $sku, 'Product\'s SKU should not be updated');
+        $this->assertEquals($expectedSku, $sku, 'Product\'s SKU be the same as when it was created');
+
+        $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
+        $productImages = $updatedProductData->get('flat_product.product_images');
+        foreach ($productImages as $index => $images) {
+            if ($images['id'] === $updatedProductData->get('flat_product.main_image.id')) {
+                unset($productImages[$index]);
+            }
+        }
+        $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
+
+        // Regular price should not be updated
+        if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
+            $updatedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $this->assertNotEquals(
+                $updatedRegularPrice,
+                $woocommerceUpdatedProduct->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price should not match expected regular price"
+            );
+            $this->assertEquals($expectedRegularPrice, $woocommerceUpdatedProduct->get_regular_price(), 'Product regular prices should be the same when it was created');
+
+            // Discounted price should not be updated
+            if ($updatedProductData->get('product_price.ppu_wt') !== $updatedRegularPrice) {
+                $updatedDiscountedPrice = $updatedProductData->get('product_price.ppu_wt');
+                $this->assertNotEquals(
+                    $updatedDiscountedPrice,
+                    $woocommerceUpdatedProduct->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price should not match the expected discount price"
+                );
+                $this->assertEquals($expectedSalePrice, $woocommerceUpdatedProduct->get_sale_price(), 'Product sale prices should be the same when it was created');
+            }
+        }
+
+        // No cross-sell products should be set
+        $crossSellIds = $woocommerceUpdatedProduct->get_cross_sell_ids();
+        $this->assertEmpty($crossSellIds, 'Cross-sell products should not be set');
+
+        // No up-sell products should be set
+        $upSellIds = $woocommerceUpdatedProduct->get_upsell_ids();
+        $this->assertEmpty($upSellIds, 'Up-sell products should not be set');
+
+        $this->assertProductStock($updatedProductData, $woocommerceUpdatedProduct, $sku);
+    }
+
+    public function testUpdateProductPricesOnly()
+    {
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+        $expectedSku = $woocommerceCreatedProduct->get_sku();
+        $expectedGalleryImages = $woocommerceCreatedProduct->get_gallery_image_ids();
+        $expectedStockQuantity = $woocommerceCreatedProduct->get_stock_quantity();
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest(self::UPDATE_PRICES_DATADUMP_HOOK);
+
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
+
+        // Other details like SKU and images should not be updated
+        $sku = $woocommerceUpdatedProduct->get_sku();
+        $this->assertNotEquals($updatedProductData['sku'], $sku, 'Product\'s SKU should not be updated');
+        $this->assertEquals($expectedSku, $sku, 'Product\'s SKU be the same as when it was created');
+
+        $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
+        $productImages = $updatedProductData->get('flat_product.product_images');
+        foreach ($productImages as $index => $images) {
+            if ($images['id'] === $updatedProductData->get('flat_product.main_image.id')) {
+                unset($productImages[$index]);
+            }
+        }
+        $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
+
+        // Stock quantity should not be updated
+        $updatedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
+        $this->assertNotEquals(
+            $updatedStockQuantity,
+            $woocommerceUpdatedProduct->get_stock_quantity(),
+            "[sku=$sku] WooCommerce stock quantity should not match"
+        );
+        $this->assertEquals($expectedStockQuantity, $woocommerceUpdatedProduct->get_stock_quantity(), 'Product stock quantity should be same as when it was created');
+
+        // No cross-sell products should be set
+        $crossSellIds = $woocommerceUpdatedProduct->get_cross_sell_ids();
+        $this->assertEmpty($crossSellIds, 'Cross-sell products should not be set');
+
+        // No up-sell products should be set
+        $upSellIds = $woocommerceUpdatedProduct->get_upsell_ids();
+        $this->assertEmpty($upSellIds, 'Up-sell products should not be set');
+
+        $this->assertProductPrices($updatedProductData, $woocommerceUpdatedProduct, $sku);
+    }
+
+    public function testUpdateProductCrossSellOnly()
+    {
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+        $expectedSku = $woocommerceCreatedProduct->get_sku();
+        $expectedGalleryImages = $woocommerceCreatedProduct->get_gallery_image_ids();
+        $expectedStockQuantity = $woocommerceCreatedProduct->get_stock_quantity();
+        $expectedRegularPrice = $woocommerceCreatedProduct->get_regular_price();
+        $expectedSalePrice = $woocommerceCreatedProduct->get_sale_price();
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest(self::UPDATE_CROSS_SELL_DATADUMP_HOOK);
+
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
+
+        // Other details like SKU and images should not be updated
+        $sku = $woocommerceUpdatedProduct->get_sku();
+        $this->assertNotEquals($updatedProductData['sku'], $sku, 'Product\'s SKU should not be updated');
+        $this->assertEquals($expectedSku, $sku, 'Product\'s SKU be the same as when it was created');
+
+        $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
+        $productImages = $updatedProductData->get('flat_product.product_images');
+        foreach ($productImages as $index => $images) {
+            if ($images['id'] === $updatedProductData->get('flat_product.main_image.id')) {
+                unset($productImages[$index]);
+            }
+        }
+        $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
+
+        // Stock quantity should not be updated
+        $updatedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
+        $this->assertNotEquals(
+            $updatedStockQuantity,
+            $woocommerceUpdatedProduct->get_stock_quantity(),
+            "[sku=$sku] WooCommerce stock quantity should not match"
+        );
+        $this->assertEquals($expectedStockQuantity, $woocommerceUpdatedProduct->get_stock_quantity(), 'Product stock quantity should be same as when it was created');
+
+        // Regular price should not be updated
+        if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
+            $updatedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $this->assertNotEquals(
+                $updatedRegularPrice,
+                $woocommerceUpdatedProduct->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price should not match expected regular price"
+            );
+            $this->assertEquals($expectedRegularPrice, $woocommerceUpdatedProduct->get_regular_price(), 'Product regular prices should be the same when it was created');
+
+            // Discounted price should not be updated
+            if ($updatedProductData->get('product_price.ppu_wt') !== $updatedRegularPrice) {
+                $updatedDiscountedPrice = $updatedProductData->get('product_price.ppu_wt');
+                $this->assertNotEquals(
+                    $updatedDiscountedPrice,
+                    $woocommerceUpdatedProduct->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price should not match the expected discount price"
+                );
+                $this->assertEquals($expectedSalePrice, $woocommerceUpdatedProduct->get_sale_price(), 'Product sale prices should be the same when it was created');
+            }
+        }
+
+        // No up-sell products should be set
+        $upSellIds = $woocommerceUpdatedProduct->get_upsell_ids();
+        $this->assertEmpty($upSellIds, 'Up-sell products should not be set');
+
+        $this->assertProductCrossSell($woocommerceUpdatedProduct, $sku);
+    }
+
+    public function testUpdateProductUpsellOnly()
+    {
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+        $expectedSku = $woocommerceCreatedProduct->get_sku();
+        $expectedGalleryImages = $woocommerceCreatedProduct->get_gallery_image_ids();
+        $expectedStockQuantity = $woocommerceCreatedProduct->get_stock_quantity();
+        $expectedRegularPrice = $woocommerceCreatedProduct->get_regular_price();
+        $expectedSalePrice = $woocommerceCreatedProduct->get_sale_price();
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest(self::UPDATE_UP_SELL_DATADUMP_HOOK);
+
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
+
+        // Other details like SKU and images should not be updated
+        $sku = $woocommerceUpdatedProduct->get_sku();
+        $this->assertNotEquals($updatedProductData['sku'], $sku, 'Product\'s SKU should not be updated');
+        $this->assertEquals($expectedSku, $sku, 'Product\'s SKU be the same as when it was created');
+
+        $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
+        $productImages = $updatedProductData->get('flat_product.product_images');
+        foreach ($productImages as $index => $images) {
+            if ($images['id'] === $updatedProductData->get('flat_product.main_image.id')) {
+                unset($productImages[$index]);
+            }
+        }
+        $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
+
+        // Stock quantity should not be updated
+        $updatedStockQuantity = $updatedProductData->get('flat_product.product.product_stock.value');
+        $this->assertNotEquals(
+            $updatedStockQuantity,
+            $woocommerceUpdatedProduct->get_stock_quantity(),
+            "[sku=$sku] WooCommerce stock quantity should not match"
+        );
+        $this->assertEquals($expectedStockQuantity, $woocommerceUpdatedProduct->get_stock_quantity(), 'Product stock quantity should be same as when it was created');
+
+        // Regular price should not be updated
+        if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
+            $updatedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $this->assertNotEquals(
+                $updatedRegularPrice,
+                $woocommerceUpdatedProduct->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price should not match expected regular price"
+            );
+            $this->assertEquals($expectedRegularPrice, $woocommerceUpdatedProduct->get_regular_price(), 'Product regular prices should be the same when it was created');
+
+            // Discounted price should not be updated
+            if ($updatedProductData->get('product_price.ppu_wt') !== $updatedRegularPrice) {
+                $updatedDiscountedPrice = $updatedProductData->get('product_price.ppu_wt');
+                $this->assertNotEquals(
+                    $updatedDiscountedPrice,
+                    $woocommerceUpdatedProduct->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price should not match the expected discount price"
+                );
+                $this->assertEquals($expectedSalePrice, $woocommerceUpdatedProduct->get_sale_price(), 'Product sale prices should be the same when it was created');
+            }
+        }
+
+        // No cross-sell products should be set
+        $crossSellIds = $woocommerceUpdatedProduct->get_cross_sell_ids();
+        $this->assertEmpty($crossSellIds, 'Cross-sell products should not be set');
+
+        $this->assertProductUpSell($woocommerceUpdatedProduct, $sku);
     }
 
     public function testUpdateProduct()
     {
-        // Handle the product creation hook event so there is a product to update
-        $creation_options = $this->handle_hook_request(
-            self::CREATE_DATADUMP_DIRECTORY,
-            self::CREATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-        // Fetch the product that was created by the creation hook
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $creation_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
-
-        // Handle the product update hook event
-        $update_options = $this->handle_hook_request(
-            self::UPDATE_DATADUMP_DIRECTORY,
-            self::UPDATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-        // Fetch the product that was created by the update hook
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $update_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
-        $wc_updated_product = $wc_products[0];
+        $this->mockCreateProductRequestWithTest();
+        $woocommerceUpdatedProduct = $this->mockUpdateProductRequestWithTest();
 
         // Get the updated data dump as a dotnotated collection
-        $updated_file = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
-        $updated_product_data = $updated_file->getReturn()['data'];
-        $updated_product_data = new Dot($updated_product_data[0]);
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
 
         // Compare the values of the updated data dump against the updated wordpress product
-        $this->assertProduct($updated_product_data, $wc_updated_product);
+        $this->assertProduct($updatedProductData, $woocommerceUpdatedProduct);
 
-        $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+        $sku = $woocommerceUpdatedProduct->get_sku();
+        $this->assertProductCrossSell($woocommerceUpdatedProduct, $sku);
+        $this->assertProductUpSell($woocommerceUpdatedProduct, $sku);
+
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
     }
 
     public function testOrderOnlySyncMode()
     {
-        StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_ORDER_ONLY);
-
         $this->assertProductCount(0, 'Environment not empty');
-
+        $sku = 'MD826ZM/A2';
         $product = WC_Helper_Product::create_simple_product(false);
-        $product->set_sku('MD826ZM/A2');
-        $product->set_stock_quantity(9001);
-        $product->set_manage_stock(true);
-        $product->set_backorders('yes');
+        $product->set_sku($sku);
+        $product->set_stock_quantity(null);
+        $product->set_manage_stock(false);
+        $product->set_backorders('no');
+        $product->set_stock_status(self::WC_STATUS_OUTOFSTOCK);
         $product->save();
+
+        $expectedGalleryImages = $product->get_gallery_image_ids();
+        $expectedRegularPrice = $product->get_regular_price();
+        $expectedSalePrice = $product->get_sale_price();
 
         $this->handle_hook_request(
             self::UPDATE_DATADUMP_DIRECTORY,
             self::UPDATE_DATADUMP_HOOK,
             'ShopModule::ShopProduct',
             'events',
-            false
+            false,
+            StoreKeeperOptions::SYNC_MODE_ORDER_ONLY
         );
 
         $this->assertTaskNotCount(0, 'Should have created more than zero task');
@@ -150,11 +356,52 @@ class ProductHandlerTest extends AbstractProductTest
         // Process all the tasks
         $this->runner->execute(ProcessAllTasks::getCommandName());
 
-        $product = wc_get_product($product);
-        $this->assertNull($product->get_stock_quantity(), 'Stock quantity was not updated.');
-        $this->assertFalse($product->get_manage_stock(), 'Stock manage was not updated.');
-        $this->assertEquals('no', $product->get_backorders(), 'Stock backorders was not updated.');
-        $this->assertEquals(self::WC_STATUS_INSTOCK, $product->get_stock_status(), 'Stock manage was not updated.');
+        // Get the updated data dump as a dotnotated collection
+        $updatedFile = $this->getDataDump(self::UPDATE_DATADUMP_DIRECTORY.'/'.self::UPDATE_DATADUMP_PRODUCT);
+        $updatedProductData = $updatedFile->getReturn()['data'];
+        $updatedProductData = new Dot($updatedProductData[0]);
+
+        // Get product again after task processing
+        $woocommerceUpdatedProduct = wc_get_product($product);
+
+        $galleryImages = $woocommerceUpdatedProduct->get_gallery_image_ids();
+        $productImages = $updatedProductData->get('flat_product.product_images');
+        foreach ($productImages as $index => $images) {
+            if ($images['id'] === $updatedProductData->get('flat_product.main_image.id')) {
+                unset($productImages[$index]);
+            }
+        }
+        $this->assertNotSameSize($galleryImages, $productImages, 'Product images should not be updated');
+        $this->assertEquals($expectedGalleryImages, $galleryImages, 'Product images should be same as when it was created');
+
+        // Regular price should not be updated
+        if (self::WC_TYPE_CONFIGURABLE !== $woocommerceUpdatedProduct->get_type()) {
+            $updatedRegularPrice = $updatedProductData->get('product_default_price.ppu_wt');
+            $this->assertNotEquals(
+                $updatedRegularPrice,
+                $woocommerceUpdatedProduct->get_regular_price(),
+                "[sku=$sku] WooCommerce regular price should not match expected regular price"
+            );
+            $this->assertEquals($expectedRegularPrice, $woocommerceUpdatedProduct->get_regular_price(), 'Product regular prices should be the same when it was created');
+
+            // Discounted price should not be updated
+            if ($updatedProductData->get('product_price.ppu_wt') !== $updatedRegularPrice) {
+                $updatedDiscountedPrice = $updatedProductData->get('product_price.ppu_wt');
+                $this->assertNotEquals(
+                    $updatedDiscountedPrice,
+                    $woocommerceUpdatedProduct->get_sale_price(),
+                    "[sku=$sku] WooCommerce discount price should not match the expected discount price"
+                );
+                $this->assertEquals($expectedSalePrice, $woocommerceUpdatedProduct->get_sale_price(), 'Product sale prices should be the same when it was created');
+            }
+        }
+
+        $this->assertNotNull($woocommerceUpdatedProduct->get_stock_quantity(), 'Stock quantity was not updated.');
+        $this->assertTrue($woocommerceUpdatedProduct->get_manage_stock(), 'Stock manage was not updated.');
+        $this->assertEquals('yes', $woocommerceUpdatedProduct->get_backorders(), 'Stock backorders was not updated.');
+        $this->assertEquals(self::WC_STATUS_INSTOCK, $woocommerceUpdatedProduct->get_stock_status(), 'Stock manage was not updated.');
+
+        $this->assertProductStock($updatedProductData, $woocommerceUpdatedProduct, $sku);
     }
 
     private function assertProductCount(int $expected, string $message)
@@ -173,27 +420,9 @@ class ProductHandlerTest extends AbstractProductTest
     public function testDeactivateProduct()
     {
         // Handle the product creation hook event so there is a product to deactivate
-        $creation_options = $this->handle_hook_request(
-            self::CREATE_DATADUMP_DIRECTORY,
-            self::CREATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-        // Fetch the product that was created by the creation hook
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $creation_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
+        $product = $this->mockCreateProductRequestWithTest();
 
-        $original_post_id = $wc_products[0]->get_id();
+        $original_post_id = $product->get_id();
 
         // Handle the product deactivation hook
         $deactivation_options = $this->handle_hook_request(
@@ -224,7 +453,7 @@ class ProductHandlerTest extends AbstractProductTest
             'WooCommerce post status doesn\'t match the expected post status'
         );
 
-        $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
     }
 
     public function testActivateProductNoInitial()
@@ -260,7 +489,7 @@ class ProductHandlerTest extends AbstractProductTest
         // Compare the values of the updated data dump against the updated wordpress product
         $this->assertProduct($activated_product_data, $wc_created_product);
 
-        $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
     }
 
     public function testActivateProductAfterDeactivating()
@@ -268,25 +497,7 @@ class ProductHandlerTest extends AbstractProductTest
         // see : https://app.clickup.com/t/3cp0b5?comment=38147526
 
         // Handle the product creation hook event so there is a product to deactivate
-        $creation_options = $this->handle_hook_request(
-            self::CREATE_DATADUMP_DIRECTORY,
-            self::CREATE_DATADUMP_HOOK,
-            'ShopModule::ShopProduct',
-            'events'
-        );
-        // Fetch the product that was created by the creation hook
-        $wc_products = wc_get_products(
-            [
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
-                'meta_value' => $creation_options['id'],
-            ]
-        );
-        $this->assertCount(
-            1,
-            $wc_products,
-            'Actual size of the retrieved product collection is not equal to one'
-        );
+        $this->mockCreateProductRequestWithTest();
 
         // Handle the product deactivation hook
         $deactivation_options = $this->handle_hook_request(
@@ -339,27 +550,22 @@ class ProductHandlerTest extends AbstractProductTest
         // Compare the values of the updated data dump against the updated wordpress product
         $this->assertProduct($activated_product_data, $wc_created_product);
 
-        $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+        $this->assertTaskNotCount(0, 'There are not supposed to be any tasks left to process');
     }
 
     /**
-     * @param $datadump_dir
-     * @param $datadump_file
-     * @param $expected_backref
-     * @param $expected_hook_action
-     * @param $process_tasks
-     *
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function handle_hook_request(
-        $datadump_dir,
-        $datadump_file,
-        $expected_backref,
-        $expected_hook_action,
-        $process_tasks = true
+        string $datadump_dir,
+        string $datadump_file,
+        string $expected_backref,
+        string $expected_hook_action,
+        bool $process_tasks = true,
+        string $syncMode = StoreKeeperOptions::SYNC_MODE_FULL_SYNC
     ): array {
         // Initialize the connection with the API
-        $this->initApiConnection();
+        $this->initApiConnection($syncMode);
 
         // Setup the data dump
         $this->mockApiCallsFromDirectory($datadump_dir, true);
@@ -393,5 +599,58 @@ class ProductHandlerTest extends AbstractProductTest
         }
 
         return $original_options;
+    }
+
+    protected function mockCreateProductRequestWithTest(): WC_Product
+    {
+        // Handle the product creation hook event
+        $creationOptions = $this->handle_hook_request(
+            self::CREATE_DATADUMP_DIRECTORY,
+            self::CREATE_DATADUMP_HOOK,
+            'ShopModule::ShopProduct',
+            'events'
+        );
+
+        // Retrieve the product from wordpress using the storekeeper id
+        $products = wc_get_products(
+            [
+                'post_type' => 'product',
+                'meta_key' => 'storekeeper_id',
+                'meta_value' => $creationOptions['id'],
+            ]
+        );
+        $this->assertCount(
+            1,
+            $products,
+            'Actual size of the retrieved product collection is not equal to one'
+        );
+
+        return $products[0];
+    }
+
+    protected function mockUpdateProductRequestWithTest(string $dataDumpHook = self::UPDATE_DATADUMP_HOOK): WC_Product
+    {
+        // Handle the product update hook event
+        $updateOptions = $this->handle_hook_request(
+            self::UPDATE_DATADUMP_DIRECTORY,
+            $dataDumpHook,
+            'ShopModule::ShopProduct',
+            'events'
+        );
+        // Fetch the product that was created by the update hook
+        $products = wc_get_products(
+            [
+                'post_type' => 'product',
+                'meta_key' => 'storekeeper_id',
+                'meta_value' => $updateOptions['id'],
+            ]
+        );
+        $this->assertCount(
+            1,
+            $products,
+            'Actual size of the retrieved product collection is not equal to one'
+        );
+
+        return $products[0];
     }
 }

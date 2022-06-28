@@ -26,7 +26,7 @@ class CategoryImportTask extends AbstractTask
             );
             $exceptions = array_merge($exceptions, $tag->run());
 
-            return $this->throwExceptionArray($exceptions);
+            $this->throwExceptionArray($exceptions);
         }
 
         return true;

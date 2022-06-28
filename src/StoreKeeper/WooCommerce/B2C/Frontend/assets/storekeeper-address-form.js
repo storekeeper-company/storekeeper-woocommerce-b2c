@@ -37,8 +37,8 @@ jQuery(function ($) {
                 const houseNumber = $(houseNumberInput).val();
                 $(postCodeContainer).removeClass('woocommerce-validated').removeClass('woocommerce-invalid');
                 $(houseNumberContainer).removeClass('woocommerce-validated').removeClass('woocommerce-invalid');
-                $(houseNumberContainer).find('.postcode-housenr-validation-message').remove();
-                $(houseNumberContainer).append(`<small class="postcode-housenr-validation-message">${window.storekeeperTranslate('Validating postcode and house number. Please wait...')}</small>`);
+                $(postCodeContainer).find('.postcode-housenr-validation-message').remove();
+                $(postCodeContainer).append(`<small class="postcode-housenr-validation-message">${window.storekeeperTranslate('Validating postcode and house number. Please wait...')}</small>`);
                 $.ajax({
                     url: settings.url,
                     data: {
@@ -51,15 +51,15 @@ jQuery(function ($) {
                     $(`#${formPrefix}_city`).val(city);
                     $(postCodeContainer).addClass('woocommerce-validated');
                     $(houseNumberContainer).addClass('woocommerce-validated');
-                    $(houseNumberContainer).find('.postcode-housenr-validation-message').remove();
-                    $(houseNumberContainer).append(`<small class="postcode-housenr-validation-message" style="color: green">${window.storekeeperTranslate('Valid postcode and house number')}</small>`);
+                    $(postCodeContainer).find('.postcode-housenr-validation-message').remove();
+                    $(postCodeContainer).append(`<small class="postcode-housenr-validation-message" style="color: green">${window.storekeeperTranslate('Valid postcode and house number')}</small>`);
                     resolve();
                 }).fail(function (xhrText, textStatus) {
                     window.storekeeperUnblockForm(parentForm);
                     $(postCodeContainer).addClass('woocommerce-invalid');
                     $(houseNumberContainer).addClass('woocommerce-invalid');
-                    $(houseNumberContainer).find('.postcode-housenr-validation-message').remove();
-                    $(houseNumberContainer).append(`<small class="postcode-housenr-validation-message" style="color: red">${window.storekeeperTranslate('Invalid postcode or house number')}</small>`);
+                    $(postCodeContainer).find('.postcode-housenr-validation-message').remove();
+                    $(postCodeContainer).append(`<small class="postcode-housenr-validation-message" style="color: red">${window.storekeeperTranslate('Invalid postcode or house number')}</small>`);
                     reject();
                 });
             });
@@ -108,8 +108,8 @@ jQuery(function ($) {
                     if (!dutchPostcodeRegex.test(postCode)) {
                         isValid = false;
                         $(postCodeContainer).addClass('woocommerce-invalid');
-                        $(houseNumberContainer).find('.postcode-housenr-validation-message').remove();
-                        $(houseNumberContainer).append(`<small class="postcode-housenr-validation-message" style="color: red">${window.storekeeperTranslate('Postcode format for NL address is invalid')}</small>`);
+                        $(postCodeContainer).find('.postcode-housenr-validation-message').remove();
+                        $(postCodeContainer).append(`<small class="postcode-housenr-validation-message" style="color: red">${window.storekeeperTranslate('Postcode format for NL address is invalid')}</small>`);
                     } else {
                         isValid = true;
                         window.storekeeperFetchAddressFromBackend(formPrefix, form).then(function () {
@@ -147,7 +147,7 @@ jQuery(function ($) {
     }
 
     let formPrefix = settings.addressType;
-    if (formPrefix === null) {
+    if (!formPrefix) {
         for (let index in settings.defaultAddressTypes) {
             const formPrefix = settings.defaultAddressTypes[index];
             prepareAddressForm(formPrefix);

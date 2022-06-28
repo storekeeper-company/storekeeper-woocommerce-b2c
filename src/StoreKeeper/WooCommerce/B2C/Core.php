@@ -233,7 +233,12 @@ class Core
 
     public static function getDumpDir(): string
     {
-        return sys_get_temp_dir().'/storekeeper-woocommerce-b2c/dumps/';
+        $tmp = Core::getTmpBaseDir();
+        if (is_null($tmp)) {
+            throw new \Exception('Cannot find writable directory, for dumping api calls. Disable WP_DEBUG or STOREKEEPER_WOOCOMMERCE_B2C_DEBUG to prevent dumping api calls.');
+        }
+
+        return $tmp.'/dumps/';
     }
 
     private function registerPaymentGateway()
@@ -248,6 +253,10 @@ class Core
             $this->loader->add_filter('woocommerce_payment_gateways', $PaymentGateway, 'addGatewayClasses');
             // check the order status
             $this->loader->add_filter('woocommerce_api_backoffice_pay_gateway_return', $PaymentGateway, 'onReturn');
+
+            // Handle payment refunds
+            $this->loader->add_action('woocommerce_order_refunded', $PaymentGateway, 'createRefundPayment', 10, 2);
+            $this->loader->add_action('woocommerce_order_partially_refunded', $PaymentGateway, 'createRefundPayment', 10, 2);
 
             $this->loader->add_filter('init', $PaymentGateway, 'registerCheckoutFlash');
         }
@@ -402,6 +411,44 @@ HTML;
         } catch (BootError $e) {
             $this->renderBootError($e);
         }
+    }
+
+    public static function getTmpBaseDir(): ?string
+    {
+        $dirs = self::getPossibleTmpDirs();
+
+        foreach ($dirs as $dir) {
+            if (!file_exists($dir)) {
+                if (false === @mkdir($dir, '0777', true)) {
+                    continue; // failed to create
+                }
+            }
+            if (is_writable($dir)) {
+                return $dir;
+            }
+        }
+
+        return null;
+    }
+
+    public static function getPossibleTmpDirs(): array
+    {
+        $dirs = [];
+        if (function_exists('posix_getpwuid') &&
+            function_exists('posix_geteuid')
+        ) {
+            $processUser = posix_getpwuid(posix_geteuid());
+            $user = $processUser['name'];
+            $dirs[] = "/home/$user/tmp";
+        }
+        if (!empty($_SERVER['HOME'])) {
+            $dirs[] = $_SERVER['HOME'].'/tmp';
+        }
+
+        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_WOOCOMMERCE_B2C_NAME;
+        $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.DIRECTORY_SEPARATOR.'tmp';
+
+        return $dirs;
     }
 
     public function renderBootError(BootError $e)

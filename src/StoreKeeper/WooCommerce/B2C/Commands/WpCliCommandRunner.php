@@ -140,7 +140,7 @@ class WpCliCommandRunner extends CommandRunner
         IniHelper::setIni(
             'memory_limit',
             0,
-            [$this->logger, 'warning']
+            [$this->logger, 'notice']
         );
 
         // To see the logs, instead of waiting until the end.

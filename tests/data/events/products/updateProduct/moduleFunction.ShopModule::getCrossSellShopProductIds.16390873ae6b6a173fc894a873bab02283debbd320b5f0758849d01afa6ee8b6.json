@@ -6,7 +6,9 @@
     "params": [
         9
     ],
-    "return": [],
+    "return": [
+        10
+    ],
     "_type": "moduleFunction",
     "time_ms": 283.0,
     "_version": "1.0",

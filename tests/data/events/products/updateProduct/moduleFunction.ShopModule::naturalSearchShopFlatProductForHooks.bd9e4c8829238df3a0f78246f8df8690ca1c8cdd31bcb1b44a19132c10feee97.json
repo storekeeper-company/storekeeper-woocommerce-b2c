@@ -1,0 +1,123 @@
+{
+    "success": true,
+    "call_id": "623024d64ec9b",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        0,
+        null,
+        [
+            {
+                "name": "id__in_list",
+                "multi_val": [
+                    10
+                ]
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 1566,
+                    "product_id": 10,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 1,
+                    "ppu_wt": 1,
+                    "tax": 0,
+                    "tax_rate_id": 85,
+                    "date_created": "2022-03-14 12:24:08+01:00",
+                    "date_updated": "2022-03-14 12:24:08+01:00",
+                    "product_price_type_id": 6
+                },
+                "product_default_price": {
+                    "id": 1565,
+                    "product_id": 10,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 83,
+                    "ppu_wt": 83,
+                    "tax": 0,
+                    "tax_rate_id": 85,
+                    "date_created": "2022-03-14 12:23:54+01:00",
+                    "date_updated": "2022-03-14 12:24:06+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 10,
+                    "product_id": 10,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2022-03-14 12:30:26+01:00",
+                    "title": "03020026",
+                    "summary": "",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 10,
+                    "slug": "03020026-1",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 10,
+                        "date_created": "2021-11-30 10:22:43+01:00",
+                        "date_updated": "2022-03-14 12:30:26+01:00",
+                        "relation_data_id": 2,
+                        "published": false,
+                        "configuration_id": 1,
+                        "content_id": 111,
+                        "sku": "03020026",
+                        "type": "simple",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_discount_price_id": 1566,
+                        "product_price_id": 1565,
+                        "object_instance_id": 637,
+                        "has_addons": false,
+                        "is_system": false,
+                        "has_serial_numbers": false,
+                        "content": {
+                            "slug": "03020026-1",
+                            "translatable_id": 346
+                        },
+                        "product_stock": {
+                            "id": 10,
+                            "product_id": 10,
+                            "value": 3,
+                            "in_stock": true,
+                            "unlimited": false,
+                            "date_updated": "2022-03-14 12:32:28+01:00"
+                        }
+                    }
+                },
+                "id": 10,
+                "product_id": 10,
+                "product_price_id": 1566,
+                "date_created": "2022-01-10 13:01:58+01:00",
+                "active": true,
+                "backorder_enabled": false,
+                "product_discount_price_id": 1566,
+                "object_instance_id": 638,
+                "date_updated": "2022-03-14 12:32:28+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 1565,
+                "unfulfilled_stock_value": 0,
+                "unfulfilled_order_ids": [],
+                "orderable_stock_value": 3
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 887.0,
+    "_version": "1.0",
+    "_timestamp": "2022-03-15T05:32:07+00:00"
+}

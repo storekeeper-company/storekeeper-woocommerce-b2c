@@ -1,7 +1,7 @@
 === StoreKeeper for Woocommerce ===
 Tags: woocommerce,e-commerce, woo,sales,store
 Requires at least: 5.0
-Tested up to: 5.9.0
+Tested up to: 6.0.0
 Requires PHP: 7.3
 Stable Tag: 0.0.1
 License: GNU General Public License v2.0

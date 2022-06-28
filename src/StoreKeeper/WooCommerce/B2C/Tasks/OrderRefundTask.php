@@ -2,9 +2,9 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tasks;
 
-use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
+use StoreKeeper\WooCommerce\B2C\Exports\OrderRefundExport;
 
-class OrderExportTask extends AbstractTask
+class OrderRefundTask extends AbstractTask
 {
     /**
      * @param $task_options
@@ -15,15 +15,15 @@ class OrderExportTask extends AbstractTask
      */
     public function run($task_options = [])
     {
-        if ($this->taskMetaExists('woocommerce_id')) {
-            $prod = new OrderExport(
+        if ($this->taskMetaExists('woocommerce_order_id')) {
+            $refundExport = new OrderRefundExport(
                 [
-                    'id' => $this->getTaskMeta('woocommerce_id'),
+                    'id' => $this->getTaskMeta('woocommerce_order_id'),
                     'debug' => key_exists('debug', $task_options) ? $task_options['debug'] : false,
                 ]
             );
 
-            $this->throwExceptionArray($prod->run());
+            $this->throwExceptionArray($refundExport->run());
         }
 
         return true;
