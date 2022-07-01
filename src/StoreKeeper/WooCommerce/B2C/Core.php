@@ -59,6 +59,7 @@ use StoreKeeper\WooCommerce\B2C\Hooks\CustomerHook;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
+use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 
 class Core
@@ -151,6 +152,12 @@ class Core
         $this->versionChecks();
         $this->registerMarkDown();
         $this->registerAddressFormatting();
+        if (StoreKeeperOptions::isConnected()) {
+            $media = new Media();
+            $this->loader->add_filter('wp_get_attachment_url', $media, 'getAttachmentUrl', 999, 2);
+            $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
+            $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
+        }
     }
 
     private function prepareCron()

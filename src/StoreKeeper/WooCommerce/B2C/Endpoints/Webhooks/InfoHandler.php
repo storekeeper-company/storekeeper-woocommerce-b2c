@@ -6,6 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressRestRequestWrapper;
 
 class InfoHandler
@@ -84,6 +85,7 @@ class InfoHandler
             'task_successful_quantity' => TaskModel::countSuccessfulTasks(),
             'hook_quantity' => WebhookLogModel::count(),
             'active_capability' => self::getActiveCapabilities(),
+            'image_variants' => self::getImageVariants(),
         ];
 
         foreach (self::EXTRA_BLOG_INFO_FIELDS as $blogInfoField) {
@@ -96,6 +98,49 @@ class InfoHandler
         return $extras;
     }
 
+    /**
+     * Mutate the registered image sub-sizes in WordPress to a readable
+     * format by the StoreKeeper BackOffice.
+     */
+    public static function getImageVariants(): array
+    {
+        $registeredSubSizes = wp_get_registered_image_subsizes();
+        $imageVariants = [];
+        foreach ($registeredSubSizes as $sizeName => $sizeMetadata) {
+            $imageVariants[$sizeName] = [];
+            $imageVariants[$sizeName]['width'] = $sizeMetadata['width'] > 0 ? $sizeMetadata['width'] : null;
+            $imageVariants[$sizeName]['height'] = $sizeMetadata['height'] > 0 ? $sizeMetadata['height'] : null;
+
+            $variantFit = 'pad';
+            if ($sizeMetadata['crop']) {
+                $variantFit = 'cover';
+            }
+            $imageVariants[$sizeName]['fit'] = $variantFit;
+
+            $variantGravity = 'center';
+            if (is_array($sizeMetadata['crop'])) {
+                if (1 === count($sizeMetadata['crop'])) {
+                    $xCropPosition = $sizeMetadata['crop'][0];
+                    $variantGravity = $xCropPosition;
+                } elseif (2 === count($sizeMetadata['crop'])) {
+                    [ $xCropPosition, $yCropPosition ] = $sizeMetadata['crop'];
+                    $variantGravity = "{$yCropPosition}-$xCropPosition";
+                }
+            }
+            $imageVariants[$sizeName]['gravity'] = $variantGravity;
+        }
+
+        // Todo: Check if working
+        $imageVariants[Media::FULL_VARIANT_KEY] = [
+            'fit' => 'scale-down',
+            'width' => '10000',
+            'height' => '10000',
+            'gravity' => 'center',
+        ];
+
+        return $imageVariants;
+    }
+
     public static function getActiveCapabilities(): array
     {
         $activeCapabilities = [];
@@ -105,6 +150,8 @@ class InfoHandler
         ) {
             $activeCapabilities[] = 'b2s_payment_method';
         }
+
+        $activeCapabilities[] = 's2b_image_variants';
 
         return $activeCapabilities;
     }

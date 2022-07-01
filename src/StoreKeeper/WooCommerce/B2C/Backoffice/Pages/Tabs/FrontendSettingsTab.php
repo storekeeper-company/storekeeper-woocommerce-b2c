@@ -31,6 +31,7 @@ class FrontendSettingsTab extends AbstractTab
 
         $this->renderTheme();
         $this->renderPostcodeChecking();
+        $this->renderCdnUsage();
 
         $this->renderFormActionGroup(
             $this->getFormButton(
@@ -65,12 +66,37 @@ class FrontendSettingsTab extends AbstractTab
         );
     }
 
+    private function renderCdnUsage(): void
+    {
+        $imageCdn = StoreKeeperOptions::getConstant(StoreKeeperOptions::IMAGE_CDN);
+        $this->renderFormGroup(
+            __('Use image CDN if available', I18N::DOMAIN),
+            $this->getFormCheckbox(
+                $imageCdn,
+                StoreKeeperOptions::isImageCdnEnabled(),
+            ).' '.__(
+                'When checked, images will be rendered using CDN if available',
+                I18N::DOMAIN
+            ).'<br><small>'.__('', I18N::DOMAIN).'</small>'
+        );
+
+        $this->renderFormNote(
+            __(
+                'Disabling this feature might cause rendering issues for images that are currently using CDN.',
+                I18N::DOMAIN
+            ),
+            'text-danger'
+        );
+    }
+
     public function saveAction()
     {
         $validateAddress = StoreKeeperOptions::getConstant(StoreKeeperOptions::VALIDATE_CUSTOMER_ADDRESS);
+        $imageCdn = StoreKeeperOptions::getConstant(StoreKeeperOptions::IMAGE_CDN);
 
         $data = [
             $validateAddress => 'on' === sanitize_key($_POST[$validateAddress]) ? 'yes' : 'no',
+            $imageCdn => 'on' === sanitize_key($_POST[$imageCdn]) ? 'yes' : 'no',
         ];
 
         foreach ($data as $key => $value) {

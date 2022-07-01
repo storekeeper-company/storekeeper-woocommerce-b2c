@@ -104,4 +104,33 @@ class HtmlEscape
         self::ALLOWED_ANCHOR;
 
     public const ALLOWED_ALL_SAFE = self::ALLOWED_ALL_KNOWN_INPUT;
+
+    /**
+     * Transforms the components of a URL into an array.
+     */
+    public static function parseUrl(string $url)
+    {
+        return parse_url($url);
+    }
+
+    /**
+     * Build URL from url components.
+     * Array is compatible from the value returned from parseUrl.
+     *
+     * @see parseUrl
+     */
+    public static function buildUrl(array $urlComponents): string
+    {
+        $scheme = isset($urlComponents['scheme']) ? $urlComponents['scheme'].'://' : '';
+        $host = $urlComponents['host'] ?? '';
+        $port = isset($urlComponents['port']) ? ':'.$urlComponents['port'] : '';
+        $user = $urlComponents['user'] ?? '';
+        $pass = isset($urlComponents['pass']) ? ':'.$urlComponents['pass'] : '';
+        $pass = ($user || $pass) ? "$pass@" : '';
+        $path = $urlComponents['path'] ?? '';
+        $query = isset($urlComponents['query']) ? '?'.$urlComponents['query'] : '';
+        $fragment = isset($urlComponents['fragment']) ? '#'.$urlComponents['fragment'] : '';
+
+        return "$scheme$user$pass$host$port$path$query$fragment";
+    }
 }

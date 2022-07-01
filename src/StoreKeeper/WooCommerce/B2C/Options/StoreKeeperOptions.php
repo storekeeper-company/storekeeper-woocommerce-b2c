@@ -26,6 +26,8 @@ class StoreKeeperOptions extends AbstractOptions
 
     public const SEO_HANDLER = 'seo-handler';
 
+    public const IMAGE_CDN_PREFIX = 'image_cdn_prefix';
+
     public const MODES_WITH_CUSTOMERS_SYNC = [
         StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
         StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
@@ -48,6 +50,7 @@ class StoreKeeperOptions extends AbstractOptions
 
     // Frontend
     public const VALIDATE_CUSTOMER_ADDRESS = 'validate-customer-address';
+    public const IMAGE_CDN = 'image-cdn';
 
     /**
      * returns true if the WooCommerce is connected to the StoreKeeper backend.
@@ -167,5 +170,10 @@ class StoreKeeperOptions extends AbstractOptions
     public static function isPaymentSyncEnabled(): bool
     {
         return in_array(self::getSyncMode(), self::MODES_WITH_PAYMENTS, true);
+    }
+
+    public static function isImageCdnEnabled(): bool
+    {
+        return 'yes' === self::get(self::IMAGE_CDN, 'yes');
     }
 }

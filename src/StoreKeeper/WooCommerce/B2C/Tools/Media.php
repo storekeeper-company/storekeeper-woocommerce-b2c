@@ -5,19 +5,19 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\TestLib\MediaHelper;
 
 class Media
 {
+    public const CDN_URL_VARIANT_PLACEHOLDER_KEY = '{variant}';
+    public const FULL_VARIANT_KEY = 'sk_full';
+
     public static function fixUrl($url)
     {
         if (StringFunctions::startsWith($url, '/')) {
             $server = StoreKeeperOptions::get(StoreKeeperOptions::API_URL);
-            $s = $server[strlen($server) - 1];
-            if ('/' === $server[strlen($server) - 1]) {
-                $server = rtrim($server, '/');
-            }
             $url = $server.$url;
         }
 
@@ -59,17 +59,17 @@ class Media
         return current($attachments);
     }
 
-    public static function attachmentExists($original_url)
+    public static function attachmentExists($original_url): bool
     {
         $attachment = self::getAttachment($original_url);
 
         return false !== $attachment;
     }
 
-    public static function createAttachment($original_url)
+    public static function createAttachment($original_url): ?int
     {
         if (empty($original_url) && !is_string($original_url)) {
-            return;
+            return null;
         }
 
         $wp_upload_dir = wp_upload_dir();
@@ -136,110 +136,105 @@ class Media
         return get_post($attach_id)->ID;
     }
 
-    public static function createAttachmentCDN($bigImageUrl, $smallImageUrl)
+    public static function createAttachmentAsCDN($cdnImageUrl, $bigImageUrl): ?int
     {
-        if (empty($bigImageUrl) && !is_string($bigImageUrl)) {
-            return;
+        if (empty($cdnImageUrl) || !is_string($cdnImageUrl)) {
+            return null;
         }
 
-        $url = self::fixUrl($bigImageUrl);
-        $smallImageUrlFull = self::fixUrl($smallImageUrl);
+        $originalFileUrl = self::fixUrl($bigImageUrl);
+        $cdnFileUrl = self::fixUrl($cdnImageUrl);
 
-        try {
-            $response = self::tryDownloadFile($url);
-        } catch (\Exception $exception) {
-            $s = $exception;
-        }
+        $parsedUrl = HtmlEscape::parseUrl($cdnFileUrl);
+        $urlPath = $parsedUrl['path'];
+        $parsedUrl['path'] = urlencode($urlPath); // Encode URL path so that {variant} won't be removed when creating attachment
+        $sanitizedCdnUrl = HtmlEscape::buildUrl($parsedUrl);
 
-        $file_path = $url;
-        $attachment = self::getAttachment($bigImageUrl);
+        $attachment = self::getAttachment($originalFileUrl);
+
         if (false !== $attachment) {
-            $old_file_path = get_attached_file($attachment->ID);
-            $uploads = wp_get_upload_dir();
-            $server = StoreKeeperOptions::get(StoreKeeperOptions::API_URL);
-
-            if (false !== strpos($old_file_path, $uploads['basedir'].'/') && false !== strpos($old_file_path, $server)) {
-                $old_file_path = str_replace($uploads['basedir'].'/', '', $old_file_path);
-            }
-            if (md5_file($old_file_path) === md5_file($file_path)) {
-                unlink($file_path);
-
-                return $attachment->ID;
-            }
+            return $attachment->ID;
         }
 
-        $file_name = basename($file_path);
-        $file_type = wp_check_filetype($file_name, null);
-        $attachment_title = sanitize_file_name(pathinfo($file_name, PATHINFO_FILENAME));
+        $fileName = basename($cdnFileUrl);
+        $fileType = wp_check_filetype($fileName, null);
+        $attachmentTitle = sanitize_file_name(pathinfo($fileName, PATHINFO_FILENAME));
 
-        $post_info = [
-            'guid' => $url,
-            'post_mime_type' => $file_type['type'],
-            'post_title' => $attachment_title,
+        $postInfo = [
+            'guid' => $originalFileUrl,
+            'post_mime_type' => $fileType['type'],
+            'post_title' => $attachmentTitle,
             'post_content' => '',
             'post_status' => 'inherit',
         ];
-//
-//        // Create the attachment
-        $attach_id = WordpressExceptionThrower::throwExceptionOnWpError(
-            wp_insert_attachment($post_info, $file_path, 0, true)
+
+        // Create the attachment
+        $attachmentId = WordpressExceptionThrower::throwExceptionOnWpError(
+            wp_insert_attachment($postInfo, $originalFileUrl, 0, true)
         );
-//
-//        // Include image.php
+
+        // Include image.php
         require_once ABSPATH.'wp-admin/includes/image.php';
-//
-        // Define attachment metadata
-//        $attach_data = WordpressExceptionThrower::throwExceptionOnWpError(
-//            wp_generate_attachment_metadata($attach_id, $file_path)
-//        );
 
-        $attachment = get_post($attach_id);
+        $imageMeta = self::createImageMeta($originalFileUrl, $cdnFileUrl);
 
-        $metadata = [];
-        $support = false;
-        $mime_type = get_post_mime_type($attachment);
+        // Assign metadata to attachment
+        wp_update_attachment_metadata($attachmentId, $imageMeta);
+        update_post_meta($attachmentId, 'original_url', $originalFileUrl);
+        update_post_meta($attachmentId, 'cdn_url', $sanitizedCdnUrl);
+        update_post_meta($attachmentId, 'is_cdn', true);
 
-        if (preg_match('!^image/!', $mime_type) && file_is_displayable_image($file_path)) {
-            // Make thumbnails and other intermediate sizes.
-//            $metadata = wp_create_image_subsizes( $file_path, $attach_id );
-        }
+        return get_post($attachmentId)->ID;
+    }
 
-        $imagesize = wp_getimagesize($file_path);
-
-        if (empty($imagesize)) {
-            // File is not an image.
-            return [];
-        }
+    public static function createImageMeta(string $originalImageUrl, string $placeholderUrl): array
+    {
+        // Todo: Change original image URL to CDN url with full variant
+        $fullImageSizeUrl = str_replace(self::CDN_URL_VARIANT_PLACEHOLDER_KEY, self::getImageScaleVariantString(), $placeholderUrl);
+        $fullImageSize = wp_getimagesize($fullImageSizeUrl);
+        [ $fullImageWidth, $fullImageHeight ] = $fullImageSize;
 
         // Default image meta.
-        $image_meta = [
-            'width' => $imagesize[0],
-            'height' => $imagesize[1],
-            'file' => $file_path,
+        $imageMeta = [
+            'width' => $fullImageWidth,
+            'height' => $fullImageHeight,
+            'file' => $fullImageSizeUrl,
             'sizes' => [],
         ];
-        $new_sizes = wp_get_registered_image_subsizes();
-        $thumbnailImageSize = wp_getimagesize($smallImageUrlFull);
-        $thumbnailImageMeta = [
-            'width' => $thumbnailImageSize[0],
-            'height' => $thumbnailImageSize[1],
-            'file' => $smallImageUrlFull,
-            'path' => $smallImageUrl,
-        ];
 
-        if (empty($thumbnailImageSize)) {
-            // File is not an image.
-            return [];
+        $registeredImageSubSizes = wp_get_registered_image_subsizes();
+        foreach ($registeredImageSubSizes as $name => $metadata) {
+            $width = $metadata['width'];
+            $height = $metadata['height'];
+            $path = str_replace(self::CDN_URL_VARIANT_PLACEHOLDER_KEY, self::getImageScaleVariantString($width, $height), $placeholderUrl);
+            $imageMeta['sizes'][$name] = [
+                'width' => $width,
+                'height' => $height,
+                'file' => wp_basename($path),
+                'path' => $path,
+            ];
         }
 
-        $image_meta['sizes']['thumbnail'] = $thumbnailImageMeta;
+        return $imageMeta;
+    }
 
-//
-//        // Assign metadata to attachment
-        wp_update_attachment_metadata($attach_id, $image_meta);
-        update_post_meta($attach_id, 'original_url', $bigImageUrl);
+    /**
+     * Returns the variant name compatible for CDN.
+     */
+    public static function getImageScaleVariantString($width = null, $height = null): string
+    {
+        $imageCdnPrefix = StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX);
+        $subSizes = wp_get_registered_image_subsizes();
+        foreach ($subSizes as $sizeName => $sizeMetadata) {
+            $subSizeWidth = $sizeMetadata['width'];
+            $subSizeHeight = $sizeMetadata['height'];
+            if ($subSizeWidth === $width && $subSizeHeight === $height) {
+                return "{$imageCdnPrefix}.$sizeName";
+            }
+        }
 
-        return get_post($attach_id)->ID;
+        // Return full variant if nothing found in sub-sizes
+        return "{$imageCdnPrefix}.".self::FULL_VARIANT_KEY;
     }
 
     /**
@@ -319,5 +314,103 @@ class Media
         }
 
         return $response;
+    }
+
+    /**
+     * Removes the prepended WordPress upload path in the URL if attachment comes from CDN.
+     *
+     * @see wp_get_attachment_url
+     */
+    public function getAttachmentUrl($attachmentUrl, $attachmentId): string
+    {
+        if ($this->isAttachmentCdn($attachmentId)) {
+            $attachmentUrl = self::cleanAttachmentUrl($attachmentUrl);
+        }
+
+        return urldecode($attachmentUrl);
+    }
+
+    /**
+     * Changes the image source to CDN variant if a size matches.
+     * Removes the prepended WordPress upload path in the URL if attachment comes from CDN otherwise.
+     * Returns original file path otherwise.
+     *
+     * @see wp_get_attachment_image_src
+     */
+    public function getAttachmentImageSource($attachmentImage, $attachmentId, $attachmentSize, $isAttachmentIcon)
+    {
+        [, $attachmentWidth, $attachmentHeight ] = $attachmentImage;
+
+        if ($this->isAttachmentCdn($attachmentId)) {
+            // example value will be an encoded https://cdn_host/path/to/image/scale/{variant}/file_name
+            $cdnUrl = get_post_meta($attachmentId, 'cdn_url', true);
+            $cdnUrl = urldecode($cdnUrl);
+            $imageVariant = self::getImageScaleVariantString($attachmentWidth, $attachmentHeight);
+            $attachmentUrl = str_replace(self::CDN_URL_VARIANT_PLACEHOLDER_KEY, $imageVariant, $cdnUrl);
+
+            $attachmentImage[0] = $attachmentUrl;
+        }
+
+        return $attachmentImage;
+    }
+
+    /**
+     * Modifies the srcset as proper images from CDN.
+     *
+     * @see wp_calculate_image_srcset
+     */
+    public function calculateImageSrcSet($sources, $sizeArray, $imageSrc, $imageMeta, $attachmentId)
+    {
+        if ($this->isAttachmentCdn($attachmentId)) {
+            foreach ($sources as &$source) {
+                $sourceUrl = $source['url'];
+                $sourceWidth = $source['value']; // Value is width
+                if (is_array($source) && false === strpos($sourceUrl, 'woocommerce-placeholder')) {
+                    $cdnUrl = get_post_meta($attachmentId, 'cdn_url', true);
+                    $cdnUrl = urldecode($cdnUrl);
+
+                    // Gets the closest possible variant/size based on width
+                    $intermediateSize = image_get_intermediate_size($attachmentId, [$sourceWidth, 0]);
+                    $imageVariant = self::getImageScaleVariantString();
+
+                    if ($intermediateSize) {
+                        $intermediateSizeWidth = $intermediateSize['width'];
+                        // Intermediate sizes return 1 instead of 0, but it is not registered in sub-sizes, so we force it to be 0 here
+                        $intermediateSizeHeight = 1 === $intermediateSize['height'] ? 0 : $intermediateSize['height'];
+                        $imageVariant = self::getImageScaleVariantString($intermediateSizeWidth, $intermediateSizeHeight);
+                    }
+
+                    $sourceUrl = str_replace(self::CDN_URL_VARIANT_PLACEHOLDER_KEY, $imageVariant, $cdnUrl);
+                    $source['url'] = $sourceUrl;
+                }
+            }
+        }
+
+        return $sources;
+    }
+
+    /**
+     * Removes the prepended WordPress upload path in the URL.
+     */
+    public static function cleanAttachmentUrl(string $attachmentUrl)
+    {
+        // Instead of keeping full path we actually need just 'wp-content/uploads'.
+        // and we do this the right way, dynamically, calling functions and constants.
+        $uploadsDir = wp_get_upload_dir()['basedir'];
+        $partialUploadsDir = str_replace(ABSPATH, '', $uploadsDir);
+
+        // Check if attachment file is in WordPress uploads directory.
+        if (false === strpos($attachmentUrl, $partialUploadsDir)) {
+            return $attachmentUrl;
+        }
+
+        $pattern = get_site_url().'/'.$partialUploadsDir;
+
+        return preg_replace("#$pattern\/#", '', $attachmentUrl);
+    }
+
+    protected function isAttachmentCdn($attachmentId): bool
+    {
+        return (bool) get_post_meta($attachmentId, 'is_cdn', true);
     }
 }
