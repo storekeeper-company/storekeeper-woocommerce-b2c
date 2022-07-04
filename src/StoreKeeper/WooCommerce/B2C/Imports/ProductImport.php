@@ -327,16 +327,19 @@ SQL;
     protected function setImage(WC_Product $newProduct, $product)
     {
         if ($product->has('flat_product.main_image')) {
+            $oldAttachmentId = (int) $newProduct->get_image_id();
+
             if ($product->has('flat_product.main_image.cdn_url') && StoreKeeperOptions::isImageCdnEnabled()) {
                 $attachmentId = Media::createAttachmentAsCDN($product->get('flat_product.main_image.cdn_url'), $product->get('flat_product.main_image.big_url'));
-                $oldAttachmentId = (int) $newProduct->get_image_id();
-                if ($attachmentId && $oldAttachmentId && $oldAttachmentId !== $attachmentId) {
-                    $this->removeAttachment($oldAttachmentId);
-                }
             } else {
-                // Todo: Test CDN to downloaded
                 $attachmentId = Media::createAttachment($product->get('flat_product.main_image.big_url'));
             }
+
+            // Permanently remove attachment if no longer used, may it be CDN or downloaded
+            if ($attachmentId && $oldAttachmentId && $oldAttachmentId !== $attachmentId) {
+                $this->removeAttachment($oldAttachmentId);
+            }
+
             $this->debug(
                 'Found main product image',
                 [
@@ -360,8 +363,8 @@ SQL;
         if ($product->has('flat_product.product_images')) {
             $count = count($product->get('flat_product.product_images'));
             foreach ($product->get('flat_product.product_images') as $productImage) {
-                if ($productImage['id'] !== $mainImageId && StoreKeeperOptions::isImageCdnEnabled()) {
-                    if (isset($productImage['cdn_url'])) {
+                if ($productImage['id'] !== $mainImageId) {
+                    if (isset($productImage['cdn_url']) && StoreKeeperOptions::isImageCdnEnabled()) {
                         $attachmentIds[] = Media::createAttachmentAsCDN($productImage['cdn_url'], $productImage['big_url']);
                     } else {
                         $attachmentIds[] = Media::createAttachment($productImage['big_url']);
@@ -389,6 +392,13 @@ SQL;
 
     protected function removeAttachment($attachmentId): void
     {
+        $this->debug(
+            'Permanently removing attachment',
+            [
+                'attachment_id' => $attachmentId,
+            ]
+        );
+
         WordpressExceptionThrower::throwExceptionOnWpError(
             wp_delete_attachment($attachmentId, true)
         );

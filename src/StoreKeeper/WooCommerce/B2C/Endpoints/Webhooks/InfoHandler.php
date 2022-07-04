@@ -130,7 +130,6 @@ class InfoHandler
             $imageVariants[$sizeName]['gravity'] = $variantGravity;
         }
 
-        // Todo: Check if working
         $imageVariants[Media::FULL_VARIANT_KEY] = [
             'fit' => 'scale-down',
             'width' => '10000',

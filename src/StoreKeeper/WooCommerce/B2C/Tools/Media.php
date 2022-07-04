@@ -159,6 +159,7 @@ class Media
         $fileName = basename($cdnFileUrl);
         $fileType = wp_check_filetype($fileName, null);
         $attachmentTitle = sanitize_file_name(pathinfo($fileName, PATHINFO_FILENAME));
+        $fullImageSizeUrl = str_replace(self::CDN_URL_VARIANT_PLACEHOLDER_KEY, self::getImageScaleVariantString(), $cdnFileUrl);
 
         $postInfo = [
             'guid' => $originalFileUrl,
@@ -170,13 +171,13 @@ class Media
 
         // Create the attachment
         $attachmentId = WordpressExceptionThrower::throwExceptionOnWpError(
-            wp_insert_attachment($postInfo, $originalFileUrl, 0, true)
+            wp_insert_attachment($postInfo, $fullImageSizeUrl, 0, true)
         );
 
         // Include image.php
         require_once ABSPATH.'wp-admin/includes/image.php';
 
-        $imageMeta = self::createImageMeta($originalFileUrl, $cdnFileUrl);
+        $imageMeta = self::createImageMeta($fullImageSizeUrl, $cdnFileUrl);
 
         // Assign metadata to attachment
         wp_update_attachment_metadata($attachmentId, $imageMeta);
@@ -187,10 +188,8 @@ class Media
         return get_post($attachmentId)->ID;
     }
 
-    public static function createImageMeta(string $originalImageUrl, string $placeholderUrl): array
+    public static function createImageMeta(string $fullImageSizeUrl, string $placeholderUrl): array
     {
-        // Todo: Change original image URL to CDN url with full variant
-        $fullImageSizeUrl = str_replace(self::CDN_URL_VARIANT_PLACEHOLDER_KEY, self::getImageScaleVariantString(), $placeholderUrl);
         $fullImageSize = wp_getimagesize($fullImageSizeUrl);
         [ $fullImageWidth, $fullImageHeight ] = $fullImageSize;
 
@@ -339,9 +338,11 @@ class Media
      */
     public function getAttachmentImageSource($attachmentImage, $attachmentId, $attachmentSize, $isAttachmentIcon)
     {
-        [, $attachmentWidth, $attachmentHeight ] = $attachmentImage;
+        [ $attachmentUrl, $attachmentWidth, $attachmentHeight ] = $attachmentImage;
 
-        if ($this->isAttachmentCdn($attachmentId)) {
+        // Only change the url of attachment if it has upload directory
+        // as correct URL is already being set during import. This is an edge case
+        if ($this->isAttachmentCdn($attachmentId) && self::hasUploadDirectory($attachmentUrl)) {
             // example value will be an encoded https://cdn_host/path/to/image/scale/{variant}/file_name
             $cdnUrl = get_post_meta($attachmentId, 'cdn_url', true);
             $cdnUrl = urldecode($cdnUrl);
@@ -368,10 +369,16 @@ class Media
                 if (is_array($source) && false === strpos($sourceUrl, 'woocommerce-placeholder')) {
                     $cdnUrl = get_post_meta($attachmentId, 'cdn_url', true);
                     $cdnUrl = urldecode($cdnUrl);
+                    $imageVariant = self::getImageScaleVariantString();
 
                     // Gets the closest possible variant/size based on width
+                    // Try matching with infinite/undetermined height first
                     $intermediateSize = image_get_intermediate_size($attachmentId, [$sourceWidth, 0]);
-                    $imageVariant = self::getImageScaleVariantString();
+
+                    if (!$intermediateSize) {
+                        // Try matching with same width and height
+                        $intermediateSize = image_get_intermediate_size($attachmentId, [$sourceWidth, $sourceWidth]);
+                    }
 
                     if ($intermediateSize) {
                         $intermediateSizeWidth = $intermediateSize['width'];
@@ -407,6 +414,17 @@ class Media
         $pattern = get_site_url().'/'.$partialUploadsDir;
 
         return preg_replace("#$pattern\/#", '', $attachmentUrl);
+    }
+
+    /**
+     * Checks if the URL has wordpress uploads path.
+     */
+    public static function hasUploadDirectory(string $attachmentUrl): bool
+    {
+        $uploadsDir = wp_get_upload_dir()['basedir'];
+        $partialUploadsDir = str_replace(ABSPATH, '', $uploadsDir);
+
+        return false !== strpos($attachmentUrl, $partialUploadsDir);
     }
 
     protected function isAttachmentCdn($attachmentId): bool
