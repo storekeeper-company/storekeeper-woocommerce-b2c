@@ -177,7 +177,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
             $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
 
             $attachmentImageSrcSet = (string) wp_get_attachment_image_srcset($attachmentId);
-            var_dump($attachmentImageSrcSet);
             $attachmentImageSrcSetArray = explode(', ', $attachmentImageSrcSet);
             foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
                 // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
