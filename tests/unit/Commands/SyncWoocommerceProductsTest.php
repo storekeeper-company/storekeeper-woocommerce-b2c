@@ -171,7 +171,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
             $attachmentId = $wcSimpleProduct->get_image_id();
             $this->assertTrue((bool) get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be external');
 
-            $attachmentUrl = wp_get_attachment_image_url($attachmentId);
+            $attachmentUrl = wp_get_attachment_image_url($attachmentId, [0, 0]);
             $originalCdnUrl = $original->get('flat_product.main_image.cdn_url');
             $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}.".Media::FULL_VARIANT_KEY, $originalCdnUrl);
             $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
