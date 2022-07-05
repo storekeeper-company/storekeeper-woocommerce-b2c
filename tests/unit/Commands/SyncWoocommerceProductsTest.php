@@ -171,10 +171,11 @@ class SyncWoocommerceProductsTest extends AbstractTest
             $attachmentId = $wcSimpleProduct->get_image_id();
             $this->assertTrue((bool) get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be external');
 
-            $attachmentUrl = wp_get_attachment_image_url($attachmentId, [10000, 1]);
+            $attachmentUrl = wp_get_attachment_image_url($attachmentId, [10000, 10000]);
             $originalCdnUrl = $original->get('flat_product.main_image.cdn_url');
             $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}.".Media::FULL_VARIANT_KEY, $originalCdnUrl);
             $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
+            $this->assertTrue((bool) false, 'Test'.$attachmentId);
 
             $attachmentImageSrcSet = wp_get_attachment_image_srcset($attachmentId);
             $attachmentImageSrcSet = explode(',', $attachmentImageSrcSet);
@@ -182,7 +183,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
                 $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
                 $pattern = str_replace('/', '\/', $pattern);
-                $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid test'.$attachmentImageSrc);
+                $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
             }
         }
 
