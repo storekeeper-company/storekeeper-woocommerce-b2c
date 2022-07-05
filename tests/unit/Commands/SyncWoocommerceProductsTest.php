@@ -182,7 +182,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
                 $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
                 $pattern = str_replace('/', '\/', $pattern);
-                $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
+                $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid'.$attachmentImageSrc);
             }
         }
 
