@@ -176,15 +176,14 @@ class SyncWoocommerceProductsTest extends AbstractTest
             $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}.".Media::FULL_VARIANT_KEY, $originalCdnUrl);
             $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
 
-            $attachmentImageSrcSet = wp_get_attachment_image_srcset($attachmentId);
-            $attachmentImageSrcSet = explode(', ', $attachmentImageSrcSet);
-            if (count($attachmentImageSrcSet) > 0) {
-                foreach ($attachmentImageSrcSet as $attachmentImageSrc) {
-                    // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
-                    $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
-                    $pattern = str_replace('/', '\/', $pattern);
-                    $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
-                }
+            $attachmentImageSrcSet = (string) wp_get_attachment_image_srcset($attachmentId);
+            var_dump($attachmentImageSrcSet);
+            $attachmentImageSrcSetArray = explode(', ', $attachmentImageSrcSet);
+            foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
+                // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
+                $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
+                $pattern = str_replace('/', '\/', $pattern);
+                $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
             }
         }
 
