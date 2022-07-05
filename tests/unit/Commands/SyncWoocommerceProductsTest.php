@@ -178,11 +178,13 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
             $attachmentImageSrcSet = (string) wp_get_attachment_image_srcset($attachmentId);
             $attachmentImageSrcSetArray = explode(', ', $attachmentImageSrcSet);
-            foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
-                // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
-                $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
-                $pattern = str_replace('/', '\/', $pattern);
-                $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
+            if (!empty($attachmentImageSrcSet)) {
+                foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
+                    // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
+                    $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
+                    $pattern = str_replace('/', '\/', $pattern);
+                    $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
+                }
             }
         }
 
