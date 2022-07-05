@@ -356,7 +356,7 @@ class Media
 
         // Only change the url of attachment if it has upload directory
         // as correct URL is already being set during import. This is an edge case
-        if ($this->isAttachmentCdn($attachmentId) && self::hasUploadDirectory($attachmentUrl)) {
+        if ($this->isAttachmentCdn($attachmentId) && (self::hasUploadDirectory($attachmentUrl) || empty($attachmentUrl))) {
             // example value will be an encoded https://cdn_host/path/to/image/scale/{variant}/file_name
             $cdnUrl = get_post_meta($attachmentId, 'cdn_url', true);
             $cdnUrl = urldecode($cdnUrl);
