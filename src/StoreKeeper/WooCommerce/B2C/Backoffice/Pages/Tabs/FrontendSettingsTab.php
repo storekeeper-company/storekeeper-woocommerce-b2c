@@ -75,17 +75,9 @@ class FrontendSettingsTab extends AbstractTab
                 $imageCdn,
                 StoreKeeperOptions::isImageCdnEnabled(),
             ).' '.__(
-                'When checked, images will be rendered using CDN if available',
+                'When checked, images will be served using StoreKeeper CDN if available (no product images are stored on the web-shop server that way)',
                 I18N::DOMAIN
             ).'<br><small>'.__('', I18N::DOMAIN).'</small>'
-        );
-
-        $this->renderFormNote(
-            __(
-                'Disabling this feature might cause rendering issues for images that are currently using CDN.',
-                I18N::DOMAIN
-            ),
-            'text-danger'
         );
     }
 

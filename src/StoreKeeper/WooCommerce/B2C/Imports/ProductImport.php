@@ -330,7 +330,7 @@ SQL;
             $oldAttachmentId = (int) $newProduct->get_image_id();
 
             if ($product->has('flat_product.main_image.cdn_url') && StoreKeeperOptions::isImageCdnEnabled()) {
-                $attachmentId = Media::createAttachmentAsCDN($product->get('flat_product.main_image.cdn_url'), $product->get('flat_product.main_image.big_url'));
+                $attachmentId = Media::createAttachmentUsingCDN($product->get('flat_product.main_image.cdn_url'));
             } else {
                 $attachmentId = Media::createAttachment($product->get('flat_product.main_image.big_url'));
             }
@@ -365,7 +365,7 @@ SQL;
             foreach ($product->get('flat_product.product_images') as $productImage) {
                 if ($productImage['id'] !== $mainImageId) {
                     if (isset($productImage['cdn_url']) && StoreKeeperOptions::isImageCdnEnabled()) {
-                        $attachmentIds[] = Media::createAttachmentAsCDN($productImage['cdn_url'], $productImage['big_url']);
+                        $attachmentIds[] = Media::createAttachmentUsingCDN($productImage['cdn_url']);
                     } else {
                         $attachmentIds[] = Media::createAttachment($productImage['big_url']);
                     }

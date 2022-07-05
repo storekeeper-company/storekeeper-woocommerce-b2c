@@ -5,7 +5,6 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\TestLib\MediaHelper;
 
@@ -52,6 +51,21 @@ class Media
                 'posts_per_page' => 1,
                 'meta_key' => 'original_url',
                 'meta_value' => $original_url,
+                'post_status' => ['publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit'],
+            ]
+        );
+
+        return current($attachments);
+    }
+
+    public static function getAttachmentByCdnUrl($cdnUrl)
+    {
+        $attachments = get_posts(
+            [
+                'post_type' => 'attachment',
+                'posts_per_page' => 1,
+                'meta_key' => 'cdn_url',
+                'meta_value' => $cdnUrl,
                 'post_status' => ['publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit'],
             ]
         );
@@ -136,21 +150,17 @@ class Media
         return get_post($attach_id)->ID;
     }
 
-    public static function createAttachmentAsCDN($cdnImageUrl, $bigImageUrl): ?int
+    public static function createAttachmentUsingCDN($cdnImageUrl): ?int
     {
         if (empty($cdnImageUrl) || !is_string($cdnImageUrl)) {
-            return null;
+            throw new \RuntimeException('CDN image URL is invalid');
         }
 
-        $originalFileUrl = self::fixUrl($bigImageUrl);
         $cdnFileUrl = self::fixUrl($cdnImageUrl);
+        $sanitizedCdnUrl = urlencode($cdnFileUrl); // Encode URL path so that {variant} won't be removed when creating attachment
 
-        $parsedUrl = HtmlEscape::parseUrl($cdnFileUrl);
-        $urlPath = $parsedUrl['path'];
-        $parsedUrl['path'] = urlencode($urlPath); // Encode URL path so that {variant} won't be removed when creating attachment
-        $sanitizedCdnUrl = HtmlEscape::buildUrl($parsedUrl);
-
-        $attachment = self::getAttachment($originalFileUrl);
+        $fullImageSizeUrl = str_replace(self::CDN_URL_VARIANT_PLACEHOLDER_KEY, self::getImageScaleVariantString(), $cdnFileUrl);
+        $attachment = self::getAttachment($fullImageSizeUrl);
 
         if (false !== $attachment) {
             return $attachment->ID;
@@ -159,10 +169,9 @@ class Media
         $fileName = basename($cdnFileUrl);
         $fileType = wp_check_filetype($fileName, null);
         $attachmentTitle = sanitize_file_name(pathinfo($fileName, PATHINFO_FILENAME));
-        $fullImageSizeUrl = str_replace(self::CDN_URL_VARIANT_PLACEHOLDER_KEY, self::getImageScaleVariantString(), $cdnFileUrl);
 
         $postInfo = [
-            'guid' => $originalFileUrl,
+            'guid' => $fullImageSizeUrl,
             'post_mime_type' => $fileType['type'],
             'post_title' => $attachmentTitle,
             'post_content' => '',
@@ -181,7 +190,7 @@ class Media
 
         // Assign metadata to attachment
         wp_update_attachment_metadata($attachmentId, $imageMeta);
-        update_post_meta($attachmentId, 'original_url', $originalFileUrl);
+        update_post_meta($attachmentId, 'original_url', $fullImageSizeUrl);
         update_post_meta($attachmentId, 'cdn_url', $sanitizedCdnUrl);
         update_post_meta($attachmentId, 'is_cdn', true);
 
@@ -190,7 +199,12 @@ class Media
 
     public static function createImageMeta(string $fullImageSizeUrl, string $placeholderUrl): array
     {
-        $fullImageSize = wp_getimagesize($fullImageSizeUrl);
+        if (Core::isTest()) {
+            // Mocking get images size as it will look for an actual image
+            $fullImageSize = [900, 900];
+        } else {
+            $fullImageSize = wp_getimagesize($fullImageSizeUrl);
+        }
         [ $fullImageWidth, $fullImageHeight ] = $fullImageSize;
 
         // Default image meta.

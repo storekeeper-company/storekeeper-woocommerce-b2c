@@ -152,7 +152,8 @@ class Core
         $this->versionChecks();
         $this->registerMarkDown();
         $this->registerAddressFormatting();
-        if (StoreKeeperOptions::isConnected()) {
+        // Register hooks for unit testing as well
+        if (StoreKeeperOptions::isConnected() || self::isTest()) {
             $media = new Media();
             $this->loader->add_filter('wp_get_attachment_url', $media, 'getAttachmentUrl', 999, 2);
             $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
