@@ -287,7 +287,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         }
     }
 
-    public function assertFileUrls($expected_file_url, $current_file_url)
+    public function assertFileUrls($expected_file_url, $current_file_url, $isCdn = false)
     {
         // Check file name
         $expected_file_name = $this->getUrlBasename($expected_file_url);
@@ -298,14 +298,16 @@ abstract class AbstractTest extends WP_UnitTestCase
             'Image file name does not matches'
         );
 
-        // Compare MD5 Hash
-        $expected_file_md5 = $this->getUrlMd5($expected_file_url);
-        $current_file_md5 = $this->getUrlMd5($current_file_url);
-        $this->assertEquals(
-            $expected_file_md5,
-            $current_file_md5,
-            'Image file MD5 does not matches'
-        );
+        if (!$isCdn) {
+            // Compare MD5 Hash
+            $expected_file_md5 = $this->getUrlMd5($expected_file_url);
+            $current_file_md5 = $this->getUrlMd5($current_file_url);
+            $this->assertEquals(
+                $expected_file_md5,
+                $current_file_md5,
+                'Image file MD5 does not matches'
+            );
+        }
     }
 
     /**
@@ -522,7 +524,13 @@ abstract class AbstractTest extends WP_UnitTestCase
         // Images : Assigned products take the images of their parents
         if (self::WC_TYPE_ASSIGNED !== $wc_product->get_type()) {
             // Main image
-            if ($original_product->has('flat_product.product.content.big_image_url')) {
+            if ($original_product->has('flat_product.main_image.cdn_url') && StoreKeeperOptions::isImageCdnEnabled()) {
+                $cdnUrl = $original_product->get('flat_product.main_image.cdn_url');
+                $currentUrl = get_post_meta($wc_product->get_image_id(), 'original_url', true);
+                $currentCdnUrl = get_post_meta($wc_product->get_image_id(), 'cdn_url', true);
+                $this->assertEquals(urlencode($cdnUrl), $currentCdnUrl, 'CDN url does not match');
+                $this->assertFileUrls(Media::fixUrl($cdnUrl), Media::fixUrl($currentUrl), true);
+            } elseif ($original_product->has('flat_product.product.content.big_image_url')) {
                 $original_url = $original_product->get('flat_product.product.content.big_image_url');
                 $current_url = get_post_meta($wc_product->get_image_id(), 'original_url', true);
                 $this->assertFileUrls(Media::fixUrl($original_url), Media::fixUrl($current_url));
@@ -530,16 +538,24 @@ abstract class AbstractTest extends WP_UnitTestCase
 
             // Additional images
             if ($original_product->has('flat_product.product_images')) {
-                $original_additional_images = array_column(
-                    $original_product->get('flat_product.product_images'),
-                    'big_url'
-                );
-                foreach ($original_additional_images as $original_additional_image) {
-                    $original_url = Media::fixUrl($original_additional_image);
-                    $current = Media::getAttachment($original_additional_image);
-                    $current_url = get_post_meta($current->ID, 'original_url', true);
-                    $current_url = Media::fixUrl($current_url);
-                    $this->assertFileUrls($original_url, $current_url);
+                $originalAdditionalImages = $original_product->get('flat_product.product_images');
+                foreach ($originalAdditionalImages as $originalAdditionalImage) {
+                    if (isset($originalAdditionalImage['cdn_url']) && StoreKeeperOptions::isImageCdnEnabled()) {
+                        $cdnUrl = $originalAdditionalImage['cdn_url'];
+                        $encodedCdnUrl = urlencode($cdnUrl);
+                        $current = Media::getAttachmentByCdnUrl($encodedCdnUrl);
+                        $currentUrl = get_post_meta($current->ID, 'original_url', true);
+                        $currentCdnUrl = get_post_meta($current->ID, 'cdn_url', true);
+                        $this->assertEquals($encodedCdnUrl, $currentCdnUrl, 'CDN url does not match');
+                        $this->assertFileUrls(Media::fixUrl($cdnUrl), Media::fixUrl($currentUrl), true);
+                    } else {
+                        $bigImageUrl = $originalAdditionalImage['big_url'];
+                        $originalUrl = Media::fixUrl($bigImageUrl);
+                        $current = Media::getAttachment($bigImageUrl);
+                        $currentUrl = get_post_meta($current->ID, 'original_url', true);
+                        $currentUrl = Media::fixUrl($currentUrl);
+                        $this->assertFileUrls($originalUrl, $currentUrl);
+                    }
                 }
             }
         }

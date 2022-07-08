@@ -22,6 +22,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 use WC_Data_Exception;
+use WC_Product;
 use WC_Product_Simple;
 use WC_Product_Variable;
 use WC_Product_Variation;
@@ -323,55 +324,84 @@ SQL;
         return false;
     }
 
-    /**
-     * @param $newProduct
-     * @param $product
-     *
-     * @return mixed
-     */
-    protected function setImage(&$newProduct, $product)
+    protected function setImage(WC_Product $newProduct, $product)
     {
         if ($product->has('flat_product.main_image')) {
-            $attachment_id = Media::createAttachment($product->get('flat_product.main_image.big_url'));
+            $oldAttachmentId = (int) $newProduct->get_image_id();
+
+            if ($product->has('flat_product.main_image.cdn_url') && StoreKeeperOptions::isImageCdnEnabled()) {
+                $attachmentId = Media::createAttachmentUsingCDN($product->get('flat_product.main_image.cdn_url'));
+            } else {
+                $attachmentId = Media::createAttachment($product->get('flat_product.main_image.big_url'));
+            }
+
+            // Permanently remove attachment if no longer used, may it be CDN or downloaded
+            if ($attachmentId && $oldAttachmentId && $oldAttachmentId !== $attachmentId) {
+                $this->removeAttachment($oldAttachmentId);
+            }
+
             $this->debug(
                 'Found main product image',
                 [
                     'product_images' => $product->get('flat_product.main_image'),
-                    'attachment_id' => $attachment_id,
+                    'attachment_id' => $attachmentId,
                 ]
             );
-            $newProduct->set_image_id($attachment_id);
+            $newProduct->set_image_id($attachmentId);
 
             return $product->get('flat_product.main_image.id');
         }
+
+        return null;
     }
 
-    /**
-     * @param $newProduct WC_Product_Simple|WC_Product_Variable
-     * @param $product
-     * @param null $main_image_id
-     */
-    protected function setGalleryImages(&$newProduct, $product, $main_image_id = null)
+    protected function setGalleryImages(&$newProduct, $product, $mainImageId = null): void
     {
-        $attachment_ids = [];
+        $attachmentIds = [];
+        $oldAttachmentIds = $newProduct->get_gallery_image_ids();
         $count = 0;
         if ($product->has('flat_product.product_images')) {
             $count = count($product->get('flat_product.product_images'));
-            foreach ($product->get('flat_product.product_images') as $product_image) {
-                if ($product_image['id'] !== $main_image_id) {
-                    $attachment_ids[] = Media::createAttachment($product_image['big_url']);
+            foreach ($product->get('flat_product.product_images') as $productImage) {
+                if ($productImage['id'] !== $mainImageId) {
+                    if (isset($productImage['cdn_url']) && StoreKeeperOptions::isImageCdnEnabled()) {
+                        $attachmentIds[] = Media::createAttachmentUsingCDN($productImage['cdn_url']);
+                    } else {
+                        $attachmentIds[] = Media::createAttachment($productImage['big_url']);
+                    }
                 }
             }
         }
+
+        $abandonedAttachmentIds = array_diff($oldAttachmentIds, $attachmentIds);
+
+        foreach ($abandonedAttachmentIds as $abandonedAttachmentId) {
+            $this->removeAttachment($abandonedAttachmentId);
+        }
+
         $this->debug(
             "Found $count product images",
             [
                 'product_images' => $product->get('flat_product.product_images'),
-                'attachment_ids' => $attachment_ids,
+                'attachment_ids' => $attachmentIds,
             ]
         );
 
-        $newProduct->set_gallery_image_ids($attachment_ids);
+        $newProduct->set_gallery_image_ids($attachmentIds);
+    }
+
+    protected function removeAttachment($attachmentId): void
+    {
+        $this->debug(
+            'Permanently removing attachment',
+            [
+                'attachment_id' => $attachmentId,
+            ]
+        );
+
+        WordpressExceptionThrower::throwExceptionOnWpError(
+            wp_delete_attachment($attachmentId, true)
+        );
     }
 
     /**
@@ -892,7 +922,7 @@ SQL;
         $this->setTags($newProduct, $dotObject);
         $this->debug('Set Tags on product', $log_data);
 
-        /** Main image */
+        /* Main image */
         $main_image_id = $this->setImage($newProduct, $dotObject);
         $this->debug('Set main Image on product', $log_data);
 

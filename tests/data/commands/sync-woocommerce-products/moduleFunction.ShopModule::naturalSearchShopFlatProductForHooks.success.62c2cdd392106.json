@@ -1,0 +1,176 @@
+{
+    "success": true,
+    "call_id": "62c2cdd392106",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "flat_product\/product\/type__in_list",
+                "multi_val": [
+                    "simple",
+                    "configurable",
+                    "configurable_assign"
+                ]
+            },
+            {
+                "name": "id__=",
+                "val": 20
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 160505,
+                    "product_id": 158712,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2022-06-26 19:52:24+02:00",
+                    "date_updated": "2022-06-26 19:52:24+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 160505,
+                    "product_id": 158712,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2022-06-26 19:52:24+02:00",
+                    "date_updated": "2022-06-26 19:52:24+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 195188,
+                    "product_id": 158712,
+                    "lang": "en",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2022-07-01 12:46:20+02:00",
+                    "title": "Junmar cdn product",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 223242,
+                    "slug": "junmar-cdn-product",
+                    "all_langs": [
+                        "en"
+                    ],
+                    "product": {
+                        "id": 158712,
+                        "date_created": "2022-06-26 19:52:24+02:00",
+                        "date_updated": "2022-06-30 16:33:06+02:00",
+                        "relation_data_id": 51881,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 166489,
+                        "sku": "junmar-cdn-product",
+                        "type": "simple",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 160505,
+                        "object_instance_id": 696479,
+                        "has_addons": false,
+                        "is_system": false,
+                        "has_serial_numbers": false,
+                        "content": {
+                            "small_image_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_small_image.jpeg?file_id=40543",
+                            "big_image_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_big_image.jpeg?file_id=40544",
+                            "slug": "junmar-cdn-product",
+                            "translatable_id": 314356
+                        },
+                        "product_stock": {
+                            "id": 158708,
+                            "product_id": 158712,
+                            "value": 0,
+                            "in_stock": false,
+                            "unlimited": false,
+                            "date_updated": "2022-06-26 19:52:24+02:00",
+                            "minimal_value": 10
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Kleur",
+                            "attribute_id": 13,
+                            "attribute_option_id": 6,
+                            "value_label": "Zwart",
+                            "name": "kleur",
+                            "value": "zwart",
+                            "attribute_published": true,
+                            "attribute_option_order": 4,
+                            "attribute_order": 3
+                        },
+                        {
+                            "label": "Barcode",
+                            "attribute_id": 1,
+                            "name": "barcode",
+                            "value": "2220000153062",
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 2
+                        }
+                    ],
+                    "main_image": {
+                        "id": 5319,
+                        "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_small_image.jpeg?file_id=40543",
+                        "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_big_image.jpeg?file_id=40544",
+                        "cdn_url": "vfs:\/\/test-shop.sk-cdn.net\/g\/test-shop-img-scale\/{variant}\/f\/image.jpeg"
+                    },
+                    "product_images": [
+                        {
+                            "id": 5319,
+                            "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_small_image.jpeg?file_id=40543",
+                            "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_big_image.jpeg?file_id=40544",
+                            "cdn_url": "vfs:\/\/test-shop.sk-cdn.net\/g\/test-shop-img-scale\/{variant}\/f\/image.jpeg"
+                        },
+                        {
+                            "id": 5320,
+                            "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/cat_sample_small_image.jpg?file_id=40546",
+                            "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/cat_sample_big_image.jpg?file_id=40547",
+                            "cdn_url": "vfs:\/\/test-shop.sk-cdn.net\/g\/test-shop-img-scale\/{variant}\/f\/cat_sample.jpg"
+                        }
+                    ]
+                },
+                "id": 20,
+                "product_id": 158712,
+                "product_price_id": 160505,
+                "date_created": "2022-06-26 19:52:24+02:00",
+                "active": true,
+                "backorder_enabled": false,
+                "object_instance_id": 696480,
+                "date_updated": "2022-06-26 19:52:24+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 160505,
+                "unfulfilled_stock_value": 0,
+                "unfulfilled_order_ids": [],
+                "orderable_stock_value": 0
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1146.0,
+    "_version": "1.0",
+    "_timestamp": "2022-07-04T11:24:04+00:00"
+}

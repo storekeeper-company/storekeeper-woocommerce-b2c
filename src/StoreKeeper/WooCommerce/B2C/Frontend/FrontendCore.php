@@ -42,7 +42,6 @@ class FrontendCore
         $this->loadWooCommerceTemplate();
         $this->registerStyle();
         $this->registerRedirects();
-
         if ('yes' === StoreKeeperOptions::get(StoreKeeperOptions::VALIDATE_CUSTOMER_ADDRESS, 'yes')) {
             $this->registerAddressFormHandler();
         }

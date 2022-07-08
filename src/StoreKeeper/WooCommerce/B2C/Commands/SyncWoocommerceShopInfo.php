@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class SyncWoocommerceShopInfo extends AbstractSyncCommand
 {
@@ -61,6 +62,11 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
             update_option('woocommerce_email_from_address', $email);
             update_option('sendgrid_from_name', $email_name);
             update_option('sendgrid_from_email', $email);
+
+            // Image CDN
+            if ($shopData->has('image_cdn_prefix')) {
+                StoreKeeperOptions::update(StoreKeeperOptions::IMAGE_CDN_PREFIX, $shopData->get('image_cdn_prefix'));
+            }
 
             WpCliHelper::attemptSuccessOutput(__('Done synchronizing shop information', I18N::DOMAIN));
         }
