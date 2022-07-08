@@ -82,17 +82,21 @@ class OrderImport extends AbstractImport
 
         self::ensureOrderStatusUrl($order, $this->storekeeper_id);
 
-        /*
-         * We first check if we need to apply the storekeeper wc status to the order
-         */
-        if ($storeKeeperStatus && $this->canUpdateStatus($wooCommerceStatus, $storeKeeperStatus)) {
-            $wooCommerceStatus = $storeKeeperStatus; // We are about to update the wc order status
-            if ('refunded' === $wooCommerceStatus) {
-                // Set refunded dirty since it was just changed to refunded from backoffice
-                add_post_meta($order->get_id(), PaymentGateway::REFUND_BY_SK_STATUS, 'yes');
+        try {
+            /*
+             * We first check if we need to apply the storekeeper wc status to the order
+             */
+            if ($storeKeeperStatus && $this->canUpdateStatus($wooCommerceStatus, $storeKeeperStatus)) {
+                $wooCommerceStatus = $storeKeeperStatus; // We are about to update the wc order status
+                if ('refunded' === $wooCommerceStatus) {
+                    // Set refunded by storekeeper since it was just changed to refunded from backoffice
+                    PaymentGateway::$refundedBySkStatus = true;
+                }
+                $order->set_status($storeKeeperStatus);
+                $order->save();
             }
-            $order->set_status($storeKeeperStatus);
-            $order->save();
+        } finally {
+            PaymentGateway::$refundedBySkStatus = false;
         }
 
         /*

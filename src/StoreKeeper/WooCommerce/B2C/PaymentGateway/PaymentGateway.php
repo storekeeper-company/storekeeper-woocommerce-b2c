@@ -14,7 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 class PaymentGateway
 {
     public const STATUS_CANCELLED = 'CANCELED';
-    public const REFUND_BY_SK_STATUS = 'refund_by_storekeeper_status';
+    public static $refundedBySkStatus = false;
 
     protected static function querySql(string $sql): bool
     {
@@ -287,11 +287,9 @@ SQL;
         $storeKeeperOrderId = get_post_meta($orderId, 'storekeeper_id', true);
 
         if ($storeKeeperOrderId) {
-            // Refunded dirty means it's just forced to be refunded by BackOffice status
-            $refundedDirty = 'yes' === get_post_meta($orderId, self::REFUND_BY_SK_STATUS, true);
-            if ($refundedDirty) {
+            // Refunded by storekeeper means it's just forced to be refunded because of BackOffice status
+            if (self::$refundedBySkStatus) {
                 $isRefundCreationAllowed = false;
-                update_post_meta($orderId, self::REFUND_BY_SK_STATUS, 'no');
                 LoggerFactory::create('refund')->error('Refund is dirty', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
             } else {
                 $api = StoreKeeperApi::getApiByAuthName();

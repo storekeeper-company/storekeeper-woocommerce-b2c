@@ -139,6 +139,7 @@ class UpdateOrderTest extends AbstractTest
         $rest = $this->getRestWithToken($dumpFile);
         $this->handleRequest($rest);
         $this->runner->execute(ProcessAllTasks::getCommandName());
+        $this->assertFalse(PaymentGateway::$refundedBySkStatus, 'Should be false after import');
 
         // Assert the status
         $wooCommerceOrder = new WC_Order($wooCommmerceOrderId);
