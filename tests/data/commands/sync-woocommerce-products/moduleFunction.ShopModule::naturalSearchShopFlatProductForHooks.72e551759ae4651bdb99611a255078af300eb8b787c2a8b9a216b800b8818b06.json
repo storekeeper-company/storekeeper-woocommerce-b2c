@@ -626,28 +626,14 @@
                     ],
                     "main_image": {
                         "id": 55,
-                        "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/istockphoto-466395505-612x612_small_image.jpg?file_id=40645",
-                        "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/istockphoto-466395505-612x612_big_image.jpg?file_id=40646",
-                        "cdn_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/g\/lukishop-img-scale\/40644\/b1a673bf1cee3b84c9107f73902cb2a7\/{variant}\/f\/istockphoto-466395505-612x612.jpg"
+                        "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_small_image.jpeg?img_w=200&img_h=200&",
+                        "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_big_image.jpeg?img_w=1500&img_h=1500&"
                     },
                     "product_images": [
                         {
                             "id": 55,
-                            "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/istockphoto-466395505-612x612_small_image.jpg?file_id=40645",
-                            "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/istockphoto-466395505-612x612_big_image.jpg?file_id=40646",
-                            "cdn_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/g\/lukishop-img-scale\/40644\/b1a673bf1cee3b84c9107f73902cb2a7\/{variant}\/f\/istockphoto-466395505-612x612.jpg"
-                        },
-                        {
-                            "id": 5331,
-                            "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/Eastern_Grey_Squirrel_small_image.jpg?file_id=40648",
-                            "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/Eastern_Grey_Squirrel_big_image.jpg?file_id=40649",
-                            "cdn_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/g\/lukishop-img-scale\/40647\/0669df606ae675c60abeda97c85ae501\/{variant}\/f\/Eastern_Grey_Squirrel.jpg"
-                        },
-                        {
-                            "id": 5332,
-                            "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/EasternGraySquirrel_GAm_small_image.jpg?file_id=40651",
-                            "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/EasternGraySquirrel_GAm_big_image.jpg?file_id=40652",
-                            "cdn_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/g\/lukishop-img-scale\/40650\/027482766f60086294e345ec90f36527\/{variant}\/f\/EasternGraySquirrel_GAm.jpg"
+                            "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_small_image.jpeg?img_w=200&img_h=200&",
+                            "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_big_image.jpeg?img_w=1500&img_h=1500&"
                         }
                     ]
                 },

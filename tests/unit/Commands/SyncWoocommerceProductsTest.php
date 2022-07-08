@@ -39,8 +39,12 @@ class SyncWoocommerceProductsTest extends AbstractTest
      */
     protected function initializeTest($storekeeperId = null)
     {
+        $imageCdnPrefix = 'testPrefix';
         // Initialize the test
         $this->initApiConnection();
+        $this->prepareVFSForCDNImageTest($imageCdnPrefix);
+        $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
+
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
         $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
@@ -132,56 +136,9 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     public function testProductImageImport()
     {
-        // Prepare VFS for CDN image test
-        $rootDirectoryName = 'test-shop.sk-cdn.net';
-        $testImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_IMAGE_JPEG_FILE);
-        $testCatSampleImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
         $imageCdnPrefix = 'testPrefix';
-
-        $structure = [
-            'g' => [
-                'test-shop-img-scale' => [
-                    $imageCdnPrefix.'.'.Media::FULL_VARIANT_KEY => [
-                        'f' => [
-                            'image.jpeg' => $testImageContent,
-                            'cat_sample.jpg' => $testCatSampleImageContent,
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        vfsStream::setup($rootDirectoryName);
-        vfsStream::create($structure);
-
-        // Mock SyncWoocommerceShopInfo
-        StoreKeeperApi::$mockAdapter->withModule(
-            'ShopModule',
-            function (MockInterface $module) use ($imageCdnPrefix) {
-                $module->shouldReceive('getShopWithRelation')->andReturnUsing(
-                    function ($got) use ($imageCdnPrefix) {
-                        return [
-                            StoreKeeperOptions::IMAGE_CDN_PREFIX => $imageCdnPrefix,
-                        ];
-                    }
-                );
-            }
-        );
-
-        StoreKeeperApi::$mockAdapter->withModule(
-            'ShopModule',
-            function (MockInterface $module) {
-                $module->shouldReceive('listConfigurations')->andReturnUsing(
-                    function ($got) {
-                        return [
-                            'data' => [
-                                ['currency_iso3' => 'EUR'],
-                            ],
-                        ];
-                    }
-                );
-            }
-        );
+        $this->prepareVFSForCDNImageTest($imageCdnPrefix);
+        $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
 
         $this->assertEmpty(StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be empty initially');
 
@@ -532,5 +489,64 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 }
             }
         }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function mockSyncWoocommerceShopInfo(string $imageCdnPrefix): void
+    {
+        // Mock SyncWoocommerceShopInfo
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($imageCdnPrefix) {
+                $module->shouldReceive('getShopWithRelation')->andReturnUsing(
+                    function ($got) use ($imageCdnPrefix) {
+                        return [
+                            StoreKeeperOptions::IMAGE_CDN_PREFIX => $imageCdnPrefix,
+                        ];
+                    }
+                );
+            }
+        );
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) {
+                $module->shouldReceive('listConfigurations')->andReturnUsing(
+                    function ($got) {
+                        return [
+                            'data' => [
+                                ['currency_iso3' => 'EUR'],
+                            ],
+                        ];
+                    }
+                );
+            }
+        );
+    }
+
+    protected function prepareVFSForCDNImageTest(string $imageCdnPrefix): void
+    {
+        // Prepare VFS for CDN image test
+        $rootDirectoryName = 'test-shop.sk-cdn.net';
+        $testImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_IMAGE_JPEG_FILE);
+        $testCatSampleImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
+
+        $structure = [
+            'g' => [
+                'test-shop-img-scale' => [
+                    $imageCdnPrefix.'.'.Media::FULL_VARIANT_KEY => [
+                        'f' => [
+                            'image.jpeg' => $testImageContent,
+                            'cat_sample.jpg' => $testCatSampleImageContent,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        vfsStream::setup($rootDirectoryName);
+        vfsStream::create($structure);
     }
 }
