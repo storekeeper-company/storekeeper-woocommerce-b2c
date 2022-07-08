@@ -299,7 +299,7 @@ SQL;
 
                 $order = $shopModule->getOrder($storeKeeperOrderId, null);
 
-                $hasRefund = $this->storekeeperOrderHasRefundWithoutReturnPayment($order);
+                $hasRefund = $this->storekeeperOrderHasRefundWithReturnPayment($order);
 
                 if ($hasRefund) {
                     $isRefundCreationAllowed = false;
@@ -580,7 +580,7 @@ SQL;
         return array_merge($default_gateway_classes, $gateway_classes);
     }
 
-    protected function storekeeperOrderHasRefundWithoutReturnPayment(array $order): bool
+    protected function storekeeperOrderHasRefundWithReturnPayment(array $order): bool
     {
         $hasRefund = false;
         if (isset($order['paid_back_value_wt']) && 0 != $order['paid_back_value_wt'] && 0 != $order['refunded_price_wt']) {
