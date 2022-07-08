@@ -8,6 +8,7 @@ use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NonExistentObjectException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WC_Order;
 
@@ -75,26 +76,34 @@ class OrderImport extends AbstractImport
         /** Set the ignore order id to prevent an update loop (wc > backend > wc > etc) */
         $storekeeper_ignore_order_id = $order->get_id();
 
-        $is_paid = (bool) $dotObject->get('is_paid');
-        $wc_status = $order->get_status('edit');
-        $sk_status = self::getWoocommerceStatus($dotObject->get('status'));
+        $isPaid = (bool) $dotObject->get('is_paid');
+        $wooCommerceStatus = $order->get_status('edit');
+        $storeKeeperStatus = self::getWoocommerceStatus($dotObject->get('status'));
 
         self::ensureOrderStatusUrl($order, $this->storekeeper_id);
 
-        /*
-         * We first check if we need to apply the storekeeper wc status to the order
-         */
-        if ($sk_status && $this->canUpdateStatus($wc_status, $sk_status)) {
-            $wc_status = $sk_status; // We are about to update the wc order status
-            $order->set_status($sk_status);
-            $order->save();
+        try {
+            /*
+             * We first check if we need to apply the storekeeper wc status to the order
+             */
+            if ($storeKeeperStatus && $this->canUpdateStatus($wooCommerceStatus, $storeKeeperStatus)) {
+                $wooCommerceStatus = $storeKeeperStatus; // We are about to update the wc order status
+                if ('refunded' === $wooCommerceStatus) {
+                    // Set refunded by storekeeper since it was just changed to refunded from backoffice
+                    PaymentGateway::$refundedBySkStatus = true;
+                }
+                $order->set_status($storeKeeperStatus);
+                $order->save();
+            }
+        } finally {
+            PaymentGateway::$refundedBySkStatus = false;
         }
 
         /*
          * We need to ensure the wc_status is not pending if the order is marked as paid.
          * So if the order is paid, we mark the order as processing.
          */
-        if ($is_paid && 'pending' === $wc_status) {
+        if ($isPaid && 'pending' === $wooCommerceStatus) {
             $order->set_status('processing');
             $order->save();
         }
@@ -192,7 +201,7 @@ SQL;
             ],
         ];
 
-        if (!key_exists($current_status, $upgrade_tree)) {
+        if (!array_key_exists($current_status, $upgrade_tree)) {
             return false;
         }
 

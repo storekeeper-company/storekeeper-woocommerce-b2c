@@ -241,12 +241,9 @@ class Core
         return $tmp.'/dumps/';
     }
 
-    private function registerPaymentGateway()
+    private function registerPaymentGateway(): void
     {
-        if (
-            'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes') &&
-            StoreKeeperOptions::isConnected()
-        ) {
+        if ($this->isPaymentGatewayActivated()) {
             //activated the payment gateway and backend is connected, which is required for this feature.
             $PaymentGateway = new PaymentGateway();
             $this->loader->add_action('woocommerce_thankyou', $PaymentGateway, 'checkPayment');
@@ -254,12 +251,24 @@ class Core
             // check the order status
             $this->loader->add_filter('woocommerce_api_backoffice_pay_gateway_return', $PaymentGateway, 'onReturn');
 
-            // Handle payment refunds
-            $this->loader->add_action('woocommerce_order_refunded', $PaymentGateway, 'createRefundPayment', 10, 2);
-            $this->loader->add_action('woocommerce_order_partially_refunded', $PaymentGateway, 'createRefundPayment', 10, 2);
-
             $this->loader->add_filter('init', $PaymentGateway, 'registerCheckoutFlash');
         }
+
+        // Add hooks when testing
+        if (self::isTest() || $this->isPaymentGatewayActivated()) {
+            // Handle payment refunds
+            $PaymentGateway = new PaymentGateway();
+
+            $this->loader->add_action('woocommerce_create_refund', $PaymentGateway, 'createWooCommerceRefund', 10, 2);
+            $this->loader->add_action('woocommerce_order_refunded', $PaymentGateway, 'createStoreKeeperRefundPayment', 10, 2);
+            $this->loader->add_action('woocommerce_order_partially_refunded', $PaymentGateway, 'createStoreKeeperRefundPayment', 10, 2);
+        }
+    }
+
+    private function isPaymentGatewayActivated(): bool
+    {
+        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes') &&
+            StoreKeeperOptions::isConnected();
     }
 
     private function registerAddressFormatting(): void

@@ -14,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 class PaymentGateway
 {
     public const STATUS_CANCELLED = 'CANCELED';
+    public static $refundedBySkStatus = false;
 
     protected static function querySql(string $sql): bool
     {
@@ -279,7 +280,39 @@ SQL;
         wp_redirect($url);
     }
 
-    public function createRefundPayment($orderId, $refundId): void
+    public function createWooCommerceRefund(\WC_Order_Refund $refund, $args)
+    {
+        $orderId = $args['order_id'];
+        $isRefundCreationAllowed = true;
+        $storeKeeperOrderId = get_post_meta($orderId, 'storekeeper_id', true);
+
+        if ($storeKeeperOrderId) {
+            // Refunded by storekeeper means it's just forced to be refunded because of BackOffice status
+            if (self::$refundedBySkStatus) {
+                $isRefundCreationAllowed = false;
+                LoggerFactory::create('refund')->error('Refund is dirty', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
+            } else {
+                $api = StoreKeeperApi::getApiByAuthName();
+                $shopModule = $api->getModule('ShopModule');
+
+                $order = $shopModule->getOrder($storeKeeperOrderId, null);
+
+                $hasRefund = $this->storekeeperOrderHasRefundWithReturnPayment($order);
+
+                if ($hasRefund) {
+                    $isRefundCreationAllowed = false;
+                    LoggerFactory::create('refund')->error('Order has refund on BackOffice already', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
+                }
+            }
+        }
+
+        // This will prevent creation of refund
+        if (!$isRefundCreationAllowed) {
+            throw new \RuntimeException('Refund is not allowed to be created due to certain conditions');
+        }
+    }
+
+    public function createStoreKeeperRefundPayment($orderId, $refundId): void
     {
         $refund = wc_get_order($refundId);
         $refundAmount = $refund->get_amount();
@@ -543,5 +576,15 @@ SQL;
         }
 
         return array_merge($default_gateway_classes, $gateway_classes);
+    }
+
+    protected function storekeeperOrderHasRefundWithReturnPayment(array $order): bool
+    {
+        $hasRefund = false;
+        if (isset($order['paid_back_value_wt']) && 0 != $order['paid_back_value_wt'] && 0 != $order['refunded_price_wt']) {
+            $hasRefund = true;
+        }
+
+        return $hasRefund;
     }
 }

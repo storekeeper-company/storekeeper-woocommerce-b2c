@@ -8,6 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
@@ -83,6 +84,91 @@ class UpdateOrderTest extends AbstractTest
         $this->executeOrderUpdateTest();
 
         $this->assertTaskNotCount(0, 'There are suppose to be any tasks');
+    }
+
+    public function dataProviderOrderRefund(): array
+    {
+        $data = [];
+
+        $data['backoffice order without refund'] = [
+          'paidBackValueWt' => 0,
+          'refundedPriceWt' => 50.00,
+          'firstExpectedRefundCount' => 0,
+          'secondExpectedRefundCount' => 1,
+        ];
+
+        $data['backoffice order with refund'] = [
+            'paidBackValueWt' => 50.00,
+            'refundedPriceWt' => 50.00,
+            'firstExpectedRefundCount' => 0,
+            'secondExpectedRefundCount' => 0,
+        ];
+
+        return $data;
+    }
+
+    /**
+     * @dataProvider dataProviderOrderRefund
+     */
+    public function testOrderRefund($paidBackValueWt, $refundedPriceWt, $firstExpectedRefundCount, $secondExpectedRefundCount)
+    {
+        $this->initApiConnection();
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($paidBackValueWt, $refundedPriceWt) {
+                $module->allows('getOrder')->andReturnUsing(
+                    function ($got) use ($paidBackValueWt, $refundedPriceWt) {
+                        return [
+                            'paid_back_value_wt' => $paidBackValueWt,
+                            'refunded_price_wt' => $refundedPriceWt,
+                        ];
+                    }
+                );
+            }
+        );
+
+        $wooCommmerceOrderId = $this->createWooCommerceOrder();
+        CleanWoocommerceEnvironment::cleanTasks();
+        $dumpFile = $this->getHookDataDump('events/updateOrder/hook.events.updateOrderRefundedStatus.json');
+        $backref = $dumpFile->getEventBackref();
+        [, $options] = StoreKeeperApi::extractMainTypeAndOptions($backref);
+        update_post_meta($wooCommmerceOrderId, 'storekeeper_id', $options['id']);
+
+        // Check hook action
+        $rest = $this->getRestWithToken($dumpFile);
+        $this->handleRequest($rest);
+        $this->runner->execute(ProcessAllTasks::getCommandName());
+        $this->assertFalse(PaymentGateway::$refundedBySkStatus, 'Should be false after import');
+
+        // Assert the status
+        $wooCommerceOrder = new WC_Order($wooCommmerceOrderId);
+        $wooCommerceStatus = $wooCommerceOrder->get_status('edit');
+
+        // get last storekeeper order
+        $event = $this->getLastEventFromDumpfile($dumpFile);
+        $storeKeeperRawStatus = $event->get('details.order.status');
+
+        $this->assertNotEmpty($storeKeeperRawStatus, 'Dump file\'s last event does not have an order.status');
+        $storeKeeperStatus = OrderImport::getWoocommerceStatus($storeKeeperRawStatus);
+        $this->assertEquals($storeKeeperStatus, $wooCommerceStatus, 'Order status was not updated');
+
+        $refunds = $wooCommerceOrder->get_refunds();
+
+        $this->assertCount($firstExpectedRefundCount, $refunds, 'Refund of exactly '.$firstExpectedRefundCount.' should be created');
+        // Assert refunds to be synchronized in backoffice
+        $this->assertCount($firstExpectedRefundCount, PaymentGateway::getUnsyncedRefundsWithoutPaymentIds($wooCommmerceOrderId), $firstExpectedRefundCount.' refunds to be synchronized should be found');
+
+        // Create a refund/same as creation of external like Mollie
+        wc_create_refund([
+            'order_id' => $wooCommerceOrder->get_id(),
+            'amount' => 50,
+        ]);
+
+        $refunds = $wooCommerceOrder->get_refunds();
+        $this->assertCount($secondExpectedRefundCount, $refunds, 'Refund of exactly '.$secondExpectedRefundCount.' should be created');
+        // Assert refunds to be synchronized in backoffice
+        $this->assertCount($secondExpectedRefundCount, PaymentGateway::getUnsyncedRefundsWithoutPaymentIds($wooCommmerceOrderId), $secondExpectedRefundCount.' refunds to be synchronized should be found');
     }
 
     protected function executeOrderUpdateTest(): void
