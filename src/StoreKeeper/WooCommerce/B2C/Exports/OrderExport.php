@@ -384,7 +384,7 @@ class OrderExport extends AbstractExport
             ]);
 
             // The order is refunded so the value_wt is expected to have difference with database total
-            if (0 === $backofficeOrder['refund_price_wt'] && self::STATUS_REFUNDED !== $backofficeOrder['status']) {
+            if (isset($backofficeOrder['refund_price_wt']) && 0 === $backofficeOrder['refund_price_wt'] && self::STATUS_REFUNDED !== $backofficeOrder['status']) {
                 $hasDifference = true;
             }
         }

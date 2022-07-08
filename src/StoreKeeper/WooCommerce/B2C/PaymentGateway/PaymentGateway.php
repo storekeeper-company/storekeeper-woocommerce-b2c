@@ -279,7 +279,44 @@ SQL;
         wp_redirect($url);
     }
 
-    public function createRefundPayment($orderId, $refundId): void
+    public function createWooCommerceRefund(\WC_Order_Refund $refund, $args)
+    {
+        $orderId = $args['order_id'];
+        $isRefundCreationAllowed = true;
+        $storeKeeperOrderId = get_post_meta($orderId, 'storekeeper_id', true);
+
+        if ($storeKeeperOrderId) {
+            // Refunded dirty means it's just forced to be refunded by BackOffice status
+            $refundedDirty = 'yes' === get_post_meta($orderId, 'refunded_dirty', true);
+            if ($refundedDirty) {
+                $isRefundCreationAllowed = false;
+                update_post_meta($orderId, 'refunded_dirty', 'no');
+                LoggerFactory::create('refund')->error('Refund is dirty', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
+            } else {
+                $api = StoreKeeperApi::getApiByAuthName();
+                $shopModule = $api->getModule('ShopModule');
+
+                $order = $shopModule->getOrder($storeKeeperOrderId, null);
+
+                $hasRefund = false;
+                if (isset($order['to_be_paid_back_value_wt']) && 0 === $order['to_be_paid_back_value_wt'] && 0 !== $order['refunded_price_wt']) {
+                    $hasRefund = true;
+                }
+
+                if ($hasRefund) {
+                    $isRefundCreationAllowed = false;
+                    LoggerFactory::create('refund')->error('Order has refund on BackOffice already', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
+                }
+            }
+        }
+
+        // This will prevent creation of refund
+        if (!$isRefundCreationAllowed) {
+            throw new \RuntimeException('Refund is not allowed to be created due to certain conditions');
+        }
+    }
+
+    public function createStoreKeeperRefundPayment($orderId, $refundId): void
     {
         $refund = wc_get_order($refundId);
         $refundAmount = $refund->get_amount();
