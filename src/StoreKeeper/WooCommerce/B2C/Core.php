@@ -243,7 +243,7 @@ class Core
 
     private function registerPaymentGateway(): void
     {
-        if ($this->isPaymentGatewayAllowed()) {
+        if ($this->isPaymentGatewayActivated()) {
             //activated the payment gateway and backend is connected, which is required for this feature.
             $PaymentGateway = new PaymentGateway();
             $this->loader->add_action('woocommerce_thankyou', $PaymentGateway, 'checkPayment');
@@ -255,7 +255,7 @@ class Core
         }
 
         // Add hooks when testing
-        if (self::isTest() || $this->isPaymentGatewayAllowed()) {
+        if (self::isTest() || $this->isPaymentGatewayActivated()) {
             // Handle payment refunds
             $PaymentGateway = new PaymentGateway();
 
@@ -265,7 +265,7 @@ class Core
         }
     }
 
-    private function isPaymentGatewayAllowed(): bool
+    private function isPaymentGatewayActivated(): bool
     {
         return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes') &&
             StoreKeeperOptions::isConnected();

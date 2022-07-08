@@ -14,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 class PaymentGateway
 {
     public const STATUS_CANCELLED = 'CANCELED';
+    public const REFUND_BY_SK_STATUS = 'refund_by_storekeeper_status';
 
     protected static function querySql(string $sql): bool
     {
@@ -287,10 +288,10 @@ SQL;
 
         if ($storeKeeperOrderId) {
             // Refunded dirty means it's just forced to be refunded by BackOffice status
-            $refundedDirty = 'yes' === get_post_meta($orderId, 'refunded_dirty', true);
+            $refundedDirty = 'yes' === get_post_meta($orderId, self::REFUND_BY_SK_STATUS, true);
             if ($refundedDirty) {
                 $isRefundCreationAllowed = false;
-                update_post_meta($orderId, 'refunded_dirty', 'no');
+                update_post_meta($orderId, self::REFUND_BY_SK_STATUS, 'no');
                 LoggerFactory::create('refund')->error('Refund is dirty', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
             } else {
                 $api = StoreKeeperApi::getApiByAuthName();
@@ -298,10 +299,7 @@ SQL;
 
                 $order = $shopModule->getOrder($storeKeeperOrderId, null);
 
-                $hasRefund = false;
-                if (isset($order['to_be_paid_back_value_wt']) && 0 === $order['to_be_paid_back_value_wt'] && 0 !== $order['refunded_price_wt']) {
-                    $hasRefund = true;
-                }
+                $hasRefund = $this->storekeeperOrderHasRefundWithoutReturnPayment($order);
 
                 if ($hasRefund) {
                     $isRefundCreationAllowed = false;
@@ -580,5 +578,15 @@ SQL;
         }
 
         return array_merge($default_gateway_classes, $gateway_classes);
+    }
+
+    protected function storekeeperOrderHasRefundWithoutReturnPayment(array $order): bool
+    {
+        $hasRefund = false;
+        if (isset($order['paid_back_value_wt']) && 0 != $order['paid_back_value_wt'] && 0 != $order['refunded_price_wt']) {
+            $hasRefund = true;
+        }
+
+        return $hasRefund;
     }
 }

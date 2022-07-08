@@ -8,6 +8,7 @@ use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NonExistentObjectException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WC_Order;
 
@@ -88,7 +89,7 @@ class OrderImport extends AbstractImport
             $wooCommerceStatus = $storeKeeperStatus; // We are about to update the wc order status
             if ('refunded' === $wooCommerceStatus) {
                 // Set refunded dirty since it was just changed to refunded from backoffice
-                add_post_meta($order->get_id(), 'refunded_dirty', 'yes');
+                add_post_meta($order->get_id(), PaymentGateway::REFUND_BY_SK_STATUS, 'yes');
             }
             $order->set_status($storeKeeperStatus);
             $order->save();

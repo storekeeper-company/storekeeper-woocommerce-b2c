@@ -91,14 +91,14 @@ class UpdateOrderTest extends AbstractTest
         $data = [];
 
         $data['backoffice order without refund'] = [
-          'toBePaidBackValueWt' => 50.00,
-          'refundedPriceWt' => 0,
+          'paidBackValueWt' => 0,
+          'refundedPriceWt' => 50.00,
           'firstExpectedRefundCount' => 0,
           'secondExpectedRefundCount' => 1,
         ];
 
         $data['backoffice order with refund'] = [
-            'toBePaidBackValueWt' => 0,
+            'paidBackValueWt' => 50.00,
             'refundedPriceWt' => 50.00,
             'firstExpectedRefundCount' => 0,
             'secondExpectedRefundCount' => 0,
@@ -110,17 +110,17 @@ class UpdateOrderTest extends AbstractTest
     /**
      * @dataProvider dataProviderOrderRefund
      */
-    public function testOrderRefund($toBePaidBackValueWt, $refundedPriceWt, $firstExpectedRefundCount, $secondExpectedRefundCount)
+    public function testOrderRefund($paidBackValueWt, $refundedPriceWt, $firstExpectedRefundCount, $secondExpectedRefundCount)
     {
         $this->initApiConnection();
 
         StoreKeeperApi::$mockAdapter->withModule(
             'ShopModule',
-            function (MockInterface $module) use ($toBePaidBackValueWt, $refundedPriceWt) {
+            function (MockInterface $module) use ($paidBackValueWt, $refundedPriceWt) {
                 $module->allows('getOrder')->andReturnUsing(
-                    function ($got) use ($toBePaidBackValueWt, $refundedPriceWt) {
+                    function ($got) use ($paidBackValueWt, $refundedPriceWt) {
                         return [
-                            'to_be_paid_back_value_wt' => $toBePaidBackValueWt,
+                            'paid_back_value_wt' => $paidBackValueWt,
                             'refunded_price_wt' => $refundedPriceWt,
                         ];
                     }
