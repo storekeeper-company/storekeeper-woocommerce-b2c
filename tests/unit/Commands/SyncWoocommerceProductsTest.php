@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 
 use Adbar\Dot;
+use org\bovigo\vfs\vfsStream;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
@@ -22,6 +23,9 @@ class SyncWoocommerceProductsTest extends AbstractTest
     const DATADUMP_IMAGE_PRODUCT_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.62c2cdd392106.json';
     const DATADUMP_CONFIGURABLE_OPTIONS_FILE = 'moduleFunction.ShopModule::getConfigurableShopProductOptions.5e20566c4b0dd01fa60732d6968bc565b60fbda96451d989d00e35cc6d46e04a.json';
 
+    const MEDIA_IMAGE_JPEG_FILE = 'image_big_image.jpeg';
+    const MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE = 'cat_sample_big_image.jpg';
+
     /**
      * Initialize the tests by following these steps:
      * 1. Initialize the API connection and the mock API calls
@@ -31,7 +35,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
      *
      * @throws \Throwable
      */
-    protected function initializeTest($storekeeperId = null, bool $checkEmptyEnvironment = true)
+    protected function initializeTest($storekeeperId = null)
     {
         // Initialize the test
         $this->initApiConnection();
@@ -39,15 +43,13 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
         $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
 
-        if ($checkEmptyEnvironment) {
-            // Tests whether there are no products before import
-            $wc_products = wc_get_products([]);
-            $this->assertCount(
-                0,
-                $wc_products,
-                'Test was not ran in an empty environment'
-            );
-        }
+        // Tests whether there are no products before import
+        $wc_products = wc_get_products([]);
+        $this->assertCount(
+            0,
+            $wc_products,
+            'Test was not ran in an empty environment'
+        );
 
         if (!is_null($storekeeperId)) {
             $this->runner->addCommandClass(SyncWoocommerceSingleProduct::class);
@@ -128,8 +130,27 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     public function testProductImageImport()
     {
+        $rootDirectoryName = 'test-shop.sk-cdn.net';
+        $testImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_IMAGE_JPEG_FILE);
+        $testCatSampleImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
+        $imageCdnPrefix = 'testPrefix';
+
+        $structure = [
+            'g' => [
+                'test-shop-img-scale' => [
+                    $imageCdnPrefix.'.'.Media::FULL_VARIANT_KEY => [
+                        'f' => [
+                            'image.jpeg' => $testImageContent,
+                            'cat_sample.jpg' => $testCatSampleImageContent,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        vfsStream::setup($rootDirectoryName);
+        vfsStream::create($structure);
         $storekeeperProductId = 20;
-        $imageCdnPrefix = 'test';
         // Set CDN to false first
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN_PREFIX, $imageCdnPrefix);
@@ -153,40 +174,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
             'storekeeper_id' => $storekeeperProductId,
         ]);
 
-        foreach ($originalProductData as $productData) {
-            $original = new Dot($productData);
-
-            // Retrieve product(s) with the storekeeper_id from the source data
-            $wcProducts = wc_get_products(
-                [
-                    'post_type' => 'product',
-                    'meta_key' => 'storekeeper_id',
-                    'meta_value' => $original->get('id'),
-                ]
-            );
-
-            // Get the simple product with the storekeeper_id
-            /* @var \WC_Product $wcSimpleProduct */
-            $wcSimpleProduct = $wcProducts[0];
-            $attachmentId = $wcSimpleProduct->get_image_id();
-            $this->assertTrue((bool) get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be external');
-
-            $attachmentUrl = wp_get_attachment_image_url($attachmentId, [10000, 10000]);
-            $originalCdnUrl = $original->get('flat_product.main_image.cdn_url');
-            $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}.".Media::FULL_VARIANT_KEY, $originalCdnUrl);
-            $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
-
-            $attachmentImageSrcSet = (string) wp_get_attachment_image_srcset($attachmentId);
-            $attachmentImageSrcSetArray = explode(', ', $attachmentImageSrcSet);
-            if (!empty($attachmentImageSrcSet)) {
-                foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
-                    // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
-                    $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
-                    $pattern = str_replace('/', '\/', $pattern);
-                    $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
-                }
-            }
-        }
+        $this->assertCdnImage($originalProductData, $imageCdnPrefix);
 
         // Set CDN to false again
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
@@ -469,6 +457,44 @@ class SyncWoocommerceProductsTest extends AbstractTest
             $attachmentImageSrcSet = explode(',', $attachmentImageSrcSet);
             foreach ($attachmentImageSrcSet as $attachmentImageSrc) {
                 $this->assertTrue(Media::hasUploadDirectory($attachmentImageSrc), 'Attachment image src set is not valid');
+            }
+        }
+    }
+
+    protected function assertCdnImage(array $originalProductData, string $imageCdnPrefix): void
+    {
+        foreach ($originalProductData as $productData) {
+            $original = new Dot($productData);
+
+            // Retrieve product(s) with the storekeeper_id from the source data
+            $wcProducts = wc_get_products(
+                [
+                    'post_type' => 'product',
+                    'meta_key' => 'storekeeper_id',
+                    'meta_value' => $original->get('id'),
+                ]
+            );
+
+            // Get the simple product with the storekeeper_id
+            /* @var \WC_Product $wcSimpleProduct */
+            $wcSimpleProduct = $wcProducts[0];
+            $attachmentId = $wcSimpleProduct->get_image_id();
+            $this->assertTrue((bool) get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be external');
+
+            $attachmentUrl = wp_get_attachment_image_url($attachmentId, [10000, 10000]);
+            $originalCdnUrl = $original->get('flat_product.main_image.cdn_url');
+            $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}.".Media::FULL_VARIANT_KEY, $originalCdnUrl);
+            $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
+
+            $attachmentImageSrcSet = (string) wp_get_attachment_image_srcset($attachmentId);
+            $attachmentImageSrcSetArray = explode(', ', $attachmentImageSrcSet);
+            if (!empty($attachmentImageSrcSet)) {
+                foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
+                    // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
+                    $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
+                    $pattern = str_replace('/', '\/', $pattern);
+                    $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
+                }
             }
         }
     }

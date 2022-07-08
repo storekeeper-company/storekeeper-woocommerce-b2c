@@ -287,7 +287,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         }
     }
 
-    public function assertFileUrls($expected_file_url, $current_file_url, $isExternal = false)
+    public function assertFileUrls($expected_file_url, $current_file_url, $isCdn = false)
     {
         // Check file name
         $expected_file_name = $this->getUrlBasename($expected_file_url);
@@ -298,7 +298,7 @@ abstract class AbstractTest extends WP_UnitTestCase
             'Image file name does not matches'
         );
 
-        if (!$isExternal) {
+        if (!$isCdn) {
             // Compare MD5 Hash
             $expected_file_md5 = $this->getUrlMd5($expected_file_url);
             $current_file_md5 = $this->getUrlMd5($current_file_url);

@@ -199,12 +199,7 @@ class Media
 
     public static function createImageMeta(string $fullImageSizeUrl, string $placeholderUrl): array
     {
-        if (Core::isTest()) {
-            // Mocking get images size as it will look for an actual image
-            $fullImageSize = [900, 900];
-        } else {
-            $fullImageSize = wp_getimagesize($fullImageSizeUrl);
-        }
+        $fullImageSize = wp_getimagesize($fullImageSizeUrl);
         [ $fullImageWidth, $fullImageHeight ] = $fullImageSize;
 
         // Default image meta.

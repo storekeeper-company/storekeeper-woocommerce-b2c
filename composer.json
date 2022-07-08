@@ -59,6 +59,7 @@
     "fzaninotto/faker": "^1.9",
     "phpoffice/phpspreadsheet": "^1.15",
     "friendsofphp/php-cs-fixer": "^2.18",
-    "yoast/phpunit-polyfills": "^1.0"
+    "yoast/phpunit-polyfills": "^1.0",
+    "mikey179/vfsstream": "^1.6"
   }
 }

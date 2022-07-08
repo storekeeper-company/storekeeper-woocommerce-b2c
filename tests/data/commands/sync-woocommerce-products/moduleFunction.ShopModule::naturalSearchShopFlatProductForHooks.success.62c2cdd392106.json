@@ -133,20 +133,20 @@
                         "id": 5319,
                         "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_small_image.jpeg?file_id=40543",
                         "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_big_image.jpeg?file_id=40544",
-                        "cdn_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/g\/lukishop-img-scale\/40542\/388d49f85db8097502df49fb2ccba373\/{variant}\/f\/image.jpeg"
+                        "cdn_url": "vfs:\/\/test-shop.sk-cdn.net\/g\/test-shop-img-scale\/{variant}\/f\/image.jpeg"
                     },
                     "product_images": [
                         {
                             "id": 5319,
                             "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_small_image.jpeg?file_id=40543",
                             "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/image_big_image.jpeg?file_id=40544",
-                            "cdn_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/g\/lukishop-img-scale\/40542\/388d49f85db8097502df49fb2ccba373\/{variant}\/f\/image.jpeg"
+                            "cdn_url": "vfs:\/\/test-shop.sk-cdn.net\/g\/test-shop-img-scale\/{variant}\/f\/image.jpeg"
                         },
                         {
                             "id": 5320,
-                            "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/cat-sample_1313_small_image.jpg?file_id=40546",
-                            "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/cat-sample_1313_big_image.jpg?file_id=40547",
-                            "cdn_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/g\/lukishop-img-scale\/40545\/769d0b962655e6b73ccad989c8e22c9b\/{variant}\/f\/cat-sample_1313.jpg"
+                            "url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/cat_sample_small_image.jpg?file_id=40546",
+                            "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/cat_sample_big_image.jpg?file_id=40547",
+                            "cdn_url": "vfs:\/\/test-shop.sk-cdn.net\/g\/test-shop-img-scale\/{variant}\/f\/cat_sample.jpg"
                         }
                     ]
                 },
