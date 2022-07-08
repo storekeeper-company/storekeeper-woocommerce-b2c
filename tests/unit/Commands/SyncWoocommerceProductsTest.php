@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 
 use Adbar\Dot;
+use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFeaturedAttributes;
@@ -13,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
+use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class SyncWoocommerceProductsTest extends AbstractTest
 {
@@ -130,6 +132,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     public function testProductImageImport()
     {
+        // Prepare VFS for CDN image test
         $rootDirectoryName = 'test-shop.sk-cdn.net';
         $testImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_IMAGE_JPEG_FILE);
         $testCatSampleImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
@@ -150,10 +153,41 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
         vfsStream::setup($rootDirectoryName);
         vfsStream::create($structure);
+
+        // Mock SyncWoocommerceShopInfo
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($imageCdnPrefix) {
+                $module->shouldReceive('getShopWithRelation')->andReturnUsing(
+                    function ($got) use ($imageCdnPrefix) {
+                        return [
+                            StoreKeeperOptions::IMAGE_CDN_PREFIX => $imageCdnPrefix,
+                        ];
+                    }
+                );
+            }
+        );
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) {
+                $module->shouldReceive('listConfigurations')->andReturnUsing(
+                    function ($got) {
+                        return [
+                            'data' => [
+                                ['currency_iso3' => 'EUR'],
+                            ],
+                        ];
+                    }
+                );
+            }
+        );
+
+        $this->assertEmpty(StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be empty initially');
+
         $storekeeperProductId = 20;
         // Set CDN to false first
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
-        StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN_PREFIX, $imageCdnPrefix);
         $this->initializeTest($storekeeperProductId);
 
         $originalProductData = $this->getReturnData(self::DATADUMP_IMAGE_PRODUCT_FILE);
@@ -175,6 +209,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
         ]);
 
         $this->assertCdnImage($originalProductData, $imageCdnPrefix);
+        $this->assertEquals($imageCdnPrefix, StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be synchronized from shop info');
 
         // Set CDN to false again
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');

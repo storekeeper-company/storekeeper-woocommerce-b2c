@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
+use Exception;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShopInfo;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
@@ -88,7 +90,7 @@ class Media
 
         $wp_upload_dir = wp_upload_dir();
         if (!wp_is_writable($wp_upload_dir['basedir'])) {
-            throw new \Exception('Failed creating attachment, upload directory "'.$wp_upload_dir['basedir'].'" is not writeable.');
+            throw new Exception('Failed creating attachment, upload directory "'.$wp_upload_dir['basedir'].'" is not writeable.');
         }
 
         if (!class_exists('WP_Http')) {
@@ -104,7 +106,7 @@ class Media
         );
 
         if (!isset($upload['file'])) {
-            throw new \Exception('Failed moving downloaded file to uploads directory: '.$wp_upload_dir['path']);
+            throw new Exception('Failed moving downloaded file to uploads directory: '.$wp_upload_dir['path']);
         }
 
         $file_path = $upload['file'];
@@ -228,10 +230,25 @@ class Media
 
     /**
      * Returns the variant name compatible for CDN.
+     *
+     * @throws Exception
      */
     public static function getImageScaleVariantString($width = null, $height = null): string
     {
         $imageCdnPrefix = StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX);
+
+        if (empty($imageCdnPrefix)) {
+            // Sync shop info
+            $shopInfoSync = new SyncWoocommerceShopInfo();
+            $shopInfoSync->execute([], []);
+        }
+
+        $imageCdnPrefix = StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX);
+
+        if (empty($imageCdnPrefix)) {
+            throw new \RuntimeException('Image CDN prefix not found in shop, serving images from CDN will cause issues.');
+        }
+
         $subSizes = wp_get_registered_image_subsizes();
         foreach ($subSizes as $sizeName => $sizeMetadata) {
             $subSizeWidth = $sizeMetadata['width'];
@@ -310,7 +327,7 @@ class Media
                 );
 
                 if (200 !== $response['response']['code']) {
-                    throw new \Exception('Failed downloading file from "'.$url.'" with status code: '.$response['response']['code']);
+                    throw new Exception('Failed downloading file from "'.$url.'" with status code: '.$response['response']['code']);
                 }
                 break;
             } catch (\Throwable $error) {
