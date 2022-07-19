@@ -1,0 +1,121 @@
+{
+    "success": true,
+    "call_id": "613db2c03f849",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        0,
+        0,
+        1,
+        null,
+        [
+            {
+                "name": "id__=",
+                "val": "116617"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 128358,
+                    "product_id": 130975,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-01-14 16:18:05+01:00",
+                    "date_updated": "2020-01-14 16:18:05+01:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 128358,
+                    "product_id": 130975,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-01-14 16:18:05+01:00",
+                    "date_updated": "2020-01-14 16:18:05+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 159069,
+                    "product_id": 130975,
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-01-17 15:18:01+01:00",
+                    "title": "Attribute test configurable-1",
+                    "body": "descriptions\ns\ns\nds\n",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 180083,
+                    "slug": "attribute-test-configurable-1",
+                    "product": {
+                        "id": 130975,
+                        "date_created": "2020-01-14 16:18:05+01:00",
+                        "date_updated": "2020-01-14 17:40:12+01:00",
+                        "relation_data_id": 20669,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 136342,
+                        "sku": "attribute-test-configurable-1",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 128358,
+                        "object_instance_id": 559310,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "attribute-test-configurable-1"
+                        },
+                        "product_stock": {
+                            "id": 130974,
+                            "product_id": 130975,
+                            "value": 0,
+                            "in_stock": false,
+                            "unlimited": false,
+                            "date_updated": "2020-01-14 16:18:05+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Wp option test",
+                            "attribute_id": 16192,
+                            "attribute_option_id": 30860,
+                            "value_label": "-1",
+                            "name": "wp-option-test",
+                            "value": "-1",
+                            "attribute_published": true
+                        }
+                    ]
+                },
+                "id": 116617,
+                "product_id": 130975,
+                "product_price_id": 128358,
+                "date_created": "2020-01-14 16:18:05+01:00",
+                "active": true,
+                "discount_dirty": false,
+                "object_instance_id": 559311,
+                "date_updated": "2020-01-14 17:40:11+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 128358
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 2534.0,
+    "_version": "1.0",
+    "_timestamp": "2021-09-12T07:56:50+00:00"
+}

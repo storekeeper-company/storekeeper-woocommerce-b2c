@@ -1,0 +1,121 @@
+{
+    "success": true,
+    "call_id": "613db2c03f849",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        0,
+        0,
+        1,
+        null,
+        [
+            {
+                "name": "id__=",
+                "val": "116615"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 128356,
+                    "product_id": 130973,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-01-14 16:17:53+01:00",
+                    "date_updated": "2020-01-14 16:17:53+01:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 128356,
+                    "product_id": 130973,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 0.83,
+                    "ppu_wt": 1,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-01-14 16:17:53+01:00",
+                    "date_updated": "2020-01-14 16:17:53+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 159067,
+                    "product_id": 130973,
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-01-17 15:18:01+01:00",
+                    "title": "Attribute test configurable10 mm",
+                    "body": "descriptions\ns\ns\nds\n",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 180084,
+                    "slug": "attribute-test-configurable10-mm-1",
+                    "product": {
+                        "id": 130973,
+                        "date_created": "2020-01-14 16:17:53+01:00",
+                        "date_updated": "2020-01-14 17:40:08+01:00",
+                        "relation_data_id": 20669,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 136340,
+                        "sku": "attribute-test-configurable10-mm-",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 128356,
+                        "object_instance_id": 559304,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "attribute-test-configurable10-mm-1"
+                        },
+                        "product_stock": {
+                            "id": 130972,
+                            "product_id": 130973,
+                            "value": 0,
+                            "in_stock": false,
+                            "unlimited": false,
+                            "date_updated": "2020-01-14 16:17:53+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Wp option test",
+                            "attribute_id": 16192,
+                            "attribute_option_id": 30862,
+                            "value_label": "10 mm",
+                            "name": "wp-option-test",
+                            "value": "10-mm-",
+                            "attribute_published": true
+                        }
+                    ]
+                },
+                "id": 116615,
+                "product_id": 130973,
+                "product_price_id": 128356,
+                "date_created": "2020-01-14 16:17:53+01:00",
+                "active": true,
+                "discount_dirty": false,
+                "object_instance_id": 559305,
+                "date_updated": "2020-01-14 17:40:08+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 128356
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 2534.0,
+    "_version": "1.0",
+    "_timestamp": "2021-09-12T07:56:50+00:00"
+}
