@@ -111,6 +111,9 @@ class CleanWoocommerceEnvironment extends AbstractCommand
         $product_ids = self::getProductIds();
         $this->log('Products: '.count($product_ids));
 
+        $productVariationIds = self::getProductVariationIds();
+        $this->log('Products variations: '.count($productVariationIds));
+
         $product_attachment_ids = self::getProductAttachmentIds();
         $this->log('Product images: '.count($product_attachment_ids));
 
@@ -179,6 +182,12 @@ class CleanWoocommerceEnvironment extends AbstractCommand
         foreach ($product_ids as $product_id) {
             $product = wc_get_product($product_id);
             $product->delete(true);
+        }
+
+        $logDeletion('product variations');
+        foreach ($productVariationIds as $productVariationId) {
+            $productVariation = wc_get_product($productVariationId);
+            $productVariation->delete(true);
         }
 
         $logDeletion('product images');
@@ -250,6 +259,26 @@ class CleanWoocommerceEnvironment extends AbstractCommand
                 'numberposts' => -1,
                 'fields' => 'ids',
                 'post_type' => 'product',
+                'post_status' => [
+                    'publish',
+                    'trash',
+                    'draft',
+                    'pending',
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public static function getProductVariationIds()
+    {
+        return get_posts(
+            [
+                'numberposts' => -1,
+                'fields' => 'ids',
+                'post_type' => 'product_variation',
                 'post_status' => [
                     'publish',
                     'trash',

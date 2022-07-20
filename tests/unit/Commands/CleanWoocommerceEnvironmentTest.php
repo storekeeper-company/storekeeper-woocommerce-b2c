@@ -79,6 +79,12 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
         );
         $this->assertNotCount(
             0,
+            CleanWoocommerceEnvironment::getProductVariationIds(),
+            'No product variations imported'
+        );
+
+        $this->assertNotCount(
+            0,
             CleanWoocommerceEnvironment::getProductAttachmentIds(),
             'No product images imported'
         );
@@ -148,6 +154,11 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
         $this->assertCount(
             0,
             CleanWoocommerceEnvironment::getProductIds(),
+            'No products removed'
+        );
+        $this->assertCount(
+            0,
+            CleanWoocommerceEnvironment::getProductVariationIds(),
             'No products removed'
         );
         $this->assertCount(
