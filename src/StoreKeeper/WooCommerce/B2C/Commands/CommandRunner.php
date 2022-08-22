@@ -129,9 +129,21 @@ class CommandRunner
             [
                 'memory_usage_mb' => sprintf('%.2f MB', (memory_get_usage() / 1024 / 1024)),
                 'memory_peak_usage_mb' => sprintf('%.2f MB', (memory_get_peak_usage() / 1024 / 1024)),
-                'pid' => getmypid(),
+                'pid' => $this->getMyPid(),
             ] + $context
         );
+    }
+
+    private function getMyPid(): ?int
+    {
+        if (function_exists('getmypid')) {
+            $pid = getmypid();
+            if (is_int($pid)) {
+                return $pid;
+            }
+        }
+
+        return null;
     }
 
     /**

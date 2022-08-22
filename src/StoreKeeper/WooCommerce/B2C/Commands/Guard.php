@@ -42,7 +42,7 @@ class Guard
     {
         $this->fp = fopen($this->file, 'w+');
         if (flock($this->fp, LOCK_EX | LOCK_NB)) {
-            fwrite($this->fp, getmypid());
+            fwrite($this->fp, __CLASS__);
 
             return true;
         }
