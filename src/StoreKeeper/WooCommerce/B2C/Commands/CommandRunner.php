@@ -259,6 +259,7 @@ class CommandRunner
         $phpBinary = PHP_BINARY === '' ? 'php' : PHP_BINARY;
         $command = [$phpBinary];
         list($xdebug_on, $command) = $this->setXdebugCmsArgs($command);
+        $command = $this->setPhpConfigDirectives($command);
         $command = array_merge($command, $params);
         $cwd = getcwd() ?? null;
         $env = $this->getSubProcessEnv($xdebug_on);
@@ -321,6 +322,14 @@ class CommandRunner
         }
 
         return [$xdebug_on, $cmd];
+    }
+
+    private function setPhpConfigDirectives(array $cmd): array
+    {
+        $cmd[] = '-dmemory_limit=-1';
+        $cmd[] = '-dmax_execution_time=0';
+
+        return $cmd;
     }
 
     /**

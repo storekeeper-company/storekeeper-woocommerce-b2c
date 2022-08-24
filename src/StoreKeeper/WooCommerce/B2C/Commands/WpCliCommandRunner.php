@@ -139,7 +139,7 @@ class WpCliCommandRunner extends CommandRunner
         // To make sure even big webshops work..
         IniHelper::setIni(
             'memory_limit',
-            0,
+            -1,
             [$this->logger, 'notice']
         );
 
