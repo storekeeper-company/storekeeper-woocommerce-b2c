@@ -121,7 +121,9 @@ class AddressFormHandler
     public function validateCustomFieldsForCheckout(): void
     {
         foreach (self::DEFAULT_ADDRESS_TYPES as $addressType) {
-            $this->validateStreet($addressType);
+            if ('shipping' === $addressType && isset($_POST['ship_to_different_address']) && '1' === $_POST['ship_to_different_address']) {
+                $this->validateStreet($addressType);
+            }
         }
     }
 
