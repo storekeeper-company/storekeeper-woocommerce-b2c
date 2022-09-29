@@ -474,6 +474,12 @@ class Attributes
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
                 wc_create_attribute($update_arguments)
             );
+
+            $wcAttribute = WordpressExceptionThrower::throwExceptionOnWpError(
+                wc_get_attribute($attribute_id)
+            );
+
+            self::registerAttributeTemporary(CommonAttributeName::cleanAttributeTermPrefix($wcAttribute->slug), $wcAttribute->name);
         } else {
             // Update old attribute (title)
             $update_arguments['type'] = $existingAttribute->type;
