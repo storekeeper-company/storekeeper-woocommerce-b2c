@@ -29,7 +29,7 @@ class Attributes
 
     const DEFAULT_ARCHIVED_SETTING = true;
     const MAX_NAME_LENGTH = 200;
-    const TAXONOMY_MAX_LENGTH = 29; // 32 - 3 (pa_ prefix)
+    const TAXONOMY_MAX_LENGTH = 25; // 28 - 3 (pa_ prefix)
 
     public function __construct(?LoggerInterface $logger = null)
     {

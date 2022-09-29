@@ -37,9 +37,9 @@ class SyncWoocommerceAttributesTest extends AbstractTest
 
         // Check if no attributes are there before running the commnand
         $product_attributes = wc_get_attribute_taxonomies();
-        $this->assertEquals(
+        $this->assertCount(
             0,
-            count($product_attributes),
+            $product_attributes,
             'Test was not ran in an empty environment'
         );
 
@@ -48,17 +48,21 @@ class SyncWoocommerceAttributesTest extends AbstractTest
 
         // Check if the amount of attributes matches the amount from the data dump
         $product_attributes = wc_get_attribute_taxonomies();
-        $this->assertEquals(
-            count($original_attribute_data),
-            count($product_attributes),
-            'Amount of synchronised attributes doesn\'t match source data'
+        $this->assertCount(
+            count($original_attribute_data), $product_attributes, 'Amount of synchronised attributes doesn\'t match source data'
         );
 
         foreach ($original_attribute_data as $attribute_data) {
             $original = new Dot($attribute_data);
+            $attributeName = $original->get('name');
+
+            // There is a maximum length of 25 characters
+            if (strlen($attributeName) > Attributes::TAXONOMY_MAX_LENGTH) {
+                $attributeName = substr($attributeName, 0, Attributes::TAXONOMY_MAX_LENGTH);
+            }
 
             // Fetch the Woocommerce attribute based on the slug
-            $wc_attribute = $this->fetchWCAttributeBySlug($original->get('name'));
+            $wc_attribute = $this->fetchWCAttributeBySlug($attributeName);
             $this->assertNotFalse($wc_attribute, 'No WooCommerce attribute is set with this slug');
 
             // StoreKeeper id
@@ -70,7 +74,7 @@ class SyncWoocommerceAttributesTest extends AbstractTest
             );
 
             // Attribute name
-            $expected_attribute_name = $original->get('name');
+            $expected_attribute_name = $attributeName;
             $this->assertEquals(
                 $expected_attribute_name,
                 $wc_attribute->attribute_name,

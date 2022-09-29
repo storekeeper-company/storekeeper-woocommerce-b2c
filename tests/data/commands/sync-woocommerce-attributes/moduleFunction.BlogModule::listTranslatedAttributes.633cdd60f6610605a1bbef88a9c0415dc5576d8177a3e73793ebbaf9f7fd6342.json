@@ -156,10 +156,37 @@
                 "date_updated": "2020-02-10 10:48:12+01:00",
                 "unique": false,
                 "order": 0
+            },
+            {
+                "translatable": {
+                    "id": 31,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-02-10 10:48:12+01:00",
+                    "backref": "BlogModule::Attribute(id=14)",
+                    "translatable_type_id": 6
+                },
+                "id": 14,
+                "name": "a_very_long_attribute_that_should_work",
+                "label": "A very long attribute that should work",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-02-10 10:48:12+01:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 31,
+                "date_updated": "2020-02-10 10:48:12+01:00",
+                "unique": false,
+                "order": 0
             }
         ],
-        "total": 5,
-        "count": 5
+        "total": 6,
+        "count": 6
     },
     "_type": "moduleFunction",
     "time_ms": 5295.0,
