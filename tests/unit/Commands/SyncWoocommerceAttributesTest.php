@@ -56,7 +56,6 @@ class SyncWoocommerceAttributesTest extends AbstractTest
 
         foreach ($productAttributeData as $attributeDatum) {
             $attributeName = $attributeDatum['name'];
-
             $wc_attribute = $this->fetchWCAttributeBySlug($attributeName);
 
             // Fetch the Woocommerce attribute based on the slug
@@ -209,7 +208,7 @@ class SyncWoocommerceAttributesTest extends AbstractTest
             $attributeNameBase = $original->get('name');
 
             // There is a maximum length of 25 characters
-            if (strlen($attributeNameBase) > Attributes::TAXONOMY_MAX_LENGTH) {
+            if (strlen($attributeNameBase) >= Attributes::TAXONOMY_MAX_LENGTH) {
                 $attributeNameBase = substr($attributeNameBase, 0, Attributes::TAXONOMY_MAX_LENGTH);
                 $attributeName = $attributeNameBase;
                 $existCounter = 1;

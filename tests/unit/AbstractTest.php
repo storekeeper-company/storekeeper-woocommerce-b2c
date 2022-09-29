@@ -88,6 +88,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         $this->reader = null;
         $this->clearWPUploadsDirectory();
         $this->clearNonSystemTaxonomies();
+        $this->clearAttributeTaxonomies();
     }
 
     protected function disableWooCommerceEmails()
@@ -281,9 +282,26 @@ abstract class AbstractTest extends WP_UnitTestCase
     {
         $wp_taxonomies = get_taxonomies();
         foreach ($wp_taxonomies as $wp_taxonomy) {
-            if ('pa_' === substr($wp_taxonomy, 0, strlen('pa_'))) {
+            $featuredAttributes = FeaturedAttributes::ALL_ALIASES;
+            // needs_description_on_kassa length is > 25 so it's
+            // imported as needs_description_on_kass
+            $featuredAttributes[] = 'needs_description_on_kass';
+
+            // sales_unit is not included in FeaturedAttributes::ALL_ALIASES
+            $featuredAttributes[] = 'sales_unit';
+
+            if (in_array($wp_taxonomy, $featuredAttributes, true) || 'pa_' === substr($wp_taxonomy, 0, strlen('pa_'))) {
                 unregister_taxonomy($wp_taxonomy);
             }
+        }
+    }
+
+    protected function clearAttributeTaxonomies()
+    {
+        $attributeTaxonomies = wc_get_attribute_taxonomies();
+        foreach ($attributeTaxonomies as $attributeTaxonomy) {
+            unregister_taxonomy($attributeTaxonomy->attribute_name);
+            wc_delete_attribute($attributeTaxonomy->attribute_id);
         }
     }
 
