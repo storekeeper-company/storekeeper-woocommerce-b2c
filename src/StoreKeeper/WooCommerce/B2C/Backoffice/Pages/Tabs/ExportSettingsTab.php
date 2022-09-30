@@ -17,7 +17,7 @@ class ExportSettingsTab extends AbstractTab
     const SLUG = 'export-settings';
     const SAVE_OPTIONS_ACTION = 'save-options-action';
 
-    const FEATURED_ATTRIBUTES_ALIASES = FeaturedAttributes::ALL_ALIASES;
+    const FEATURED_ATTRIBUTES_ALIASES = FeaturedAttributes::ALL_FEATURED_ALIASES;
 
     public function __construct(string $title, string $slug = '')
     {
@@ -96,7 +96,7 @@ class ExportSettingsTab extends AbstractTab
     {
         if (count($_POST) > 0) {
             $data = [];
-            foreach (FeaturedAttributes::ALL_ALIASES as $alias) {
+            foreach (FeaturedAttributes::ALL_FEATURED_ALIASES as $alias) {
                 $constant = FeaturedAttributeExportOptions::getAttributeExportOptionConstant($alias);
                 $data[$constant] = sanitize_key($_POST[$constant]);
             }

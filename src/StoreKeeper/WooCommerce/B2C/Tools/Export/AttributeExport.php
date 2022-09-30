@@ -38,7 +38,7 @@ class AttributeExport
     {
         if (is_null(self::$exportAttributeToFeaturedAliasMap)) {
             $map = [];
-            foreach (FeaturedAttributes::ALL_ALIASES as $alias) {
+            foreach (FeaturedAttributes::ALL_FEATURED_ALIASES as $alias) {
                 $constant = FeaturedAttributeExportOptions::getAttributeExportOptionConstant($alias);
                 $value = FeaturedAttributeExportOptions::get($constant);
                 if (!empty($value)) {

@@ -282,13 +282,11 @@ abstract class AbstractTest extends WP_UnitTestCase
     {
         $wp_taxonomies = get_taxonomies();
         foreach ($wp_taxonomies as $wp_taxonomy) {
-            $featuredAttributes = FeaturedAttributes::ALL_ALIASES;
+            $featuredAttributes = FeaturedAttributes::ALL_FEATURED_ALIASES;
+            /* @since 9.0.6 */
             // needs_description_on_kassa length is > 25 so it's
             // imported as needs_description_on_kass
             $featuredAttributes[] = 'needs_description_on_kass';
-
-            // sales_unit is not included in FeaturedAttributes::ALL_ALIASES
-            $featuredAttributes[] = 'sales_unit';
 
             if (in_array($wp_taxonomy, $featuredAttributes, true) || 'pa_' === substr($wp_taxonomy, 0, strlen('pa_'))) {
                 unregister_taxonomy($wp_taxonomy);
