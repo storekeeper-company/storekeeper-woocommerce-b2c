@@ -48,7 +48,9 @@ jQuery(function ($) {
                 }).done(function ({state, city, street}) {
                     window.storekeeperUnblockForm(parentForm);
                     $(`#${formPrefix}_address_1`).val(street);
+                    $(`#${formPrefix}_address_1`).change();
                     $(`#${formPrefix}_city`).val(city);
+                    $(`#${formPrefix}_city`).change();
                     $(postCodeContainer).addClass('woocommerce-validated');
                     $(houseNumberContainer).addClass('woocommerce-validated');
                     $(postCodeContainer).find('.postcode-housenr-validation-message').remove();
@@ -72,6 +74,21 @@ jQuery(function ($) {
         const dutchPostcodeRegex = /^[1-9][0-9]{3} ?(?!sa|sd|ss)[a-z]{2}$/i;
         var form = $(`#${formPrefix}_postcode`).closest('form');
         let isValid = true;
+
+        if ($(`#${formPrefix}_country`).val() !== 'NL') {
+            $(`#${formPrefix}_address_1`).removeAttr('readonly');
+            $(`#${formPrefix}_city`).removeAttr('readonly');
+        }
+
+        $(`#${formPrefix}_country`).on('change', () => {
+            if ($(`#${formPrefix}_country`).val() === 'NL') {
+                $(`#${formPrefix}_address_1`).attr('readonly', 'readonly');
+                $(`#${formPrefix}_city`).attr('readonly', 'readonly');
+            } else {
+                $(`#${formPrefix}_address_1`).removeAttr('readonly');
+                $(`#${formPrefix}_city`).removeAttr('readonly');
+            }
+        });
 
         $(form).submit(function (e) {
             const country = $(`#${formPrefix}_country`).val();
