@@ -44,11 +44,21 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
 
         // Test whether there are no categories before import
         $product_categories = get_terms('product_cat', $default_category_args);
-        $this->assertEquals(
-            0,
-            count($product_categories),
-            'Test was not ran in an empty environment'
-        );
+        try {
+            if (is_wp_error($product_categories)) {
+                $product_categories = [];
+            }
+        } catch (\Throwable $throwable) {
+            $product_categories = [];
+        }
+
+        if (!is_wp_error($product_categories)) {
+            $this->assertCount(
+                0,
+                $product_categories,
+                'Test was not ran in an empty environment'
+            );
+        }
 
         /*
          * Act

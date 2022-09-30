@@ -52,23 +52,19 @@ class SyncWoocommerceAttributesTest extends AbstractTest
             count($original_attribute_data), $product_attributes, 'Amount of synchronised attributes doesn\'t match source data'
         );
 
-        foreach ($original_attribute_data as $attribute_data) {
-            $original = new Dot($attribute_data);
-            $attributeName = $original->get('name');
+        $productAttributeData = $this->buildExpectedResults($original_attribute_data);
 
-            // There is a maximum length of 25 characters
-            if (strlen($attributeName) > Attributes::TAXONOMY_MAX_LENGTH) {
-                $attributeName = substr($attributeName, 0, Attributes::TAXONOMY_MAX_LENGTH);
-            }
+        foreach ($productAttributeData as $attributeDatum) {
+            $attributeName = $attributeDatum['name'];
+            $wc_attribute = $this->fetchWCAttributeBySlug($attributeName);
 
             // Fetch the Woocommerce attribute based on the slug
-            $wc_attribute = $this->fetchWCAttributeBySlug($attributeName);
             $this->assertNotFalse($wc_attribute, 'No WooCommerce attribute is set with this slug');
 
             // StoreKeeper id
             $storekeeper_id = $this->fetchAttributeStoreKeeperId($wc_attribute->attribute_id);
             $this->assertEquals(
-                $original->get('id'),
+                $attributeDatum['id'],
                 $storekeeper_id,
                 'The Woocommerce Attribute doesn\'t have the correct StoreKeeper id'
             );
@@ -82,7 +78,7 @@ class SyncWoocommerceAttributesTest extends AbstractTest
             );
 
             // Attribute label
-            $expected_attribute_label = $original->get('label');
+            $expected_attribute_label = $attributeDatum['label'];
             // There is a maximum length of 30 characters. StoreKeeper/WooCommerce/B2C/Imports/AttributeImport.php:90
             if (strlen($expected_attribute_label) > self::MAX_LENGTH_ATTRIBUTE_LABEL) {
                 $expected_attribute_label = substr($expected_attribute_label, 0, self::MAX_LENGTH_ATTRIBUTE_LABEL);
@@ -202,5 +198,42 @@ class SyncWoocommerceAttributesTest extends AbstractTest
         );
 
         return $wc_attribute;
+    }
+
+    protected function buildExpectedResults($original_attribute_data): array
+    {
+        $productAttributeData = [];
+        foreach ($original_attribute_data as $attribute_data) {
+            $original = new Dot($attribute_data);
+            $attributeNameBase = $original->get('name');
+
+            // There is a maximum length of 25 characters
+            if (strlen($attributeNameBase) >= Attributes::TAXONOMY_MAX_LENGTH) {
+                $attributeNameBase = substr($attributeNameBase, 0, Attributes::TAXONOMY_MAX_LENGTH);
+                $attributeName = $attributeNameBase;
+                $existCounter = 1;
+                while ($this->nameExist($productAttributeData, $attributeName)) {
+                    $suffix = '_'.$existCounter;
+                    $attributeNameLength = Attributes::TAXONOMY_MAX_LENGTH - strlen($suffix);
+                    $attributeName = substr($attributeNameBase, 0, $attributeNameLength).$suffix;
+                    ++$existCounter;
+                }
+            } else {
+                $attributeName = $attributeNameBase;
+            }
+
+            $productAttributeData[] = [
+                'id' => $original->get('id'),
+                'label' => $original->get('label'),
+                'name' => $attributeName,
+            ];
+        }
+
+        return $productAttributeData;
+    }
+
+    protected function nameExist($productAttributeData, $attributeName)
+    {
+        return array_search($attributeName, array_column($productAttributeData, 'name'), true);
     }
 }
