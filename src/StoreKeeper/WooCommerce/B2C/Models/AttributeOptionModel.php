@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Models;
 
+use Exception;
+use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeOptionName;
 
@@ -24,12 +26,20 @@ class AttributeOptionModel extends AbstractModel implements IModelPurge
         ];
     }
 
+    /**
+     * @throws TableNeedsInnoDbException
+     * @throws Exception
+     */
     public static function createTable(): bool
     {
         $wp = self::getWpPrefix();
         self::checkTableEngineInnoDB("{$wp}terms");
 
         $name = self::getTableName();
+
+        $attributeForeignKey = static::getValidForeignFieldKey("{$name}_storekeeper_attribute_id_fk", $name);
+        $termsForeignKey = static::getValidForeignFieldKey("{$name}_term_id_fk", $name);
+
         $tableQuery = <<<SQL
     CREATE TABLE `$name` (
         `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -41,11 +51,11 @@ class AttributeOptionModel extends AbstractModel implements IModelPurge
         `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
         `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
         PRIMARY KEY (`id`),
-        CONSTRAINT `{$name}_storekeeper_attribute_id_fk` 
+        CONSTRAINT `$attributeForeignKey` 
             FOREIGN KEY (`storekeeper_attribute_id`) 
             REFERENCES  `{$wp}storekeeper_attributes` (`id`)
             ON DELETE CASCADE ON UPDATE CASCADE,
-        CONSTRAINT `{$name}_term_id_fk` 
+        CONSTRAINT `{$termsForeignKey}` 
             FOREIGN KEY (`term_id`) 
             REFERENCES  `{$wp}terms` (`term_id`)
             ON DELETE CASCADE ON UPDATE CASCADE

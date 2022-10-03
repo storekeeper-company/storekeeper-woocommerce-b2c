@@ -27,6 +27,9 @@ class AttributeModel extends AbstractModel implements IModelPurge
     {
         $name = self::getTableName();
         $wp = self::getWpPrefix();
+
+        $attributeForeignKey = static::getValidForeignFieldKey("{$name}_attribute_id_fk", $name);
+
         $tableQuery = <<<SQL
     CREATE TABLE `$name` (
         `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -37,7 +40,7 @@ class AttributeModel extends AbstractModel implements IModelPurge
         `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
         `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
         PRIMARY KEY (`id`),
-        CONSTRAINT `{$name}_attribute_id_fk` 
+        CONSTRAINT `{$attributeForeignKey}` 
             FOREIGN KEY (`attribute_id`) 
             REFERENCES  `{$wp}woocommerce_attribute_taxonomies` (`attribute_id`)
             ON DELETE CASCADE ON UPDATE CASCADE
