@@ -28,7 +28,7 @@ class AttributeModel extends AbstractModel implements IModelPurge
         $name = self::getTableName();
         $wp = self::getWpPrefix();
 
-        $attributeForeignKey = static::getValidForeignFieldKey("{$name}_attribute_id_fk", $name);
+        $attributeForeignKey = static::getValidForeignFieldKey('attribute_id_fk', $name);
 
         $tableQuery = <<<SQL
     CREATE TABLE `$name` (

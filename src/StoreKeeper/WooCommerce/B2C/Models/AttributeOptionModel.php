@@ -33,12 +33,12 @@ class AttributeOptionModel extends AbstractModel implements IModelPurge
     public static function createTable(): bool
     {
         $wp = self::getWpPrefix();
-        self::checkTableEngineInnoDB("{$wp}terms");
+//        self::checkTableEngineInnoDB("{$wp}terms");
 
         $name = self::getTableName();
 
-        $attributeForeignKey = static::getValidForeignFieldKey("{$name}_storekeeper_attribute_id_fk", $name);
-        $termsForeignKey = static::getValidForeignFieldKey("{$name}_term_id_fk", $name);
+        $attributeForeignKey = static::getValidForeignFieldKey('storekeeper_attribute_id_fk', $name);
+        $termsForeignKey = static::getValidForeignFieldKey('term_id_fk', $name);
 
         $tableQuery = <<<SQL
     CREATE TABLE `$name` (

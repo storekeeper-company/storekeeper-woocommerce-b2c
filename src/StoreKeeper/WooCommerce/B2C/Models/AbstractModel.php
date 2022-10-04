@@ -346,15 +346,19 @@ abstract class AbstractModel implements IModel
     /**
      * @throws Exception
      */
-    protected static function getValidForeignFieldKey(string $attributeForeignKey, string $tableName): string
+    protected static function getValidForeignFieldKey(string $foreignKey, string $tableName): string
     {
+        $foreignKeyName = "{$tableName}_{$foreignKey}";
         /* @since 9.0.8 */
-        if (strlen($attributeForeignKey) > static::MAX_FOREIGN_KEY_LENGTH) {
-            $allowedForeignKeyLength = static::MAX_FOREIGN_KEY_LENGTH - strlen($tableName) - 4; // -4 for underscores and fk prefix
-            $attributeTableForeignKeyHash = substr(bin2hex(random_bytes($allowedForeignKeyLength)), 0, $allowedForeignKeyLength);
-            $attributeForeignKey = "{$tableName}_{$attributeTableForeignKeyHash}_fk";
+        if (strlen($foreignKeyName) > static::MAX_FOREIGN_KEY_LENGTH) {
+            $attributeTableForeignKeyHash = hash('crc32', $foreignKeyName);
+            $foreignKeyName = "{$tableName}_{$attributeTableForeignKeyHash}_fk";
         }
 
-        return $attributeForeignKey;
+        if (strlen($foreignKeyName) > static::MAX_FOREIGN_KEY_LENGTH) {
+            throw new \RuntimeException('Table name is too long');
+        }
+
+        return $foreignKeyName;
     }
 }
