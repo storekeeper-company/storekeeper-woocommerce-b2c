@@ -20,7 +20,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
  */
 abstract class AbstractModel implements IModel
 {
-    const TABLE_VERSION = '1.0.0';
+    public const TABLE_VERSION = '1.0.0';
+    public const MAX_FOREIGN_KEY_LENGTH = 63;
 
     public static function getTableVersion(): string
     {
@@ -340,5 +341,24 @@ abstract class AbstractModel implements IModel
     public static function purge(): int
     {
         return 0;
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected static function getValidForeignFieldKey(string $foreignKey, string $tableName): string
+    {
+        $foreignKeyName = "{$tableName}_{$foreignKey}";
+        /* @since 9.0.8 */
+        if (strlen($foreignKeyName) > static::MAX_FOREIGN_KEY_LENGTH) {
+            $attributeTableForeignKeyHash = hash('crc32', $foreignKeyName);
+            $foreignKeyName = "{$tableName}_{$attributeTableForeignKeyHash}_fk";
+        }
+
+        if (strlen($foreignKeyName) > static::MAX_FOREIGN_KEY_LENGTH) {
+            throw new \RuntimeException('Table name is too long');
+        }
+
+        return $foreignKeyName;
     }
 }
