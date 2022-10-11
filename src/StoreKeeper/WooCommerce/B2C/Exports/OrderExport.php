@@ -12,7 +12,9 @@ use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use Throwable;
+use WC_Meta_Data;
 use WC_Order;
+use WC_Order_Item_Product;
 use WC_Product;
 use WC_Product_Factory;
 
@@ -367,6 +369,8 @@ class OrderExport extends AbstractExport
             }
         }
 
+        $this->removeSkippedItemsByName($databaseOrderItems, $backofficeOrderItems);
+
         if ($allHasExtras) {
             $hasDifference = $this->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
         } else {
@@ -390,6 +394,25 @@ class OrderExport extends AbstractExport
         }
 
         return $hasDifference;
+    }
+
+    private function removeSkippedItemsByName(&$databaseOrderItems, &$backofficeOrderItems): void
+    {
+        $skippedOrderItemNames = [];
+        foreach ($databaseOrderItems as $index => $databaseOrderItem) {
+            if (isset($databaseOrderItem['isSkipped']) && $databaseOrderItem['isSkipped']) {
+                $skippedOrderItemNames[] = $databaseOrderItem['name'];
+                unset($databaseOrderItems[$index]);
+            }
+        }
+
+        foreach ($backofficeOrderItems as $index => $backofficeOrderItem) {
+            // Ignore deleted woocommerce products from being
+            // checked for difference based on its name (as the product no longer has ID)
+            if (in_array($backofficeOrderItem['name'], $skippedOrderItemNames, true)) {
+                unset($backofficeOrderItems[$index]);
+            }
+        }
     }
 
     private function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): bool
@@ -471,101 +494,106 @@ class OrderExport extends AbstractExport
     /**
      * @param $order WC_Order
      *
-     * @return array
-     *
      * @throws Exception
      */
-    private function getOrderItems($order)
+    private function getOrderItems(WC_Order $order): array
     {
-        $order_items = [];
+        $orderItems = [];
         $this->debug('Adding product items');
-        $_pf = new WC_Product_Factory();
+        $productFactory = new WC_Product_Factory();
 
-        $order_metadata = $order->get_meta_data();
+        $orderMetadata = $order->get_meta_data();
 
-        $shop_product_id_map = [];
-        foreach ($order_metadata as $metadata) {
+        $shopProductIdMap = [];
+        foreach ($orderMetadata as $metadata) {
             $data = $metadata->get_data();
             if (OrderHandler::SHOP_PRODUCT_ID_MAP === $data['key']) {
-                $shop_product_id_map = $data['value'];
+                $shopProductIdMap = $data['value'];
             }
         }
 
         /**
-         * @var $orderProduct \WC_Order_Item_Product
+         * @var $orderProduct WC_Order_Item_Product
          */
         foreach ($order->get_items() as $index => $orderProduct) {
             $this->debug($index.' Adding product item');
 
-            $var_prod_id = $orderProduct->get_variation_id();
-            $is_variation = $var_prod_id > 0; // Variation_id is 0 my default, if it is any other, its a variation products;
+            $variationProductId = $orderProduct->get_variation_id();
+            $isVariation = $variationProductId > 0; // Variation_id is 0 by default, if it is any other, its a variation products;
 
-            $attribute_ids = [];
-            if ($is_variation) {
-                $product_id = $var_prod_id;
+            if ($isVariation) {
+                $productId = $variationProductId;
             } else {
-                $product_id = $orderProduct->get_product_id();
-            }
-            $currentProduct = $_pf->get_product($product_id);
-
-            if (array_key_exists($product_id, $shop_product_id_map)) {
-                $shop_product_id = $shop_product_id_map[$product_id];
-            } else {
-                $shop_product_id = $this->fetchShopProductId($currentProduct);
+                $productId = $orderProduct->get_product_id();
             }
 
-            $description = '';
-            if ($is_variation) {
-                /**
-                 * @var $meta_datum \WC_Meta_Data
-                 *                  This is the meta data that is set on the product order, for a variation product that.
-                 *                  More info about meta_data: https://docs.woocommerce.com/wc-apidocs/class-WC_Data.html
-                 */
-                $meta_data = $orderProduct->get_meta_data();
-                $meta = [];
-                foreach ($meta_data as $meta_datum) {
-                    $data = $meta_datum->get_data();
-                    $meta[] = $data['value'];
+            $currentProduct = $productFactory->get_product($productId);
+
+            if (false === $currentProduct) {
+                $data = [
+                    'isSkipped' => true,
+                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderProduct->get_name(self::CONTEXT),
+                ];
+                $this->debug($index.' Woocommerce product object can\'t be found, it may have been deleted and this will be skipped during checking', [
+                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderProduct->get_name(self::CONTEXT),
+                ]);
+            } else {
+                if (array_key_exists($productId, $shopProductIdMap)) {
+                    $shopProductId = $shopProductIdMap[$productId];
+                } else {
+                    $shopProductId = $this->fetchShopProductId($currentProduct);
                 }
-                $description = implode(', ', $meta);
-            }
 
-            $this->debug('Got product', $currentProduct);
+                $description = '';
+                if ($isVariation) {
+                    /**
+                     * @var $meta_datum WC_Meta_Data
+                     *                  This is the met data that is set on the product order, for a variation product that.
+                     *                  More info about meta_data: https://docs.woocommerce.com/wc-apidocs/class-WC_Data.html
+                     */
+                    $metaData = $orderProduct->get_meta_data();
+                    $meta = [];
+                    foreach ($metaData as $metaDatum) {
+                        $data = $metaDatum->get_data();
+                        $meta[] = $data['value'];
+                    }
+                    $description = implode(', ', $meta);
+                }
 
-            $data = [
-                'sku' => $currentProduct ? $currentProduct->get_sku(self::CONTEXT) : $orderProduct->get_name(
-                    self::CONTEXT
-                ),
-                'ppu_wt' => $order->get_item_total($orderProduct, true, false), //get price with discount
-                'before_discount_ppu_wt' => $order->get_item_subtotal($orderProduct, true, false), //get without discount
-                'quantity' => $orderProduct->get_quantity(self::CONTEXT),
-                'name' => $orderProduct->get_name(self::CONTEXT),
-                'description' => $description,
-                'shop_product_id' => $shop_product_id,
-            ];
+                $this->debug('Got product', $currentProduct);
 
-            if ($currentProduct) {
+                $data = [
+                    'sku' => $currentProduct ? $currentProduct->get_sku(self::CONTEXT) : $orderProduct->get_name(
+                        self::CONTEXT
+                    ),
+                    'ppu_wt' => $order->get_item_total($orderProduct, true, false), //get price with discount
+                    'before_discount_ppu_wt' => $order->get_item_subtotal($orderProduct, true, false), //get without discount
+                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderProduct->get_name(self::CONTEXT),
+                    'description' => $description,
+                    'shop_product_id' => $shopProductId,
+                ];
+
                 // use the current products as fallback
                 if (empty($data['name'])) {
                     $data['name'] = $currentProduct->get_name(self::CONTEXT);
                 }
+
+                $productData = $orderProduct->get_data();
+                // Need to unset meta_data as it changes like '_reduced_stock' which causes order difference error
+                unset($productData['meta_data']);
+                $extra = [
+                    'wp_row_id' => $orderProduct->get_id(),
+                    'wp_row_md5' => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
+                    'wp_row_type' => self::ROW_PRODUCT_TYPE,
+                ];
+
+                $data['extra'] = $extra;
             }
 
-            if (count($attribute_ids) > 0) {
-                $data['attribute_option_ids'] = $attribute_ids;
-            }
-            $productData = $orderProduct->get_data();
-            // Need to unset meta_data as it changes like '_reduced_stock' which causes order difference error
-            unset($productData['meta_data']);
-            $extra = [
-                'wp_row_id' => $orderProduct->get_id(),
-                'wp_row_md5' => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
-                'wp_row_type' => self::ROW_PRODUCT_TYPE,
-            ];
-
-            $data['extra'] = $extra;
-
-            $order_items[] = $data;
+            $orderItems[] = $data;
 
             $this->debug($index.' Added product item');
         }
@@ -590,7 +618,7 @@ class OrderExport extends AbstractExport
             ];
 
             $data['extra'] = $extra;
-            $order_items[] = $data;
+            $orderItems[] = $data;
         }
 
         $this->debug('Added fee items');
@@ -615,11 +643,11 @@ class OrderExport extends AbstractExport
 
             $data['extra'] = $extra;
 
-            $order_items[] = $data;
+            $orderItems[] = $data;
         }
         $this->debug('Added shipping items');
 
-        return $order_items;
+        return $orderItems;
     }
 
     private function fetchShopProductId(WC_Product $product): ?int
