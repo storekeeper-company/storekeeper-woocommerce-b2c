@@ -550,7 +550,7 @@ class OrderExport extends AbstractExport
                 if ($isVariation) {
                     /**
                      * @var $meta_datum WC_Meta_Data
-                     *                  This is the met data that is set on the product order, for a variation product that.
+                     *                  This is the metadata that is set on the product order, for a variation product that.
                      *                  More info about meta_data: https://docs.woocommerce.com/wc-apidocs/class-WC_Data.html
                      */
                     $metaData = $orderProduct->get_meta_data();
