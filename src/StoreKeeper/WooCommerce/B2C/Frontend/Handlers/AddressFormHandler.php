@@ -152,6 +152,8 @@ class AddressFormHandler
                 ) {
                     $_POST[self::SHIPPING_HOUSE_NUMBER_KEY] = sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]);
                 }
+
+                $this->validateStreet($addressType);
             }
         }
     }
