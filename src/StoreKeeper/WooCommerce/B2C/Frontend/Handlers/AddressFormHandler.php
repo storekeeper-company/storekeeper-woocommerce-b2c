@@ -12,7 +12,16 @@ class AddressFormHandler
 {
     public const STREET_ADDRESS_POSITION = 4;
     public const HOUSE_NUMBER_FIELD = 'address_house_number';
-    public const DEFAULT_ADDRESS_TYPES = ['shipping', 'billing'];
+
+    public const SHIPPING_ADDRESS_TYPE = 'shipping';
+    public const BILLING_ADDRESS_TYPE = 'billing';
+    public const DEFAULT_ADDRESS_TYPES = [
+        self::SHIPPING_ADDRESS_TYPE,
+        self::BILLING_ADDRESS_TYPE,
+    ];
+
+    public const SHIPPING_HOUSE_NUMBER_KEY = self::SHIPPING_ADDRESS_TYPE.'_'.self::HOUSE_NUMBER_FIELD;
+    public const BILLING_HOUSE_NUMBER_KEY = self::BILLING_ADDRESS_TYPE.'_'.self::HOUSE_NUMBER_FIELD;
 
     /**
      * Add javascript and css for postcode and house number validation on checkout page.
@@ -82,7 +91,7 @@ class AddressFormHandler
      */
     public function customSelectors(array $fieldSelectors): array
     {
-        $fieldSelectors[self::HOUSE_NUMBER_FIELD] = '#billing_'.self::HOUSE_NUMBER_FIELD.'_field, #shipping_'.self::HOUSE_NUMBER_FIELD.'_field';
+        $fieldSelectors[self::HOUSE_NUMBER_FIELD] = '#'.self::BILLING_HOUSE_NUMBER_KEY.'_field, #'.self::SHIPPING_HOUSE_NUMBER_KEY.'_field';
 
         return $fieldSelectors;
     }
@@ -123,6 +132,28 @@ class AddressFormHandler
         foreach (self::DEFAULT_ADDRESS_TYPES as $addressType) {
             if ('shipping' === $addressType && isset($_POST['ship_to_different_address']) && '1' === $_POST['ship_to_different_address']) {
                 $this->validateStreet($addressType);
+            } elseif ('shipping' === $addressType && !isset($_POST['ship_to_different_address'])) {
+                // Some themes send the shipping fields even though
+                // the ship_to_different_address is not checked/enabled
+                $isShippingSubmitted = false;
+                $fields = $_POST;
+                foreach ($fields as $key => $field) {
+                    if (str_starts_with(strtolower($key), 'shipping_')) {
+                        $isShippingSubmitted = true;
+                        break;
+                    }
+                }
+
+                if (
+                    isset($_POST[self::SHIPPING_HOUSE_NUMBER_KEY], $_POST[self::BILLING_HOUSE_NUMBER_KEY]) &&
+                    $isShippingSubmitted &&
+                    empty(sanitize_text_field($_POST[self::SHIPPING_HOUSE_NUMBER_KEY])) &&
+                    !empty(sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]))
+                ) {
+                    $_POST[self::SHIPPING_HOUSE_NUMBER_KEY] = sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]);
+                }
+
+                $this->validateStreet($addressType);
             }
         }
     }
@@ -147,20 +178,16 @@ class AddressFormHandler
     public function saveCustomFields(\WC_Order $order): void
     {
         if ($order->has_billing_address()) {
-            $billingHouseNumberKey = 'billing_address_house_number';
-
-            if (isset($_POST[$billingHouseNumberKey])) {
-                $houseNumber = sanitize_text_field($_POST[$billingHouseNumberKey]);
-                $order->update_meta_data($billingHouseNumberKey, $houseNumber);
+            if (isset($_POST[self::BILLING_HOUSE_NUMBER_KEY])) {
+                $houseNumber = sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]);
+                $order->update_meta_data(self::BILLING_HOUSE_NUMBER_KEY, $houseNumber);
             }
         }
 
         if ($order->has_shipping_address()) {
-            $shippingHouseNumberKey = 'shipping_address_house_number';
-
-            if (isset($_POST[$shippingHouseNumberKey])) {
-                $houseNumber = sanitize_text_field($_POST[$shippingHouseNumberKey]);
-                $order->update_meta_data($shippingHouseNumberKey, $houseNumber);
+            if (isset($_POST[self::SHIPPING_HOUSE_NUMBER_KEY])) {
+                $houseNumber = sanitize_text_field($_POST[self::SHIPPING_HOUSE_NUMBER_KEY]);
+                $order->update_meta_data(self::SHIPPING_HOUSE_NUMBER_KEY, $houseNumber);
             }
         }
     }
