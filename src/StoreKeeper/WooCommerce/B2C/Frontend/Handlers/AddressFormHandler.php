@@ -213,8 +213,6 @@ class AddressFormHandler
 
     private function updateFields(array $fields): array
     {
-        $fields['address_1']['custom_attributes'] = ['readonly' => 'readonly'];
-        $fields['city']['custom_attributes'] = ['readonly' => 'readonly'];
         $fields['postcode']['class'] = ['form-row-first', 'address-field'];
 
         return $fields;
