@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
-use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\AbstractOptions;
 
@@ -96,98 +95,25 @@ class AddressFormHandler
         return $fieldSelectors;
     }
 
-    protected function validateStreet(string $addressType): void
-    {
-        $countryKey = $addressType.'_country';
-
-        if (isset($_POST[$countryKey]) && AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === sanitize_text_field($_POST[$countryKey])) {
-            try {
-                $postCodeKey = $addressType.'_postcode';
-                $houseNumberKey = $addressType.'_address_house_number';
-
-                if (isset($_POST[$postCodeKey])) {
-                    $postCode = sanitize_text_field($_POST[$postCodeKey]);
-                }
-
-                if (isset($_POST[$houseNumberKey])) {
-                    $houseNumber = sanitize_text_field($_POST[$houseNumberKey]);
-                }
-
-                $splitStreet = OrderExport::splitStreetNumber($houseNumber);
-                $streetNumber = $splitStreet['streetnumber'];
-                AddressSearchEndpoint::validateAddress($postCode, $streetNumber);
-            } catch (\Throwable $throwable) {
-                wc_add_notice(sprintf(__('Invalid %s postcode or house number', I18N::DOMAIN), $addressType), 'error');
-            }
-        }
-    }
-
-    /**
-     * Validate postcode and house number if country is NL. Regex is already handled by WooCommerce validation.
-     *
-     * @see https://woocommerce.github.io/code-reference/files/woocommerce-includes-class-wc-validation.html | Line 109
-     */
-    public function validateCustomFieldsForCheckout(): void
-    {
-        foreach (self::DEFAULT_ADDRESS_TYPES as $addressType) {
-            if ('shipping' === $addressType && isset($_POST['ship_to_different_address']) && '1' === $_POST['ship_to_different_address']) {
-                $this->validateStreet($addressType);
-            } elseif ('shipping' === $addressType && !isset($_POST['ship_to_different_address'])) {
-                // Some themes send the shipping fields even though
-                // the ship_to_different_address is not checked/enabled
-                $isShippingSubmitted = false;
-                $fields = $_POST;
-                foreach ($fields as $key => $field) {
-                    if (str_starts_with(strtolower($key), 'shipping_')) {
-                        $isShippingSubmitted = true;
-                        break;
-                    }
-                }
-
-                if (
-                    isset($_POST[self::SHIPPING_HOUSE_NUMBER_KEY], $_POST[self::BILLING_HOUSE_NUMBER_KEY]) &&
-                    $isShippingSubmitted &&
-                    empty(sanitize_text_field($_POST[self::SHIPPING_HOUSE_NUMBER_KEY])) &&
-                    !empty(sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]))
-                ) {
-                    $_POST[self::SHIPPING_HOUSE_NUMBER_KEY] = sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]);
-                }
-
-                $this->validateStreet($addressType);
-            }
-        }
-    }
-
-    /**
-     * Validate postcode and house number if country is NL. Regex is already handled by WooCommerce validation.
-     *
-     * @see https://woocommerce.github.io/code-reference/files/woocommerce-includes-class-wc-validation.html | Line 109
-     */
-    public function validateCustomFields(int $userId, string $addressType): void
-    {
-        if ($userId <= 0) {
-            return;
-        }
-
-        $this->validateStreet($addressType);
-    }
-
     /**
      * Save house number to order metadata be retrieved for displaying.
      */
     public function saveCustomFields(\WC_Order $order): void
     {
+        $billingHouseNumberKey = self::BILLING_HOUSE_NUMBER_KEY;
+        $shippingHouseNumberKey = self::SHIPPING_HOUSE_NUMBER_KEY;
+        $billingHouseNumber = sanitize_text_field($_POST[$billingHouseNumberKey]);
+        $shippingHouseNumber = sanitize_text_field($_POST[$shippingHouseNumberKey]);
         if ($order->has_billing_address()) {
-            if (isset($_POST[self::BILLING_HOUSE_NUMBER_KEY])) {
-                $houseNumber = sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]);
-                $order->update_meta_data(self::BILLING_HOUSE_NUMBER_KEY, $houseNumber);
+            if ($billingHouseNumber) {
+                $order->update_meta_data($billingHouseNumberKey, $billingHouseNumber);
             }
         }
-
         if ($order->has_shipping_address()) {
-            if (isset($_POST[self::SHIPPING_HOUSE_NUMBER_KEY])) {
-                $houseNumber = sanitize_text_field($_POST[self::SHIPPING_HOUSE_NUMBER_KEY]);
-                $order->update_meta_data(self::SHIPPING_HOUSE_NUMBER_KEY, $houseNumber);
+            if (isset($shippingHouseNumber) & !empty($shippingHouseNumber)) {
+                $order->update_meta_data($shippingHouseNumberKey, $shippingHouseNumber);
+            } else {
+                $order->update_meta_data($shippingHouseNumberKey, $billingHouseNumber);
             }
         }
     }
