@@ -113,6 +113,26 @@ abstract class AbstractProductImport extends AbstractImport
             return $products[0];
         }
 
+        if (0 === count($products)) {
+            $skuWithoutWhitespace = trim((str_replace(' ', '-', $sku)));
+            $products = WordpressExceptionThrower::throwExceptionOnWpError(
+                get_posts(
+                    [
+                        'post_type' => 'product',
+                        'number' => 1,
+                        'meta_key' => '_sku',
+                        'meta_value' => $skuWithoutWhitespace,
+                        'suppress_filters' => false,
+                        'post_status' => ['publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit'],
+                    ]
+                )
+            );
+
+            if (1 === count($products)) {
+                return $products[0];
+            }
+        }
+
         return false;
     }
 
