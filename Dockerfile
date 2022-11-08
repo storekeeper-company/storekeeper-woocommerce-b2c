@@ -30,7 +30,7 @@ RUN set -ex; \
 		libzip-dev \
 	; \
 	\
-	docker-php-ext-configure gd --with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr; \
+	docker-php-ext-configure gd --with-freetype=/usr --with-jpeg=/usr; \
 	docker-php-ext-install -j "$(nproc)" \
 		bcmath \
 		exif \
@@ -250,6 +250,12 @@ RUN mkdir -p /app/src/wp-content/ && touch /app/src/wp-content/.persist  && chow
     && mkdir /tmp/storekeeper-woocommerce-b2c/ && touch /tmp/storekeeper-woocommerce-b2c/.persist  \
     && chown -R www-data:www-data /tmp/storekeeper-woocommerce-b2c \
     && mkdir /tmp/sk-log/ && touch /tmp/sk-log/.persist  && chown -R www-data:www-data /tmp/sk-log
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -q -y install gettext
+
+# For generating .pot and .mo file using make command
+COPY docker/extract-translations.sh /bin/extract-translations
+COPY docker/translate-to-machine-object.sh /bin/translate-to-machine-object
 
 VOLUME /app/src/wp-content/
 VOLUME /tmp/storekeeper-woocommerce-b2c/
