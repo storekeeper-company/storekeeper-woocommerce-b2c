@@ -40,7 +40,7 @@ push-translations:
 	cd ./i18n/ && lokalise2 --token=${LOKALISE_TOKEN} --project-id=${LOKALISE_PROJECT_ID} \
 		file upload \
 		--file storekeeper-woocommerce-b2c.pot \
-		--lang-iso en \
+		--lang-iso en_US \
 		--include-path \
 		--slashn-to-linebreak &&\
 	echo "OK"
