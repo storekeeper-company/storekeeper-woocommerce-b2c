@@ -340,7 +340,7 @@ msgstr "Date"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
 msgid "Deactiveer product"
-msgstr "Deactiveer product"
+msgstr "Deactivate product"
 
 #: src/StoreKeeper/WooCommerce/B2C/Options/StoreKeeperOptions.php:98
 msgid "Default (%s)"

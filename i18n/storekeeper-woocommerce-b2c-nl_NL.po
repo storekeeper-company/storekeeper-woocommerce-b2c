@@ -5,15 +5,411 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2022-11-09 13:28\n"
+"PO-Revision-Date: 2022-11-09 13:48\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
+
+#: src/StoreKeeper/WooCommerce/B2C/FileExport/CustomerFileExport.php:207
+msgctxt "full name"
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:208
+msgid "%s: You need to have WooCommerce installed for this add-on to work"
+msgstr "%s: Je moet WooCommerce geïnstalleerd hebben om deze plug-in te laten werken"
+
+#: storekeeper-woocommerce-b2c.php:35
+msgid "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
+msgstr "%s: Jouw PHP-versie is lager dan de minimaal vereiste %s, daarom is de activering van deze plug-in is niet mogelijk."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:288
+msgid "Activeer product"
+msgstr "Activeer product"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:32
+msgid "An error occurred!"
+msgstr "Er is een fout opgetreden!"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:252
+msgid "Attribute import"
+msgstr "Attribuutimporteren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:255
+msgid "Category import"
+msgstr "Categorie import"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:102
+msgid "Contact your system administrator if the problem persists."
+msgstr "Neem contact op met jouw systeembeheerder als het probleem aanhoudt."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:227
+msgid "Coupon code"
+msgstr "Kortingscode"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:270
+msgid "Coupon code import"
+msgstr "Couponcode importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:114
+msgid "Crontab with curl API calls"
+msgstr "Crontab met curl API-calls"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:115
+msgid "Crontab with wp-cli (fastest)"
+msgstr "Crontab met wp-cli (snelste)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:101
+msgid "Customer Email"
+msgstr "E-mailadres klant"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:103
+msgid "Customer phone number"
+msgstr "Telefoonnummer klant"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
+msgid "Deactiveer product"
+msgstr "Deactiveer product"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/StoreKeeperOptions.php:98
+msgid "Default (%s)"
+msgstr "Standaard (%s)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:279
+msgid "Delete category"
+msgstr "Categorie verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:297
+msgid "Delete coupon code"
+msgstr "Couponcode verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:294
+msgid "Delete order"
+msgstr "Bestelling verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:282
+msgid "Delete product"
+msgstr "Product verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:291
+msgid "Delete tag"
+msgstr "Tag verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:42
+msgid "Determines how many upsell products will be synchronized from the starting point."
+msgstr "Bepaalt hoeveel upsell-producten vanaf het beginpunt worden gesynchroniseerd."
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1494
+msgid "Done processing %s items of %s (%s new / %s updated)"
+msgstr "Verwerking gereed van %s items van %s (%s nieuw / %s bijgewerkt)"
+
+#: vendor/wp-cli/wp-cli/php/utils-wp.php:233
+msgid "Drag widgets here to remove them from the sidebar but keep their settings."
+msgstr "Sleep widgets hierheen om ze uit de zijbalk te verwijderen, maar met behoud van hun instellingen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:33
+msgid "Every minute"
+msgstr "Elke minuut"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportAll.php:14
+msgid "Export CSV files for Storekeeper WooCommerce related entities/objects."
+msgstr "Exporteer CSV-bestanden voor Storekeeper WooCommerce-gerelateerde entiteiten / objecten."
+
+#: src/StoreKeeper/WooCommerce/B2C/Updator.php:117
+msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
+msgstr "Niet gelukt om de plug-in 'StoreKeeper for WooCommerce' bij te werken naar versie %s."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:249
+msgid "Full import"
+msgstr "Volledige import"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:30
+msgid "Function returned false"
+msgstr "Functie heeft false geretourneerd"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:125
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:131
+msgid "House number"
+msgstr "Huisnummer"
+
+#: vendor/wp-cli/wp-cli/php/utils-wp.php:230
+msgid "Inactive Widgets"
+msgstr "Inactieve Widgets"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:48
+msgid "Invalid postcode or house number"
+msgstr "Ongeldige postcode en/of huisnummer"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:144
+msgid "Last cron run failed."
+msgstr "Laatste cron run is mislukt."
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:142
+msgid "Last cron run was successful."
+msgstr "Laatste cron run was succesvol."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:229
+msgid "Menu item"
+msgstr "Menu item"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:309
+msgid "Menu item delete"
+msgstr "Menu-item verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:306
+msgid "Menu item import"
+msgstr "Menu-item importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:140
+msgid "Not performed yet."
+msgstr "Nog niet uitgevoerd."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:233
+msgid "Order"
+msgstr "Bestelling"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:273
+msgid "Order export"
+msgstr "Order exporteren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:276
+msgid "Order import"
+msgstr "Bestelling importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:702
+msgid "Order with this order number already exists."
+msgstr "Bestelling met dit bestelnummer bestaat al."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:241
+msgid "Other"
+msgstr "Overige"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:237
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:303
+msgid "Parent product recalculation"
+msgstr "Herberekening van het bovenliggende product"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:76
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:77
+msgid "Postcode / ZIP"
+msgstr "Postcode"
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/AddressSearchEndpoint.php:25
+msgid "Postcode and house number parameter is required."
+msgstr "Postcode en huisnummer is vereist."
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:49
+msgid "Postcode format for NL address is invalid"
+msgstr "Postcode formaat voor Nederlands adres is ongeldig"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:126
+msgid "Processing"
+msgstr "In verwerking"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:101
+msgid "Processing tasks does not execute correctly"
+msgstr "Verwerkingstaken worden niet correct uitgevoerd"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:258
+msgid "Product import"
+msgstr "Productimport"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:264
+msgid "Product stock update"
+msgstr "Update van productvoorraad"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:261
+msgid "Product update"
+msgstr "Product update"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:71
+msgid "Products"
+msgstr "Producten"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:231
+msgid "Redirect"
+msgstr "Redirect"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:315
+msgid "Redirect delete"
+msgstr "Redirects verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:312
+msgid "Redirect import"
+msgstr "Redirects importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:898
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:340
+msgid "Refund via Wordpress plugin (Refund #%s)"
+msgstr "Terugbetaling via Wordpress-plugin (Terugbetaling #%s)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:239
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
+msgid "Report error"
+msgstr "Fout melden"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProducts.php:29
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProducts.php:29
+msgid "Specify total amount of cross-sell products from Storekeeper Backoffice. By default, counts the total amount of products by checking the Storekeeper Backoffice"
+msgstr "Geef het totale aantal cross-sell producten van Storekeeper Backoffice op. Gebruik standaard het totale aantal producten door de Storekeeper Backoffice te controleren"
+
+#. Plugin Name of the plugin/theme
+msgid "StoreKeeper for WooCommerce"
+msgstr "StoreKeeper voor WooCommerce"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:94
+msgid "StoreKeeper task processing is not being executed:"
+msgstr "StoreKeeper taakverwerking wordt niet uitgevoerd:"
 
 #. Author of the plugin/theme
 msgid "Storekeeper"
 msgstr "StoreKeeper"
 
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:80
+msgid "Street address"
+msgstr "Adres"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:81
+msgid "Street name"
+msgstr "Straatnaam"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:128
+msgid "Success"
+msgstr "Gelukt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:97
+msgid "Successfully processing tasks"
+msgstr "Succesvolle verwerking van taken"
+
+#: src/StoreKeeper/WooCommerce/B2C/Updator.php:23
+msgid "Table \"%s\" need to be using InnoDB ENGINE. <a href=\"%s\">Go to status page</a> to fix this dependency."
+msgstr "Tabel \"%s\" moet InnoDB ENGINE gebruiken. <a href=\"%s\">Ga naar de statuspagina</a> om deze afhankelijkheid op te lossen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:225
+msgid "Tag"
+msgstr "Tag"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:267
+msgid "Tag import"
+msgstr "Tags importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:131
+msgid "Task scheduler is set to [%s], change to [%s] to use this."
+msgstr "Taakplanner is ingesteld op %s, verander in %s om deze te gebruiken."
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/AbstractExport.php:138
+msgid "This channel was disconnected in StoreKeeper Backoffice, please reconnect it manually."
+msgstr "Dit verkoopkanaal is losgekoppeld in de StoreKeeper Backoffice. Maak handmatig opnieuw verbinding."
+
 #. Description of the plugin/theme
 msgid "This plugin provides sync possibilities with the StoreKeeper Backoffice."
-msgstr "Word gebruikt voor de synchronisatie met de StoreKeeper Backoffice"
+msgstr "Deze plugin biedt synchronisatiemogelijkheden met de StoreKeeper Backoffice."
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/OrderHookHandler.php:30
+msgid "To check your parcel status, go to <a href=\"%s\">Track & Trace page</a>."
+msgstr "Ga naar de <a href=\"%s\">Track & Trace-pagina</a> om de status van het pakket te controleren."
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:101
+msgid "To see guide on how to configure cron, navigate to %s."
+msgstr "Om te zien hoe je de cron kan configureren, ga je naar %s."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:235
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:300
+msgid "Trigger variation save actions"
+msgstr "Acties voor het opslaan van variaties activeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:47
+msgid "Valid postcode and house number"
+msgstr "Geldige postcode en huisnummer"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:46
+msgid "Validating postcode and house number. Please wait..."
+msgstr "Valideren van postcode en huisnummer. Even geduld..."
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:86
+msgid "WP Cron encountered an error and may not work: %s"
+msgstr "WP Cron heeft een fout gevonden en werkt mogelijk niet: %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:88
+msgid "WP Cron return an unexpected HTTP response code: %s"
+msgstr "WP Cron geeft een onverwachte HTTP response code: %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:99
+msgid "Waiting for tasks to process"
+msgstr "Wachten tot taken zijn verwerkt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:113
+msgid "Wordpress Cron (slowest)"
+msgstr "Wordpress Cron (langzaamste)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exceptions/WordpressException.php:17
+msgid "Wordpress error message: "
+msgstr "Wordpress foutmelding: "
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:779
+msgid "Wordpress plugin"
+msgstr "Wordpress plugin"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:29
+msgid "You are already subscribed."
+msgstr "Je bent al ingeschreven."
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:27
+msgid "You are now subscribed."
+msgstr "Je bent nu ingeschreven."
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:304
+msgid "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
+msgstr "Jouw WooCommerce versie (%s) is lager dan het minimum vereiste %s wat onverwacht gedrag kan veroorzaken."
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/CouponCodeImport.php:305
+msgid "coupon codes"
+msgstr "kortingscodes"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:37
+msgid "days"
+msgstr "dagen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/FeaturedAttributeImport.php:51
+msgid "featured attributes"
+msgstr "uitgelichte attributen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:34
+msgid "hours"
+msgstr "uren"
+
+#. Author URI of the plugin/theme
+msgid "https://www.storekeeper.nl/"
+msgstr "https://www.storekeeper.nl/"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/MenuItemImport.php:435
+msgid "menu items"
+msgstr "Menu items"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:31
+msgid "minutes"
+msgstr "minuten"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:40
+msgid "months"
+msgstr "maanden"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/OrderImport.php:215
+msgid "orders"
+msgstr "Bestellingen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductStockImport.php:47
+msgid "products stock"
+msgstr "productvoorraad"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/RedirectImport.php:90
+msgid "redirect"
+msgstr "redirect"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:97
+msgid "upsell products"
+msgstr "upsell producten"
+
+#. Tags of the plugin/theme
+msgid "woocommerce,e-commerce, woo,sales,store"
+msgstr "woocommerce, e-commerce, woo, verkoop, winkel"
