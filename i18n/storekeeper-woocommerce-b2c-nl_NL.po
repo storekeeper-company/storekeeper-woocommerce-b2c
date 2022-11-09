@@ -5,10 +5,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2022-11-08 19:38\n"
+"PO-Revision-Date: 2022-11-09 12:01\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
-"Language: nl\n"
+"Language: nl_NL\n"
 
 #. Author of the plugin/theme
 msgid "Storekeeper"
