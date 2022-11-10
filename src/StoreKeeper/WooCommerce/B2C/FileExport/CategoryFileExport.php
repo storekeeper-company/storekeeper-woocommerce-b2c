@@ -52,13 +52,14 @@ class CategoryFileExport extends AbstractCSVFileExport
             get_categories($arguments),
             function ($item) {
                 return $item->term_id;
-            }
-        );
+            });
 
-        $total = count($map);
+        $categories = $this->sortCategoriesByParent($map);
+
+        $total = count($categories);
         $index = 0;
         /* @var WP_Term $item */
-        foreach ($map as $id => $item) {
+        foreach ($categories as $item) {
             // Default category for when a product does not has a category.
             if ('uncategorized' !== $item->slug) {
                 $lineData = [];
@@ -69,7 +70,7 @@ class CategoryFileExport extends AbstractCSVFileExport
                 $lineData['translatable.lang'] = $exportLanguage;
                 $lineData['slug'] = $item->slug;
                 $lineData['description'] = $item->description;
-                $lineData['image_url'] = $this->getThumbnailUrl($id);
+                $lineData['image_url'] = $this->getThumbnailUrl($item->term_id);
                 $lineData['published'] = true;
                 $lineData['parent_slug'] = $this->getParentSlug($map, $item->parent);
 
@@ -126,5 +127,58 @@ class CategoryFileExport extends AbstractCSVFileExport
         }
 
         return $parentSlug;
+    }
+
+    private function sortCategoriesByParent(array $mappedCategories): array
+    {
+        $categories = [];
+
+        foreach ($mappedCategories as $term) {
+            $parentCategory = $this->getParentCategory($mappedCategories, $term->parent);
+            if (null !== $parentCategory) {
+                $parentCategoryPosition = $this->getCategoryPosition($categories, $parentCategory->term_id);
+                if (null === $parentCategoryPosition) {
+                    $parentCategoryPosition = array_push($categories, $parentCategory);
+                }
+
+                array_splice($categories, $parentCategoryPosition - 1, 0, [$term]);
+            } else {
+                $categories[] = $term;
+            }
+        }
+
+        return array_reverse($categories);
+    }
+
+    private function getCategoryPosition($categories, $termId)
+    {
+        $position = null;
+        foreach ($categories as $index => $category) {
+            if ($termId === $category->term_id) {
+                $position = $index + 1;
+                break;
+            }
+        }
+
+        return $position;
+    }
+
+    /**
+     * Searches for the parent in the map.
+     *
+     * @return WP_Term|null
+     */
+    private function getParentCategory(array $map, int $parentId = 0)
+    {
+        $parentCategory = null;
+
+        if (array_key_exists($parentId, $map)) {
+            $parent = $map[$parentId];
+            if (0 !== $parentId && !empty($parent)) {
+                $parentCategory = $parent;
+            }
+        }
+
+        return $parentCategory;
     }
 }
