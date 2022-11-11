@@ -21,7 +21,7 @@ class I18N
         load_plugin_textdomain(
             self::DOMAIN,
             false,
-            'storekeeper-woocommerce-B2C/i18n/'
+            'storekeeper-woocommerce-b2c/i18n/'
         );
     }
 }
