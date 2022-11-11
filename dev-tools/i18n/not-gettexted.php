@@ -11,7 +11,7 @@ if (!defined('T_ML_COMMENT')) {
     define('T_DOC_COMMENT', T_ML_COMMENT);
 }
 
-$pomo = realpath(__DIR__.'/../../../wordpress-develop/src/wp-includes/pomo');
+$pomo = realpath(__DIR__.'/../../../../../wp-includes/pomo');
 require_once "$pomo/po.php";
 require_once "$pomo/mo.php";
 

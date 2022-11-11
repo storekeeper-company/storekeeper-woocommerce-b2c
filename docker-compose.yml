@@ -32,7 +32,7 @@ services:
       - wp-content:/app/src/wp-content
       - ./tmp/sk-log:/tmp/sk-log:rw
       - ./tmp/sk-tmp:/tmp/storekeeper-woocommerce-b2c:rw
-      - .:/app/src/wp-content/plugins/storekeeper-woocommerce-b2c:ro
+      - .:/app/src/wp-content/plugins/storekeeper-woocommerce-b2c:rw
 
   db:
     image: mysql:5.7

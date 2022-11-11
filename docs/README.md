@@ -35,6 +35,24 @@ For different log error put in your `wp-config.php`
 define('STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL', 'DEBUG');
 ```
 
+## Translations
+Extract strings to be translated from the plugin, mostly all strings that are enclosed in `__("text to translate")` function and compile in in a `.pot` file.
+```bash
+make extract-translations
+```
+
+Download translations file in `.po` format from Lokalise.
+```bash
+make pull-translations
+```
+
+Upload translation template file (`.pot`) to Lokalise.
+```bash
+make push-translations
+```
+
+> Suggested sequence is to first run `make extract-translations` to get the latest strings, then run `make push-translations` to update Lokalise, and finally run `make pull-translations` to download the translated texts.
+
 ## PhpStorm setup
 
 Define a new configuration template:

@@ -1,1234 +1,415 @@
-# Copyright (C) 2018 StoreKeeper WooCommerce B2C
-# This file is distributed under the same license as the StoreKeeper WooCommerce B2C package.
 msgid ""
 msgstr ""
-"Project-Id-Version: StoreKeeper WooCommerce B2C 2.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-"
-"woocommerce-b2c\n"
-"POT-Creation-Date: 2021-03-05 01:43:48+00:00\n"
-"PO-Revision-Date: 2021-05-14 12:23+0200\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.1\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:36
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:37
-msgid "StoreKeeper"
-msgstr "StoreKeeper"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:64
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/DashboardPage.php:15
-msgid "Dashboard"
-msgstr "Dashboard"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:70
-msgid "Logs"
-msgstr "Logs"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:74
-msgid "Tools"
-msgstr "Gereedschap"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:78
-msgid "Settings"
-msgstr "Instellingen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:82
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StatusPage.php:15
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:107
-msgid "Status"
-msgstr "Status"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:25
-msgid "%s sync"
-msgstr "%s sync"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:53
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:66
-msgid "Failed to sync order"
-msgstr "De bestelling kan niet worden gesynchroniseerd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:66
-msgid "Please try again"
-msgstr "Probeer opnieuw"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:97
-msgid "Backoffice ID"
-msgstr "Backoffice-ID"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:100
-msgid "Last sync"
-msgstr "Laatste synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:105
-msgid "Open in backoffice"
-msgstr "Open in StoreKeeper backoffice"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:113
-msgid "Force sync"
-msgstr "Synchronisatie forceren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:45
-msgid "New products are not synced back to StoreKeeper."
-msgstr "Nieuwe producten worden niet gesynchroniseerd naar StoreKeeper."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:52
-msgid ""
-"The StoreKeeper synchronization plugin extension is not connected, thus "
-"nothing is synchronized. please click configure to do so."
-msgstr ""
-"De extensie StoreKeeper synchronization plugin plugin is niet verbonden met "
-"de backoffice, dus er word niets gesynchroniseerd. klik alstublieft op "
-"configureren om dit te doen."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:56
-msgid "Configure StoreKeeper synchronization plugin"
-msgstr "Configureer StoreKeeper synchronization plugin"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:81
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:180
-msgid "product"
-msgstr "product"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:93
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:168
-msgid "category"
-msgstr "categorie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:105
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:174
-msgid "tag"
-msgstr "tag"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:117
-msgid "attribute"
-msgstr "eigenschap"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:130
-msgid "attribute term"
-msgstr "attribuut term"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:145
-msgid ""
-"This order is marked as completed, any changes might not be synced to the "
-"backoffice"
-msgstr ""
-"Deze bestelling is gemarkeerd als voltooid, eventuele wijzigingen worden "
-"niet gesynchroniseerd met de backoffice"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:186
-msgid "order"
-msgstr "bestelling"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:194
-msgid "full"
-msgstr "volledig"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:266
-msgid ""
-"This %s has a failing task, check the logs of the tasks or ask your system "
-"administrator to check out the problem."
-msgstr ""
-"Deze %s heeft een falende taak, controleer de logboeken van de taken of "
-"vraag uw systeembeheerder om het probleem te bekijken."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:272
-msgid "With as first line"
-msgstr "Met als eerste lijn"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:280
-msgid ""
-"This %s is synced from the backoffice, thus any changes won't be synced back "
-"and can be overwritten when made in WooCommerce!"
-msgstr ""
-"Deze %s is gesynchroniseerd vanuit de backoffice, dus eventuele wijzigingen "
-"worden niet terug gesynchroniseerd en worden overschreven!"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:344
-msgid ""
-"It seems that its been %s ago since the process tasks cron has been running, "
-"Contact your system administrator to solve this problem."
-msgstr ""
-"Het lijkt erop dat het %s geleden is sinds de cron die taken verwerkt is "
-"uitgevoerd, Neem contact op met uw systeembeheerder om dit probleem op te "
-"lossen."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:352
-msgid "Please configure as your cron tab:"
-msgstr "Configureer alstublieft als uw cron tab:"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:392
-msgid "minutes"
-msgstr "minuten"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:395
-msgid "hours"
-msgstr "uren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:398
-msgid "days"
-msgstr "dagen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:401
-msgid "months"
-msgstr "maanden"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:403
-msgid "years"
-msgstr "jaren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/AbstractPage.php:89
-msgid "StoreKeeper Sync Plugin"
-msgstr "StoreKeeper synchronization plugin"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/AbstractPage.php:134
-msgid "No tabs set for this page"
-msgstr "Geen tabbladen ingesteld voor deze pagina"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/LogsPage.php:18
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:48
-msgid "Tasks"
-msgstr "Taken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/LogsPage.php:21
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:88
-msgid "Webhooks"
-msgstr "Webhooks"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:18
-msgid "Scheduler"
-msgstr "Planner"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:19
-msgid "Connection"
-msgstr "Verbinding"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:21
-msgid "Developer settings"
-msgstr "Developer instellingen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:23
-msgid "Backoffice roles"
-msgstr "Backoffice-rollen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/AbstractLogsTab.php:79
-msgid "results"
-msgstr "resultaten"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/AbstractLogsTab.php:83
-msgid "%s of %s"
-msgstr "%s van %s"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:47
-msgid "Apply to all"
-msgstr "Toepassen op alles"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:53
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:138
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:152
-msgid "Save settings"
-msgstr "Sla instellingen op"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:136
-msgid "Disable SSO"
-msgstr "Schakel SSO uit"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:145
-msgid "Other backoffice roles"
-msgstr "Andere backoffice-rollen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:149
-msgid "Backoffice %s role"
-msgstr "Backoffice %s rol"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:57
-msgid "Currently connected to"
-msgstr "Momenteel verbonden met"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:60
-msgid "Disconnect"
-msgstr "Ontkoppel API"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:74
-msgid "Backoffice API key"
-msgstr "Backoffice API key"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:78
-msgid "Steps"
-msgstr "Stappen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:83
-msgid "Copy the \"Backoffice API Key\" from the text area."
-msgstr "Kopieer de \"Backoffice API Key\" uit het tekst vlak."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:84
-msgid "Log into your admin environment"
-msgstr "Log in op uw admin-omgeving"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:85
-msgid ""
-"Navigate to settings > technical settings and click on the \"webhook\" tab."
-msgstr ""
-"Navigeer naar instellingen > technische instellingen en klik op de \"webhook"
-"\" tab."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:86
-msgid ""
-"Paste your api key into the field that says \"Api key\" and click connect."
-msgstr ""
-"Plak je api-sleutel in het veld dat zegt \"Api-sleutel\" en klik op "
-"verbinden."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:87
-msgid "Once done, you should reload this page and you will be fully connected."
-msgstr ""
-"Als je klaar bent, kunt u deze pagina opnieuw laden en ben je volledig "
-"verbonden."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:98
-msgid "Sync statistics"
-msgstr "Synchronisatiestatistieken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:101
-msgid "Tasks in queue"
-msgstr "Taken in wachtrij"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:106
-msgid "Webhooks in queue"
-msgstr "Webhooks in wachtrij"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:111
-msgid "Last task processed"
-msgstr "Laatste taak verwerkt"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:116
-msgid "Last webhook received"
-msgstr "Laatste webhook ontvangen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:128
-msgid "Synchronization settings"
-msgstr "Synchronisatie instellingen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:153
-msgid "No tasks processed (successfully) yet, but the cron is running"
-msgstr "Nog geen taken (met succes) verwerkt, maar de cron is ingesteld"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:157
-msgid "Never, please check the \"cron tab\" notice."
-msgstr "Nooit, controleer de \"cron tab' opmerking."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:164
-msgid "Never"
-msgstr "Nooit"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:207
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:84
-msgid "Full sync"
-msgstr "Volledige synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:208
-msgid "Order only"
-msgstr "Alleen bestelling"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:210
-msgid ""
-"Products, categories, labels/tags, attributes with options, coupons, orders "
-"and customers are being synced"
-msgstr ""
-"Producten, categorieën, labels / tags, attributen met opties, coupons, "
-"bestellingen en klanten worden gesynchroniseerd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:214
-msgid ""
-"Orders and customers are being exported, order status and product stock with "
-"matching skus are being imports"
-msgstr ""
-"Orders en klanten worden geëxporteerd, orderstatus en productvoorraad met "
-"bijpassende sku's worden geïmporteerd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:230
-msgid "Synchronization mode"
-msgstr "Synchronisatie modus"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:245
-msgid "Activate StoreKeeper payments"
-msgstr "StoreKeeper betalingen Activeren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:249
-msgid ""
-"When checked, active webshop payment methods from your StoreKeeper "
-"backoffice are added to your webshop's checkout"
-msgstr ""
-"Wanneer ingeschakeld, worden actieve webshop-betaalmethoden uit uw "
-"StoreKeeper backoffice toegevoegd aan de uitcheck pagina van uw webshop"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:260
-msgid "Notify when backorderable"
-msgstr "Melden wanneer ze kunnen worden nabesteld"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:264
-msgid ""
-"When checked, imported or updated products will have the backorder status "
-"set to 'Allow, but notify customer', else I will be set to 'Allow'"
-msgstr ""
-"Wanneer ingeschakeld, zullen geïmporteerde of bijgewerkte producten de "
-"naleveringsstatus hebben ingesteld op 'Toestaan, maar klant informeren', "
-"anders zal het worden ingesteld op 'Toestaan'"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/DashboardTab.php:26
-msgid "Products & categories synced"
-msgstr "Producten en categorieën gesynchroniseerd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/DashboardTab.php:31
-msgid "Orders & customers synced"
-msgstr "Bestellingen en klanten gesynchroniseerd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/DashboardTab.php:36
-msgid "Promotions & coupons synced"
-msgstr "Promoties en coupons gesynchroniseerd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/DashboardTab.php:41
-msgid "Payments active"
-msgstr "Betalingen actief"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:86
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:116
-msgid "Export"
-msgstr "Exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:93
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:96
-msgid "Overwrite language (iso2)"
-msgstr "Taal overschrijven (iso2)"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:102
-msgid "Export all"
-msgstr "Alles exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:103
-msgid "Export customers"
-msgstr "Klanten exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:104
-msgid "Export tags"
-msgstr "Tags exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:105
-msgid "Export categories"
-msgstr "Categorieën exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:106
-msgid "Export attributes"
-msgstr "Eigenschappen exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:107
-msgid "Export attribute options"
-msgstr "Eigenschap opties exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:108
-msgid "Export product blueprints"
-msgstr "Product blauwdrukken exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:109
-msgid "Export products"
-msgstr "Producten exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:133
-msgid "Featured attribute export settings"
-msgstr "Uitgelichte eigenschappen export instellingen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:162
-msgid "Not mapped"
-msgstr "Niet gekoppeld"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:184
-msgid "Attributes can only be used once"
-msgstr "Eigenschappen kan maar een keer worden gebruikt"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:214
-msgid "Please wait and keep the page open while we are exporting your %s."
-msgstr "Wacht alstublieft en houd de pagina open terwijl we uw %s exporteren."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:217
-msgid "your export will be downloaded as soon the export finished."
-msgstr "uw export wordt gedownload zodra de export is voltooid."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:55
-msgid "Total tasks"
-msgstr "Totaal aantal taken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:60
-msgid "Successful tasks"
-msgstr "Totaal aantal succesvolle taken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:66
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:101
-msgid ""
-"\"%s\" only purges items older than 30 days or if there are more than 1000 "
-"items, we purge all but the last 1000 items and purge items older than 7 "
-"days."
-msgstr ""
-"\"%s\" verwijdert alleen items die ouder zijn dan 30 dagen en als er meer "
-"dan 1000 items zijn, verwijderen we alle items behalve de laatste 1000 items "
-"en items die ouder zijn dan 7 dagen."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:70
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:77
-msgid "Purge successful tasks"
-msgstr "Verwijder succesvolle taken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:95
-msgid "Total webhooks"
-msgstr "Totaal aantal webhooks"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:105
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:112
-msgid "Purge webhooks"
-msgstr "Verwijder webhooks"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:123
-msgid "Started purging tasks, please wait."
-msgstr "Begonnen met het verwijderen van taken, een ogenblik geduld."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:135
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:160
-msgid "Purged %s items"
-msgstr "%s items verwijderd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:148
-msgid "Started purging webhooks, please wait."
-msgstr "Begonnen met het verwijderen van webhooks, een ogenblik geduld."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:38
-msgid "Name"
-msgstr "Naam"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:42
-msgid "Version"
-msgstr "Versie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:46
-msgid "Conflicts"
-msgstr "Conflicten"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:106
-msgid "Not supported"
-msgstr "Niet ondersteund"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:54
-msgid "StoreKeeper options"
-msgstr "StoreKeeper opties"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:63
-msgid "Server status"
-msgstr "Server status"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:72
-msgid "Database status"
-msgstr "Database status"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:124
-msgid "PHP version %s or up"
-msgstr "PHP versie %s of hoger"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:128
-msgid "Contact your server provider to upgrade your PHP version to at least %s"
-msgstr ""
-"Neem contact op met uw serverprovider om uw PHP versie te upgraden naar ten "
-"minste %s"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:141
-msgid "PHP %s extension"
-msgstr "PHP %s extensie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:143
-msgid ""
-"Contact your server provider to enable the PHP %s extension for the "
-"StoreKeeper synchronization plugin to function properly"
-msgstr ""
-"Neem contact op met uw serverprovider om de PHP %s extensie in te schakelen "
-"zodat de StoreKeeper synchronisatie plugin correct werkt"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
-msgid "StoreKeeper database version"
-msgstr "StoreKeeper data versie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:173
-msgid "Database prefix"
-msgstr "Database prefix"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:181
-msgid "Total database size"
-msgstr "Totale database grootte"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:185
-msgid "Data database size"
-msgstr "Data database grootte"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:189
-msgid "Index database size"
-msgstr "Index database size"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:204
-msgid "Data: %.2fMB | Index: %.2fMB | Engine: %s"
-msgstr "Data: %.2fMB | Index: %.2fMB | Engine: %s"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:86
-msgid "Shop info sync"
-msgstr "Shop info synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:88
-msgid "Coupon code sync"
-msgstr "Coupon code synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:90
-msgid "Categories sync"
-msgstr "Categorieën synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:92
-msgid "Tags/labels sync"
-msgstr "Tags/labels synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:94
-msgid "Attributes sync"
-msgstr "Eigenschap synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:96
-msgid "Featured attributes sync"
-msgstr "Uitgelichte eigenschappen synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:98
-msgid "Attribute options sync"
-msgstr "Eigenschap opties synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:100
-msgid "Products sync"
-msgstr "Product synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:102
-msgid "Upsell product sync"
-msgstr "Upsell product synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:104
-msgid "Cross sell product sync"
-msgstr "Cross sell product synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:122
-msgid ""
-"Some synchronizations can take up to 24 hours to complete, leave the page "
-"open until its done."
-msgstr ""
-"Bij sommige synchronisaties kunnen tot en met 24 uur duren. Laat de pagina "
-"open totdat deze is voltooid."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:129
-msgid "Sync controls"
-msgstr "Synchronisatie knoppen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:131
-msgid "Start sync"
-msgstr "Start synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:163
-msgid "Executing %s."
-msgstr "%s uitvoeren."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:164
-msgid ""
-"This can take up to 24 hours depending of your data, please do not close the "
-"tab."
-msgstr ""
-"Dit kan tot 24 uur duren, afhankelijk van uw gegevens. Sluit het tabblad "
-"niet."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:172
-msgid "Done executing %s"
-msgstr "Klaar met %s uit te voeren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:177
-msgid "%s successful"
-msgstr "%s geslaagd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:95
-msgid "Message"
-msgstr "Bericht"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:99
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:43
-msgid "Date"
-msgstr "Datum"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:103
-msgid "Log type"
-msgstr "Log type"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:112
-msgid "Times ran"
-msgstr "Aantal keren uigevoerd"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:116
-msgid "Action"
-msgstr "Acties"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:167
-msgid "retry"
-msgstr "opnieuw proberen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:222
-msgid "Select log type"
-msgstr "Log type selecteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:232
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:255
-msgid "filter"
-msgstr "filter"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:245
-msgid "Select log status"
-msgstr "Log status selecteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:267
-msgid "Resolve selected"
-msgstr "Geselecteerde oplossen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:23
-msgid "Request route"
-msgstr "Request route"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:27
-msgid "Request body"
-msgstr "Request body"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:31
-msgid "Request method"
-msgstr "Request method"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:35
-msgid "Request action"
-msgstr "Request action"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:39
-msgid "Response code"
-msgstr "Response code"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/ToolsPage.php:18
-msgid "Sync check"
-msgstr "Synchronisatie controle"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/ToolsPage.php:19
-msgid "Plugin conflict checker"
-msgstr "Plugin conflict controle"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/ToolsPage.php:20
-msgid "Export to StoreKeeper"
-msgstr "Exporteer naar StoreKeeper"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/ToolsPage.php:21
-msgid "Log purger"
-msgstr "Logs verwijderen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:177
-msgid "%s: You need to have WooCommerce installed for this add-on to work"
-msgstr ""
-"%s: Je moet WooCommerce geïnstalleerd hebben om deze add-on te laten werken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:257
-msgid ""
-"Your WooCommerce version (%s) is lower then the minimum required %s which "
-"could cause unexpected behaviour"
-msgstr ""
-"Uw PHP-versie is lager dan de minimaal vereiste %s, dus de activering van "
-"deze plug-in gaat word afgebroken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Exceptions/WordpressException.php:24
-msgid "Wordpress error message: "
-msgstr "Wordpress foutmelding: "
-
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:89
-msgid "Customer Email"
-msgstr "Klanten email"
-
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:91
-msgid "Customer phone number"
-msgstr "Klanten telefoonnummer"
-
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:201
-msgid "Used coupon code"
-msgstr "Gebruikte coupon code"
-
-#: src/StoreKeeper/WooCommerce/B2C/FileExport/CustomerFileExport.php:203
+"X-Generator: lokalise.com\n"
+"Project-Id-Version: StoreKeeper for WooCommerce\n"
+"PO-Revision-Date: 2022-11-09 13:48\n"
+"Last-Translator: lokalise.com\n"
+"Language-Team: lokalise.com\n\n"
+"Language: nl_NL\n"
+
+#: src/StoreKeeper/WooCommerce/B2C/FileExport/CustomerFileExport.php:207
 msgctxt "full name"
 msgid "%1$s %2$s"
 msgstr "%1$s %2$s"
 
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:31
-msgid "You are now subscribed."
-msgstr "Je bent nu ingeschreven."
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:208
+msgid "%s: You need to have WooCommerce installed for this add-on to work"
+msgstr "%s: Je moet WooCommerce geïnstalleerd hebben om deze plug-in te laten werken"
 
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:33
-msgid "You are already subscribed."
-msgstr "Je bent al ingeschreven."
-
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:36
-msgid "An error occurred!"
-msgstr "Er is een fout opgetreden!"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:65
-msgid "Categories"
-msgstr "Categorieën"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:67
-msgid "Attributes"
-msgstr "Eigenschappen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:69
-msgid "Attribute options"
-msgstr "Eigenschap opties"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:71
-msgid "Customers"
-msgstr "Klanten"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:73
-msgid "Products"
-msgstr "Producten"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:75
-msgid "Product blueprints"
-msgstr "Product bluewdrukken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:77
-msgid "All"
-msgstr "Alle"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/SsoHelper.php:210
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/SsoHelper.php:217
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/SsoHelper.php:223
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/SsoHelper.php:230
-msgid "Login expired, please try again"
-msgstr "Inloggen verlopen, probeer opnieuw"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:71
-msgid "Brand"
-msgstr "Merk"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:73
-msgid "Barcode"
-msgstr "Barcode"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:75
-msgid "Printable shortname"
-msgstr "Afdrukbare naam"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:77
-msgid "Needs weight on kassa"
-msgstr "Gewicht is verplicht"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:79
-msgid "Needs description on kassa"
-msgstr "Omschrijving is verplicht"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:81
-msgid "Duration in seconds"
-msgstr "Duur in seconden"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:83
-msgid "Minimal order quantity"
-msgstr "Minimale bestel hoeveelheid"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:85
-msgid "In package quantity"
-msgstr "In pakket hoeveelheid"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:87
-msgid "In box quantity"
-msgstr "In doos aantal"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:89
-msgid "In out quantity"
-msgstr "In buiten doos hoeveelheid"
-
-#: src/StoreKeeper/WooCommerce/B2C/Options/FeaturedAttributeOptions.php:91
-msgid "Unit weight in grams"
-msgstr "Gewicht per stuk in gram"
-
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:86
-msgid "The payment has been canceled, please try again"
-msgstr "De betaling is geannuleerd, probeer het a.u.b. opnieuw"
-
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:91
-msgid "There was an error during processing of the payment: %s"
-msgstr "Er was een probleem tijdens het verwerken van de betaling: %s"
-
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:226
-msgid "The order's payment status received: %s"
-msgstr "De betalingsstatus van de bestelling is ontvangen: %s"
-
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:83
-msgid "Order number"
-msgstr "Bestellingsnummer"
-
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:105
-msgid ""
-"The order's payment was created\n"
-" eid: %s\n"
-" trx: %s"
-msgstr ""
-"De betaling van de bestelling is gemaakt\n"
-" eid: %s\n"
-" trx: %s"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/IniHelper.php:47
-msgid "Unable to set php configuration option %s"
-msgstr "PHP configuratie optie %s kon niet worden ingesteld"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:129
-msgid "New"
-msgstr "Nieuw"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:131
-msgid "Processing"
-msgstr "Verwerken"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:133
-msgid "Success"
-msgstr "Succes"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:135
-msgid "Failed"
-msgstr "Mislukt"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:222
-msgid "Product"
-msgstr "Product"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:224
-msgid "Category"
-msgstr "Categorie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:226
-msgid "Product stock"
-msgstr "Productvoorraad"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:228
-msgid "Tag"
-msgstr "Tag"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:230
-msgid "Coupon code"
-msgstr "Coupon code"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:232
-msgid "Menu item"
-msgstr "Menu item"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:234
-msgid "Redirect"
-msgstr "Doorverwijzing"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:236
-msgid "Order"
-msgstr "Bestelling"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:238
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:300
-msgid "Trigger variation save actions"
-msgstr "Activeer acties voor variatie-variaties"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:240
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:303
-msgid "Parent product recalculation"
-msgstr "Herberekening van het configureerbaar product"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:242
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
-msgid "Report error"
-msgstr "Foutmelding"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:244
-msgid "Other"
-msgstr "Andere"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:252
-msgid "Full import"
-msgstr "Volledige synchronisatie"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:255
-msgid "Attribute import"
-msgstr "Attribuut importeren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:258
-msgid "Category import"
-msgstr "Categorie importeren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:261
-msgid "Product import"
-msgstr "Product importeren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:264
-msgid "Product stock update"
-msgstr "Update productvoorraad"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:267
-msgid "Tag import"
-msgstr "Tag importeren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:270
-msgid "Coupon code import"
-msgstr "Coupon code importeren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:273
-msgid "Order export"
-msgstr "Bestelling exporteren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:276
-msgid "Order import"
-msgstr "Bestelling importeren"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:279
-msgid "Delete category"
-msgstr "Categorie verwijderen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:282
-msgid "Delete product"
-msgstr "Product verwijderen"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
-msgid "Deactiveer product"
-msgstr "Deactiveer product"
+#: storekeeper-woocommerce-b2c.php:35
+msgid "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
+msgstr "%s: Jouw PHP-versie is lager dan de minimaal vereiste %s, daarom is de activering van deze plug-in is niet mogelijk."
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:288
 msgid "Activeer product"
 msgstr "Activeer product"
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:291
-msgid "Delete tag"
-msgstr "Tag verwijderen"
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:32
+msgid "An error occurred!"
+msgstr "Er is een fout opgetreden!"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:252
+msgid "Attribute import"
+msgstr "Attribuutimporteren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:255
+msgid "Category import"
+msgstr "Categorie import"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:102
+msgid "Contact your system administrator if the problem persists."
+msgstr "Neem contact op met jouw systeembeheerder als het probleem aanhoudt."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:227
+msgid "Coupon code"
+msgstr "Kortingscode"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:270
+msgid "Coupon code import"
+msgstr "Couponcode importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:114
+msgid "Crontab with curl API calls"
+msgstr "Crontab met curl API-calls"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:115
+msgid "Crontab with wp-cli (fastest)"
+msgstr "Crontab met wp-cli (snelste)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:101
+msgid "Customer Email"
+msgstr "E-mailadres klant"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:103
+msgid "Customer phone number"
+msgstr "Telefoonnummer klant"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
+msgid "Deactiveer product"
+msgstr "Deactiveer product"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/StoreKeeperOptions.php:98
+msgid "Default (%s)"
+msgstr "Standaard (%s)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:279
+msgid "Delete category"
+msgstr "Categorie verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:297
+msgid "Delete coupon code"
+msgstr "Couponcode verwijderen"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:294
 msgid "Delete order"
 msgstr "Bestelling verwijderen"
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:297
-msgid "Delete coupon code"
-msgstr "Coupon code verwijderen"
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:282
+msgid "Delete product"
+msgstr "Product verwijderen"
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:306
-msgid "Menu item import"
-msgstr "Menu item importeren"
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:291
+msgid "Delete tag"
+msgstr "Tag verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:42
+msgid "Determines how many upsell products will be synchronized from the starting point."
+msgstr "Bepaalt hoeveel upsell-producten vanaf het beginpunt worden gesynchroniseerd."
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1494
+msgid "Done processing %s items of %s (%s new / %s updated)"
+msgstr "Verwerking gereed van %s items van %s (%s nieuw / %s bijgewerkt)"
+
+#: vendor/wp-cli/wp-cli/php/utils-wp.php:233
+msgid "Drag widgets here to remove them from the sidebar but keep their settings."
+msgstr "Sleep widgets hierheen om ze uit de zijbalk te verwijderen, maar met behoud van hun instellingen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:33
+msgid "Every minute"
+msgstr "Elke minuut"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportAll.php:14
+msgid "Export CSV files for Storekeeper WooCommerce related entities/objects."
+msgstr "Exporteer CSV-bestanden voor Storekeeper WooCommerce-gerelateerde entiteiten / objecten."
+
+#: src/StoreKeeper/WooCommerce/B2C/Updator.php:117
+msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
+msgstr "Niet gelukt om de plug-in 'StoreKeeper for WooCommerce' bij te werken naar versie %s."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:249
+msgid "Full import"
+msgstr "Volledige import"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:30
+msgid "Function returned false"
+msgstr "Functie heeft false geretourneerd"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:125
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:131
+msgid "House number"
+msgstr "Huisnummer"
+
+#: vendor/wp-cli/wp-cli/php/utils-wp.php:230
+msgid "Inactive Widgets"
+msgstr "Inactieve Widgets"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:48
+msgid "Invalid postcode or house number"
+msgstr "Ongeldige postcode en/of huisnummer"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:144
+msgid "Last cron run failed."
+msgstr "Laatste cron run is mislukt."
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:142
+msgid "Last cron run was successful."
+msgstr "Laatste cron run was succesvol."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:229
+msgid "Menu item"
+msgstr "Menu item"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:309
 msgid "Menu item delete"
-msgstr "Menu item verwijderen"
+msgstr "Menu-item verwijderen"
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:312
-msgid "Redirect import"
-msgstr "Doorverwijzing importeren"
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:306
+msgid "Menu item import"
+msgstr "Menu-item importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:140
+msgid "Not performed yet."
+msgstr "Nog niet uitgevoerd."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:233
+msgid "Order"
+msgstr "Bestelling"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:273
+msgid "Order export"
+msgstr "Order exporteren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:276
+msgid "Order import"
+msgstr "Bestelling importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:702
+msgid "Order with this order number already exists."
+msgstr "Bestelling met dit bestelnummer bestaat al."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:241
+msgid "Other"
+msgstr "Overige"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:237
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:303
+msgid "Parent product recalculation"
+msgstr "Herberekening van het bovenliggende product"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:76
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:77
+msgid "Postcode / ZIP"
+msgstr "Postcode"
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/AddressSearchEndpoint.php:25
+msgid "Postcode and house number parameter is required."
+msgstr "Postcode en huisnummer is vereist."
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:49
+msgid "Postcode format for NL address is invalid"
+msgstr "Postcode formaat voor Nederlands adres is ongeldig"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:126
+msgid "Processing"
+msgstr "In verwerking"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:101
+msgid "Processing tasks does not execute correctly"
+msgstr "Verwerkingstaken worden niet correct uitgevoerd"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:258
+msgid "Product import"
+msgstr "Productimport"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:264
+msgid "Product stock update"
+msgstr "Update van productvoorraad"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:261
+msgid "Product update"
+msgstr "Product update"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:71
+msgid "Products"
+msgstr "Producten"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:231
+msgid "Redirect"
+msgstr "Redirect"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:315
 msgid "Redirect delete"
-msgstr "Doorverwijzing importeren"
+msgstr "Redirects verwijderen"
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:33
-msgid "Function returned false"
-msgstr "Functie geretourneerd onjuist"
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:312
+msgid "Redirect import"
+msgstr "Redirects importeren"
 
-#: storekeeper-woocommerce-b2c.php:36
-msgid ""
-"%s: Your PHP Version is lower then the minimum required %s, Thus the "
-"activation of this plugin will not continue."
-msgstr ""
-"%s: Je PHP versie is lager dan de minimum vereiste %s, dus de activering van "
-"deze plugin zal niet doorgaan."
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:898
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:340
+msgid "Refund via Wordpress plugin (Refund #%s)"
+msgstr "Terugbetaling via Wordpress-plugin (Terugbetaling #%s)"
 
-#: vendor/wp-cli/wp-cli/php/utils-wp.php:196
-msgid "Inactive Widgets"
-msgstr "Inactieve widgets"
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:239
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
+msgid "Report error"
+msgstr "Fout melden"
 
-#: vendor/wp-cli/wp-cli/php/utils-wp.php:199
-msgid ""
-"Drag widgets here to remove them from the sidebar but keep their settings."
-msgstr ""
-"Versleep hier widgets om ze uit de zijbalk te verwijderen, maar behoud de "
-"instellingen."
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProducts.php:29
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProducts.php:29
+msgid "Specify total amount of cross-sell products from Storekeeper Backoffice. By default, counts the total amount of products by checking the Storekeeper Backoffice"
+msgstr "Geef het totale aantal cross-sell producten van Storekeeper Backoffice op. Gebruik standaard het totale aantal producten door de Storekeeper Backoffice te controleren"
 
 #. Plugin Name of the plugin/theme
-msgid "StoreKeeper synchronization plugin"
-msgstr "StoreKeeper synchronisatie plugin"
+msgid "StoreKeeper for WooCommerce"
+msgstr "StoreKeeper voor WooCommerce"
 
-#. Description of the plugin/theme
-msgid "This plugin provides sync possibilities with the Backoffice."
-msgstr "Deze plug-in biedt synchronisatiemogelijkheden met de Backoffice."
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:94
+msgid "StoreKeeper task processing is not being executed:"
+msgstr "StoreKeeper taakverwerking wordt niet uitgevoerd:"
 
 #. Author of the plugin/theme
 msgid "Storekeeper"
-msgstr "Storekeeper"
+msgstr "StoreKeeper"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:80
+msgid "Street address"
+msgstr "Adres"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:81
+msgid "Street name"
+msgstr "Straatnaam"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:128
+msgid "Success"
+msgstr "Gelukt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:97
+msgid "Successfully processing tasks"
+msgstr "Succesvolle verwerking van taken"
+
+#: src/StoreKeeper/WooCommerce/B2C/Updator.php:23
+msgid "Table \"%s\" need to be using InnoDB ENGINE. <a href=\"%s\">Go to status page</a> to fix this dependency."
+msgstr "Tabel \"%s\" moet InnoDB ENGINE gebruiken. <a href=\"%s\">Ga naar de statuspagina</a> om deze afhankelijkheid op te lossen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:225
+msgid "Tag"
+msgstr "Tag"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:267
+msgid "Tag import"
+msgstr "Tags importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:131
+msgid "Task scheduler is set to [%s], change to [%s] to use this."
+msgstr "Taakplanner is ingesteld op %s, verander in %s om deze te gebruiken."
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/AbstractExport.php:138
+msgid "This channel was disconnected in StoreKeeper Backoffice, please reconnect it manually."
+msgstr "Dit verkoopkanaal is losgekoppeld in de StoreKeeper Backoffice. Maak handmatig opnieuw verbinding."
+
+#. Description of the plugin/theme
+msgid "This plugin provides sync possibilities with the StoreKeeper Backoffice."
+msgstr "Deze plugin biedt synchronisatiemogelijkheden met de StoreKeeper Backoffice."
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/OrderHookHandler.php:30
+msgid "To check your parcel status, go to <a href=\"%s\">Track & Trace page</a>."
+msgstr "Ga naar de <a href=\"%s\">Track & Trace-pagina</a> om de status van het pakket te controleren."
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:101
+msgid "To see guide on how to configure cron, navigate to %s."
+msgstr "Om te zien hoe je de cron kan configureren, ga je naar %s."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:235
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:300
+msgid "Trigger variation save actions"
+msgstr "Acties voor het opslaan van variaties activeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:47
+msgid "Valid postcode and house number"
+msgstr "Geldige postcode en huisnummer"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:46
+msgid "Validating postcode and house number. Please wait..."
+msgstr "Valideren van postcode en huisnummer. Even geduld..."
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:86
+msgid "WP Cron encountered an error and may not work: %s"
+msgstr "WP Cron heeft een fout gevonden en werkt mogelijk niet: %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:88
+msgid "WP Cron return an unexpected HTTP response code: %s"
+msgstr "WP Cron geeft een onverwachte HTTP response code: %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:99
+msgid "Waiting for tasks to process"
+msgstr "Wachten tot taken zijn verwerkt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:113
+msgid "Wordpress Cron (slowest)"
+msgstr "Wordpress Cron (langzaamste)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exceptions/WordpressException.php:17
+msgid "Wordpress error message: "
+msgstr "Wordpress foutmelding: "
+
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:779
+msgid "Wordpress plugin"
+msgstr "Wordpress plugin"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:29
+msgid "You are already subscribed."
+msgstr "Je bent al ingeschreven."
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:27
+msgid "You are now subscribed."
+msgstr "Je bent nu ingeschreven."
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:304
+msgid "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
+msgstr "Jouw WooCommerce versie (%s) is lager dan het minimum vereiste %s wat onverwacht gedrag kan veroorzaken."
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/CouponCodeImport.php:305
+msgid "coupon codes"
+msgstr "kortingscodes"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:37
+msgid "days"
+msgstr "dagen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/FeaturedAttributeImport.php:51
+msgid "featured attributes"
+msgstr "uitgelichte attributen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:34
+msgid "hours"
+msgstr "uren"
 
 #. Author URI of the plugin/theme
 msgid "https://www.storekeeper.nl/"
 msgstr "https://www.storekeeper.nl/"
 
-#~ msgid "of"
-#~ msgstr "van"
+#: src/StoreKeeper/WooCommerce/B2C/Imports/MenuItemImport.php:435
+msgid "menu items"
+msgstr "Menu items"
 
-#~ msgid "Roles"
-#~ msgstr "Rollen"
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:31
+msgid "minutes"
+msgstr "minuten"
 
-#~ msgid "Successfully updated existing user roles!"
-#~ msgstr "Succesvol bestaande gebruikersrollen bijgewerkt!"
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:40
+msgid "months"
+msgstr "maanden"
 
-#~ msgid "Apply the updated roles to the existing users"
-#~ msgstr "Pas de bijgewerkte rollen toe op de bestaande gebruikers"
+#: src/StoreKeeper/WooCommerce/B2C/Imports/OrderImport.php:215
+msgid "orders"
+msgstr "Bestellingen"
 
-#~ msgid "full Synchronization"
-#~ msgstr "volledige synchronisatie"
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductStockImport.php:47
+msgid "products stock"
+msgstr "productvoorraad"
 
-#~ msgid "Import translations"
-#~ msgstr "Vertalingen importeren"
+#: src/StoreKeeper/WooCommerce/B2C/Imports/RedirectImport.php:90
+msgid "redirect"
+msgstr "redirect"
 
-#~ msgid ""
-#~ "When checked, it will import the translations of the products, "
-#~ "Categories, Tags and Attributes with its terms."
-#~ msgstr ""
-#~ "Indien aangevinkt, zal het de vertalingen van de producten, Categorieën, "
-#~ "Tags en Eigenschappen met de bijbehorende voorwaarden importeren."
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:97
+msgid "upsell products"
+msgstr "upsell producten"
 
-#~ msgid "Sync all Products and Categories"
-#~ msgstr "Synchroniseer alle producten en categorieën"
-
-#~ msgid "Debug Information"
-#~ msgstr "Debug-informatie"
-
-#~ msgid "There is a full sync planned on: "
-#~ msgstr "Volledige synchronisatie gepland op: "
-
-#~ msgid "ID"
-#~ msgstr "ID"
-
-#~ msgid "Resolve"
-#~ msgstr "Oplossen"
-
-#~ msgid ""
-#~ "These %s translations are synced, changing them here could causes them to "
-#~ "be overwritten."
-#~ msgstr ""
-#~ "Deze %s vertalingen worden gesynchroniseerd, waardoor hij kan worden "
-#~ "overschreven wanneer je hem hier aanpast."
-
-#~ msgid ""
-#~ "It seems that there is no process tasks cron been setup, Contact your "
-#~ "system administrator to solve this problem."
-#~ msgstr ""
-#~ "Het lijkt erop dat er geen cron die taken verwerkt is ingesteld. Neem "
-#~ "contact op met uw systeembeheerder om dit probleem op te lossen."
-
-#~ msgid "First name"
-#~ msgstr "Voornaam"
-
-#~ msgid "Email"
-#~ msgstr "Email"
-
-#~ msgid "Submit"
-#~ msgstr "Verzenden"
-
-#~ msgid "Backoffice Sync Plugin"
-#~ msgstr "Backoffice-synchronisatie plugin"
-
-#~ msgid "Other Storekeeper roles"
-#~ msgstr "Andere Storekeeper rol"
-
-#~ msgid "StoreKeeper API Key"
-#~ msgstr "StoreKeeper API-sleutel"
-
-#~ msgid "Copy the \"StoreKeeper API Key\" from the text area."
-#~ msgstr "Kopieer de \"StoreKeeper API Key\" uit het tekstvlak."
-
-#~ msgid ""
-#~ "The StoreKeeper WooCommerce B2C extension is not connected, thus nothing "
-#~ "is synchronized. please click configure to do so."
-#~ msgstr ""
-#~ "The StoreKeeper WooCommerce B2C-extensie is niet verbonden, dus niets is "
-#~ "gesynchroniseerd. Klik alstublieft op configureren om dit te doen."
-
-#~ msgid "Configure StoreKeeper WooCommerce B2C"
-#~ msgstr "Configureer StoreKeeper WooCommerce B2C"
-
-#~ msgid ""
-#~ "This order is marked as completed, any changes might not be synced to "
-#~ "StoreKeeper"
-#~ msgstr ""
-#~ "Deze bestelling is gemarkeerd als voltooid en eventuele wijzigingen "
-#~ "worden mogelijk niet gesynchroniseerd met StoreKeeper"
-
-#~ msgid ""
-#~ "This %s is synced from StoreKeeper, thus any changes won't be synced back "
-#~ "and can be overwritten when made in WooCommerce!"
-#~ msgstr ""
-#~ "Deze %s wordt gesynchroniseerd vanuit StoreKeeper, dus eventuele "
-#~ "wijzigingen worden niet terug gesynchroniseerd en kunnen worden "
-#~ "overschreven wanneer gemaakt in WooCommerce!"
-
-#~ msgid ""
-#~ "It seems that its been %s ago since a cron has been running, Contact your "
-#~ "system administrator to solve this problem."
-#~ msgstr ""
-#~ "Het lijkt erop dat het %s geleden is sinds een cron actief is. Neem "
-#~ "contact op met je systeembeheerder om dit probleem op te lossen."
-
-#~ msgid ""
-#~ "It seems that there is no cron been setup, Contact your system "
-#~ "administrator to solve this problem."
-#~ msgstr ""
-#~ "Het lijkt erop dat er geen cron is ingesteld. Neem contact op met uw "
-#~ "systeembeheerder om dit probleem op te lossen."
-
-#~ msgid "StoreKeeper WooCommerce B2C"
-#~ msgstr "StoreKeeper WooCommerce B2C"
-
-#~ msgid "This add-on provides StoreKeeper WooCommerce B2C Connection"
-#~ msgstr "Deze add-on biedt StoreKeeper WooCommerce B2C Connection"
-
-#~ msgid "Default role"
-#~ msgstr "Standaard rol"
-
-#~ msgid ""
-#~ "This information should only be visible when WP_DEBUG mode is on, If you "
-#~ "think this should not be the case, contact your hosting company to "
-#~ "disable it for you."
-#~ msgstr ""
-#~ "Deze informatie zou alleen zichtbaar moeten zijn als de WP_DEBUG modus is "
-#~ "ingeschakeld. Als u denkt dat dit niet het geval is, neemt u contact op "
-#~ "met uw hostingbedrijf om het voor u uit te schakelen."
-
-#~ msgid "Api Main Language"
-#~ msgstr "Api hoofd taal"
-
-#~ msgid "Api additional"
-#~ msgstr "Api extra taal"
-
-#~ msgid "You need to have WooCommerce installed for this add-on to work"
-#~ msgstr ""
-#~ "U moet WooCommerce geïnstalleerd hebben om deze add-on te laten werken"
-
-#~ msgid ""
-#~ "When its checked the sync is locked, to prevent double sync. <b>uncheck "
-#~ "only when you know what you are doing.</b>"
-#~ msgstr ""
-#~ "Indien aangevinkt, is de synchronisatie vergrendeld om dubbele "
-#~ "synchronisatie te voorkomen. <b>haal het vinkje weg als u weet wat u "
-#~ "doet</b>"
-
-#~ msgid ""
-#~ "This will sync all the products, categories, labels/tags and attributes "
-#~ "with its options."
-#~ msgstr ""
-#~ "Hiermee worden alle producten, categorieën, labels / tags en attributen "
-#~ "met de bijbehorende opties gesynchroniseerd."
-
-#~ msgid "Navigate to settings and click on the \"webhook\" tab."
-#~ msgstr "Navigeer naar instellingen en klik op het tabblad \"webhook\"."
+#. Tags of the plugin/theme
+msgid "woocommerce,e-commerce, woo,sales,store"
+msgstr "woocommerce, e-commerce, woo, verkoop, winkel"
