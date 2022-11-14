@@ -18,7 +18,7 @@ then
       wp plugin install /app/plugins/woocommerce.zip
   fi
   wp plugin activate woocommerce
-  wp plugin activate storekeeper-woocommerce-b2c
+  wp plugin activate storekeeper-for-woocommerce
 
 else
   echo "Not install wordpress because variables are not set"

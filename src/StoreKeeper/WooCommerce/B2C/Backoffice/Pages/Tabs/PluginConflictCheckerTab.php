@@ -71,7 +71,7 @@ HTML;
         foreach (get_plugins() as $path => $plugin) {
             $conflicts = false;
 
-            if ('storekeeper-woocommerce-b2c/storekeeper-woocommerce-b2c.php' === $path) {
+            if ('storekeeper-for-woocommerce/storekeeper-woocommerce-b2c.php' === $path) {
                 continue;
             }
 

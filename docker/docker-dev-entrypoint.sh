@@ -2,7 +2,7 @@
 set -euox pipefail
 
 touch /tmp/xdebug.log && chmod og+wr /tmp/xdebug.log
-chown www-data:www-data /tmp/storekeeper-woocommerce-b2c/ /tmp/sk-log/
+chown www-data:www-data /tmp/storekeeper-for-woocommerce/ /tmp/sk-log/
 
 if [ ! -z "$WORPRESS_URL" ]
 then
@@ -30,7 +30,7 @@ then
       wp theme install /app/themes/storefront.zip || exit 14
   fi
   wp plugin activate woocommerce \
-    && wp plugin activate storekeeper-woocommerce-b2c \
+    && wp plugin activate storekeeper-for-woocommerce \
     && wp theme activate storefront \
     || exit 15
 

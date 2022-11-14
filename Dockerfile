@@ -221,7 +221,7 @@ ENV APP_ENV=test \
     WP_PHP_BINARY=php-www \
     WP_TESTS_CONFIG_FILE_PATH=/app/src/wp-config.php \
     WP_TESTS_DIR=/app/tests/phpunit \
-    WP_SK_PLUGIN_DIR=/app/src/wp-content/plugins/storekeeper-woocommerce-b2c \
+    WP_SK_PLUGIN_DIR=/app/src/wp-content/plugins/storekeeper-for-woocommerce \
     STOREKEEPER_WOOCOMMERCE_B2C_DEBUG=1
 
 FROM test as dev
@@ -247,8 +247,8 @@ RUN usermod -u $USER_ID www-data && groupmod -g $GROUP_ID www-data \
     && find /app/src /tmp /var /usr/local/bin /run -group 33 -exec chgrp $GROUP_ID {} \;
 
 RUN mkdir -p /app/src/wp-content/ && touch /app/src/wp-content/.persist  && chown -R www-data:www-data /app/src/wp-content \
-    && mkdir /tmp/storekeeper-woocommerce-b2c/ && touch /tmp/storekeeper-woocommerce-b2c/.persist  \
-    && chown -R www-data:www-data /tmp/storekeeper-woocommerce-b2c \
+    && mkdir /tmp/storekeeper-for-woocommerce/ && touch /tmp/storekeeper-for-woocommerce/.persist  \
+    && chown -R www-data:www-data /tmp/storekeeper-for-woocommerce \
     && mkdir /tmp/sk-log/ && touch /tmp/sk-log/.persist  && chown -R www-data:www-data /tmp/sk-log
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -q -y install gettext
@@ -258,5 +258,5 @@ COPY docker/extract-translations.sh /bin/extract-translations
 COPY docker/translate-to-machine-object.sh /bin/translate-to-machine-object
 
 VOLUME /app/src/wp-content/
-VOLUME /tmp/storekeeper-woocommerce-b2c/
+VOLUME /tmp/storekeeper-for-woocommerce/
 VOLUME /tmp/sk-log/

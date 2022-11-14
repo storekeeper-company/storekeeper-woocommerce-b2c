@@ -209,7 +209,7 @@ class Core
                     '%s: You need to have WooCommerce installed for this add-on to work',
                     I18N::DOMAIN
                 ),
-                STOREKEEPER_WOOCOMMERCE_B2C_NAME
+                STOREKEEPER_FOR_WOOCOMMERCE_NAME
             );
 
             throw new BootError($txt);
@@ -464,6 +464,7 @@ HTML;
 
         $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_WOOCOMMERCE_B2C_NAME;
         $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.DIRECTORY_SEPARATOR.'tmp';
+        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_FOR_WOOCOMMERCE_NAME;
 
         return $dirs;
     }

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-TRANSLATION_FILE_BASE_NAME=storekeeper-woocommerce-b2c-
+TRANSLATION_FILE_BASE_NAME=storekeeper-for-woocommerce-
 
 cd "$WP_SK_PLUGIN_DIR/i18n"
 if test -f "${TRANSLATION_FILE_BASE_NAME}en_US.po"; then
