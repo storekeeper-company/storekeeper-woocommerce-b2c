@@ -59,7 +59,8 @@ class CategoryFileExport extends AbstractCSVFileExport
         $total = count($categories);
         $index = 0;
         /* @var WP_Term $item */
-        foreach ($categories as $item) {
+        foreach ($categories as $category) {
+            $item = $category['term'];
             // Default category for when a product does not has a category.
             if ('uncategorized' !== $item->slug) {
                 $lineData = [];
@@ -134,20 +135,19 @@ class CategoryFileExport extends AbstractCSVFileExport
         $categories = [];
 
         foreach ($mappedCategories as $term) {
-            $parentCategory = $this->getParentCategory($mappedCategories, $term->parent);
-            if (null !== $parentCategory) {
-                $parentCategoryPosition = $this->getCategoryPosition($categories, $parentCategory->term_id);
-                if (null === $parentCategoryPosition) {
-                    $parentCategoryPosition = array_push($categories, $parentCategory);
-                }
+            $category = [];
+            $parentTree = $this->getParentTree($mappedCategories, $term->parent, $term->term_id);
+            $category['order'] = $parentTree;
 
-                array_splice($categories, $parentCategoryPosition - 1, 0, [$term]);
-            } else {
-                $categories[] = $term;
-            }
+            $category['term'] = $term;
+            $categories[$term->term_id] = $category;
         }
 
-        return array_reverse($categories);
+        usort($categories, function ($a, $b) {
+            return $a['order'] <=> $b['order'];
+        });
+
+        return $categories;
     }
 
     private function getCategoryPosition($categories, $termId)
@@ -164,21 +164,33 @@ class CategoryFileExport extends AbstractCSVFileExport
     }
 
     /**
-     * Searches for the parent in the map.
-     *
-     * @return WP_Term|null
+     * Get the categories parent tree.
      */
-    private function getParentCategory(array $map, int $parentId = 0)
+    private function getParentTree(array $map, int $parentId = 0, int $termId = 0): string
     {
-        $parentCategory = null;
+        $parentTree = '';
 
-        if (array_key_exists($parentId, $map)) {
-            $parent = $map[$parentId];
-            if (0 !== $parentId && !empty($parent)) {
-                $parentCategory = $parent;
+        $parentTermId = $parentId;
+        while (null !== $parentTermId && 0 !== $parentTermId) {
+            if (array_key_exists($parentTermId, $map)) {
+                $parent = $map[$parentTermId];
+                if (0 !== $parentId && !empty($parent)) {
+                    $parentTree = "{$parent->term_id}:{$parentTree}";
+                    $parentTermId = $parent->parent;
+                } else {
+                    $parentTermId = null;
+                }
+            } else {
+                $parentTermId = null;
             }
         }
 
-        return $parentCategory;
+        if (!$parentTree) {
+            return (string) $termId;
+        }
+
+        $parentTree .= $termId;
+
+        return $parentTree;
     }
 }
