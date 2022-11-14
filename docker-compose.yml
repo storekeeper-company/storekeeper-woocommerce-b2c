@@ -31,8 +31,8 @@ services:
       - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - wp-content:/app/src/wp-content
       - ./tmp/sk-log:/tmp/sk-log:rw
-      - ./tmp/sk-tmp:/tmp/storekeeper-woocommerce-b2c:rw
-      - .:/app/src/wp-content/plugins/storekeeper-woocommerce-b2c:rw
+      - ./tmp/sk-tmp:/tmp/storekeeper-for-woocommerce:rw
+      - .:/app/src/wp-content/plugins/storekeeper-for-woocommerce:rw
 
   db:
     image: mysql:5.7

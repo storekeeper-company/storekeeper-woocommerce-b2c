@@ -1,4 +1,5 @@
 <?php
+
 $pomo = realpath(__DIR__.'/../../../../../wp-includes/pomo');
 require_once "$pomo/entry.php";
 require_once "$pomo/translations.php";

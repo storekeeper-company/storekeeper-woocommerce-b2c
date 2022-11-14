@@ -14,7 +14,7 @@
  * Tags: woocommerce,e-commerce, woo,sales,store
  * Author:              Storekeeper
  * Author URI:          https://www.storekeeper.nl/
- * Text Domain:         storekeeper-woocommerce-b2c
+ * Text Domain:         storekeeper-for-woocommerce
  * Domain Path:         /i18n
  * Description:         This plugin provides sync possibilities with the StoreKeeper Backoffice.
  * Allows synchronization of the WooCommerce product catalog, customers, orders and handles payments using StoreKeeper payment platform.

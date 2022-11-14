@@ -30,7 +30,7 @@ pull-translations:
 		file download \
 		--format=po \
 		--export-empty-as=skip \
-		--bundle-structure "i18n/storekeeper-woocommerce-b2c-%LANG_ISO%.po" \
+		--bundle-structure "i18n/storekeeper-for-woocommerce-%LANG_ISO%.po" \
 		--original-filenames=false &&\
 	echo "OK"
 	docker-compose up --build -d web
