@@ -31,15 +31,6 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
 
         $this->assertNotCleanEnvironment();
         $this->assertCleanProducts();
-
-        $this->runner->execute(
-            CleanWoocommerceEnvironment::getCommandName(),
-            [],
-            [
-                'yes' => true,
-                'silent' => true,
-            ]
-        );
     }
 
     public function testCleaning()
