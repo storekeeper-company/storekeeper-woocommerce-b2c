@@ -29,7 +29,7 @@ class LoggerFactory
             $log_dir .= DIRECTORY_SEPARATOR.$suffix;
         }
         if (!file_exists($log_dir)) {
-            mkdir($log_dir, 0777, true);
+//            mkdir($log_dir, 0777, true);
         }
 
         return $log_dir;

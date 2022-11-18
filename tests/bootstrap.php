@@ -112,8 +112,8 @@ function _check_plugin_ready()
 
             echo 'Running: wp plugin activate woocommerce'.PHP_EOL;
             passthru('wp plugin activate woocommerce');
-            echo 'Running: wp plugin activate storekeeper-woocommerce-b2c'.PHP_EOL;
-            passthru('wp plugin activate storekeeper-woocommerce-b2c');
+            echo 'Running: wp plugin activate storekeeper-for-woocommerce'.PHP_EOL;
+            passthru('wp plugin activate storekeeper-for-woocommerce');
 
             sleep(1);
         } else {
