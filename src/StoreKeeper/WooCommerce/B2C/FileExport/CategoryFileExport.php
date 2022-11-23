@@ -52,13 +52,15 @@ class CategoryFileExport extends AbstractCSVFileExport
             get_categories($arguments),
             function ($item) {
                 return $item->term_id;
-            }
-        );
+            });
 
-        $total = count($map);
+        $categories = $this->sortCategoriesByParent($map);
+
+        $total = count($categories);
         $index = 0;
         /* @var WP_Term $item */
-        foreach ($map as $id => $item) {
+        foreach ($categories as $category) {
+            $item = $category['term'];
             // Default category for when a product does not has a category.
             if ('uncategorized' !== $item->slug) {
                 $lineData = [];
@@ -69,7 +71,7 @@ class CategoryFileExport extends AbstractCSVFileExport
                 $lineData['translatable.lang'] = $exportLanguage;
                 $lineData['slug'] = $item->slug;
                 $lineData['description'] = $item->description;
-                $lineData['image_url'] = $this->getThumbnailUrl($id);
+                $lineData['image_url'] = $this->getThumbnailUrl($item->term_id);
                 $lineData['published'] = true;
                 $lineData['parent_slug'] = $this->getParentSlug($map, $item->parent);
 
@@ -126,5 +128,69 @@ class CategoryFileExport extends AbstractCSVFileExport
         }
 
         return $parentSlug;
+    }
+
+    private function sortCategoriesByParent(array $mappedCategories): array
+    {
+        $categories = [];
+
+        foreach ($mappedCategories as $term) {
+            $category = [];
+            $parentTree = $this->getParentTree($mappedCategories, $term->parent, $term->term_id);
+            $category['order'] = $parentTree;
+
+            $category['term'] = $term;
+            $categories[$term->term_id] = $category;
+        }
+
+        usort($categories, function ($a, $b) {
+            return $a['order'] <=> $b['order'];
+        });
+
+        return $categories;
+    }
+
+    private function getCategoryPosition($categories, $termId)
+    {
+        $position = null;
+        foreach ($categories as $index => $category) {
+            if ($termId === $category->term_id) {
+                $position = $index + 1;
+                break;
+            }
+        }
+
+        return $position;
+    }
+
+    /**
+     * Get the categories parent tree.
+     */
+    private function getParentTree(array $map, int $parentId = 0, int $termId = 0): string
+    {
+        $parentTree = '';
+
+        $parentTermId = $parentId;
+        while (null !== $parentTermId && 0 !== $parentTermId) {
+            if (array_key_exists($parentTermId, $map)) {
+                $parent = $map[$parentTermId];
+                if (0 !== $parentId && !empty($parent)) {
+                    $parentTree = "{$parent->term_id}:{$parentTree}";
+                    $parentTermId = $parent->parent;
+                } else {
+                    $parentTermId = null;
+                }
+            } else {
+                $parentTermId = null;
+            }
+        }
+
+        if (!$parentTree) {
+            return (string) $termId;
+        }
+
+        $parentTree .= $termId;
+
+        return $parentTree;
     }
 }
