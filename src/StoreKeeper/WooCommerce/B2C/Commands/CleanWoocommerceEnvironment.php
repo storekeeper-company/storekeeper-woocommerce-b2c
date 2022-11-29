@@ -486,10 +486,9 @@ class CleanWoocommerceEnvironment extends AbstractCommand
 
     protected function cleanProducts(\Closure $logDeletion): void
     {
-        $logDeletion('products');
-        foreach ($this->productIds as $productId) {
-            $product = wc_get_product($productId);
-            $product->delete(true);
+        $logDeletion('product images');
+        foreach ($this->productAttachmentIds as $productAttachmentId) {
+            wp_delete_attachment($productAttachmentId, true);
         }
 
         $logDeletion('product variations');
@@ -498,9 +497,10 @@ class CleanWoocommerceEnvironment extends AbstractCommand
             $productVariation->delete(true);
         }
 
-        $logDeletion('product images');
-        foreach ($this->productAttachmentIds as $productAttachmentId) {
-            wp_delete_attachment($productAttachmentId, true);
+        $logDeletion('products');
+        foreach ($this->productIds as $productId) {
+            $product = wc_get_product($productId);
+            $product->delete(true);
         }
     }
 }
