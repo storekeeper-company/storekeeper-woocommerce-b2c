@@ -171,12 +171,14 @@ class OrderExportTest extends AbstractOrderExportTest
         $tests['same items with backoffice'] = [
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                     'storekeeper_id' => 1,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 100,
@@ -185,11 +187,13 @@ class OrderExportTest extends AbstractOrderExportTest
             ],
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 100,
@@ -201,12 +205,14 @@ class OrderExportTest extends AbstractOrderExportTest
         $tests['same items with backoffice with decimals'] = [
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100.25,
                     'storekeeper_id' => 1,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 100.15,
@@ -215,11 +221,13 @@ class OrderExportTest extends AbstractOrderExportTest
             ],
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100.25,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 100.15,
@@ -231,12 +239,14 @@ class OrderExportTest extends AbstractOrderExportTest
         $tests['missing item from backoffice order'] = [
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                     'storekeeper_id' => 1,
                 ],
                 [
+                    'name' => 'NON EXISTING DUMMY',
                     'sku' => 'NON-EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
@@ -245,6 +255,7 @@ class OrderExportTest extends AbstractOrderExportTest
             ],
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
@@ -256,12 +267,14 @@ class OrderExportTest extends AbstractOrderExportTest
         $tests['same items from backoffice order but different quantity'] = [
             [
                 [
+                    'name' => 'NON EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                     'storekeeper_id' => 1,
                 ],
                 [
+                    'name' => 'NON EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 100,
@@ -270,11 +283,13 @@ class OrderExportTest extends AbstractOrderExportTest
             ],
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 2,
                     'ppu_wt' => 100,
@@ -286,12 +301,14 @@ class OrderExportTest extends AbstractOrderExportTest
         $tests['same items from backoffice order but different price per unit'] = [
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                     'storekeeper_id' => 1,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 100,
@@ -300,11 +317,13 @@ class OrderExportTest extends AbstractOrderExportTest
             ],
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 200,
@@ -316,12 +335,14 @@ class OrderExportTest extends AbstractOrderExportTest
         $tests['same items from backoffice order but 2 products with same SKU'] = [
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                     'storekeeper_id' => 1,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 100,
@@ -330,16 +351,19 @@ class OrderExportTest extends AbstractOrderExportTest
             ],
             [
                 [
+                    'name' => 'EXISTING DUMMY',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 1,
                     'ppu_wt' => 100,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 2',
                     'sku' => 'EXISTING DUMMY SKU 2',
                     'quantity' => 1,
                     'ppu_wt' => 200,
                 ],
                 [
+                    'name' => 'EXISTING DUMMY 3',
                     'sku' => 'EXISTING DUMMY SKU',
                     'quantity' => 2,
                     'ppu_wt' => 100,

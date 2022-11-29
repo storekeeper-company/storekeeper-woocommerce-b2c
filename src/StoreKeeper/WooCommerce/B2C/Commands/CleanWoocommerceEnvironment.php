@@ -10,6 +10,11 @@ use StoreKeeper\WooCommerce\B2C\Tools\StringFunctions;
 class CleanWoocommerceEnvironment extends AbstractCommand
 {
     protected $silent = false;
+    protected $productsOnly = false;
+
+    protected $productIds = null;
+    protected $productVariationIds = null;
+    protected $productAttachmentIds = null;
 
     /**
      * WP_CLI commands wrapper for the silent property.
@@ -74,6 +79,12 @@ class CleanWoocommerceEnvironment extends AbstractCommand
                 'description' => __('Suppress the logs of this command.', I18N::DOMAIN),
                 'optional' => true,
             ],
+            [
+                'type' => 'flag',
+                'name' => 'products-only',
+                'description' => __('Clean products only.', I18N::DOMAIN),
+                'optional' => true,
+            ],
         ];
     }
 
@@ -82,57 +93,74 @@ class CleanWoocommerceEnvironment extends AbstractCommand
         global $wpdb;
 
         $this->silent = array_key_exists('silent', $assoc_arguments);
+        $productsOnly = array_key_exists('products-only', $assoc_arguments);
+
+        $this->productIds = self::getProductIds();
+        $this->productVariationIds = self::getProductVariationIds();
+        $this->productAttachmentIds = self::getProductAttachmentIds();
 
         $this->line();
         $this->warning('Counts of entities to be deleted:');
         $this->line();
 
-        $tag_terms = self::getTagTerms();
-        $this->log('Tags: '.count($tag_terms));
+        if ($productsOnly) {
+            $this->log('Products: '.count($this->productIds));
+            $this->log('Products variations: '.count($this->productVariationIds));
+            $this->log('Product images: '.count($this->productAttachmentIds));
 
-        $coupon_ids = self::getCouponIds();
-        $this->log('Coupons: '.count($coupon_ids));
+            if (!array_key_exists('yes', $assoc_arguments)) {
+                $this->line();
+                $this->warning(
+                    'You are about to delete all products in this environment.'
+                );
+                $this->warning('Make sure you have a working backup available.');
+                $this->line();
 
-        $attribute_value_terms = self::getAttributeValueTerms();
-        $this->log('Attribute values: '.count($attribute_value_terms));
+                \WP_CLI::confirm('Are you sure you want to permanently delete entities?');
+            }
+        } else {
+            $tag_terms = self::getTagTerms();
+            $this->log('Tags: '.count($tag_terms));
 
-        $attribute_value_attachment_ids = self::getAttributeValueAttachmentIds();
-        $this->log('Attribute value attachments: '.count($attribute_value_attachment_ids));
+            $coupon_ids = self::getCouponIds();
+            $this->log('Coupons: '.count($coupon_ids));
 
-        $attribute_ids = self::getAttributeIds();
-        $this->log('Attributes: '.count($attribute_ids));
+            $attribute_value_terms = self::getAttributeValueTerms();
+            $this->log('Attribute values: '.count($attribute_value_terms));
 
-        $category_terms = self::getCategoryTerms();
-        $this->log('Categories: '.count($category_terms));
+            $attribute_value_attachment_ids = self::getAttributeValueAttachmentIds();
+            $this->log('Attribute value attachments: '.count($attribute_value_attachment_ids));
 
-        $category_attachment_ids = self::getCategoryAttachmentIds();
-        $this->log('Category attachments: '.count($category_attachment_ids));
+            $attribute_ids = self::getAttributeIds();
+            $this->log('Attributes: '.count($attribute_ids));
 
-        $product_ids = self::getProductIds();
-        $this->log('Products: '.count($product_ids));
+            $category_terms = self::getCategoryTerms();
+            $this->log('Categories: '.count($category_terms));
 
-        $productVariationIds = self::getProductVariationIds();
-        $this->log('Products variations: '.count($productVariationIds));
+            $category_attachment_ids = self::getCategoryAttachmentIds();
+            $this->log('Category attachments: '.count($category_attachment_ids));
 
-        $product_attachment_ids = self::getProductAttachmentIds();
-        $this->log('Product images: '.count($product_attachment_ids));
+            $this->log('Products: '.count($this->productIds));
+            $this->log('Products variations: '.count($this->productVariationIds));
+            $this->log('Product images: '.count($this->productAttachmentIds));
 
-        $order_ids = self::getOrderIds();
-        $this->log('Orders (incl. internal): '.count($order_ids));
+            $order_ids = self::getOrderIds();
+            $this->log('Orders (incl. internal): '.count($order_ids));
 
-        $this->log('Tasks: '.TaskModel::count());
+            $this->log('Tasks: '.TaskModel::count());
 
-        $this->log('Web hook logs: '.WebhookLogModel::count());
+            $this->log('Web hook logs: '.WebhookLogModel::count());
 
-        if (!array_key_exists('yes', $assoc_arguments)) {
-            $this->line();
-            $this->warning(
-                'You are about to delete all tags, coupons, attribute values, attributes, categories, products, orders, tasks and web hook logs in this environment.'
-            );
-            $this->warning('Make sure you have a working backup available.');
-            $this->line();
+            if (!array_key_exists('yes', $assoc_arguments)) {
+                $this->line();
+                $this->warning(
+                    'You are about to delete all tags, coupons, attribute values, attributes, categories, products, orders, tasks and web hook logs in this environment.'
+                );
+                $this->warning('Make sure you have a working backup available.');
+                $this->line();
 
-            \WP_CLI::confirm('Are you sure you want to permanently delete all these entities?');
+                \WP_CLI::confirm('Are you sure you want to permanently delete all these entities?');
+            }
         }
 
         $deletionCount = 1;
@@ -143,69 +171,59 @@ class CleanWoocommerceEnvironment extends AbstractCommand
         };
 
         $this->line();
-        $logDeletion('tags');
-        foreach ($tag_terms as $tag_term) {
-            wp_delete_term($tag_term->term_id, $tag_term->taxonomy);
+
+        if ($productsOnly) {
+            $this->cleanProducts($logDeletion);
+        } else {
+            $logDeletion('tags');
+            foreach ($tag_terms as $tag_term) {
+                wp_delete_term($tag_term->term_id, $tag_term->taxonomy);
+            }
+
+            $logDeletion('coupons');
+            foreach ($coupon_ids as $coupon_id) {
+                wp_delete_post($coupon_id, true);
+            }
+
+            $logDeletion('attribute values');
+            foreach ($attribute_value_terms as $attribute_value_term) {
+                wp_delete_term($attribute_value_term->term_id, $attribute_value_term->taxonomy);
+            }
+
+            $logDeletion('attribute value images');
+            foreach ($attribute_value_attachment_ids as $attribute_value_attachment_id) {
+                wp_delete_attachment($attribute_value_attachment_id, true);
+            }
+
+            $logDeletion('attributes');
+            foreach ($attribute_ids as $attribute_id) {
+                wc_delete_attribute($attribute_id);
+            }
+
+            $logDeletion('categories');
+            foreach ($category_terms as $category_term) {
+                wp_delete_term($category_term->term_id, $category_term->taxonomy);
+            }
+
+            $logDeletion('category attachments');
+            foreach ($category_attachment_ids as $category_attachment_id) {
+                wp_delete_attachment($category_attachment_id, true);
+            }
+
+            $this->cleanProducts($logDeletion);
+
+            $logDeletion('orders');
+            foreach ($order_ids as $order_id) {
+                $order = wc_get_order($order_id);
+                $order->delete(true);
+            }
+
+            $logDeletion('tasks');
+            self::cleanTasks();
+
+            $logDeletion('web hook logs');
+            self::cleanWebhookLogs();
         }
-
-        $logDeletion('coupons');
-        foreach ($coupon_ids as $coupon_id) {
-            wp_delete_post($coupon_id, true);
-        }
-
-        $logDeletion('attribute values');
-        foreach ($attribute_value_terms as $attribute_value_term) {
-            wp_delete_term($attribute_value_term->term_id, $attribute_value_term->taxonomy);
-        }
-
-        $logDeletion('attribute value images');
-        foreach ($attribute_value_attachment_ids as $attribute_value_attachment_id) {
-            wp_delete_attachment($attribute_value_attachment_id, true);
-        }
-
-        $logDeletion('attributes');
-        foreach ($attribute_ids as $attribute_id) {
-            wc_delete_attribute($attribute_id);
-        }
-
-        $logDeletion('categories');
-        foreach ($category_terms as $category_term) {
-            wp_delete_term($category_term->term_id, $category_term->taxonomy);
-        }
-
-        $logDeletion('category attachments');
-        foreach ($category_attachment_ids as $category_attachment_id) {
-            wp_delete_attachment($category_attachment_id, true);
-        }
-
-        $logDeletion('products');
-        foreach ($product_ids as $product_id) {
-            $product = wc_get_product($product_id);
-            $product->delete(true);
-        }
-
-        $logDeletion('product variations');
-        foreach ($productVariationIds as $productVariationId) {
-            $productVariation = wc_get_product($productVariationId);
-            $productVariation->delete(true);
-        }
-
-        $logDeletion('product images');
-        foreach ($product_attachment_ids as $product_attachment_id) {
-            wp_delete_attachment($product_attachment_id, true);
-        }
-
-        $logDeletion('orders');
-        foreach ($order_ids as $order_id) {
-            $order = wc_get_order($order_id);
-            $order->delete(true);
-        }
-
-        $logDeletion('tasks');
-        self::cleanTasks();
-
-        $logDeletion('web hook logs');
-        self::cleanWebhookLogs();
 
         $this->line();
         $this->log('Verifying...');
@@ -222,22 +240,29 @@ class CleanWoocommerceEnvironment extends AbstractCommand
             }
         };
 
-        $countCheck('tags', self::getTagTerms());
-        $countCheck('coupons', self::getCouponIds());
-        $countCheck('attribute values', self::getAttributeValueTerms());
-        $countCheck('attribute value attachments', self::getAttributeValueAttachmentIds());
-        $countCheck('attributes', self::getAttributeIds());
-        $countCheck('categories', self::getCategoryTerms());
-        $countCheck('category attachments', self::getCategoryAttachmentIds());
-        $countCheck('products', self::getProductIds());
-        $countCheck('product images', self::getProductAttachmentIds());
-        $countCheck('orders (incl. internal)', self::getOrderIds());
+        if ($productsOnly) {
+            $countCheck('products', self::getProductIds());
+            $countCheck('product variations', self::getProductVariationIds());
+            $countCheck('product images', self::getProductAttachmentIds());
+        } else {
+            $countCheck('tags', self::getTagTerms());
+            $countCheck('coupons', self::getCouponIds());
+            $countCheck('attribute values', self::getAttributeValueTerms());
+            $countCheck('attribute value attachments', self::getAttributeValueAttachmentIds());
+            $countCheck('attributes', self::getAttributeIds());
+            $countCheck('categories', self::getCategoryTerms());
+            $countCheck('category attachments', self::getCategoryAttachmentIds());
+            $countCheck('products', self::getProductIds());
+            $countCheck('product variations', self::getProductVariationIds());
+            $countCheck('product images', self::getProductAttachmentIds());
+            $countCheck('orders (incl. internal)', self::getOrderIds());
 
-        $taskQuery = TaskModel::prepareQuery(TaskModel::getSelectHelper()->cols(['*']));
-        $countCheck('tasks', $wpdb->get_results($taskQuery));
+            $taskQuery = TaskModel::prepareQuery(TaskModel::getSelectHelper()->cols(['*']));
+            $countCheck('tasks', $wpdb->get_results($taskQuery));
 
-        $logsQuery = WebhookLogModel::prepareQuery(WebhookLogModel::getSelectHelper()->cols(['*']));
-        $countCheck('web hook logs', $wpdb->get_results($logsQuery));
+            $logsQuery = WebhookLogModel::prepareQuery(WebhookLogModel::getSelectHelper()->cols(['*']));
+            $countCheck('web hook logs', $wpdb->get_results($logsQuery));
+        }
 
         $this->line();
 
@@ -457,5 +482,25 @@ class CleanWoocommerceEnvironment extends AbstractCommand
                 ],
             ]
         );
+    }
+
+    protected function cleanProducts(\Closure $logDeletion): void
+    {
+        $logDeletion('product images');
+        foreach ($this->productAttachmentIds as $productAttachmentId) {
+            wp_delete_attachment($productAttachmentId, true);
+        }
+
+        $logDeletion('product variations');
+        foreach ($this->productVariationIds as $productVariationId) {
+            $productVariation = wc_get_product($productVariationId);
+            $productVariation->delete(true);
+        }
+
+        $logDeletion('products');
+        foreach ($this->productIds as $productId) {
+            $product = wc_get_product($productId);
+            $product->delete(true);
+        }
     }
 }

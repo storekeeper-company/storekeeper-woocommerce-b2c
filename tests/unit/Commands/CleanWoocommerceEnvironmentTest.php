@@ -13,7 +13,52 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
 {
     const FULL_SYNC_DIR = 'commands/full-sync';
 
+    public function testProductsOnlyCleaning()
+    {
+        $this->populateDatabase();
+        $this->assertNotCleanEnvironment();
+        $this->assertNotCleanProducts();
+
+        $this->runner->execute(
+            CleanWoocommerceEnvironment::getCommandName(),
+            [],
+            [
+                'yes' => true,
+                'silent' => true,
+                'products-only' => true,
+            ]
+        );
+
+        $this->assertNotCleanEnvironment();
+        $this->assertCleanProducts();
+    }
+
     public function testCleaning()
+    {
+        $this->populateDatabase();
+        $this->assertNotCleanEnvironment();
+        $this->assertNotCleanProducts();
+
+        /*
+         * `yes` and `silent` are passed because WP_CLI is for some reason not in the CLEAN command
+         */
+        $this->runner->execute(
+            CleanWoocommerceEnvironment::getCommandName(),
+            [],
+            [
+                'yes' => true,
+                'silent' => true,
+            ]
+        );
+
+        $this->assertCleanEnvironment();
+        $this->assertCleanProducts();
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    protected function populateDatabase(): void
     {
         $this->initApiConnection();
 
@@ -33,10 +78,13 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
         WC_Helper_Coupon::create_coupon();
 
         $this->runner->execute(SyncWoocommerceFullSync::getCommandName());
+    }
 
+    protected function assertNotCleanEnvironment(): void
+    {
         /*
-         * Check if there are even any items
-         */
+                 * Check if there are even any items
+                 */
         $this->assertNotCount(
             0,
             CleanWoocommerceEnvironment::getTagTerms(),
@@ -74,22 +122,6 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
         );
         $this->assertNotCount(
             0,
-            CleanWoocommerceEnvironment::getProductIds(),
-            'No products imported'
-        );
-        $this->assertNotCount(
-            0,
-            CleanWoocommerceEnvironment::getProductVariationIds(),
-            'No product variations imported'
-        );
-
-        $this->assertNotCount(
-            0,
-            CleanWoocommerceEnvironment::getProductAttachmentIds(),
-            'No product images imported'
-        );
-        $this->assertNotCount(
-            0,
             CleanWoocommerceEnvironment::getOrderIds(),
             'No orders created'
         );
@@ -103,19 +135,29 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
             WebhookLogModel::count(),
             'No web hook logs created'
         );
+    }
 
-        /*
-         * `yes` and `silent` are passed because WP_CLI is for some reason not in the CLEAN command
-         */
-        $this->runner->execute(
-            CleanWoocommerceEnvironment::getCommandName(),
-            [],
-            [
-                'yes' => true,
-                'silent' => true,
-            ]
+    protected function assertCleanProducts(): void
+    {
+        $this->assertCount(
+            0,
+            CleanWoocommerceEnvironment::getProductIds(),
+            'No products removed'
         );
+        $this->assertCount(
+            0,
+            CleanWoocommerceEnvironment::getProductVariationIds(),
+            'No products removed'
+        );
+        $this->assertCount(
+            0,
+            CleanWoocommerceEnvironment::getProductAttachmentIds(),
+            'No product images removed'
+        );
+    }
 
+    protected function assertCleanEnvironment(): void
+    {
         $this->assertCount(
             0,
             CleanWoocommerceEnvironment::getTagTerms(),
@@ -153,21 +195,6 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
         );
         $this->assertCount(
             0,
-            CleanWoocommerceEnvironment::getProductIds(),
-            'No products removed'
-        );
-        $this->assertCount(
-            0,
-            CleanWoocommerceEnvironment::getProductVariationIds(),
-            'No products removed'
-        );
-        $this->assertCount(
-            0,
-            CleanWoocommerceEnvironment::getProductAttachmentIds(),
-            'No product images removed'
-        );
-        $this->assertCount(
-            0,
             CleanWoocommerceEnvironment::getOrderIds(),
             'No orders removed'
         );
@@ -180,6 +207,26 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
             0,
             WebhookLogModel::count(),
             'No web hook logs removed'
+        );
+    }
+
+    protected function assertNotCleanProducts(): void
+    {
+        $this->assertNotCount(
+            0,
+            CleanWoocommerceEnvironment::getProductIds(),
+            'No products imported'
+        );
+        $this->assertNotCount(
+            0,
+            CleanWoocommerceEnvironment::getProductVariationIds(),
+            'No product variations imported'
+        );
+
+        $this->assertNotCount(
+            0,
+            CleanWoocommerceEnvironment::getProductAttachmentIds(),
+            'No product images imported'
         );
     }
 }
