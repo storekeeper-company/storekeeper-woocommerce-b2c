@@ -18,9 +18,11 @@ class CartHandler
         $totalEmballagePrice = 0.00;
         foreach ($items as $values) {
             $product = wc_get_product($values['product_id']);
-            $emballagePrice = $product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY);
-            if ($emballagePrice) {
-                $totalEmballagePrice += (float) $emballagePrice;
+            if ($product) {
+                $emballagePrice = $product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY);
+                if ($emballagePrice) {
+                    $totalEmballagePrice += (float) $emballagePrice;
+                }
             }
         }
 
