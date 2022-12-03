@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Frontend;
 
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CartHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
@@ -36,6 +37,9 @@ class FrontendCore
         $orderHookHandler = new OrderHookHandler();
         $this->loader->add_action('woocommerce_order_details_after_order_table', $orderHookHandler, 'addOrderStatusLink');
         $this->loader->add_filter(OrderHookHandler::STOREKEEPER_ORDER_TRACK_HOOK, $orderHookHandler, 'createOrderTrackingMessage', 10, 2);
+
+        $cartHandler = new CartHandler();
+        $this->loader->add_action('woocommerce_cart_calculate_fees', $cartHandler, 'addEmballageFee', 11);
 
         $this->registerShortCodes();
         $this->registerHandlers();
