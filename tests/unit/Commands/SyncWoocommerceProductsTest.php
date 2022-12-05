@@ -15,14 +15,12 @@ use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
-use WC_Product_Simple;
 
 class SyncWoocommerceProductsTest extends AbstractTest
 {
     // Datadump related constants
     const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products';
     const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.72e551759ae4651bdb99611a255078af300eb8b787c2a8b9a216b800b8818b06.json';
-    const DATADUMP_PRODUCT_WITH_EMBALLAGE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.products-with-emballage.json';
     const DATADUMP_PRODUCT_21_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.613db2c03f849.json';
     const DATADUMP_IMAGE_PRODUCT_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.62c2cdd392106.json';
     const DATADUMP_CONFIGURABLE_OPTIONS_FILE = 'moduleFunction.ShopModule::getConfigurableShopProductOptions.5e20566c4b0dd01fa60732d6968bc565b60fbda96451d989d00e35cc6d46e04a.json';
@@ -85,65 +83,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
         return $file->getReturn()['data'];
     }
 
-    public function testSimpleProductWithEmballageImport()
-    {
-        $this->initializeTest();
-
-        $original_product_data = $this->getReturnData(self::DATADUMP_PRODUCT_WITH_EMBALLAGE_FILE);
-
-        // Get the simple products from the data dump
-        $original_product_data = $this->getProductsByTypeFromDataDump(
-            $original_product_data,
-            self::SK_TYPE_SIMPLE
-        );
-
-        // Retrieve all synchronised simple products
-        $wc_simple_products = wc_get_products(['type' => self::WC_TYPE_SIMPLE]);
-        $this->assertSameSize(
-            $original_product_data,
-            $wc_simple_products,
-            'Amount of synchronised simple products doesn\'t match source data'
-        );
-
-        foreach ($original_product_data as $product_data) {
-            $original = new Dot($product_data);
-
-            // Retrieve product(s) with the storekeeper_id from the source data
-            /* @var WC_Product_Simple[] $wc_products */
-            $wc_products = wc_get_products(
-                [
-                    'post_type' => 'product',
-                    'meta_key' => 'storekeeper_id',
-                    'meta_value' => $original->get('id'),
-                ]
-            );
-            $this->assertCount(
-                1,
-                $wc_products,
-                'More then one product found with the provided storekeeper_id'
-            );
-
-            // Get the simple product with the storekeeper_id
-            $wc_simple_product = $wc_products[0];
-
-            $wcProductEmballagePrice = $wc_simple_product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY);
-            $wcProductEmballagePriceWT = $wc_simple_product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_WT_META_KEY);
-            $originalProductEmballagePrice = $original->get('product_emballage_price.ppu');
-            $originalProductEmballagePriceWt = $original->get('product_emballage_price.ppu_wt');
-
-            $this->assertEquals($originalProductEmballagePrice, $wcProductEmballagePrice, 'Emballage price without tax should match');
-            $this->assertEquals($wcProductEmballagePriceWT, $originalProductEmballagePriceWt, 'Emballage price with tax should match');
-
-            $this->assertEquals(
-                self::WC_TYPE_SIMPLE,
-                $wc_simple_product->get_type(),
-                'WooCommerce product type doesn\'t match the expected product type'
-            );
-
-            $this->assertProduct($original, $wc_simple_product);
-        }
-    }
-
     public function testSimpleProductImport()
     {
         $this->initializeTest();
@@ -190,6 +129,15 @@ class SyncWoocommerceProductsTest extends AbstractTest
             );
 
             $this->assertProduct($original, $wc_simple_product);
+
+            // Test the products with emballage
+            $wcProductEmballagePrice = $wc_simple_product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY);
+            $wcProductEmballagePriceWT = $wc_simple_product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_WT_META_KEY);
+            $originalProductEmballagePrice = $original->get('product_emballage_price.ppu');
+            $originalProductEmballagePriceWt = $original->get('product_emballage_price.ppu_wt');
+
+            $this->assertEquals($originalProductEmballagePrice, $wcProductEmballagePrice, 'Emballage price without tax should match');
+            $this->assertEquals($wcProductEmballagePriceWT, $originalProductEmballagePriceWt, 'Emballage price with tax should match');
         }
 
         $this->assertAttributeOptionOrder();
