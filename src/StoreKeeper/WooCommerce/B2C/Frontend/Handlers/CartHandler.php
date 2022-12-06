@@ -17,14 +17,14 @@ class CartHandler
         $items = $woocommerce->cart->get_cart();
 
         $lastEmballageTaxRateId = null;
-        $totalEmballagePrice = 0.00;
+        $totalEmballagePriceInCents = 0;
         foreach ($items as $values) {
             $product = wc_get_product($values['product_id']);
             $quantity = $values['quantity'];
             if ($product) {
                 if ($product->meta_exists(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY)) {
                     $emballagePrice = $product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY);
-                    $totalEmballagePrice += (float) ($emballagePrice * $quantity);
+                    $totalEmballagePriceInCents += round($emballagePrice * 100) * $quantity;
                 }
 
                 if ($product->meta_exists(ProductImport::PRODUCT_EMBALLAGE_TAX_ID_META_KEY)) {
@@ -33,7 +33,8 @@ class CartHandler
             }
         }
 
-        if ($totalEmballagePrice > 0) {
+        if ($totalEmballagePriceInCents > 0) {
+            $totalEmballagePrice = round($totalEmballagePriceInCents / 100, 2);
             $emballagePrice = [
                 'name' => __('Emballage fee', I18N::DOMAIN),
                 'amount' => $totalEmballagePrice,
