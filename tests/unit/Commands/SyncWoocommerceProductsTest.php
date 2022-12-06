@@ -133,11 +133,14 @@ class SyncWoocommerceProductsTest extends AbstractTest
             // Test the products with emballage
             $wcProductEmballagePrice = $wc_simple_product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY);
             $wcProductEmballagePriceWT = $wc_simple_product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_WT_META_KEY);
+            $wcProductEmballageTaxId = $wc_simple_product->get_meta(ProductImport::PRODUCT_EMBALLAGE_TAX_ID_META_KEY);
             $originalProductEmballagePrice = $original->get('product_emballage_price.ppu');
             $originalProductEmballagePriceWt = $original->get('product_emballage_price.ppu_wt');
+            $originalProductEmballageTaxRateId = $original->get('product_emballage_price.tax_rate_id');
 
             $this->assertEquals($originalProductEmballagePrice, $wcProductEmballagePrice, 'Emballage price without tax should match');
             $this->assertEquals($wcProductEmballagePriceWT, $originalProductEmballagePriceWt, 'Emballage price with tax should match');
+            $this->assertEquals($wcProductEmballageTaxId, $originalProductEmballageTaxRateId, 'Emballage price tax ID should match');
         }
 
         $this->assertAttributeOptionOrder();

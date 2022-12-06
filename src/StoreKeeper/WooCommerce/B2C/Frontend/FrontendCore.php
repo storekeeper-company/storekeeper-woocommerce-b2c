@@ -37,6 +37,7 @@ class FrontendCore
         $orderHookHandler = new OrderHookHandler();
         $this->loader->add_action('woocommerce_order_details_after_order_table', $orderHookHandler, 'addOrderStatusLink');
         $this->loader->add_filter(OrderHookHandler::STOREKEEPER_ORDER_TRACK_HOOK, $orderHookHandler, 'createOrderTrackingMessage', 10, 2);
+        $this->loader->add_action('woocommerce_checkout_create_order_fee_item', $orderHookHandler, 'addEmballageTaxRateId', 11, 4);
 
         $cartHandler = new CartHandler();
         $this->loader->add_action('woocommerce_cart_calculate_fees', $cartHandler, 'addEmballageFee', 11);

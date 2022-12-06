@@ -56,10 +56,22 @@ class OrderExportTest extends AbstractOrderExportTest
             'Storekeeper id does not match'
         );
 
-        $shipping = $sk_order['order_items'][1];
-        $this->assertEquals(true, $shipping['is_shipping'], 'sku');
+        $emballage = null;
+        if (isset($sk_order['order_items'][1]['is_shipping'])) {
+            $shipping = $sk_order['order_items'][1];
+        } else {
+            $emballage = $sk_order['order_items'][1];
+            $shipping = $sk_order['order_items'][2];
+        }
+
+        $this->assertEquals('flat rate shipping', $shipping['sku'], 'sku');
         $this->assertEquals(1, $shipping['quantity'], 'quantity');
         $this->assertEquals(10, $shipping['ppu_wt'], 'ppu_wt');
+
+        if ($emballage) {
+            $emballageTaxRate = $emballage['tax_rate_id'] ?? null;
+            $this->assertEquals(9, $emballageTaxRate, 'Emballage tax rate ID does not match');
+        }
 
         $expectedBillingStreet = $new_order['billing_address_1'].' '.$new_order['billing_address_2'];
 
@@ -465,6 +477,29 @@ class OrderExportTest extends AbstractOrderExportTest
         $woocommerceOrder->update_meta_data('shipping_address_house_number', $newOrderWithNlCountry['shipping_address_house_number']);
         $woocommerceOrder->save();
         $this->processNewOrder($newOrderWithNlCountryId, $newOrderWithNlCountry);
+    }
+
+    public function testOrderCreateWithEmballage()
+    {
+        $this->initApiConnection();
+
+        $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER_CREATE, true);
+
+        $this->emptyEnvironment();
+
+        $newOrder = $this->getOrderProps();
+        $newOrderId = $this->createWooCommerceOrder($newOrder);
+        $woocommerceOrder = new \WC_Order($newOrderId);
+
+        $emballageFee = new \WC_Order_Item_Fee();
+        $emballageFee->set_name('Emballage fee');
+        $emballageFee->set_amount(65.00);
+        $emballageFee->set_total(65.00);
+        $emballageFee->update_meta_data(OrderExport::EMBALLAGE_TAX_RATE_ID_META_KEY, 9);
+
+        $woocommerceOrder->add_item($emballageFee);
+        $woocommerceOrder->save();
+        $this->processNewOrder($newOrderId, $newOrder);
     }
 
     public function testWooCommerceOnlyProduct()
