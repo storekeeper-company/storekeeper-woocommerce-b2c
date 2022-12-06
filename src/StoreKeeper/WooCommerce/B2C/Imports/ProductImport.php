@@ -31,6 +31,10 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
 {
     use ConsoleProgressBarTrait;
 
+    const PRODUCT_EMBALLAGE_PRICE_META_KEY = 'storekeeper_emballage_price';
+    const PRODUCT_EMBALLAGE_PRICE_WT_META_KEY = 'storekeeper_emballage_price_wt';
+    const PRODUCT_EMBALLAGE_TAX_ID_META_KEY = 'storekeeper_emballage_tax_id';
+
     protected $syncProductVariations = false;
     protected $newItemsCount = 0;
     protected $updatedItemsCount = 0;
@@ -869,6 +873,13 @@ SQL;
         $newProduct->set_sale_price($discountedPricePerUnit);
         $log_data['sale_price'] = $discountedPricePerUnit;
         $this->debug('Set sale_Price on product', $log_data);
+
+        // Add emballage price to meta data
+        if ($dotObject->has('product_emballage_price_id') && $dotObject->has('product_emballage_price')) {
+            $newProduct->update_meta_data(self::PRODUCT_EMBALLAGE_PRICE_META_KEY, $dotObject->get('product_emballage_price.ppu'));
+            $newProduct->update_meta_data(self::PRODUCT_EMBALLAGE_PRICE_WT_META_KEY, $dotObject->get('product_emballage_price.ppu_wt'));
+            $newProduct->update_meta_data(self::PRODUCT_EMBALLAGE_TAX_ID_META_KEY, $dotObject->get('product_emballage_price.tax_rate_id'));
+        }
 
         return $log_data;
     }

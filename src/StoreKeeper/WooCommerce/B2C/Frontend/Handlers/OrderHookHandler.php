@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -47,5 +48,16 @@ HTML;
         $message
     </div>
 HTML;
+    }
+
+    public function addEmballageTaxRateId(\WC_Order_Item_Fee $orderItemFee, $feeKey, object $fee, \WC_Order $order): void
+    {
+        $feeData = (array) $fee;
+        if (isset($feeData[OrderExport::IS_EMBALLAGE_FEE_KEY])) {
+            $emballageTaxRateId = $feeData[OrderExport::TAX_RATE_ID_FEE_KEY] ?? null;
+            if ($emballageTaxRateId) {
+                $orderItemFee->add_meta_data(OrderExport::EMBALLAGE_TAX_RATE_ID_META_KEY, $emballageTaxRateId);
+            }
+        }
     }
 }

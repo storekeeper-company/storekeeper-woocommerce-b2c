@@ -20,6 +20,9 @@ use WC_Product_Factory;
 
 class OrderExport extends AbstractExport
 {
+    const EMBALLAGE_TAX_RATE_ID_META_KEY = 'sk_emballage_tax_id';
+    const IS_EMBALLAGE_FEE_KEY = 'sk_emballage_fee';
+    const TAX_RATE_ID_FEE_KEY = 'sk_tax_rate_id';
     const CONTEXT = 'edit';
     const ROW_SHIPPING_METHOD_TYPE = 'shipping_method';
     const ROW_FEE_TYPE = 'fee';
@@ -610,6 +613,10 @@ class OrderExport extends AbstractExport
                 'quantity' => $fee->get_quantity(),
                 'name' => $fee->get_name(self::CONTEXT),
             ];
+
+            if ($fee->meta_exists(self::EMBALLAGE_TAX_RATE_ID_META_KEY)) {
+                $data['tax_rate_id'] = $fee->get_meta(self::EMBALLAGE_TAX_RATE_ID_META_KEY);
+            }
 
             $extra = [
                 'wp_row_id' => $fee->get_id(),

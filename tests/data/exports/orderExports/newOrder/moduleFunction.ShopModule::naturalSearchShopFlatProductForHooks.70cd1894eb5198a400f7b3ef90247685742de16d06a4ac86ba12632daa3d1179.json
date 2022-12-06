@@ -19,6 +19,19 @@
     "return": {
         "data": [
             {
+                "product_emballage_price": {
+                    "id": 2279,
+                    "product_id": 130969,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 65,
+                    "ppu_wt": 75,
+                    "tax": 0,
+                    "tax_rate_id": 88,
+                    "date_created": "2022-12-02 03:07:59+01:00",
+                    "date_updated": "2022-12-02 04:23:18+01:00",
+                    "product_price_type_id": 9
+                },
                 "product_price": {
                     "id": 128352,
                     "product_id": 130969,
@@ -90,6 +103,8 @@
                 "id": 116611,
                 "product_id": 130969,
                 "product_price_id": 128352,
+                "product_emballage_price_is_dirty": false,
+                "product_emballage_price_id": 2279,
                 "date_created": "2020-01-14 16:11:37+01:00",
                 "active": true,
                 "backorder_enabled": false,

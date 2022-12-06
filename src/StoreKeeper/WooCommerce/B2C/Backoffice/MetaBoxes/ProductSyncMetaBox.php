@@ -22,7 +22,7 @@ class ProductSyncMetaBox extends AbstractMetaBox
         if ('add' !== $action) {
             add_meta_box(
                 'storekeeper-product-sync',
-                __('Product synchronization'),
+                __('Product synchronization', I18N::DOMAIN),
                 [$this, 'renderSyncBox'],
                 self::POST_TYPE,
                 'side',

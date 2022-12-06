@@ -3,9 +3,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-"
-"woocommerce-b2c\n"
-"POT-Creation-Date: 2022-11-08 17:26:28+00:00\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
+"woocommerce\n"
+"POT-Creation-Date: 2022-12-03 05:46:39+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -664,7 +664,7 @@ msgid "product blueprints"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:195
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1594
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1603
 msgid "products"
 msgstr ""
 
@@ -1232,22 +1232,26 @@ msgstr ""
 msgid "The type of tasks to be marked."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:54
+#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:59
 msgid "Purge all Storekeeper WooCommerce related entities/objects."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:59
+#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:64
 msgid ""
 "Execute this command to delete all tags, coupons, attribute values, "
 "attributes, categories, products, orders, tasks and web hook logs."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:68
+#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:73
 msgid "Skips the confirmation whether or not you are sure to continue."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:74
+#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:79
 msgid "Suppress the logs of this command."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:85
+msgid "Clean products only."
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/ConnectBackend.php:17
@@ -1959,6 +1963,10 @@ msgstr ""
 msgid "House number"
 msgstr ""
 
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
+msgid "Emballage fee"
+msgstr ""
+
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/OrderHookHandler.php:30
 msgid ""
 "To check your parcel status, go to <a href=\"%s\">Track & Trace page</a>."
@@ -2083,7 +2091,7 @@ msgstr ""
 msgid "orders"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1494
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1503
 msgid "Done processing %s items of %s (%s new / %s updated)"
 msgstr ""
 
