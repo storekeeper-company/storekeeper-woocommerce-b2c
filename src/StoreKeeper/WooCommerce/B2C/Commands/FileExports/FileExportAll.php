@@ -29,6 +29,13 @@ class FileExportAll extends AbstractFileExportCommand
             'optional' => true,
         ];
 
+        $synopsis[] = [
+            'type' => 'flag',
+            'name' => 'skip-empty-tags',
+            'description' => __('Skip empty tags (tags with no products attached)', I18N::DOMAIN),
+            'optional' => true,
+        ];
+
         return $synopsis;
     }
 
@@ -40,6 +47,11 @@ class FileExportAll extends AbstractFileExportCommand
         if (array_key_exists('export-not-active-products', $assoc_arguments)) {
             $this->getNewFileExportInstance()->setShouldExportActiveProductsOnly(false);
         }
+
+        if (array_key_exists('skip-empty-tags', $assoc_arguments)) {
+            $this->getNewFileExportInstance()->setShouldSkipEmptyTag(false);
+        }
+
         parent::execute($arguments, $assoc_arguments);
     }
 

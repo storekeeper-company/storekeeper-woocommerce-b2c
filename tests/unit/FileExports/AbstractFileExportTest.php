@@ -149,9 +149,9 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
     /**
      * Creation functions.
      */
-    protected function createTag(array $data)
+    protected function createTag(array $data, $termName = 'Dummy Tag')
     {
-        $term = wp_insert_term('Dummy Category', 'product_tag', $data);
+        $term = wp_insert_term($termName, 'product_tag', $data);
 
         return get_term($term['term_id']);
     }
@@ -202,7 +202,10 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
         return [$taxRate21, $taxRate9, $taxRate21Be];
     }
 
-    protected function createSimpleProduct($taxRateObject = null): WC_Product_Simple
+    /**
+     * @throws Exception
+     */
+    protected function createSimpleProductWithTagAndCategory($taxRateObject = null, $status = 'publish')
     {
         $product = new WC_Product_Simple();
         $taxRateObject ? $product->set_tax_class($taxRateObject->tax_rate_class) : null;
@@ -222,6 +225,54 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
                 'short_description' => 'A simple product',
             ]
         );
+
+        $product->set_status($status);
+
+        $attribute = new WC_Product_Attribute();
+        $attribute_data = WC_Helper_Product::create_attribute('size', ['small', 'large', 'huge']);
+        $attribute->set_id($attribute_data['attribute_id']);
+        $attribute->set_name($attribute_data['attribute_taxonomy']);
+        $attribute->set_options($attribute_data['term_ids']);
+        $attribute->set_position(1);
+        $attribute->set_visible(true);
+        $attribute->set_variation(false);
+        $product->set_attributes([$attribute]);
+
+        $category = wp_insert_term(bin2hex(random_bytes(18)), 'product_cat');
+        $tag = wp_insert_term(bin2hex(random_bytes(18)), 'product_tag');
+        $product->set_category_ids([$category['term_id']]);
+        $product->set_tag_ids([$tag['term_id']]);
+
+        $product->save();
+
+        return wc_get_product($product->get_id());
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function createSimpleProduct($taxRateObject = null, $status = 'publish')
+    {
+        $product = new WC_Product_Simple();
+        $taxRateObject ? $product->set_tax_class($taxRateObject->tax_rate_class) : null;
+        $unique = sanitize_title(uniqid('', true));
+        $product->set_props(
+            [
+                'name' => "Simple product $unique",
+                'regular_price' => 15,
+                'price' => 10,
+                'sku' => "simple-product-$unique",
+                'manage_stock' => false,
+                'tax_status' => 'taxable',
+                'downloadable' => false,
+                'virtual' => false,
+                'stock_status' => 'instock',
+                'description' => 'This is a simple product',
+                'short_description' => 'A simple product',
+            ]
+        );
+
+        $product->set_status($status);
 
         $attribute = new WC_Product_Attribute();
         $attribute_data = WC_Helper_Product::create_attribute('size', ['small', 'large', 'huge']);

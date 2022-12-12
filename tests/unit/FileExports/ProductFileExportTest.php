@@ -30,7 +30,7 @@ class ProductFileExportTest extends AbstractFileExportTest
          * @var WC_Product_Variable $variableProduct
          * @var WC_Product_Simple   $simpleProduct
          */
-        list($simpleProduct, $variableProduct, $noImageProduct) = $this->setupTests();
+        [$simpleProduct, $variableProduct, $noImageProduct] = $this->setupTests();
 
         $instance = $this->getNewFileExportInstance();
         $path = $instance->runExport(Language::getSiteLanguageIso2());
@@ -72,7 +72,8 @@ class ProductFileExportTest extends AbstractFileExportTest
             $this->assertProductExportRow(
                 $variationProduct,
                 $mappedRows[$variationProduct->get_sku()],
-                "Variation $index"
+                "Variation $index",
+                $variableProduct
             );
         }
     }
@@ -93,7 +94,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         return $product->get_title();
     }
 
-    private function assertProductExportRow(WC_Product $product, array $productRow, string $type)
+    private function assertProductExportRow(WC_Product $product, array $productRow, string $type, ?WC_Product $parentProduct = null)
     {
         $this->assertEquals(
             $this->getProductTitle($product),
@@ -132,9 +133,9 @@ class ProductFileExportTest extends AbstractFileExportTest
         );
 
         $this->assertEquals(
-            ProductFileExport::getCategorySlugs($product),
+            ProductFileExport::getTagAndCategorySlugs($product),
             $productRow['extra_category_slugs'],
-            "$type product category slugs is incorrectly exported"
+            "$type product category and tag slugs is incorrectly exported"
         );
 
         $taxRate = ProductFileExport::getTaxRate($product, self::BASE_COUNTRY);
@@ -210,12 +211,25 @@ class ProductFileExportTest extends AbstractFileExportTest
             }
         );
 
+        if ($parentProduct) {
+            $parentProductImageIds = array_merge(
+                [
+                    $product->get_image_id(),
+                ],
+                $product->get_gallery_image_ids()
+            );
+
+            $imageIds = array_diff($imageIds, $parentProductImageIds);
+        }
+
         foreach ($imageIds as $index => $imageId) {
             $this->assertEquals(
                 true,
                 key_exists("product.product_images.$index.download_url", $productRow),
                 "$type product image (index=$index) key does not exists"
             );
+
+            $q = AbstractCSVFileExport::parseFieldValue(wp_get_attachment_url($imageId));
 
             $this->assertEquals(
                 AbstractCSVFileExport::parseFieldValue(wp_get_attachment_url($imageId)),
@@ -304,7 +318,7 @@ class ProductFileExportTest extends AbstractFileExportTest
     private function setupTests(): array
     {
         list($taxRate21, $taxRate9) = $this->createTaxRates();
-        $simpleProduct = $this->createSimpleProduct($taxRate21);
+        $simpleProduct = $this->createSimpleProductWithTagAndCategory($taxRate21);
         $this->addImageToProduct($simpleProduct);
         $variableProduct = $this->createVariableProduct($taxRate21);
         $this->addImageToProduct($variableProduct);

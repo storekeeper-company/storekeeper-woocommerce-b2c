@@ -70,6 +70,10 @@ jQuery(function($) {
             data.activeProductsOnly = !$(`input[type="checkbox"][name="${type}-all-products"]`).is(':checked');
         }
 
+        if ($(`input[type="checkbox"][name="${type}-skip-empty-tags"]`).length > 0) {
+            data.skipEmptyTags = $(`input[type="checkbox"][name="${type}-skip-empty-tags"]`).is(':checked');
+        }
+
         exportRequest = $.ajax({
             url: exportSettings.url,
             data: data,

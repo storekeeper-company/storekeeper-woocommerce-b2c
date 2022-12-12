@@ -3,10 +3,18 @@
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
+use StoreKeeper\WooCommerce\B2C\Interfaces\TagExportInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 
-class TagFileExport extends AbstractCSVFileExport
+class TagFileExport extends AbstractCSVFileExport implements TagExportInterface
 {
+    private $shouldSkipEmptyTag = false;
+
+    public function setShouldSkipEmptyTag(bool $shouldSkipEmptyTag): void
+    {
+        $this->shouldSkipEmptyTag = $shouldSkipEmptyTag;
+    }
+
     public function getType(): string
     {
         return FileExportTypeHelper::TAG;
@@ -43,7 +51,7 @@ class TagFileExport extends AbstractCSVFileExport
             'taxonomy' => 'product_tag',
             'orderby' => 'ID',
             'order' => 'ASC',
-            'hide_empty' => false,
+            'hide_empty' => $this->shouldSkipEmptyTag,
         ];
 
         $map = $this->keyValueMapArray(
