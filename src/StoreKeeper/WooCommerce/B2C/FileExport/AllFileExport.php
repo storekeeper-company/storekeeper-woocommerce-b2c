@@ -6,10 +6,11 @@ use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\FileExportFailedException;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Interfaces\ProductExportInterface;
+use StoreKeeper\WooCommerce\B2C\Interfaces\TagExportInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use ZipArchive;
 
-class AllFileExport extends AbstractFileExport implements ProductExportInterface
+class AllFileExport extends AbstractFileExport implements ProductExportInterface, TagExportInterface
 {
     const EXPORTS = [
         FileExportTypeHelper::ATTRIBUTE,
@@ -22,10 +23,16 @@ class AllFileExport extends AbstractFileExport implements ProductExportInterface
     ];
 
     private $shouldExportActiveProductsOnly = true;
+    private $shouldSkipEmptyTag = false;
 
     public function setShouldExportActiveProductsOnly(bool $shouldExportActiveProductsOnly): void
     {
         $this->shouldExportActiveProductsOnly = $shouldExportActiveProductsOnly;
+    }
+
+    public function setShouldSkipEmptyTag(bool $shouldSkipEmptyTag): void
+    {
+        $this->shouldSkipEmptyTag = $shouldSkipEmptyTag;
     }
 
     public function getType(): string
@@ -78,6 +85,10 @@ class AllFileExport extends AbstractFileExport implements ProductExportInterface
 
         if ($export instanceof ProductExportInterface) {
             $export->setShouldExportActiveProductsOnly($this->shouldExportActiveProductsOnly);
+        }
+
+        if ($export instanceof TagExportInterface) {
+            $export->setShouldSkipEmptyTag($this->shouldSkipEmptyTag);
         }
 
         return $export->runExport($exportLanguage);

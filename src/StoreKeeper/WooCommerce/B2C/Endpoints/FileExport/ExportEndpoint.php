@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Endpoints\FileExport;
 use StoreKeeper\WooCommerce\B2C\Endpoints\AbstractEndpoint;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Interfaces\ProductExportInterface;
+use StoreKeeper\WooCommerce\B2C\Interfaces\TagExportInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 
 class ExportEndpoint extends AbstractEndpoint
@@ -35,6 +36,11 @@ class ExportEndpoint extends AbstractEndpoint
         if ($export instanceof ProductExportInterface) {
             $activeProductsOnly = 'true' === $this->wrappedRequest->getRequest()->get_param('activeProductsOnly');
             $export->setShouldExportActiveProductsOnly($activeProductsOnly);
+        }
+
+        if ($export instanceof TagExportInterface) {
+            $skipEmptyTags = 'true' === $this->wrappedRequest->getRequest()->get_param('skipEmptyTags');
+            $export->setShouldSkipEmptyTag($skipEmptyTags);
         }
 
         $export->runExport($lang);

@@ -9,7 +9,6 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Endpoints\FileExport\ExportEndpoint;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
-use StoreKeeper\WooCommerce\B2C\FileExport\ProductFileExport;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\ProductSkuGenerator;
@@ -141,8 +140,14 @@ class ExportTab extends AbstractTab
                 );
             }
 
-            $exportClass = FileExportTypeHelper::getClass($type);
-            if (ProductFileExport::class === $exportClass) {
+            if (FileExportTypeHelper::TAG === $type) {
+                $input .= '<br><div class="mt-1">'.$this->getFormCheckbox(FileExportTypeHelper::TAG.'-skip-empty-tags').' '.__(
+                        'Skip empty tags (tags with no products attached)',
+                        I18N::DOMAIN
+                    ).'</div>';
+            }
+
+            if (FileExportTypeHelper::PRODUCT === $type) {
                 $input .= '<br><div class="mt-1">'.$this->getFormCheckbox($type.'-all-products').' '.__(
                         'Include all not active products',
                         I18N::DOMAIN
@@ -167,6 +172,9 @@ class ExportTab extends AbstractTab
                 FileExportTypeHelper::ALL
             ).'<br><div class="mt-1">'.$this->getFormCheckbox(FileExportTypeHelper::ALL.'-all-products').' '.__(
                 'Include all not active products',
+                I18N::DOMAIN
+            ).'</div><div>'.$this->getFormCheckbox(FileExportTypeHelper::ALL.'-skip-empty-tags').' '.__(
+                'Skip empty tags (tags with no products attached)',
                 I18N::DOMAIN
             ).'</div>'
         );

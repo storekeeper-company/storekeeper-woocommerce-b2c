@@ -98,6 +98,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
             'main_category.title' => 'Category',
             'main_category.slug' => 'Category slug',
             'extra_category_slugs' => 'Extra Category slugs',
+            'extra_label_slugs' => 'Extra Label slugs',
 
             'attribute_set_name' => 'Attribute set name',
             'attribute_set_alias' => 'Attribute set alias',
@@ -169,7 +170,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
 
                     $lineData = $this->exportGenericInfo($lineData, $product);
                     $lineData = $this->exportTitleAndSku($lineData, $product);
-                    $lineData = $this->exportCategories($lineData, $product);
+                    $lineData = $this->exportTagsAndCategories($lineData, $product);
                     $lineData = $this->exportVat($lineData, $product);
                     $lineData = $this->exportSEO($lineData, $product);
                     $lineData = $this->exportStock($lineData, $product);
@@ -231,7 +232,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
                 $lineData = $this->exportVat($lineData, $product);
                 $lineData = $this->exportSEO($lineData, $product);
                 $lineData = $this->exportStock($lineData, $product);
-                $lineData = $this->exportImage($lineData, $product);
+                $lineData = $this->exportAssignedImage($lineData, $product, $parentProduct);
                 $lineData = $this->exportBlueprintField($lineData, $parentProduct);
                 $lineData = $this->exportConfigurableSku($lineData, $parentProduct);
                 $lineData = $this->exportAssignedAttributes($lineData, $attributes);
@@ -280,13 +281,49 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
     {
         if ($product instanceof WC_Product_Variable) {
             return self::TYPE_CONFIGURABLE;
-        } else {
-            if ($product instanceof WC_Product_Variation) {
-                return self::TYPE_ASSIGNED;
-            }
+        }
+
+        if ($product instanceof WC_Product_Variation) {
+            return self::TYPE_ASSIGNED;
         }
 
         return self::TYPE_SIMPLE;
+    }
+
+    private function exportTagsAndCategories(array $lineData, WC_Product $product): array
+    {
+        $lineData = $this->exportTags($lineData, $product);
+
+        return $this->exportCategories($lineData, $product);
+    }
+
+    private function exportTags(array $lineData, WC_Product $product): array
+    {
+        $lineData['extra_label_slugs'] = self::getTagSlugs($product);
+
+        return $lineData;
+    }
+
+    public static function getTagSlugs(WC_Product $product): string
+    {
+        $ids = $product->get_tag_ids();
+        if (count($ids) <= 0) {
+            return '';
+        }
+
+        $arguments = [
+            'hide_empty' => false,
+            'include' => $ids,
+        ];
+
+        $slugs = array_map(
+            static function ($tag) {
+                return $tag->slug;
+            },
+            get_terms('product_tag', $arguments)
+        );
+
+        return implode('|', $slugs);
     }
 
     private function exportCategories(array $lineData, WC_Product $product): array
@@ -399,7 +436,21 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
     private function exportImage(array $lineData, WC_Product $product): array
     {
         foreach ($this->getProductImageIds($product) as $index => $imageId) {
-            $lineData["product.product_images.$index.download_url"] = wp_get_attachment_url($imageId);
+            $imageUrl = wp_get_attachment_url($imageId);
+            $lineData["product.product_images.$index.download_url"] = filter_var($imageUrl, FILTER_VALIDATE_URL) ? $imageUrl : '';
+        }
+
+        return $lineData;
+    }
+
+    private function exportAssignedImage(array $lineData, WC_Product $product, WC_Product $parentProduct): array
+    {
+        $parentProductImageIds = $this->getProductImageIds($parentProduct);
+        $assignedProductImageIds = $this->getProductImageIds($product);
+        $imageIds = array_diff($assignedProductImageIds, $parentProductImageIds);
+        foreach ($imageIds as $index => $imageId) {
+            $imageUrl = wp_get_attachment_url($imageId);
+            $lineData["product.product_images.$index.download_url"] = false === $imageUrl ? '' : $imageUrl;
         }
 
         return $lineData;

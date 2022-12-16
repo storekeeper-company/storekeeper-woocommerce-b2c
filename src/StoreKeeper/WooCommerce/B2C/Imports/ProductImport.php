@@ -35,6 +35,10 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     const PRODUCT_EMBALLAGE_PRICE_WT_META_KEY = 'storekeeper_emballage_price_wt';
     const PRODUCT_EMBALLAGE_TAX_ID_META_KEY = 'storekeeper_emballage_tax_id';
 
+    const CATEGORY_TAG_MODULE = 'ProductsModule';
+    const CATEGORY_ALIAS = 'Product';
+    const TAG_ALIAS = 'Label';
+
     protected $syncProductVariations = false;
     protected $newItemsCount = 0;
     protected $updatedItemsCount = 0;
@@ -268,9 +272,17 @@ SQL;
 
         if ($product->has('flat_product.categories')) {
             foreach ($product->get('flat_product.categories') as $category) {
-                $go_category = Categories::getCategoryById($category['id'], $category['slug']);
-                if (false !== $go_category) {
-                    $categoryIds[] = $go_category->term_id;
+                $productCategory = Categories::getCategoryById($category['id'], $category['slug']);
+                if (false !== $productCategory) {
+                    $categoryIds[] = $productCategory->term_id;
+                } elseif (isset($category['category_type'])) {
+                    $categoryType = $category['category_type'];
+                    if ((self::CATEGORY_TAG_MODULE === $categoryType['module_name']) && self::CATEGORY_ALIAS === $categoryType['alias']) {
+                        $productCategory = Categories::getCategoryBySlug($category['slug']);
+                        if (false !== $productCategory) {
+                            $categoryIds[] = $productCategory->term_id;
+                        }
+                    }
                 }
             }
         }
@@ -289,10 +301,18 @@ SQL;
         $tagIds = [];
 
         if ($product->has('flat_product.categories')) {
-            foreach ($product->get('flat_product.categories') as $tag) {
-                $go_tag = $this->getLabel($tag['id']);
-                if (false !== $go_tag) {
-                    $tagIds[] = $go_tag->term_id;
+            foreach ($product->get('flat_product.categories') as $category) {
+                $tag = $this->getLabelById($category['id']);
+                if (false !== $tag) {
+                    $tagIds[] = $tag->term_id;
+                } elseif (isset($category['category_type'])) {
+                    $categoryType = $category['category_type'];
+                    if (self::CATEGORY_TAG_MODULE === $categoryType['module_name'] && self::TAG_ALIAS === $categoryType['alias']) {
+                        $tag = $this->getLabelBySlug($category['slug']);
+                        if (false !== $tag) {
+                            $tagIds[] = $tag->term_id;
+                        }
+                    }
                 }
             }
         }
@@ -300,14 +320,27 @@ SQL;
         $newProduct->set_tag_ids($tagIds);
     }
 
+    private function getLabelBySlug($slug)
+    {
+        $labels = WordpressExceptionThrower::throwExceptionOnWpError(
+            get_term_by('slug', $slug, 'product_tag')
+        );
+
+        if ($labels) {
+            return $labels;
+        }
+
+        return false;
+    }
+
     /**
-     * @param $StoreKeeperId
+     * @param $storekeeperId
      *
      * @return bool \WP_Term
      *
      * @throws WordpressException
      */
-    private function getLabel($StoreKeeperId)
+    private function getLabelById($storekeeperId)
     {
         $labels = WordpressExceptionThrower::throwExceptionOnWpError(
             get_terms(
@@ -316,7 +349,7 @@ SQL;
                     'hide_empty' => false,
                     'number' => 1,
                     'meta_key' => 'storekeeper_id',
-                    'meta_value' => $StoreKeeperId,
+                    'meta_value' => $storekeeperId,
                 ]
             )
         );
