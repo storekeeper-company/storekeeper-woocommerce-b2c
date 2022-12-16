@@ -272,18 +272,16 @@ SQL;
 
         if ($product->has('flat_product.categories')) {
             foreach ($product->get('flat_product.categories') as $category) {
-                if (isset($category['category_type'])) {
+                $productCategory = Categories::getCategoryById($category['id'], $category['slug']);
+                if (false !== $productCategory) {
+                    $categoryIds[] = $productCategory->term_id;
+                } elseif (isset($category['category_type'])) {
                     $categoryType = $category['category_type'];
                     if ((self::CATEGORY_TAG_MODULE === $categoryType['module_name']) && self::CATEGORY_ALIAS === $categoryType['alias']) {
                         $productCategory = Categories::getCategoryBySlug($category['slug']);
                         if (false !== $productCategory) {
                             $categoryIds[] = $productCategory->term_id;
                         }
-                    }
-                } else {
-                    $productCategory = Categories::getCategoryById($category['id'], $category['slug']);
-                    if (false !== $productCategory) {
-                        $categoryIds[] = $productCategory->term_id;
                     }
                 }
             }
@@ -304,18 +302,16 @@ SQL;
 
         if ($product->has('flat_product.categories')) {
             foreach ($product->get('flat_product.categories') as $category) {
-                if (isset($category['category_type'])) {
+                $tag = $this->getLabelById($category['id']);
+                if (false !== $tag) {
+                    $tagIds[] = $tag->term_id;
+                } elseif (isset($category['category_type'])) {
                     $categoryType = $category['category_type'];
-                    if ((self::CATEGORY_TAG_MODULE === $categoryType['module_name']) && self::TAG_ALIAS === $categoryType['alias']) {
+                    if (self::CATEGORY_TAG_MODULE === $categoryType['module_name'] && self::TAG_ALIAS === $categoryType['alias']) {
                         $tag = $this->getLabelBySlug($category['slug']);
                         if (false !== $tag) {
                             $tagIds[] = $tag->term_id;
                         }
-                    }
-                } else {
-                    $tag = $this->getLabelById($category['id']);
-                    if (false !== $tag) {
-                        $tagIds[] = $tag->term_id;
                     }
                 }
             }
