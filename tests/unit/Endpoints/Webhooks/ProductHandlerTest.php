@@ -4,6 +4,9 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\Webhooks;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCategories;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceTags;
+use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractProductTest;
@@ -18,6 +21,12 @@ class ProductHandlerTest extends AbstractProductTest
     const CREATE_DATADUMP_DIRECTORY = 'events/products/createProduct';
     const CREATE_DATADUMP_HOOK = 'events/hook.events.createProduct.json';
     const CREATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
+
+    const CREATE_TAG_DATADUMP_DIRECTORY = 'events/products/createTag';
+    const CREATE_TAG_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.json';
+
+    const CREATE_CATEGORY_DATADUMP_DIRECTORY = 'events/products/createCategory';
+    const CREATE_CATEGORY_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.json';
 
     const UPDATE_DATADUMP_DIRECTORY = 'events/products/updateProduct';
     const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateProduct.json';
@@ -36,6 +45,55 @@ class ProductHandlerTest extends AbstractProductTest
     const ACTIVATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
 
     const POST_STATUS_TRASHED = 'trash';
+
+    public function testCreateProductWithCategoriesAndTags()
+    {
+        $this->mockCreateCategories();
+        $this->mockCreateTags();
+        $woocommerceCreatedProduct = $this->mockCreateProductRequestWithTest();
+
+        // Get the updated data dump as a dotnotated collection
+        $originalProductFile = $this->getDataDump(self::CREATE_DATADUMP_DIRECTORY.'/'.self::CREATE_DATADUMP_PRODUCT);
+        $originalProduct = $originalProductFile->getReturn()['data'];
+        $originalProductData = new Dot($originalProduct[0]);
+        $originalProductCategories = $originalProductData->get('flat_product.categories');
+
+        $expectedCategoryIds = [];
+        $expectedTagIds = [];
+
+        foreach ($originalProductCategories as $originalProductCategory) {
+            $categoryType = $originalProductCategory['category_type'];
+            if (ProductImport::CATEGORY_TAG_MODULE === $categoryType['module_name']) {
+                if (ProductImport::TAG_ALIAS === $categoryType['alias']) {
+                    // Label/Tag
+                    $expectedTagIds[] = $originalProductCategory['id'];
+                } elseif (ProductImport::CATEGORY_ALIAS === $categoryType['alias']) {
+                    // Category
+                    $expectedCategoryIds[] = $originalProductCategory['id'];
+                }
+            }
+        }
+
+        $productCategoryIds = $woocommerceCreatedProduct->get_category_ids();
+        $productTagIds = $woocommerceCreatedProduct->get_tag_ids();
+
+        $actualCategoryIds = [];
+        foreach ($productCategoryIds as $productCategoryId) {
+            $categoryTerm = get_term($productCategoryId, 'product_cat');
+            $actualCategoryIds[] = get_term_meta($categoryTerm->term_id, 'storekeeper_id', true);
+        }
+
+        $actualTagIds = [];
+        foreach ($productTagIds as $productTagId) {
+            $tagTerm = get_term($productTagId, 'product_tag');
+            $actualTagIds[] = get_term_meta($tagTerm->term_id, 'storekeeper_id', true);
+        }
+
+        $this->assertEqualSets($expectedCategoryIds, $actualCategoryIds);
+        $this->assertEqualSets($expectedTagIds, $actualTagIds);
+
+        $this->assertProduct($originalProductData, $woocommerceCreatedProduct);
+    }
 
     public function testCreateProduct()
     {
@@ -652,5 +710,33 @@ class ProductHandlerTest extends AbstractProductTest
         );
 
         return $products[0];
+    }
+
+    public function mockCreateTags()
+    {
+        $this->initApiConnection();
+        $this->mockApiCallsFromDirectory(self::CREATE_TAG_DATADUMP_DIRECTORY);
+
+        $file = $this->getDataDump(self::CREATE_TAG_DATADUMP_DIRECTORY.'/'.self::CREATE_CATEGORY_DATADUMP_SOURCE_FILE);
+        $tags = $file->getReturn()['data'];
+
+        // Run the tag import command
+        $this->runner->execute(SyncWoocommerceTags::getCommandName());
+
+        return $tags;
+    }
+
+    public function mockCreateCategories()
+    {
+        $this->initApiConnection();
+        $this->mockApiCallsFromDirectory(self::CREATE_CATEGORY_DATADUMP_DIRECTORY);
+
+        $file = $this->getDataDump(self::CREATE_CATEGORY_DATADUMP_DIRECTORY.'/'.self::CREATE_CATEGORY_DATADUMP_SOURCE_FILE);
+        $categories = $file->getReturn()['data'];
+
+        // Run the category import command
+        $this->runner->execute(SyncWoocommerceCategories::getCommandName());
+
+        return $categories;
     }
 }

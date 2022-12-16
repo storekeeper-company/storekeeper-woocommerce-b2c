@@ -133,9 +133,15 @@ class ProductFileExportTest extends AbstractFileExportTest
         );
 
         $this->assertEquals(
-            ProductFileExport::getTagAndCategorySlugs($product),
+            ProductFileExport::getCategorySlugs($product),
             $productRow['extra_category_slugs'],
-            "$type product category and tag slugs is incorrectly exported"
+            "$type product category slugs is incorrectly exported"
+        );
+
+        $this->assertEquals(
+            ProductFileExport::getTagSlugs($product),
+            $productRow['extra_label_slugs'],
+            "$type product tag slugs is incorrectly exported"
         );
 
         $taxRate = ProductFileExport::getTaxRate($product, self::BASE_COUNTRY);

@@ -98,6 +98,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
             'main_category.title' => 'Category',
             'main_category.slug' => 'Category slug',
             'extra_category_slugs' => 'Extra Category slugs',
+            'extra_label_slugs' => 'Extra Label slugs',
 
             'attribute_set_name' => 'Attribute set name',
             'attribute_set_alias' => 'Attribute set alias',
@@ -298,7 +299,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
 
     private function exportTags(array $lineData, WC_Product $product): array
     {
-        $lineData['extra_category_slugs'] = self::getTagSlugs($product);
+        $lineData['extra_label_slugs'] = self::getTagSlugs($product);
 
         return $lineData;
     }
@@ -327,19 +328,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
 
     private function exportCategories(array $lineData, WC_Product $product): array
     {
-        if (isset($lineData['extra_category_slugs']) && !empty($lineData['extra_category_slugs'])) {
-            $currentSlugs = explode('|', $lineData['extra_category_slugs']);
-            $categorySlugsString = self::getCategorySlugs($product);
-            $categorySlugs = [];
-            if (!empty($categorySlugsString)) {
-                $categorySlugs = explode('|', $categorySlugsString);
-            }
-
-            $allSlugs = array_merge($currentSlugs, $categorySlugs);
-            $lineData['extra_category_slugs'] = implode('|', $allSlugs);
-        } else {
-            $lineData['extra_category_slugs'] = self::getCategorySlugs($product);
-        }
+        $lineData['extra_category_slugs'] = self::getCategorySlugs($product);
 
         return $lineData;
     }
@@ -364,24 +353,6 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         );
 
         return implode('|', $slugs);
-    }
-
-    public static function getTagAndCategorySlugs(WC_Product $product): string
-    {
-        $tagSlugs = self::getTagSlugs($product);
-        $categorySlugs = self::getCategorySlugs($product);
-        $slugs = '';
-        if (!empty($tagSlugs)) {
-            if (!empty($categorySlugs)) {
-                $slugs = $tagSlugs.'|'.$categorySlugs;
-            } else {
-                $slugs = $tagSlugs;
-            }
-        } elseif (!empty($categorySlugs)) {
-            $slugs = $categorySlugs;
-        }
-
-        return $slugs;
     }
 
     private function exportPrice(array $lineData, WC_Product $product): array
@@ -466,7 +437,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
     {
         foreach ($this->getProductImageIds($product) as $index => $imageId) {
             $imageUrl = wp_get_attachment_url($imageId);
-            $lineData["product.product_images.$index.download_url"] = false === $imageUrl ? '' : $imageUrl;
+            $lineData["product.product_images.$index.download_url"] = filter_var($imageUrl, FILTER_VALIDATE_URL) ? $imageUrl : '';
         }
 
         return $lineData;
