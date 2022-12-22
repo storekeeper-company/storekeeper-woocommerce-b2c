@@ -44,6 +44,9 @@ class BackrefImportLock
     }
     public function lock(): void
     {
+        if( $this->is_locked ){
+            return; // already locked
+        }
         $db = $this->getDb()->getConnection();
         $statement = $db->prepare('SELECT GET_LOCK(?,?)');
         $statement->bind_param('si',$this->lock,$this->timeout);
@@ -55,6 +58,7 @@ class BackrefImportLock
             /*
              * Returns 1 if the lock was obtained successfully.
              */
+            $this->is_locked = true;
             return;
         }
 
@@ -74,6 +78,7 @@ class BackrefImportLock
         $statement = $db->prepare('DO RELEASE_LOCK(?)');
         $statement->bind_param('s',$this->lock);
         $statement->execute();
+        $this->is_locked = false;
     }
 
     function __destruct()
