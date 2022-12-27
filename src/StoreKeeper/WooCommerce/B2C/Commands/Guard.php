@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\LockInterface;
 
 class Guard implements LockInterface
@@ -43,6 +44,9 @@ class Guard implements LockInterface
         $this->file = $file;
     }
 
+    /**
+     * @throws LockActiveException
+     */
     public function lock(): bool
     {
         $this->fp = fopen($this->file, 'w+');
@@ -52,7 +56,7 @@ class Guard implements LockInterface
             return true;
         }
 
-        return false;
+        throw new LockActiveException("There is a running instance of this lock ({$this->type}");
     }
 
     public function unlock()

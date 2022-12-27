@@ -2,10 +2,13 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
+use Throwable;
 
 abstract class AbstractMarkTasksAs extends AbstractCommand
 {
@@ -38,69 +41,70 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
     }
 
     /**
-     * @return mixed|void
+     * @return void
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
         $desired_status = $this->getDesiredStatus();
 
-        if (!$this->lock()) {
+        try {
+            $this->lock();
+            $this->db = new DatabaseConnection();
+            $this->logger->debug(
+                'Connected to DB',
+                [
+                    'host' => DB_HOST,
+                    'user' => DB_USER,
+                    'db' => DB_NAME,
+                ]
+            );
+
+            $select_status = $assoc_arguments['select_status'] ?? TaskHandler::STATUS_FAILED;
+            $select_type = $assoc_arguments['select_type'] ?? null;
+
+            if ($select_status === $desired_status) {
+                throw new Exception('Selected status is same as desired status');
+            }
+
+            $task_ids = $this->getTaskIds($select_status, $select_type);
+            $task_quantity = count($task_ids);
+            $this->logger->info(
+                'Tasks count to mark as '.$desired_status,
+                [
+                    'total' => $task_quantity,
+                    'select_status' => $select_status,
+                    'select_type' => $select_type,
+                ]
+            );
+
+            if ($task_quantity > 0) {
+                \WP_CLI::confirm("Are you sure you want to mark {$task_quantity} tasks as $desired_status?");
+
+                $this->markTasks($task_ids, $desired_status);
+
+                \WP_CLI::success("Marked {$task_quantity} tasks as $desired_status");
+            } else {
+                $select_type = $select_type ?? 'any';
+                \WP_CLI::success("No tasks found for select_type=$select_type and select_status=$select_status");
+            }
+        } catch (LockActiveException $exception) {
             $this->logger->notice('Cannot run. lock on.');
-
-            return;
-        }
-
-        $this->db = new DatabaseConnection();
-        $this->logger->debug(
-            'Connected to DB',
-            [
-                'host' => DB_HOST,
-                'user' => DB_USER,
-                'db' => DB_NAME,
-            ]
-        );
-
-        $select_status = $assoc_arguments['select_status'] ?? TaskHandler::STATUS_FAILED;
-        $select_type = $assoc_arguments['select_type'] ?? null;
-
-        if ($select_status === $desired_status) {
-            throw new \Exception('Selected status is same as desired status');
-        }
-
-        $task_ids = $this->getTaskIds($select_status, $select_type);
-        $task_quantity = count($task_ids);
-        $this->logger->info(
-            'Tasks count to mark as '.$desired_status,
-            [
-                'total' => $task_quantity,
-                'select_status' => $select_status,
-                'select_type' => $select_type,
-            ]
-        );
-
-        if ($task_quantity > 0) {
-            \WP_CLI::confirm("Are you sure you want to mark {$task_quantity} tasks as $desired_status?");
-
-            $this->markTasks($task_ids, $desired_status);
-
-            \WP_CLI::success("Marked {$task_quantity} tasks as $desired_status");
-        } else {
-            $select_type = $select_type ?? 'any';
-            \WP_CLI::success("No tasks found for select_type=$select_type and select_status=$select_status");
         }
     }
 
     /**
      * @return int[]
+     *
+     * @throws Exception
      */
     protected function getTaskIds(
         string $status,
         string $type = null
     ): array {
         if (!in_array($status, self::ALLOWED_TASK_STATUSES)) {
-            throw new \Exception('Only allowed statuses are '.implode(', ', self::ALLOWED_TASK_STATUSES));
+            throw new Exception('Only allowed statuses are '.implode(', ', self::ALLOWED_TASK_STATUSES));
         }
 
         $select = TaskModel::getSelectHelper()
@@ -109,7 +113,7 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
             ->bindValue('status', $status);
         if (!is_null($type)) {
             if (!in_array($type, TaskHandler::TYPE_GROUPS)) {
-                throw new \Exception('type should be one of '.implode(',', TaskHandler::TYPE_GROUPS));
+                throw new Exception('type should be one of '.implode(',', TaskHandler::TYPE_GROUPS));
             }
             $select
                 ->where('type_group = :type_group')

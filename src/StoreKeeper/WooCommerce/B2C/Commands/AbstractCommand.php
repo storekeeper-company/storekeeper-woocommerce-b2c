@@ -9,10 +9,10 @@ use ReflectionClass;
 use StoreKeeper\ApiWrapper\ApiWrapper;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\I18N;
-use StoreKeeper\WooCommerce\B2C\Interfaces\LockInterface;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -34,7 +34,7 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
      */
     protected $runner;
     /**
-     * @var LockInterface
+     * @var Guard
      */
     protected $lock;
 
@@ -47,6 +47,7 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
     }
 
     /**
+     * @throws LockActiveException
      * @throws Exception
      */
     public function lock(): bool

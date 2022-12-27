@@ -185,8 +185,11 @@ abstract class AbstractImport
      */
     public function run($options = [])
     {
-        if (!$this->lock()) {
+        try {
+            $this->lock();
+        } catch (LockTimeoutException|LockException $exception) {
             $this->logger->error('Cannot run. lock on.');
+            throw $exception;
         }
 
         $this->debug('Started a run!');

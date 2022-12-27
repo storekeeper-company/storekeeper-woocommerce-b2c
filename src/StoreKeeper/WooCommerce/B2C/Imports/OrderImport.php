@@ -5,6 +5,8 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 use Adbar\Dot;
 use Exception;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockTimeoutException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NonExistentObjectException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -42,20 +44,20 @@ class OrderImport extends AbstractImport
      */
     public function run($options = [])
     {
-        if (!$this->lock()) {
-            $this->logger->error('Cannot run. lock on.');
-        }
-
         try {
+            $this->lock();
             $this->processItem(new Dot($this->new_order));
+
+            return true;
+        } catch (LockTimeoutException|LockException $exception) {
+            $this->logger->error('Cannot run. lock on.');
+            throw $exception;
         } catch (NonExistentObjectException $exception) {
             $this->logger->info('Order import is marked as success', [
                 'storekeeper_id' => $this->storekeeper_id,
                 'message' => $exception->getMessage(),
             ]);
         }
-
-        return true;
     }
 
     /**

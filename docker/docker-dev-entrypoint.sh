@@ -3,6 +3,7 @@ set -euox pipefail
 
 touch /tmp/xdebug.log && chmod og+wr /tmp/xdebug.log
 chown www-data:www-data /tmp/storekeeper-for-woocommerce/ /tmp/sk-log/
+chmod 755 -R /tmp/storekeeper-for-woocommerce
 
 if [ ! -z "$WORPRESS_URL" ]
 then

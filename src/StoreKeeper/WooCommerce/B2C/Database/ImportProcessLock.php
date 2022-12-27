@@ -2,12 +2,18 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Database;
 
+use ReflectionException;
+
 class ImportProcessLock extends MySqlLock
 {
     public const LOCK_PREFIX = 'sk_importlock_';
 
-    public function __construct(string $process, int $timeout = 15)
+    /**
+     * @throws ReflectionException
+     */
+    public function __construct(string $processClass, int $timeout = 15)
     {
-        parent::__construct(self::LOCK_PREFIX.$process, $timeout);
+        $reflect = new \ReflectionClass($processClass);
+        parent::__construct(self::LOCK_PREFIX.$reflect->getShortName(), $timeout);
     }
 }
