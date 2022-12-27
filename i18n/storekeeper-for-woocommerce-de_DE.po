@@ -5,10 +5,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2022-12-03 06:08\n"
+"PO-Revision-Date: 2022-12-27 09:17\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: de_DE\n"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:85
+msgid "Clean products only."
+msgstr "Entfernen Sie alle Produkte."
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
 msgid "Deactiveer product"
@@ -17,6 +21,14 @@ msgstr "Produkt deaktivieren"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:282
 msgid "Delete product"
 msgstr "Produkt löschen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
+msgid "Emballage fee"
+msgstr "Emballage-Gebühr"
+
+#: src/StoreKeeper/WooCommerce/B2C/Updator.php:117
+msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
+msgstr "Fehler beim Aktualisieren des Plug-ins 'StoreKeeper for WooCommerce' auf Version %s."
 
 #. Plugin Name of the plugin/theme
 msgid "StoreKeeper for WooCommerce"

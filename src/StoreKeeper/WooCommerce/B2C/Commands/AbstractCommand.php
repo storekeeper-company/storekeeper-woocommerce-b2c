@@ -12,6 +12,7 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\LockInterface;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -33,9 +34,9 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
      */
     protected $runner;
     /**
-     * @var Guard
+     * @var LockInterface
      */
-    private $lock;
+    protected $lock;
 
     /**
      * AbstractCommand constructor.
@@ -48,7 +49,7 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
     /**
      * @throws Exception
      */
-    public function lock()
+    public function lock(): bool
     {
         $this->lock = new Guard(get_called_class());
 

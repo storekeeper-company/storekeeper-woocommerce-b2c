@@ -42,6 +42,10 @@ class OrderImport extends AbstractImport
      */
     public function run($options = [])
     {
+        if (!$this->lock()) {
+            $this->logger->error('Cannot run. lock on.');
+        }
+
         try {
             $this->processItem(new Dot($this->new_order));
         } catch (NonExistentObjectException $exception) {

@@ -2,7 +2,10 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-class Guard
+use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Interfaces\LockInterface;
+
+class Guard implements LockInterface
 {
     /**
      * @var
@@ -24,9 +27,11 @@ class Guard
      */
     public function __construct(string $class)
     {
-        $tmp = sys_get_temp_dir();
+        $tmp = Core::getTmpBaseDir();
+
         if (!is_writable($tmp)) {
-            throw new \Exception("$tmp is not writable");
+            $possibleTmpDirectories = Core::getPossibleTmpDirs();
+            throw new \Exception(implode(', ', $possibleTmpDirectories).' are not writable. At least one of it needs to be writable.');
         }
         if (function_exists('posix_geteuid')) {
             $processUser = posix_geteuid();
@@ -38,7 +43,7 @@ class Guard
         $this->file = $file;
     }
 
-    public function lock()
+    public function lock(): bool
     {
         $this->fp = fopen($this->file, 'w+');
         if (flock($this->fp, LOCK_EX | LOCK_NB)) {
@@ -50,11 +55,16 @@ class Guard
         return false;
     }
 
+    public function unlock()
+    {
+        flock($this->fp, LOCK_UN);
+        fclose($this->fp);
+    }
+
     public function __destruct()
     {
         if ($this->fp) {
-            flock($this->fp, LOCK_UN);
-            fclose($this->fp);
+            $this->unlock();
         }
     }
 }

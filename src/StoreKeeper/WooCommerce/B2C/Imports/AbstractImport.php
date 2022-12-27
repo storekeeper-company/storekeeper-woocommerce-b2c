@@ -7,8 +7,12 @@ use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\ApiWrapper;
+use StoreKeeper\WooCommerce\B2C\Database\ImportProcessLock;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockTimeoutException;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Interfaces\LockInterface;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -49,6 +53,11 @@ abstract class AbstractImport
     protected $processedItemCount = 0;
 
     protected $isProgressBarShown = true;
+
+    /**
+     * @var LockInterface
+     */
+    protected $lock;
 
     public function setIsProgressBarShown(bool $isProgressBarShown): void
     {
@@ -159,8 +168,27 @@ abstract class AbstractImport
 
     protected $total_fetched = 0;
 
+    /**
+     * @throws LockTimeoutException
+     * @throws LockException
+     */
+    public function lock(): bool
+    {
+        $this->lock = new ImportProcessLock(static::class);
+
+        return $this->lock->lock();
+    }
+
+    /**
+     * @throws LockTimeoutException
+     * @throws LockException
+     */
     public function run($options = [])
     {
+        if (!$this->lock()) {
+            $this->logger->error('Cannot run. lock on.');
+        }
+
         $this->debug('Started a run!');
 
         $moduleName = $this->getModule();
