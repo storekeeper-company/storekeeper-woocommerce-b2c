@@ -12,7 +12,7 @@ then
   wp config set WP_DEBUG true
 
   # install plugins
-  chown www-data:www-data  /app/src/wp-content /app/src/wp-content/plugins
+  chown www-data:www-data /app/src/wp-content /app/src/wp-content/plugins
   if [[ ! -d wp-content/plugins/woocommerce ]]
   then
       wp plugin install /app/plugins/woocommerce.zip

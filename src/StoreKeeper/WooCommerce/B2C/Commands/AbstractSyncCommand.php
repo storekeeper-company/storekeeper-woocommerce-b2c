@@ -2,21 +2,27 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use Exception;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
+
 abstract class AbstractSyncCommand extends AbstractCommand
 {
     /**
-     * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException
+     * @throws NotConnectedException|Exception
      */
-    protected function prepareExecute()
+    protected function prepareExecute(): bool
     {
-        if (!$this->lock()) {
+        try {
+            $this->lock();
+            $this->setupApi();
+
+            return true;
+        } catch (LockActiveException $exception) {
             $this->logger->notice('Cannot run. lock on.');
 
             return false;
         }
-        $this->setupApi();
-
-        return true;
     }
 
     /**

@@ -211,6 +211,10 @@ msgstr "Check if `wp-cli` is installed in the website's server."
 msgid "Checks if there are any issues with the sync."
 msgstr "Checks if there are any issues with the sync."
 
+#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:85
+msgid "Clean products only."
+msgstr "Remove all products."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:289
 msgid "Click here to configure them"
 msgstr "Click here to configure them"
@@ -461,6 +465,10 @@ msgstr "EXAMPLES"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:198
 msgid "Each run will return the path of the exported file."
 msgstr "Each run will return the path of the exported file."
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
+msgid "Emballage fee"
+msgstr "Emballage fee"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:330
 msgid "English"

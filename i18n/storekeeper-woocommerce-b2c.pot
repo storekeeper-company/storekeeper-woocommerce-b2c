@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
 "woocommerce\n"
-"POT-Creation-Date: 2022-12-03 05:46:39+00:00\n"
+"POT-Creation-Date: 2022-12-27 08:15:43+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -155,8 +155,8 @@ msgid ""
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/AbstractPage.php:75
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:166
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:180
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:173
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:187
 msgid "PHP %s extension"
 msgstr ""
 
@@ -271,7 +271,7 @@ msgid "Steps"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:81
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:179
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:187
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:147
 msgid "See documentation"
 msgstr ""
@@ -285,13 +285,13 @@ msgid "Alternatively, you can get the API key via command line."
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:88
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:182
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:190
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:154
 msgid "Check if `wp-cli` is installed in the website's server."
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:90
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:184
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:192
 msgid "Open command line and navigate to website directory"
 msgstr ""
 
@@ -511,251 +511,258 @@ msgstr ""
 msgid "Attributes can only be used once"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:49
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:48
 msgid "Your file has been generated"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:50
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:49
 msgid ""
 "Your download will start in a few seconds. If not, you can download the file "
 "manually using the link below"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:51
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:50
 msgid ""
 "Please wait and keep the page and popup window open while we are preparing "
 "your export"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:52
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:51
 msgid "Preparing export"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:53
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:52
 msgid "Stop exporting"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:54
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:53
 msgid "Size"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:55
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:54
 msgid "Export failed"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:56
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:55
 msgid ""
 "Something went wrong during export or server timed out. You can try manual "
 "export via command line, do you want to read the guide?"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:57
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:56
 msgid "No, thanks"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:58
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:57
 msgid "Yes, please"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:77
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:76
 msgid "Back to export"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:82
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:81
 msgid "All skus was generated successfully"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:86
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:85
 msgid "Failed to generate SKU for %s product(s)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:118
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:117
 msgid "Export customers"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:119
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:118
 msgid "Export tags"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:120
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:119
 msgid "Export categories"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:121
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:120
 msgid "Export attributes"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:122
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:121
 msgid "Export attribute options"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:123
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:122
 msgid "Export product blueprints"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:124
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:123
 msgid "Export products"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:129
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:128
 msgid "Download export (csv)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:138
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:137
 msgid "Go to backoffice import form"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:146
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:168
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:144
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:176
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportAll.php:35
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:27
+msgid "Skip empty tags (tags with no products attached)"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:151
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:173
 msgid "Include all not active products"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:162
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:167
 msgid "Export full package"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:164
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:169
 msgid "Download export (zip)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:185
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:189
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:190
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:191
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:192
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:193
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:194
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:195
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:197
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:198
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:199
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:200
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:201
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:202
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:203
 msgid "Run %s to export %s."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:185
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:193
 msgid "full package"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:187
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:195
 msgid "or alternatively, you can export per file."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:189
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:197
 msgid "customers"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:190
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:198
 #: src/StoreKeeper/WooCommerce/B2C/Imports/TagImport.php:197
 msgid "tags"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:191
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:199
 msgid "categories"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:192
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:200
 msgid "attributes"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:193
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:201
 #: src/StoreKeeper/WooCommerce/B2C/Imports/AttributeOptionImport.php:108
 msgid "attribute options"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:194
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:202
 msgid "product blueprints"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:195
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1603
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:203
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1638
 msgid "products"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:198
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:206
 msgid "Each run will return the path of the exported file."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:203
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:211
 msgid "Manual export from command line using wp-cli"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:207
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:215
 msgid "Manual export guide"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:231
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:239
 msgid ""
 "With the One Time Export you can export all the data from your WooCommerce "
 "webshop to your StoreKeeper BackOffice. After completing this export you "
 "should import the files into your StoreKeeper BackOffice."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:233
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:241
 msgid "Import & Export Center"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:243
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:251
 msgid ""
 "You should generate all the export files and then go to the \"%1$s\" of this "
 "account."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:248
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:256
 msgid ""
 "The correct order of importing is the same as export below, so first "
 "customers,tags,categories ect."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:251
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:259
 msgid ""
 "After you complete the full \"One Time Export\" procedure, be aware that "
 "from this moment on the management of your webshop goes through the "
 "StoreKeeper BackOffice."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:262
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:270
 msgid "There are %s product(s) without sku."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:268
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:276
 msgid "There are %s variations(s) without sku."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:273
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:281
 msgid ""
 "They will not be exported, because they cannot be matched back by sku, which "
 "will make duplicates when imported back. If the configurable product does "
 "not have sku, it's variations won't be exported as well."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:277
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:285
 msgid "Generate all missing sku from title"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:289
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:297
 msgid "Click here to configure them"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:293
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:301
 msgid ""
 "Warning: You didn't set the settings yet for mapping fields, are you really "
 "sure?"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:329
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:337
 msgid "Dutch"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:330
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:338
 msgid "English"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:331
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:339
 msgid "German"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:336
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:344
 msgid "Site language (%s)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:341
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:349
 msgid "Export language"
 msgstr ""
 
@@ -1006,51 +1013,59 @@ msgid ""
 "writable: %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:168
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:164
+msgid "WooCommerce SKU feature enabled"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
+msgid "SKU feature for for WooCommerce has been disabled."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:175
 msgid ""
 "Contact your server provider to enable the PHP %s extension for the "
 "StoreKeeper synchronization plugin to function properly"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:182
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:189
 msgid ""
 "Contact your server provider to enable the PHP %s extension to improve the "
 "performance and stability"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:204
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:211
 msgid "StoreKeeper database version"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:212
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:219
 msgid "Database prefix"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:220
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:227
 msgid "Total database size"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:224
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:231
 msgid "Data database size"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:228
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:235
 msgid "Index database size"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:243
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:250
 msgid "Data: %.2fMB | Index: %.2fMB | Engine: %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:268
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:275
 msgid "The %s table needs to be using Engine=InnoDB in order to use the plugin"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:289
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:296
 msgid "Set InnoDb  on this table"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:305
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:312
 msgid "The %s table was set to Engine=InnoDB."
 msgstr ""
 
@@ -1216,11 +1231,11 @@ msgstr ""
 msgid "Log purger"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/AbstractCommand.php:70
+#: src/StoreKeeper/WooCommerce/B2C/Commands/AbstractCommand.php:71
 msgid "EXAMPLES"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/AbstractCommand.php:149
+#: src/StoreKeeper/WooCommerce/B2C/Commands/AbstractCommand.php:150
 msgid "Syncing from Storekeeper backoffice"
 msgstr ""
 
@@ -1269,6 +1284,7 @@ msgid "The base URL of your website."
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/AbstractFileExportCommand.php:24
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:19
 msgid "The language to which the entities will be exported."
 msgstr ""
 
@@ -1348,11 +1364,11 @@ msgid ""
 "import to Storekeeper Backoffice."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:14
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:51
 msgid "Export CSV file for tags."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:19
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:56
 msgid ""
 "Generate and export CSV files for tags which will be used to import to "
 "Storekeeper Backoffice."
@@ -1640,7 +1656,7 @@ msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProductPage.php:96
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:96
-#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:254
+#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:282
 msgid "Syncing %s from Storekeeper backoffice"
 msgstr ""
 
@@ -1903,23 +1919,23 @@ msgid ""
 "manually."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:101
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:104
 msgid "Customer Email"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:103
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:106
 msgid "Customer phone number"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:702
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:709
 msgid "Order with this order number already exists."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:779
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:786
 msgid "Wordpress plugin"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:898
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:905
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:340
 msgid "Refund via Wordpress plugin (Refund #%s)"
 msgstr ""
@@ -1963,11 +1979,11 @@ msgstr ""
 msgid "House number"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:39
 msgid "Emballage fee"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/OrderHookHandler.php:30
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/OrderHookHandler.php:31
 msgid ""
 "To check your parcel status, go to <a href=\"%s\">Track & Trace page</a>."
 msgstr ""
@@ -2063,7 +2079,7 @@ msgstr ""
 msgid "Login expired, please try again"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:362
+#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:390
 msgid "Done processing %s items of %s"
 msgstr ""
 
@@ -2087,11 +2103,11 @@ msgstr ""
 msgid "menu items"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/OrderImport.php:215
+#: src/StoreKeeper/WooCommerce/B2C/Imports/OrderImport.php:219
 msgid "orders"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1503
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1538
 msgid "Done processing %s items of %s (%s new / %s updated)"
 msgstr ""
 

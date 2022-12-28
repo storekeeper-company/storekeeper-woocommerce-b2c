@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2022-12-03 06:08\n"
+"PO-Revision-Date: 2022-12-27 09:17\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
@@ -38,6 +38,15 @@ msgstr "Attribuutimporteren"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:255
 msgid "Category import"
 msgstr "Categorie import"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:85
+#, fuzzy
+msgid "Clean products only."
+msgstr "Verwijder alle producten."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:90
+msgid "Condition"
+msgstr "Staat"
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:102
 msgid "Contact your system administrator if the problem persists."
@@ -106,6 +115,14 @@ msgstr "Verwerking gereed van %s items van %s (%s nieuw / %s bijgewerkt)"
 #: vendor/wp-cli/wp-cli/php/utils-wp.php:233
 msgid "Drag widgets here to remove them from the sidebar but keep their settings."
 msgstr "Sleep widgets hierheen om ze uit de zijbalk te verwijderen, maar met behoud van hun instellingen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:88
+msgid "Duration in seconds"
+msgstr "Duur in seconden"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
+msgid "Emballage fee"
+msgstr "Emballage bedrag"
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:33
 msgid "Every minute"
@@ -187,7 +204,7 @@ msgstr "Overige"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:237
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:303
 msgid "Parent product recalculation"
-msgstr "Herberekening van het bovenliggende product"
+msgstr "Herberekening van het product"
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:76
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:77
@@ -247,6 +264,14 @@ msgstr "Terugbetaling via Wordpress-plugin (Terugbetaling #%s)"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
 msgid "Report error"
 msgstr "Fout melden"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:92
+msgid "Sales unit"
+msgstr "Verkoopeenheid"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:86
+msgid "Season"
+msgstr "Seizoen"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProducts.php:29
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProducts.php:29
@@ -317,6 +342,10 @@ msgstr "Om te zien hoe je de cron kan configureren, ga je naar %s."
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:300
 msgid "Trigger variation save actions"
 msgstr "Acties voor het opslaan van variaties activeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:84
+msgid "Unit weight in grams"
+msgstr "Gewicht in grammen"
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:47
 msgid "Valid postcode and house number"

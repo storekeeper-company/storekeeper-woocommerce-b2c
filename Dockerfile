@@ -201,6 +201,8 @@ RUN chmod +x /bin/phpunit && chmod +x /bin/run-unit-tests
 RUN echo 'Defaults env_keep += "APP_ENV"' >> /etc/sudoers &&\
     echo 'Defaults env_keep += "WP_TESTS_DOMAIN WP_TESTS_EMAIL WP_TESTS_TITLE WP_PHP_BINARY WP_TESTS_CONFIG_FILE_PATH WP_TESTS_DIR WP_SK_PLUGIN_DIR"' >> /etc/sudoers
 
+RUN mkdir /tmp/storekeeper-for-woocommerce/ && chown -R www-data:www-data /tmp/storekeeper-for-woocommerce && chmod 755 -R  /tmp/storekeeper-for-woocommerce
+
 COPY docker/docker-entrypoint-distro.sh /usr/local/bin/docker-entrypoint-distro.sh
 COPY docker/docker-test-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

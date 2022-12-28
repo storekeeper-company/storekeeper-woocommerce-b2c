@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WpCliException;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -50,119 +51,116 @@ class SyncIssueFixer extends AbstractSyncIssue
 
     public function execute(array $arguments, array $assoc_arguments)
     {
-        if (!$this->lock()) {
-            $this->logger->notice('Cannot run. lock on.');
+        try {
+            $this->lock();
+            // pre executeInWpCli check
+            if (!StoreKeeperOptions::isConnected()) {
+                throw new NotConnectedException('Backend is not connected to WooCommerce');
+            }
 
-            return;
-        }
+            $this->checkArguments($arguments, $assoc_arguments);
 
-        // pre executeInWpCli check
-        if (!StoreKeeperOptions::isConnected()) {
-            throw new NotConnectedException('Backend is not connected to WooCommerce');
-        }
+            if (array_key_exists('email', $assoc_arguments) && array_key_exists('password', $assoc_arguments)) {
+                $api = StoreKeeperApi::getApiByEmailAndPassword($assoc_arguments['email'], $assoc_arguments['password']);
+            } else {
+                $api = StoreKeeperApi::getApiByAuthName();
+            }
 
-        $this->checkArguments($arguments, $assoc_arguments);
+            // To make sure even big products sync
+            IniHelper::setIni(
+                'memory_limit',
+                '512M',
+                [$this->logger, 'notice']
+            );
 
-        if (array_key_exists('email', $assoc_arguments) && array_key_exists('password', $assoc_arguments)) {
-            $api = StoreKeeperApi::getApiByEmailAndPassword($assoc_arguments['email'], $assoc_arguments['password']);
-        } else {
-            $api = StoreKeeperApi::getApiByAuthName();
-        }
+            list(
+                $failed_tasks,
+                $missing_active_product_in_woocommerce,
+                $products_that_need_deactivation
+                ) = $this->readFromReport();
 
-        // To make sure even big products sync
-        IniHelper::setIni(
-            'memory_limit',
-            '512M',
-            [$this->logger, 'notice']
-        );
+            if ($missing_active_product_in_woocommerce['amount'] > 0) {
+                // Get all assigned products ids and get the parent/configurable product of those.
+                $configurable_product_ids = $missing_active_product_in_woocommerce['configurable']['product_ids'];
+                $assigned_product_ids = $missing_active_product_in_woocommerce['assign']['product_ids'];
 
-        list(
-            $failed_tasks,
-            $missing_active_product_in_woocommerce,
-            $products_that_need_deactivation
-            ) = $this->readFromReport();
+                // Getting all products configurable_product_id's
+                if (count($assigned_product_ids) > 0) {
+                    if (!array_key_exists('email', $assoc_arguments) || !array_key_exists('password', $assoc_arguments)) {
+                        throw new WpCliException('The --email and the --password parameter is required to resolve all tasks. Those need to be from an admin account because we run the function ProductsModule::listConfigurableAssociatedProducts');
+                    }
 
-        if ($missing_active_product_in_woocommerce['amount'] > 0) {
-            // Get all assigned products ids and get the parent/configurable product of those.
-            $configurable_product_ids = $missing_active_product_in_woocommerce['configurable']['product_ids'];
-            $assigned_product_ids = $missing_active_product_in_woocommerce['assign']['product_ids'];
+                    $limit = 250;
+                    foreach (array_chunk($assigned_product_ids, $limit) as $product_ids) {
+                        $response = $api->getModule('ProductsModule')->listConfigurableAssociatedProducts(
+                            0,
+                            $limit,
+                            null,
+                            [
+                                [
+                                    'name' => 'product/id__in_list',
+                                    'multi_val' => $product_ids,
+                                ],
+                            ]
+                        );
 
-            // Getting all products configurable_product_id's
-            if (count($assigned_product_ids) > 0) {
-                if (!array_key_exists('email', $assoc_arguments) || !array_key_exists('password', $assoc_arguments)) {
-                    new WpCliException(
-                        'The --email and the --password parameter is required to resolve all tasks. Those need to be from an admin account because we run the function ProductsModule::listConfigurableAssociatedProducts'
-                    );
+                        foreach ($response['data'] as $item) {
+                            $configurable_product_ids[] += $item['configurable_product_id'];
+                        }
+                    }
+                    $configurable_product_ids = array_unique($configurable_product_ids);
                 }
 
-                $limit = 250;
-                foreach (array_chunk($assigned_product_ids, $limit) as $product_ids) {
-                    $response = $api->getModule('ProductsModule')->listConfigurableAssociatedProducts(
-                        0,
-                        $limit,
-                        null,
+                // Get all simple product ids
+                $simple_product_ids = $missing_active_product_in_woocommerce['simple']['product_ids'];
+
+                // Import all simple and configurable products.
+                foreach (array_merge($simple_product_ids, $configurable_product_ids) as $product_id) {
+                    $product = new FullProductImportWithSelectiveIds(
                         [
-                            [
-                                'name' => 'product/id__in_list',
-                                'multi_val' => $product_ids,
-                            ],
+                            'product_id' => $product_id,
+                        ]
+                    );
+                    $product->setLogger($this->logger);
+                    $product->run();
+
+                    $this->logger->notice(
+                        'Imported product',
+                        [
+                            'product_id' => $product_id,
+                        ]
+                    );
+                }
+            }
+
+            if ($products_that_need_deactivation['amount'] > 0) {
+                foreach ($products_that_need_deactivation['shop_product_ids'] as $shop_product_id) {
+                    $this->logger->debug(
+                        'Deactivating product with',
+                        [
+                            'shop_product_id' => $shop_product_id,
                         ]
                     );
 
-                    foreach ($response['data'] as $item) {
-                        $configurable_product_ids[] += $item['configurable_product_id'];
-                    }
+                    $task = new ProductDeactivateTask();
+                    $task->setLogger($this->logger);
+                    $task->setTaskMeta(['storekeeper_id' => $shop_product_id]);
+                    $task->run(
+                        [
+                            'storekeeper_id' => $shop_product_id,
+                        ]
+                    );
+
+                    $this->logger->notice(
+                        'Deactivating product with',
+                        [
+                            'shop_product_id' => $shop_product_id,
+                        ]
+                    );
                 }
-                $configurable_product_ids = array_unique($configurable_product_ids);
             }
-
-            // Get all simple product ids
-            $simple_product_ids = $missing_active_product_in_woocommerce['simple']['product_ids'];
-
-            // Import all simple and configurable products.
-            foreach (array_merge($simple_product_ids, $configurable_product_ids) as $product_id) {
-                $product = new FullProductImportWithSelectiveIds(
-                    [
-                        'product_id' => $product_id,
-                    ]
-                );
-                $product->setLogger($this->logger);
-                $product->run();
-
-                $this->logger->notice(
-                    'Imported product',
-                    [
-                        'product_id' => $product_id,
-                    ]
-                );
-            }
-        }
-
-        if ($products_that_need_deactivation['amount'] > 0) {
-            foreach ($products_that_need_deactivation['shop_product_ids'] as $shop_product_id) {
-                $this->logger->debug(
-                    'Deactivating product with',
-                    [
-                        'shop_product_id' => $shop_product_id,
-                    ]
-                );
-
-                $task = new ProductDeactivateTask();
-                $task->setLogger($this->logger);
-                $task->setTaskMeta(['storekeeper_id' => $shop_product_id]);
-                $task->run(
-                    [
-                        'storekeeper_id' => $shop_product_id,
-                    ]
-                );
-
-                $this->logger->notice(
-                    'Deactivating product with',
-                    [
-                        'shop_product_id' => $shop_product_id,
-                    ]
-                );
-            }
+        } catch (LockActiveException $exception) {
+            $this->logger->notice('Cannot run. lock on.');
         }
     }
 

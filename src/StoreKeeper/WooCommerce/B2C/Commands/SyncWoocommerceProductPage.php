@@ -76,7 +76,7 @@ class SyncWoocommerceProductPage extends AbstractSyncCommand
         );
     }
 
-    protected function prepareExecute()
+    protected function prepareExecute(): bool
     {
         add_filter('woocommerce_product_type_query', [$this, 'recheckType'], 1, 2);
 

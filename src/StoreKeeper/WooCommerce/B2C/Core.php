@@ -436,7 +436,7 @@ HTML;
 
         foreach ($dirs as $dir) {
             if (!file_exists($dir)) {
-                if (false === @mkdir($dir, '0777', true)) {
+                if (false === @mkdir($dir, '0777', true) && !is_dir($dir)) {
                     continue; // failed to create
                 }
             }
@@ -462,9 +462,9 @@ HTML;
             $dirs[] = $_SERVER['HOME'].'/tmp';
         }
 
+        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_FOR_WOOCOMMERCE_NAME;
         $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_WOOCOMMERCE_B2C_NAME;
         $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.DIRECTORY_SEPARATOR.'tmp';
-        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_FOR_WOOCOMMERCE_NAME;
 
         return $dirs;
     }
