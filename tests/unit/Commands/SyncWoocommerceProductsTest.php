@@ -46,6 +46,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
 
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
+        $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
         $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
 

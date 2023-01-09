@@ -36,8 +36,8 @@ class InfoHandler
         'Tags',
     ];
 
-    const VENDOR = 'StoreKeeper';
-    const PLATFORM_NAME = 'Wordpress';
+    const VENDOR = StoreKeeperOptions::VENDOR;
+    const PLATFORM_NAME = StoreKeeperOptions::PLATFORM_NAME;
     const SOFTWARE_NAME = 'storekeeper-woocommerce-b2c';
 
     /**
@@ -151,6 +151,7 @@ class InfoHandler
         }
 
         $activeCapabilities[] = 's2b_image_variants';
+        $activeCapabilities[] = 's2b_report_product_state';
 
         return $activeCapabilities;
     }

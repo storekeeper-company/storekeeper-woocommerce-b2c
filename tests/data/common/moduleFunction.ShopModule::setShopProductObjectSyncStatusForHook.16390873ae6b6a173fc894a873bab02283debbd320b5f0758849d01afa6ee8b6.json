@@ -1,0 +1,24 @@
+{
+    "success": true,
+    "call_id": "63bc1bccf1221",
+    "module_name": "ShopModule",
+    "function": "setShopProductObjectSyncStatusForHook",
+    "params": [
+        {
+            "status": "success",
+            "shop_product_id": 116611,
+            "extra": {
+                "product_id": 34,
+                "view_url": "http:\/\/WP_TESTS_DOMAIN\/?product=simple-attribute-option-test",
+                "edit_url": "http:\/\/WP_TESTS_DOMAIN\/wp-admin\\/post.php?post=34&action=edit",
+                "date_synchronized": "2023-01-09 13:51:08",
+                "plugin_version": "WordPress: 6.0-src, StoreKeeper plugin: 0.0.1"
+            }
+        }
+    ],
+    "return": null,
+    "_type": "moduleFunction",
+    "time_ms": 565.0,
+    "_version": "1.0",
+    "_timestamp": "2023-01-09T13:51:09+00:00"
+}

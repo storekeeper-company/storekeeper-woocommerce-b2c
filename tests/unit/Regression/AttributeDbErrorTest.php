@@ -20,6 +20,7 @@ class AttributeDbErrorTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
+        $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
 
         // Make sure the environment was clean

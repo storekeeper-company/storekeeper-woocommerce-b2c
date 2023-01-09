@@ -64,6 +64,7 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
 
         $this->mockMediaFromDirectory(self::FULL_SYNC_DIR.'/media');
         $this->mockApiCallsFromDirectory(self::FULL_SYNC_DIR);
+        $this->mockApiCallsFromCommonDirectory();
 
         // Create 5 orders
         WC_Helper_Order::create_order();

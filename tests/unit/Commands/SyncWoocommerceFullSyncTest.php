@@ -21,6 +21,7 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
         $this->initApiConnection();
 
         $this->mockApiCallsFromDirectory('commands/full-sync');
+        $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory('commands/full-sync/media');
 
         $this->runner->execute(SyncWoocommerceFullSync::getCommandName());

@@ -1,0 +1,158 @@
+{
+    "success": true,
+    "call_id": "5e554f3b89c5b",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        0,
+        0,
+        1,
+        null,
+        [
+            {
+                "name": "id__=",
+                "val": "130"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 257,
+                    "product_id": 235,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 1.44,
+                    "ppu_wt": 1.75,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-07 14:47:25+02:00",
+                    "date_updated": "2020-04-07 14:48:19+02:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 257,
+                    "product_id": 235,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 1.44,
+                    "ppu_wt": 1.75,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-04-07 14:47:25+02:00",
+                    "date_updated": "2020-04-07 14:48:19+02:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 235,
+                    "product_id": 235,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-04-08 03:20:59+02:00",
+                    "title": "Sync Product Test Want Sjoerd Wil Liever Echte Product Namensync-product-test-want-sjoerd-wil-liever-echte-product-namenRode MiTo",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 235,
+                    "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namensync-product-test-want-sjoerd-wil-liever-echte-product-namenrode-mito",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 235,
+                        "date_created": "2020-04-07 14:47:25+02:00",
+                        "date_updated": "2020-04-07 14:48:19+02:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 406,
+                        "sku": "sync-product-test-want-sjoerd-wil-liever-echte-product-namenrode-mito",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 257,
+                        "object_instance_id": 1117,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "sync-product-test-want-sjoerd-wil-liever-echte-product-namensync-product-test-want-sjoerd-wil-liever-echte-product-namenrode-mito",
+                            "translatable_id": 636
+                        },
+                        "product_stock": {
+                            "id": 235,
+                            "product_id": 235,
+                            "value": 50,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-04-07 14:47:33+02:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Sync Kleur",
+                            "attribute_id": 19,
+                            "attribute_option_id": 21,
+                            "value_label": "Rode MiTo",
+                            "name": "sync-kleur",
+                            "value": "rode-mito",
+                            "attribute_option_image_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/alfa-romeo-mito-veloce-1280x799.png?img_w=188&img_h=150&",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Gewicht",
+                            "attribute_id": 7,
+                            "name": "unit_weight_in_g",
+                            "value": "5",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Hoeveelheid in pakket",
+                            "attribute_id": 10,
+                            "name": "in_package_qty",
+                            "value": "5",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Kleur",
+                            "attribute_id": 13,
+                            "attribute_option_id": 6,
+                            "value_label": "Zwart",
+                            "name": "kleur",
+                            "value": "zwart",
+                            "attribute_published": true
+                        },
+                        {
+                            "label": "Sync Maat",
+                            "attribute_id": 20,
+                            "name": "sync-maat",
+                            "value": "Heel erg groot",
+                            "attribute_published": true
+                        }
+                    ]
+                },
+                "id": 130,
+                "product_id": 235,
+                "product_price_id": 257,
+                "date_created": "2020-04-07 14:47:25+02:00",
+                "active": true,
+                "backorder_enabled": false,
+                "discount_dirty": false,
+                "object_instance_id": 1118,
+                "date_updated": "2020-04-07 14:47:46+02:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 257
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 253.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-25T16:45:47+00:00"
+}

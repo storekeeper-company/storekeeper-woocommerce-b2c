@@ -13,6 +13,10 @@ abstract class AbstractProductImport extends AbstractImport
     const STOCK_STATUS_IN_STOCK = 'instock';
     const STOCK_STATUS_OUT_OF_STOCK = 'outofstock';
 
+    const SYNC_STATUS_PENDING = 'pending';
+    const SYNC_STATUS_SUCCESS = 'success';
+    const SYNC_STATUS_FAILED = 'failed';
+
     protected function getModule()
     {
         return 'ShopModule';
@@ -232,4 +236,42 @@ abstract class AbstractProductImport extends AbstractImport
     {
         return trim($shop_product_path, '.');
     }
+
+    protected function processItem($dotObject, array $options = [])
+    {
+        $ShopModule = $this->storekeeper_api->getModule('ShopModule');
+
+        $shopProductId = $dotObject->get('id');
+        try {
+            $woocommerceProductId = $this->doProcessProductItem($dotObject, $options);
+
+            if (false !== $woocommerceProductId) {
+                $ShopModule->setShopProductObjectSyncStatusForHook([
+                    'status' => self::SYNC_STATUS_SUCCESS,
+                    'shop_product_id' => $shopProductId,
+                    'extra' => [
+                        'product_id' => $woocommerceProductId,
+                        'view_url' => get_permalink($woocommerceProductId),
+                        'edit_url' => admin_url('post.php?post='.$woocommerceProductId).'&action=edit',
+                        'date_synchronized' => (new \DateTime())->format('Y-m-d H:i:s'),
+                        'plugin_version' => implode(', ', [
+                            StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
+                            StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                        ]),
+                    ],
+                ]);
+            }
+
+            return $woocommerceProductId;
+        } catch (\Throwable $throwable) {
+            $ShopModule->setShopProductObjectSyncStatusForHook([
+                'status' => self::SYNC_STATUS_FAILED,
+                'shop_product_id' => $shopProductId,
+            ]);
+
+            throw $throwable;
+        }
+    }
+
+    abstract protected function doProcessProductItem($dotObject, array $options);
 }

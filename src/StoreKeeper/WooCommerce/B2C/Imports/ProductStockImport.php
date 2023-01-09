@@ -7,7 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class ProductStockImport extends AbstractProductImport
 {
-    protected function processItem($dotObject, array $options = [])
+    protected function doProcessProductItem($dotObject, array $options = [])
     {
         $log_data = $this->setupLogData($dotObject);
 

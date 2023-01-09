@@ -34,6 +34,7 @@ class EventHandlerTest extends AbstractTest
         $this->initApiConnection();
 
         $this->mockApiCallsFromDirectory('events/products/updateProduct', true);
+        $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory('events/products/media');
         $file = $this->getHookDataDump('events/hook.events.updateProduct.json');
 
@@ -56,6 +57,6 @@ class EventHandlerTest extends AbstractTest
         $this->assertNotFalse($product, 'product not created');
 
         $used_keys = StoreKeeperApi::$mockAdapter->getUsedReturns();
-        $this->assertCount(4, $used_keys, 'call made');
+        $this->assertCount(6, $used_keys, 'Exactly 6 calls should have been made');
     }
 }

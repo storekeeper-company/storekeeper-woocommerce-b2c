@@ -1,0 +1,139 @@
+{
+    "success": true,
+    "call_id": "5e554f3b89c5b",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        0,
+        0,
+        1,
+        null,
+        [
+            {
+                "name": "id__=",
+                "val": "16"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 38,
+                    "product_id": 23,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 123.14,
+                    "ppu_wt": 149,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-02-20 14:39:32+01:00",
+                    "date_updated": "2020-02-20 14:39:32+01:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 38,
+                    "product_id": 23,
+                    "default": false,
+                    "currency_iso3": "EUR",
+                    "ppu": 123.14,
+                    "ppu_wt": 149,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2020-02-20 14:39:32+01:00",
+                    "date_updated": "2020-02-20 14:39:32+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 23,
+                    "product_id": 23,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2020-02-20 14:39:47+01:00",
+                    "title": "Smart Battery Case voor iPhone 11 Pro Max Wit",
+                    "summary": "Met de speciaal voor iPhone 11 Pro Max ontworpen Smart Battery Case gaat de batterij nog langer mee en bescherm je meteen ook je device. Aan de binnenkant zorgt zacht microvezel voor een goede bescherming van je iPhone. En aan de buitenkant voelt de afwerking van silicone heel prettig aan. Dankzij het scharnier van zacht elastomeer kun je je iPhone bovendien heel eenvoudig in het hoesje doen en er weer uit halen.",
+                    "body": "Met de speciaal voor iPhone 11 Pro Max ontworpen Smart Battery Case gaat de batterij nog langer mee en bescherm je meteen ook je device. Aan de binnenkant zorgt zacht microvezel voor een goede bescherming van je iPhone. En aan de buitenkant voelt de afwerking van silicone heel prettig aan. Dankzij het scharnier van zacht elastomeer kun je je iPhone bovendien heel eenvoudig in het hoesje doen en er weer uit halen.\n\nHet hoesje heeft een speciale cameraknop waarmee de Camera-app wordt gestart, ook als je iPhone is vergrendeld. Als je de knop kort indrukt, maak je een foto. Houd je de knop langer ingedrukt, dan maak je een QuickTake-video. En natuurlijk werkt dit ook voor selfies.\n\nDe Smart Battery Case is ook compatibel met gecertificeerde Qi‑opladers. Je kunt je iPhone tegelijk met de Smart Battery Case opladen. En wanneer hij volledig is opgeladen, biedt de Smart Battery Case een tot 50% langere batterijduur.* Hierdoor kun je langer bellen en internetten en nóg langer muziek luisteren en video’s kijken. Zit je iPhone in het hoesje, dan zie je de intelligente batterijstatus op het toegangs­scherm en in het Berichtencentrum. Je weet dus altijd precies hoelang de batterij nog meegaat.\n\nMet een USB‑PD-lader is dit hoesje nog sneller opgeladen. Het is ook geschikt voor Lightning-accessoires, zoals de EarPods met Lightning-connector (meegeleverd met je iPhone), en de Lightning-naar-digitale-AV-adapter (afzonderlijk verkrijgbaar).",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 23,
+                    "slug": "smart-battery-case-voor-iphone-11-pro-max-wit",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 23,
+                        "date_created": "2020-02-20 14:39:32+01:00",
+                        "date_updated": "2020-02-20 14:39:47+01:00",
+                        "relation_data_id": 3,
+                        "published": true,
+                        "configuration_id": 1,
+                        "content_id": 80,
+                        "sku": "MWVR2-wit",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 38,
+                        "object_instance_id": 186,
+                        "has_addons": false,
+                        "is_system": false,
+                        "content": {
+                            "slug": "smart-battery-case-voor-iphone-11-pro-max-wit",
+                            "translatable_id": 57
+                        },
+                        "product_stock": {
+                            "id": 23,
+                            "product_id": 23,
+                            "value": 109,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2020-02-20 14:39:47+01:00",
+                            "unique_stock_items": false
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Kleur",
+                            "attribute_id": 13,
+                            "attribute_option_id": 7,
+                            "value_label": "Wit",
+                            "name": "kleur",
+                            "value": "wit",
+                            "attribute_published": true
+                        }
+                    ],
+                    "main_image": {
+                        "id": 54,
+                        "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MWVR2_small_image.jpeg?img_w=200&img_h=200&",
+                        "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MWVR2_big_image.jpeg?img_w=1500&img_h=1500&"
+                    },
+                    "product_images": [
+                        {
+                            "id": 54,
+                            "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MWVR2_small_image.jpeg?img_w=200&img_h=200&",
+                            "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MWVR2_big_image.jpeg?img_w=1500&img_h=1500&"
+                        }
+                    ]
+                },
+                "id": 16,
+                "product_id": 23,
+                "product_price_id": 38,
+                "date_created": "2020-02-20 14:39:32+01:00",
+                "active": true,
+                "discount_dirty": false,
+                "object_instance_id": 187,
+                "date_updated": "2020-02-20 14:39:32+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 38
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 253.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-25T16:45:47+00:00"
+}

@@ -661,6 +661,7 @@ class ProductHandlerTest extends AbstractProductTest
 
     protected function mockCreateProductRequestWithTest(): WC_Product
     {
+        $this->mockApiCallsFromCommonDirectory();
         // Handle the product creation hook event
         $creationOptions = $this->handle_hook_request(
             self::CREATE_DATADUMP_DIRECTORY,
