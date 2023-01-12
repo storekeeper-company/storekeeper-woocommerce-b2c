@@ -17,6 +17,8 @@ abstract class AbstractProductImport extends AbstractImport
     const SYNC_STATUS_SUCCESS = 'success';
     const SYNC_STATUS_FAILED = 'failed';
 
+    protected $woocommerceProductId = null;
+
     protected function getModule()
     {
         return 'ShopModule';
@@ -264,13 +266,47 @@ abstract class AbstractProductImport extends AbstractImport
 
             return $woocommerceProductId;
         } catch (\Throwable $throwable) {
-            $ShopModule->setShopProductObjectSyncStatusForHook([
+            $data = [
                 'status' => self::SYNC_STATUS_FAILED,
                 'shop_product_id' => $shopProductId,
-            ]);
+                'last_error_message' => $throwable->getMessage(),
+                'last_error_details' => $throwable->getTraceAsString(),
+            ];
+
+            $productId = $this->getWoocommerceProductId();
+            if (!is_null($productId)) {
+                $data['extra'] = [
+                    'product_id' => $productId,
+                    'view_url' => get_permalink($productId),
+                    'edit_url' => admin_url('post.php?post='.$productId).'&action=edit',
+                    'date_synchronized' => (new \DateTime())->format('Y-m-d H:i:s'),
+                    'plugin_version' => implode(', ', [
+                        StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
+                        StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                    ]),
+                ];
+            }
+
+            $ShopModule->setShopProductObjectSyncStatusForHook($data);
 
             throw $throwable;
         }
+    }
+
+    /**
+     * @return null
+     */
+    public function getWoocommerceProductId()
+    {
+        return $this->woocommerceProductId;
+    }
+
+    /**
+     * @param null $woocommerceProductId
+     */
+    public function setWoocommerceProductId($woocommerceProductId): void
+    {
+        $this->woocommerceProductId = $woocommerceProductId;
     }
 
     abstract protected function doProcessProductItem($dotObject, array $options);

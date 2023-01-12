@@ -885,6 +885,8 @@ SQL;
             throw new Exception("No product is association with id={$product_id['id']}");
         }
 
+        $this->setWoocommerceProductId($newProduct->get_id());
+
         return $newProduct;
     }
 

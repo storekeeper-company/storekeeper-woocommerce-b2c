@@ -16,6 +16,7 @@ class ProductStockImport extends AbstractProductImport
 
         if ($post) {
             $product = wc_get_product($post);
+            $this->setWoocommerceProductId($product->get_id());
             // If the product is dirty, it means it still needs processing to we plan another import
             if ($dotObject->get('flat_product.dirty')) {
                 $this->debug('Product dirty, skipped', $log_data);
