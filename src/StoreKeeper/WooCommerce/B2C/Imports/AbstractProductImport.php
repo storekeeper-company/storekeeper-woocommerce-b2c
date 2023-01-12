@@ -294,17 +294,14 @@ abstract class AbstractProductImport extends AbstractImport
     }
 
     /**
-     * @return null
+     * @return int|null
      */
-    public function getWoocommerceProductId()
+    public function getWoocommerceProductId(): ?int
     {
         return $this->woocommerceProductId;
     }
 
-    /**
-     * @param null $woocommerceProductId
-     */
-    public function setWoocommerceProductId($woocommerceProductId): void
+    public function setWoocommerceProductId(?int $woocommerceProductId): void
     {
         $this->woocommerceProductId = $woocommerceProductId;
     }
