@@ -17,6 +17,7 @@ class SyncWoocommerceUpsellProductsTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
+        $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
 
         // Test whether there are no products before import

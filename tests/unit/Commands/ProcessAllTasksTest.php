@@ -14,6 +14,9 @@ class ProcessAllTasksTest extends AbstractTest
 {
     use CommandRunnerTrait;
 
+    const MISSING_TASK_ERROR_DIR = 'commands/process-all-tasks/missing-task-error';
+    const GET_CONFIGURABLE_SHOP_PRODUCT_OPTIONS_FILE = '20200515_045528.moduleFunction.ShopModule::getConfigurableShopProductOptions.success.5ebe20bfe98de.json';
+
     public function testLastRunTimeVariableSet()
     {
         $db = new DatabaseConnection();
@@ -73,9 +76,6 @@ class ProcessAllTasksTest extends AbstractTest
         $this->assertEquals(TaskHandler::STATUS_FAILED, $task['status'], 'task marked as failed');
     }
 
-    const MISSING_TASK_ERROR_DIR = 'commands/process-all-tasks/missing-task-error';
-    const GET_CONFIGURABLE_SHOP_PRODUCT_OPTIONS_FILE = '20200515_045528.moduleFunction.ShopModule::getConfigurableShopProductOptions.success.5ebe20bfe98de.json';
-
     /**
      * This test simulates a missing task, where it needs to show a warning that it was skipped.
      */
@@ -104,6 +104,7 @@ class ProcessAllTasksTest extends AbstractTest
 
         // Run processing of tasks
         $this->mockApiCallsFromDirectory(self::MISSING_TASK_ERROR_DIR.'/dump', true);
+        $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory(self::MISSING_TASK_ERROR_DIR.'/dump/media');
 
         $this->runner->execute(ProcessAllTasks::getCommandName());

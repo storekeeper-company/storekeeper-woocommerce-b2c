@@ -17,15 +17,14 @@ class InvalidTaxonomyTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
+        $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
 
         $this->runner->execute(SyncWooCommerceProducts::getCommandName());
 
         $wc_products = wc_get_products([]);
-        $this->assertEquals(
-            1,
-            count($wc_products),
-            'Configurable products was imported'
+        $this->assertCount(
+            1, $wc_products, 'Configurable products was imported'
         );
     }
 }

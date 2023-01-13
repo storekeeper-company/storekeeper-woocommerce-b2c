@@ -13,6 +13,12 @@ abstract class AbstractProductImport extends AbstractImport
     const STOCK_STATUS_IN_STOCK = 'instock';
     const STOCK_STATUS_OUT_OF_STOCK = 'outofstock';
 
+    const SYNC_STATUS_PENDING = 'pending';
+    const SYNC_STATUS_SUCCESS = 'success';
+    const SYNC_STATUS_FAILED = 'failed';
+
+    protected $woocommerceProductId = null;
+
     protected function getModule()
     {
         return 'ShopModule';
@@ -232,4 +238,76 @@ abstract class AbstractProductImport extends AbstractImport
     {
         return trim($shop_product_path, '.');
     }
+
+    protected function processItem($dotObject, array $options = [])
+    {
+        $ShopModule = $this->storekeeper_api->getModule('ShopModule');
+
+        $shopProductId = $dotObject->get('id');
+        try {
+            $woocommerceProductId = $this->doProcessProductItem($dotObject, $options);
+
+            if (false !== $woocommerceProductId) {
+                $ShopModule->setShopProductObjectSyncStatusForHook([
+                    'status' => self::SYNC_STATUS_SUCCESS,
+                    'shop_product_id' => $shopProductId,
+                    'extra' => [
+                        'product_id' => $woocommerceProductId,
+                        'view_url' => get_permalink($woocommerceProductId),
+                        'edit_url' => admin_url('post.php?post='.$woocommerceProductId).'&action=edit',
+                        'date_synchronized' => (new \DateTime())->format('Y-m-d H:i:s'),
+                        'plugin_version' => implode(', ', [
+                            StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
+                            StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                        ]),
+                    ],
+                ]);
+            }
+
+            return $woocommerceProductId;
+        } catch (\Throwable $throwable) {
+            $data = [
+                'status' => self::SYNC_STATUS_FAILED,
+                'shop_product_id' => $shopProductId,
+                'last_error_message' => $throwable->getMessage(),
+                'last_error_details' => $throwable->getTraceAsString(),
+            ];
+
+            $productId = $this->getWoocommerceProductId();
+            if (!is_null($productId)) {
+                $data['extra'] = [
+                    'product_id' => $productId,
+                    'view_url' => get_permalink($productId),
+                    'edit_url' => admin_url('post.php?post='.$productId).'&action=edit',
+                    'plugin_version' => implode(', ', [
+                        StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
+                        StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                    ]),
+                ];
+            } else {
+                $data['extra'] = [
+                    'plugin_version' => implode(', ', [
+                        StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
+                        StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                    ]),
+                ];
+            }
+
+            $ShopModule->setShopProductObjectSyncStatusForHook($data);
+
+            throw $throwable;
+        }
+    }
+
+    public function getWoocommerceProductId(): ?int
+    {
+        return $this->woocommerceProductId;
+    }
+
+    public function setWoocommerceProductId(?int $woocommerceProductId): void
+    {
+        $this->woocommerceProductId = $woocommerceProductId;
+    }
+
+    abstract protected function doProcessProductItem($dotObject, array $options);
 }
