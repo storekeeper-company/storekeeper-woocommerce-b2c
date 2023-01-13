@@ -73,8 +73,10 @@ class ProductImportTest extends AbstractTest
                             &$setShopProductObjectSyncStatusForHookCallCount
                         ) {
                             $request = $got[0];
-                            $this->assertEquals($expectedStatus, $request['status'], 'Reported status is wrong');
-                            $this->assertEquals($expectedShopProductId, $request['shop_product_id'], 'Shop product ID sent is wrong');
+                            $this->assertArrayHasKey('extra', $request, 'Request should always have extra key');
+                            $this->assertArrayHasKey('plugin_version', $request['extra'], 'Request extra should always contain plugin_version');
+                            $this->assertEquals($expectedStatus, $request['status'], 'Status should match expected');
+                            $this->assertEquals($expectedShopProductId, $request['shop_product_id'], 'Shop product ID should match expected');
                             ++$setShopProductObjectSyncStatusForHookCallCount;
 
                             return null;

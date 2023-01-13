@@ -279,7 +279,13 @@ abstract class AbstractProductImport extends AbstractImport
                     'product_id' => $productId,
                     'view_url' => get_permalink($productId),
                     'edit_url' => admin_url('post.php?post='.$productId).'&action=edit',
-                    'date_synchronized' => (new \DateTime())->format('Y-m-d H:i:s'),
+                    'plugin_version' => implode(', ', [
+                        StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
+                        StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                    ]),
+                ];
+            } else {
+                $data['extra'] = [
                     'plugin_version' => implode(', ', [
                         StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
                         StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
@@ -293,9 +299,6 @@ abstract class AbstractProductImport extends AbstractImport
         }
     }
 
-    /**
-     * @return int|null
-     */
     public function getWoocommerceProductId(): ?int
     {
         return $this->woocommerceProductId;
