@@ -64,6 +64,9 @@ Add extra includes
 Setup mappings
 ![Mappings](./extra-includes-mappings.png)
 
+Setup mappings for local xdebug from on http://localhost:8888 using browser
+![Mappings](./server-mapping.png)
+
 Configure interpreter
 ![php interpreter](./interpreter-config.png)
 
