@@ -34,6 +34,10 @@ class WebhookPostEndpoint extends AbstractEndpoint
                 $handler = new InfoHandler($this->wrappedRequest);
 
                 return $handler->run();
+            case 'disconnect':
+                $handler = new DisconnectHandler();
+
+                return $handler->run();
         }
         throw new WpRestException("Unknown action: $action", 500);
     }

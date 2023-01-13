@@ -1,0 +1,36 @@
+{
+    "success": true,
+    "call_id": "5e4bb36734f37",
+    "request": {
+        "headers": {
+            "host": [
+                "localhost:8888"
+            ],
+            "user_agent": [
+                "GuzzleHttp\/6.5.1 curl\/7.64.0 PHP\/7.3.9-1~deb10u1"
+            ],
+            "content_type": [
+                "application\/json"
+            ],
+            "upxhooktoken": [
+                "4606ea5e89ba2632c99c57a9a6d7efd79010ad0108d045c6e4921e82852894ad"
+            ],
+            "content_length": [
+                "1949"
+            ]
+        },
+        "body": "{\"action\":\"disconnect\",\"payload\":{\"id\":\"1\",\"alias\":\"sample-webshop\",\"name\":\"Sample web shop\"}}",
+        "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+        "method": "POST",
+        "query_params": {
+            "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+        },
+        "file_params": []
+    },
+    "hook_action": "disconnect",
+    "return": true,
+    "_type": "hook",
+    "time_ms": 163.0,
+    "_version": "1.0",
+    "_timestamp": "2020-02-18T09:50:31+00:00"
+}
