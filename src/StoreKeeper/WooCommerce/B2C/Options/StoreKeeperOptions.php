@@ -7,6 +7,9 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class StoreKeeperOptions extends AbstractOptions
 {
+    public const VENDOR = 'StoreKeeper';
+    public const PLATFORM_NAME = 'WordPress';
+
     public const API_URL = 'api-url';
     public const OLD_API_URL = 'old-api-url';
     public const GUEST_AUTH = 'guest-auth';

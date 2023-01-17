@@ -15,6 +15,7 @@ class OutOfSyncAttributeOptionsTest extends AbstractTest
     {
         $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY.'/full-sync', true);
+        $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/full-sync/media');
 
         $this->runner->execute(SyncWoocommerceFullSync::getCommandName());

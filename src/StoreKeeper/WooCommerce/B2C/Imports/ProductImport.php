@@ -146,7 +146,7 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
      * @throws WordpressException
      * @throws WC_Data_Exception
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function doProcessProductItem($dotObject, array $options = [])
     {
         $log_data = $this->setupLogData($dotObject);
 
@@ -884,6 +884,8 @@ SQL;
         if (is_null($newProduct)) {
             throw new Exception("No product is association with id={$product_id['id']}");
         }
+
+        $this->setWoocommerceProductId($newProduct->get_id());
 
         return $newProduct;
     }
