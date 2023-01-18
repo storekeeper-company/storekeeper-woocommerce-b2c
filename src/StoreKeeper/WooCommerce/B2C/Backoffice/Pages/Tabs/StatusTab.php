@@ -162,9 +162,16 @@ class StatusTab extends AbstractTab
 
         $data[] = [
             'title' => __('WooCommerce SKU feature enabled', I18N::DOMAIN),
-            'description' => __('SKU feature for for WooCommerce has been disabled.', I18N::DOMAIN),
+            'description' => __('SKU feature for WooCommerce has been disabled.', I18N::DOMAIN),
             'value' => wc_product_sku_enabled(),
-            'function::value' => [$this, 'renderCheckWithValue'],
+            'function::value' => [$this, 'renderCheck'],
+        ];
+
+        $data[] = [
+            'title' => __('WooCommerce stock management feature enabled', I18N::DOMAIN),
+            'description' => __('WooCommerce stock management feature has been disabled.', I18N::DOMAIN),
+            'value' => get_option('woocommerce_manage_stock') === 'yes' ? true : false,
+            'function::value' => [$this, 'renderCheck'],
         ];
 
         $extensions = get_loaded_extensions();
