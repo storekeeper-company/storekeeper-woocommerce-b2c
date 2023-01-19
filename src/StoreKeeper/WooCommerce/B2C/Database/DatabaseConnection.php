@@ -130,13 +130,17 @@ class DatabaseConnection
         return $dateTime->format(DateTimeHelper::MYSQL_DATE_FORMAT);
     }
 
-    public static function formatFromDatabaseDate(string $date)
+    public static function formatFromDatabaseDate(string $date): \DateTime
     {
         $formattedDate = \DateTime::createFromFormat(DateTimeHelper::MYSQL_DATE_FORMAT, $date);
 
         if (!$formattedDate) {
             // Fallback in case the date is not in mysql format
-            return \DateTime::createFromFormat(DATE_RFC2822, $date);
+            $formattedDate = \DateTime::createFromFormat(DATE_RFC2822, $date);
+        }
+
+        if (!$formattedDate) {
+            throw new \RuntimeException('Date format is invalid');
         }
 
         return $formattedDate;
