@@ -3,7 +3,8 @@
 namespace StoreKeeper\WooCommerce\B2C\Models;
 
 use Aura\SqlQuery\Common\SelectInterface;
-use http\Exception\RuntimeException;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
@@ -102,7 +103,7 @@ SQL;
             'meta_data'
         );
         $data['name'] = static::getName($type, $storekeeper_id);
-        $data['date_created'] = current_time('mysql', 1);
+        $data['date_created'] = DatabaseConnection::formatToDatabaseDate(DateTimeHelper::currentDateTime());
         static::updateDateField($data);
 
         return static::create($data);
@@ -117,7 +118,7 @@ SQL;
         }
     }
 
-    public static function getLastProcessTaskDate()
+    public static function getLastProcessTaskDate(): ?\DateTime
     {
         global $wpdb;
 
@@ -135,15 +136,15 @@ SQL;
 
         $task = reset($results);
 
-        return reset($task);
+        return DatabaseConnection::formatFromDatabaseDate(reset($task));
     }
 
-    public static function getLatestSuccessfulSynchronizedDateForType($type)
+    public static function getLatestSuccessfulSynchronizedDateForType($type): ?\DateTime
     {
         global $wpdb;
 
         if (!$type) {
-            throw new RuntimeException('$type cannot be empty');
+            throw new \RuntimeException('$type cannot be empty');
         }
 
         $select = static::getSelectHelper()
@@ -164,7 +165,7 @@ SQL;
 
         $task = reset($results);
 
-        return reset($task);
+        return DatabaseConnection::formatFromDatabaseDate(reset($task));
     }
 
     public static function getFailedOrderIds(): array
@@ -255,38 +256,38 @@ SQL;
 
     public static function countTasks(): int
     {
-        return TaskModel::count(['status != :status'], ['status' => TaskHandler::STATUS_SUCCESS]);
+        return self::count(['status != :status'], ['status' => TaskHandler::STATUS_SUCCESS]);
     }
 
     public static function countFailedTasks(): int
     {
-        return TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_FAILED]);
+        return self::count(['status = :status'], ['status' => TaskHandler::STATUS_FAILED]);
     }
 
     public static function countSuccessfulTasks(): int
     {
-        return TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_SUCCESS]);
+        return self::count(['status = :status'], ['status' => TaskHandler::STATUS_SUCCESS]);
     }
 
-    private static function prepareProcessedDateTimeRangeSelect($start, $end): SelectInterface
+    private static function prepareProcessedDateTimeRangeSelect(\DateTime $start, \DateTime $end): SelectInterface
     {
         return static::getSelectHelper()
             ->where('date_last_processed >= :start')
             ->where('date_last_processed <= :end')
-            ->bindValue('start', $start)
-            ->bindValue('end', $end);
+            ->bindValue('start', DatabaseConnection::formatToDatabaseDate($start))
+            ->bindValue('end', DatabaseConnection::formatToDatabaseDate($end));
     }
 
-    private static function prepareCreatedDateTimeRangeSelect($start, $end): SelectInterface
+    private static function prepareCreatedDateTimeRangeSelect(\DateTime $start, \DateTime $end): SelectInterface
     {
         return static::getSelectHelper()
             ->where('date_created >= :start')
             ->where('date_created <= :end')
-            ->bindValue('start', $start)
-            ->bindValue('end', $end);
+            ->bindValue('start', DatabaseConnection::formatToDatabaseDate($start))
+            ->bindValue('end', DatabaseConnection::formatToDatabaseDate($end));
     }
 
-    public static function getExecutionDurationSumByProcessedDateTimeRange($start, $end): ?float
+    public static function getExecutionDurationSumByProcessedDateTimeRange(\DateTime $start, \DateTime $end): ?float
     {
         global $wpdb;
 
@@ -312,7 +313,7 @@ SQL;
         return !is_null($tasksCount) ? $tasksCount : 0;
     }
 
-    public static function countTasksByProcessedDateTimeRange($start, $end): int
+    public static function countTasksByProcessedDateTimeRange(\DateTime $start, \DateTime $end): int
     {
         global $wpdb;
 
@@ -378,7 +379,7 @@ SQL;
             ->where('status = :status')
             ->where('date_created < :old')
             ->bindValue('status', TaskHandler::STATUS_SUCCESS)
-            ->bindValue('old', date('Y-m-d H:i:s', strtotime("-$numberOfDays days")));
+            ->bindValue('old', date(DateTimeHelper::MYSQL_DATE_FORMAT, strtotime("-$numberOfDays days")));
 
         $affectedRows = $wpdb->query(static::prepareQuery($delete));
 

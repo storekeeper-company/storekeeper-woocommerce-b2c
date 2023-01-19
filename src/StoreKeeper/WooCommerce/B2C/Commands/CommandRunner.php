@@ -8,10 +8,12 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\InvalidRunnerException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
 use Symfony\Component\Process\Process;
 use Throwable;
@@ -228,7 +230,12 @@ class CommandRunner
     {
         try {
             CronRegistrar::validateRunner($runner);
-            CronOptions::set(CronOptions::LAST_PRE_EXECUTION_DATE, date(DATE_RFC2822));
+            CronOptions::set(
+                CronOptions::LAST_PRE_EXECUTION_DATE,
+                DatabaseConnection::formatToDatabaseDate(
+                    DateTimeHelper::currentDateTime()
+                )
+            );
 
             $callback();
 

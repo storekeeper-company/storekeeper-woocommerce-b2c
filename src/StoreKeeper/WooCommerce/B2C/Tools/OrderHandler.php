@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use WC_Order;
 use WP_Post;
@@ -118,14 +119,16 @@ class OrderHandler
         if (StoreKeeperOptions::isOrderSyncEnabled()) {
             $order = new WC_Order($orderId);
             $orderCreatedDate = $order->get_date_created();
-            $orderCreatedDate = date('Y-m-d', strtotime($orderCreatedDate));
-            $orderSyncFromDate = StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
 
-            if (is_null($orderSyncFromDate)) {
+            if (is_null(StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE))) {
                 return true;
             }
 
-            if (strtotime($orderSyncFromDate) <= strtotime($orderCreatedDate)) {
+            $orderSyncFromDate = DatabaseConnection::formatFromDatabaseDate(
+                StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE)
+            );
+
+            if (!is_null($orderCreatedDate) && strtotime($orderSyncFromDate->format('Y-m-d')) <= strtotime($orderCreatedDate->format('Y-m-d'))) {
                 return true;
             }
         }

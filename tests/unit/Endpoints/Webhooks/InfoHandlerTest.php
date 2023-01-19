@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\Webhooks;
 use Exception;
 use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoHandler;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
@@ -28,16 +29,36 @@ class InfoHandlerTest extends AbstractTest
 
         $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER, false);
 
+        // These first 2 orders will fail because the woocommerce_currency is not `EUR`
         $firstFailedOrderId = $this->createWoocommerceOrder();
         $secondFailedOrderId = $this->createWoocommerceOrder();
         $this->exportOrder($firstFailedOrderId);
         $this->exportOrder($secondFailedOrderId);
         update_option('woocommerce_currency', 'EUR');
 
+        // This will be the expected last synchronized order and last task processed
+        // based on the unit test logical order
         $successfulOrderExpectedId = $this->createWoocommerceOrder();
+
         $successfulOrderId = $this->createWoocommerceOrder();
         $this->exportOrder($successfulOrderId);
         $this->exportOrder($successfulOrderExpectedId);
+
+        $expectedSuccessfulOrderTasks = TaskModel::findBy(
+            [
+                'type = :type',
+                'storekeeper_id = :storekeeper_id',
+            ],
+            [
+                'type' => TaskHandler::ORDERS_EXPORT,
+                'storekeeper_id' => $successfulOrderExpectedId,
+            ],
+            'date_last_processed',
+            'DESC',
+            1,
+        );
+
+        $expectedSuccessfulOrderTask = reset($expectedSuccessfulOrderTasks);
 
         $firstUnsynchronizedOrderId = $this->createWoocommerceOrder();
         $secondUnsynchronizedOrderId = $this->createWoocommerceOrder();
@@ -117,10 +138,7 @@ class InfoHandlerTest extends AbstractTest
         $this->assertEquals($expectedFailedOrderIds, $orderSystemStatus['ids_with_failed_tasks'], 'Failed order IDs should match with extras');
         $this->assertEquals($expectedLastOrderDate, $orderSystemStatus['last_date']);
         $this->assertEquals(
-            \DateTime::createFromFormat(
-                'Y-m-d H:i:s',
-                TaskModel::getLatestSuccessfulSynchronizedDateForType(TaskHandler::ORDERS_EXPORT)
-            )->format(DATE_RFC2822),
+            DatabaseConnection::formatFromDatabaseDate($expectedSuccessfulOrderTask->date_last_processed)->format(DATE_RFC2822),
             $orderSystemStatus['last_synchronized_date'],
             'Last successful synchronized order ID should match with extras'
         );
@@ -132,13 +150,13 @@ class InfoHandlerTest extends AbstractTest
 
         // Assert task processor
         $this->assertEquals(
-            TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]),
+            6,
             $taskProcessorStatus['in_queue_quantity'],
             'Task in queue should match with extras'
         );
 
         $this->assertEquals(
-            \DateTime::createFromFormat('Y-m-d H:i:s', TaskModel::getLastProcessTaskDate())->format(DATE_RFC2822),
+            DatabaseConnection::formatFromDatabaseDate($expectedSuccessfulOrderTask->date_last_processed)->format(DATE_RFC2822),
             $taskProcessorStatus['last_task_date'],
             'Last task ran date should match with extras'
         );

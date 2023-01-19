@@ -9,6 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Commands\ScheduledProcessor;
 use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
@@ -64,7 +65,7 @@ class SchedulerTab extends AbstractTab
             esc_html($executionStatus)
         );
 
-        $now = current_time('mysql', 1);
+        $now = DateTimeHelper::currentDateTime();
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
@@ -237,7 +238,10 @@ HTML;
         $preExecutionValue = '-';
         $isInactive = false;
         if (!is_null($preExecutionDateTime)) {
-            $preExecutionValue = wp_date('Y-m-d H:i:s', strtotime($preExecutionDateTime));
+            // We use wp_timezone here because we display with the correct format of WordPress
+            $preExecutionValue = DatabaseConnection::formatFromDatabaseDate($preExecutionDateTime)
+                ->setTimezone(wp_timezone())
+                ->format(DateTimeHelper::MYSQL_DATE_FORMAT);
             $inactiveTime = DateTimeHelper::dateDiff($preExecutionDateTime, 5);
             if ($inactiveTime) {
                 $isInactive = true;
@@ -259,9 +263,12 @@ HTML;
 
         $lastSuccessSyncDate = WooCommerceOptions::get(WooCommerceOptions::SUCCESS_SYNC_RUN);
         if (CronOptions::HAS_PROCESSED_WAITING !== $hasProcessed) {
+            // We use wp_timezone here because we display with the correct format of WordPress
             $data[] = [
                 'description' => __('Last processed task date and time', I18N::DOMAIN),
-                'value' => wp_date('Y-m-d H:i:s', strtotime($lastSuccessSyncDate)),
+                'value' => DatabaseConnection::formatFromDatabaseDate($lastSuccessSyncDate)
+                    ->setTimezone(wp_timezone())
+                    ->format(DateTimeHelper::MYSQL_DATE_FORMAT),
                 'status' => $this->generateStatusContent(true),
             ];
         }

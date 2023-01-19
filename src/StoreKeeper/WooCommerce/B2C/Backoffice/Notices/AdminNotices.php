@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -234,7 +235,9 @@ class AdminNotices
     private function lastCronCheck()
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
-            $cronTime = WooCommerceOptions::get(WooCommerceOptions::LAST_SYNC_RUN);
+            $cronTime = DatabaseConnection::formatFromDatabaseDate(
+                    WooCommerceOptions::get(WooCommerceOptions::LAST_SYNC_RUN)
+            )->format(DateTimeHelper::MYSQL_DATE_FORMAT);
             $timeAgo = DateTimeHelper::dateDiff($cronTime);
             if ($timeAgo) {
                 $initialMessage = __(

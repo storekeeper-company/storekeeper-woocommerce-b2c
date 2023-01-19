@@ -7,6 +7,7 @@ use Exception;
 use mysqli;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
 
 class DatabaseConnection
@@ -120,5 +121,24 @@ class DatabaseConnection
             $query->getStatement(),
             $query->getBindValues()
         );
+    }
+
+    public static function formatToDatabaseDate(\DateTime $dateTime): string
+    {
+        $dateTime->setTimezone(new \DateTimeZone('UTC'));
+
+        return $dateTime->format(DateTimeHelper::MYSQL_DATE_FORMAT);
+    }
+
+    public static function formatFromDatabaseDate(string $date)
+    {
+        $formattedDate = \DateTime::createFromFormat(DateTimeHelper::MYSQL_DATE_FORMAT, $date);
+
+        if (!$formattedDate) {
+            // Fallback in case the date is not in mysql format
+            return \DateTime::createFromFormat(DATE_RFC2822, $date);
+        }
+
+        return $formattedDate;
     }
 }

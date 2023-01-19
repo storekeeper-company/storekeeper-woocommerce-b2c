@@ -2,10 +2,39 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Helpers;
 
+use DateTime;
+use DateTimeZone;
+use Exception;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 class DateTimeHelper
 {
+    const MYSQL_DATE_FORMAT = 'Y-m-d H:i:s';
+
+    /**
+     * Get current date and time
+     * Don't use non-GMT time, unless you know the difference and really need to.
+     *
+     * @throws Exception
+     */
+    public static function currentDateTime($gmt = true): DateTime
+    {
+        $timezone = $gmt ? new DateTimeZone('UTC') : wp_timezone();
+
+        return new DateTime('now', $timezone);
+    }
+
+    /**
+     * Get current formatted date and time
+     * Don't use non-GMT time, unless you know the difference and really need to.
+     *
+     * @throws Exception
+     */
+    public static function currentFormattedDateTime(string $format = self::MYSQL_DATE_FORMAT, $gmt = true): string
+    {
+        return self::currentDateTime($gmt)->format($format);
+    }
+
     public static function dateDiff($date, $maximumInactiveMinutes = 15)
     {
         $mydate = date(DATE_RFC2822);

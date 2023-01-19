@@ -2,7 +2,10 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks;
 
+use DateTime;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\PluginConflictChecker;
 use StoreKeeper\WooCommerce\B2C\Helpers\ServerStatusChecker;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
@@ -14,7 +17,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
-use StoreKeeper\WooCommerce\B2C\Tools\WordpressRestRequestWrapper;
 use WC_Order;
 
 class InfoHandler
@@ -50,25 +52,20 @@ class InfoHandler
 
     const IMAGE_CDN_PLUGIN_OPTION = StoreKeeperOptions::IMAGE_CDN;
 
-    /**
-     * @var WordpressRestRequestWrapper
-     */
-    private $wrappedRequest;
-
-    /**
-     * InitHandler constructor.
-     */
-    public function __construct(WordpressRestRequestWrapper $request)
-    {
-        $this->wrappedRequest = $request;
-    }
-
     public function run(): array
     {
-        return self::gatherInformation();
+        $data = self::gatherInformation();
+
+        array_walk_recursive($data, static function (&$v) {
+            if ($v instanceof \DateTimeInterface) {
+                $v = $v->format(DATE_RFC2822);
+            }
+        });
+
+        return $data;
     }
 
-    public static function gatherInformation()
+    public static function gatherInformation(): array
     {
         return [
             'vendor' => self::VENDOR,
@@ -80,7 +77,7 @@ class InfoHandler
         ];
     }
 
-    public static function getExtras()
+    public static function getExtras(): array
     {
         $extras = [
             'plugins' => self::getPlugins(),
@@ -89,7 +86,7 @@ class InfoHandler
             'active_capability' => self::getActiveCapabilities(),
             'image_variants' => self::getImageVariants(),
             'plugin_settings_url' => admin_url('/admin.php?page=storekeeper-settings'),
-            'now_date' => current_datetime()->format(DATE_RFC2822),
+            'now_date' => DateTimeHelper::currentDateTime(),
             'plugin_options' => self::getPluginOptions(),
             'system_status' => self::getSystemStatus(),
         ];
@@ -126,30 +123,25 @@ class InfoHandler
     {
         $taskProcessorStatus = [];
 
-        $now = current_time('mysql', 1);
+        $now = DateTimeHelper::currentDateTime();
         $calculator = new TaskRateCalculator($now);
         $processedRate = $calculator->calculateProcessed();
         $cronRunner = CronOptions::get(CronOptions::RUNNER, CronRegistrar::RUNNER_WPCRON);
         $postExecutionStatus = CronOptions::get(CronOptions::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_UNEXECUTED);
         $postExecutionError = CronOptions::get(CronOptions::LAST_POST_EXECUTION_ERROR);
         $preExecutionDateTime = CronOptions::get(CronOptions::LAST_PRE_EXECUTION_DATE);
+
         $invalidRunners = CronOptions::getInvalidRunners();
 
         $postExecutionSuccessful = CronRegistrar::STATUS_SUCCESS === $postExecutionStatus;
 
-        $lastProcessTaskDate = TaskModel::getLastProcessTaskDate();
-        $lastProcessTaskDateFormatted = null;
-        if ($lastProcessTaskDate) {
-            $lastProcessTaskDateFormatted = \DateTime::createFromFormat('Y-m-d H:i:s', $lastProcessTaskDate)->format(DATE_RFC2822);
-        }
-
         $taskProcessorStatus['in_queue_quantity'] = TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]);
         $taskProcessorStatus['processing_p_h'] = $processedRate;
         $taskProcessorStatus['runner'] = $cronRunner;
-        $taskProcessorStatus['last_execute_date'] = $preExecutionDateTime;
+        $taskProcessorStatus['last_execute_date'] = $preExecutionDateTime ? DatabaseConnection::formatFromDatabaseDate($preExecutionDateTime) : null;
         $taskProcessorStatus['last_success_date'] = self::getLastSuccessSyncRunDate();
         $taskProcessorStatus['last_end_date'] = self::getLastSyncRunDate();
-        $taskProcessorStatus['last_task_date'] = $lastProcessTaskDateFormatted;
+        $taskProcessorStatus['last_task_date'] = TaskModel::getLastProcessTaskDate();
         $taskProcessorStatus['last_is_success'] = $postExecutionSuccessful;
         $taskProcessorStatus['last_error_message'] = $postExecutionError;
         $taskProcessorStatus['other_processor_type_is_running'] = !empty($invalidRunners);
@@ -165,21 +157,18 @@ class InfoHandler
         $orderIds = wc_get_orders([
             'limit' => 1,
             'return' => 'ids',
+            'orderby' => 'date_created',
+            'order' => 'DESC',
         ]);
 
         if (!empty($orderIds)) {
             $lastOrder = wc_get_order(reset($orderIds));
-            $lastDate = $lastOrder->get_date_created() ? $lastOrder->get_date_created()->format(DATE_RFC2822) : null;
+            $lastDate = $lastOrder->get_date_created() ?: null;
         }
 
         $orderSystemStatus['last_date'] = $lastDate;
 
-        $lastSynchronizedDate = TaskModel::getLatestSuccessfulSynchronizedDateForType(TaskHandler::ORDERS_EXPORT);
-        $lastSynchronizedDateFormatted = null;
-        if ($lastSynchronizedDate) {
-            $lastSynchronizedDateFormatted = \DateTime::createFromFormat('Y-m-d H:i:s', $lastSynchronizedDate)->format(DATE_RFC2822);
-        }
-        $orderSystemStatus['last_synchronized_date'] = $lastSynchronizedDateFormatted;
+        $orderSystemStatus['last_synchronized_date'] = TaskModel::getLatestSuccessfulSynchronizedDateForType(TaskHandler::ORDERS_EXPORT);
 
         $orderSystemStatus['ids_with_failed_tasks'] = TaskModel::getFailedOrderIds();
         $unsynchronizedOrders = wc_get_orders([
@@ -191,8 +180,8 @@ class InfoHandler
         ]);
 
         $unsynchronizedOrderIds = [];
-        $oldestUnsynchronizedOrderDateFormatted = null;
 
+        $oldestUnsynchronizedOrderDateTime = null;
         if (!empty($unsynchronizedOrders)) {
             $unsynchronizedOrderIds = array_map(
                 static function (WC_Order $order) {
@@ -202,14 +191,11 @@ class InfoHandler
             );
 
             $oldestUnsynchronizedOrder = reset($unsynchronizedOrders);
-            $oldestUnsynchronizedOrderDate = $oldestUnsynchronizedOrder->get_date_created();
-            if ($oldestUnsynchronizedOrderDate) {
-                $oldestUnsynchronizedOrderDateFormatted = $oldestUnsynchronizedOrderDate->format(DATE_RFC2822);
-            }
+            $oldestUnsynchronizedOrderDateTime = $oldestUnsynchronizedOrder->get_date_created();
         }
 
         $orderSystemStatus['ids_not_synchronized'] = $unsynchronizedOrderIds;
-        $orderSystemStatus['oldest_date_not_synchronized'] = $oldestUnsynchronizedOrderDateFormatted;
+        $orderSystemStatus['oldest_date_not_synchronized'] = $oldestUnsynchronizedOrderDateTime;
 
         return $orderSystemStatus;
     }
@@ -317,19 +303,23 @@ class InfoHandler
         return $wpdb->get_var(TaskModel::prepareQuery($select));
     }
 
-    public static function getLastSyncRunDate(): ?string
+    public static function getLastSyncRunDate(): ?DateTime
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
-            return WooCommerceOptions::get(WooCommerceOptions::LAST_SYNC_RUN);
+            return DatabaseConnection::formatFromDatabaseDate(
+                WooCommerceOptions::get(WooCommerceOptions::LAST_SYNC_RUN)
+            );
         }
 
         return null;
     }
 
-    public static function getLastSuccessSyncRunDate(): ?string
+    public static function getLastSuccessSyncRunDate(): ?DateTime
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::SUCCESS_SYNC_RUN)) {
-            return WooCommerceOptions::get(WooCommerceOptions::SUCCESS_SYNC_RUN);
+            return DatabaseConnection::formatFromDatabaseDate(
+                WooCommerceOptions::get(WooCommerceOptions::SUCCESS_SYNC_RUN)
+            );
         }
 
         return null;

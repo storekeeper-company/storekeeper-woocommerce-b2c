@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Tools;
 
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
@@ -11,7 +12,7 @@ class TaskRateCalculatorTest extends AbstractTest
 {
     public function testEmptyTasks()
     {
-        $now = '1970-01-01 02:00:00';
+        $now = DatabaseConnection::formatFromDatabaseDate('1970-01-01 02:00:00');
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
@@ -25,7 +26,7 @@ class TaskRateCalculatorTest extends AbstractTest
         // make a task
         $this->createTaskWithCreatedDate(1, '1970-01-01 01:30:00');
         $this->createTaskWithCreatedDate(2, '1970-01-01 01:45:00');
-        $now = '1970-01-01 02:00:00';
+        $now = DatabaseConnection::formatFromDatabaseDate('1970-01-01 02:00:00');
 
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
@@ -44,7 +45,7 @@ class TaskRateCalculatorTest extends AbstractTest
         $task2['execution_duration'] = 1.00; // 1 second execution
         TaskModel::update($task2['id'], $task2);
 
-        $now = '1970-01-01 02:00:00';
+        $now = DatabaseConnection::formatFromDatabaseDate('1970-01-01 02:00:00');
 
         $calculator = new TaskRateCalculator($now);
         $processedRate = $calculator->calculateProcessed();
