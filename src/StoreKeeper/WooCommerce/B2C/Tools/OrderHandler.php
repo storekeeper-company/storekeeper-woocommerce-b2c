@@ -3,11 +3,13 @@
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use WC_Order;
 use WP_Post;
 
 class OrderHandler
 {
     const SHOP_PRODUCT_ID_MAP = 'shop_product_id_map';
+    const TO_BE_SYNCHRONIZED_META_KEY = 'to_be_synchronized';
 
     /**
      * @param $order_id
@@ -27,6 +29,14 @@ class OrderHandler
                 'woocommerce_id' => $order_id,
             ]
         );
+    }
+
+    public function addMetadata(int $orderId, WC_Order $order): void
+    {
+        if ($this->isSyncAllowed($orderId)) {
+            $order->add_meta_data(self::TO_BE_SYNCHRONIZED_META_KEY, 'yes');
+            $order->save();
+        }
     }
 
     /**
@@ -77,7 +87,7 @@ class OrderHandler
     }
 
     /**
-     * @param $order \WC_Order
+     * @param $order WC_Order
      * @param $data
      */
     public function addShopProductIdsToMetaData($order, $data)
@@ -106,7 +116,7 @@ class OrderHandler
     protected function isSyncAllowed(int $orderId): bool
     {
         if (StoreKeeperOptions::isOrderSyncEnabled()) {
-            $order = new \WC_Order($orderId);
+            $order = new WC_Order($orderId);
             $orderCreatedDate = $order->get_date_created();
             $orderCreatedDate = date('Y-m-d', strtotime($orderCreatedDate));
             $orderSyncFromDate = StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);

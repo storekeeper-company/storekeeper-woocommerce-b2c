@@ -62,7 +62,7 @@ class OrderExport extends AbstractExport
     /**
      * @param WC_Order $WpObject
      *
-     * @return bool|mixed
+     * @return bool
      *
      * @throws Exception
      */
@@ -325,6 +325,11 @@ class OrderExport extends AbstractExport
                     'storekeeper' => $storekeeper_status,
                 ]
             );
+        }
+
+        if ($WpObject->meta_exists(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY)) {
+            $WpObject->delete_meta_data(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY);
+            $WpObject->save();
         }
 
         return true;

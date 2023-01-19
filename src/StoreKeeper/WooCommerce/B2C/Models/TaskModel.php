@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Models;
 
 use Aura\SqlQuery\Common\SelectInterface;
+use http\Exception\RuntimeException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
@@ -114,6 +115,91 @@ SQL;
         } else {
             return "$type::$storekeeper_id";
         }
+    }
+
+    public static function getLastProcessTaskDate()
+    {
+        global $wpdb;
+
+        $select = static::getSelectHelper()
+            ->cols(['date_last_processed'])
+            ->orderBy(['date_last_processed DESC'])
+            ->limit(1);
+
+        $query = static::prepareQuery($select);
+
+        $results = $wpdb->get_results($query, ARRAY_N);
+        if (empty($results)) {
+            return null;
+        }
+
+        $task = reset($results);
+
+        return reset($task);
+    }
+
+    public static function getLatestSuccessfulSynchronizedDateForType($type)
+    {
+        global $wpdb;
+
+        if (!$type) {
+            throw new RuntimeException('$type cannot be empty');
+        }
+
+        $select = static::getSelectHelper()
+            ->cols(['date_last_processed'])
+            ->where('status = :status')
+            ->where('type = :type')
+            ->bindValue('status', TaskHandler::STATUS_SUCCESS)
+            ->bindValue('type', $type)
+            ->orderBy(['date_last_processed DESC'])
+            ->limit(1);
+
+        $query = static::prepareQuery($select);
+
+        $results = $wpdb->get_results($query, ARRAY_N);
+        if (empty($results)) {
+            return null;
+        }
+
+        $task = reset($results);
+
+        return reset($task);
+    }
+
+    public static function getFailedOrderIds(): array
+    {
+        global $wpdb;
+
+        $select = static::getSelectHelper()
+            ->cols(['meta_data'])
+            ->where('status = :status')
+            ->where('type = :type')
+            ->bindValue('status', TaskHandler::STATUS_FAILED)
+            ->bindValue('type', TaskHandler::ORDERS_EXPORT);
+
+        $query = static::prepareQuery($select);
+
+        $results = $wpdb->get_results($query, ARRAY_N);
+
+        $orderIds = array_map(
+            static function ($value) {
+                $metadata = unserialize(current($value));
+                $woocommerceId = $metadata['woocommerce_id'] ?? null;
+                if ($woocommerceId) {
+                    return (int) $woocommerceId;
+                }
+
+                return null;
+            },
+            $results
+        );
+
+        return array_values(
+            array_unique(
+                array_filter($orderIds)
+            )
+        );
     }
 
     public static function create(array $data): int

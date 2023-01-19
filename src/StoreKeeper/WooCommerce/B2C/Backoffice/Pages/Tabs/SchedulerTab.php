@@ -281,7 +281,7 @@ HTML;
         $invalidRunners = CronOptions::getInvalidRunners();
         $data[] = [
             'description' => __('Running invalid cron in last 5 minutes', I18N::DOMAIN),
-            'value' => !empty($invalidRunners) ? implode(', ', $invalidRunners) : __('None'),
+            'value' => !empty($invalidRunners) ? implode(', ', $invalidRunners) : __('None', I18N::DOMAIN),
             'status' => $this->generateStatusContent(empty($invalidRunners)),
         ];
 

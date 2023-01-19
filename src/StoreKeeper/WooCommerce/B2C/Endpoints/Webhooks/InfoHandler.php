@@ -2,12 +2,20 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks;
 
+use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Helpers\PluginConflictChecker;
+use StoreKeeper\WooCommerce\B2C\Helpers\ServerStatusChecker;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
+use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
+use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressRestRequestWrapper;
+use WC_Order;
 
 class InfoHandler
 {
@@ -39,6 +47,8 @@ class InfoHandler
     const VENDOR = StoreKeeperOptions::VENDOR;
     const PLATFORM_NAME = StoreKeeperOptions::PLATFORM_NAME;
     const SOFTWARE_NAME = 'storekeeper-woocommerce-b2c';
+
+    const IMAGE_CDN_PLUGIN_OPTION = StoreKeeperOptions::IMAGE_CDN;
 
     /**
      * @var WordpressRestRequestWrapper
@@ -76,16 +86,12 @@ class InfoHandler
             'plugins' => self::getPlugins(),
             'active_theme' => self::getActiveTheme(),
             'sync_mode' => StoreKeeperOptions::getSyncMode(),
-            'last_sync_run_date' => self::getLastSyncRunDate(),
-            'last_hook_date' => self::getLastHookDate(),
-            'last_hook_id' => self::getLastWebhookLogId(),
-            'last_task_id' => self::getLastTaskId(),
-            'task_quantity' => TaskModel::countTasks(),
-            'task_failed_quantity' => TaskModel::countFailedTasks(),
-            'task_successful_quantity' => TaskModel::countSuccessfulTasks(),
-            'hook_quantity' => WebhookLogModel::count(),
             'active_capability' => self::getActiveCapabilities(),
             'image_variants' => self::getImageVariants(),
+            'plugin_settings_url' => admin_url('/admin.php?page=storekeeper-settings'),
+            'now_date' => current_datetime()->format(DATE_RFC2822),
+            'plugin_options' => self::getPluginOptions(),
+            'system_status' => self::getSystemStatus(),
         ];
 
         foreach (self::EXTRA_BLOG_INFO_FIELDS as $blogInfoField) {
@@ -96,6 +102,124 @@ class InfoHandler
         }
 
         return $extras;
+    }
+
+    public static function getSystemStatus(): array
+    {
+        $systemStatus = [];
+        $systemStatus['order'] = self::getOrderSystemStatus();
+        $systemStatus['task_processor'] = self::getTaskProcessorStatus();
+        $systemStatus['failed_compatibility_checks'] = self::getFailedCompatibilityChecks();
+
+        return $systemStatus;
+    }
+
+    public static function getFailedCompatibilityChecks(): array
+    {
+        return array_merge(
+            PluginConflictChecker::getPluginsWithConflict(),
+            ServerStatusChecker::getServerIssues(),
+        );
+    }
+
+    public static function getTaskProcessorStatus(): array
+    {
+        $taskProcessorStatus = [];
+
+        $now = current_time('mysql', 1);
+        $calculator = new TaskRateCalculator($now);
+        $processedRate = $calculator->calculateProcessed();
+        $cronRunner = CronOptions::get(CronOptions::RUNNER, CronRegistrar::RUNNER_WPCRON);
+        $postExecutionStatus = CronOptions::get(CronOptions::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_UNEXECUTED);
+        $postExecutionError = CronOptions::get(CronOptions::LAST_POST_EXECUTION_ERROR);
+        $preExecutionDateTime = CronOptions::get(CronOptions::LAST_PRE_EXECUTION_DATE);
+        $invalidRunners = CronOptions::getInvalidRunners();
+
+        $postExecutionSuccessful = CronRegistrar::STATUS_SUCCESS === $postExecutionStatus;
+
+        $lastProcessTaskDate = TaskModel::getLastProcessTaskDate();
+        $lastProcessTaskDateFormatted = null;
+        if ($lastProcessTaskDate) {
+            $lastProcessTaskDateFormatted = \DateTime::createFromFormat('Y-m-d H:i:s', $lastProcessTaskDate)->format(DATE_RFC2822);
+        }
+
+        $taskProcessorStatus['in_queue_quantity'] = TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]);
+        $taskProcessorStatus['processing_p_h'] = $processedRate;
+        $taskProcessorStatus['runner'] = $cronRunner;
+        $taskProcessorStatus['last_execute_date'] = $preExecutionDateTime;
+        $taskProcessorStatus['last_success_date'] = self::getLastSuccessSyncRunDate();
+        $taskProcessorStatus['last_end_date'] = self::getLastSyncRunDate();
+        $taskProcessorStatus['last_task_date'] = $lastProcessTaskDateFormatted;
+        $taskProcessorStatus['last_is_success'] = $postExecutionSuccessful;
+        $taskProcessorStatus['last_error_message'] = $postExecutionError;
+        $taskProcessorStatus['other_processor_type_is_running'] = !empty($invalidRunners);
+
+        return $taskProcessorStatus;
+    }
+
+    public static function getOrderSystemStatus(): array
+    {
+        $orderSystemStatus = [];
+
+        $lastDate = null;
+        $orderIds = wc_get_orders([
+            'limit' => 1,
+            'return' => 'ids',
+        ]);
+
+        if (!empty($orderIds)) {
+            $lastOrder = wc_get_order(reset($orderIds));
+            $lastDate = $lastOrder->get_date_created() ? $lastOrder->get_date_created()->format(DATE_RFC2822) : null;
+        }
+
+        $orderSystemStatus['last_date'] = $lastDate;
+
+        $lastSynchronizedDate = TaskModel::getLatestSuccessfulSynchronizedDateForType(TaskHandler::ORDERS_EXPORT);
+        $lastSynchronizedDateFormatted = null;
+        if ($lastSynchronizedDate) {
+            $lastSynchronizedDateFormatted = \DateTime::createFromFormat('Y-m-d H:i:s', $lastSynchronizedDate)->format(DATE_RFC2822);
+        }
+        $orderSystemStatus['last_synchronized_date'] = $lastSynchronizedDateFormatted;
+
+        $orderSystemStatus['ids_with_failed_tasks'] = TaskModel::getFailedOrderIds();
+        $unsynchronizedOrders = wc_get_orders([
+            'meta_key' => OrderHandler::TO_BE_SYNCHRONIZED_META_KEY,
+            'meta_value' => 'yes',
+            'meta_compare' => '=',
+            'orderby' => 'date_created',
+            'order' => 'ASC',
+        ]);
+
+        $unsynchronizedOrderIds = [];
+        $oldestUnsynchronizedOrderDateFormatted = null;
+
+        if (!empty($unsynchronizedOrders)) {
+            $unsynchronizedOrderIds = array_map(
+                static function (WC_Order $order) {
+                    return $order->get_id();
+                },
+                $unsynchronizedOrders
+            );
+
+            $oldestUnsynchronizedOrder = reset($unsynchronizedOrders);
+            $oldestUnsynchronizedOrderDate = $oldestUnsynchronizedOrder->get_date_created();
+            if ($oldestUnsynchronizedOrderDate) {
+                $oldestUnsynchronizedOrderDateFormatted = $oldestUnsynchronizedOrderDate->format(DATE_RFC2822);
+            }
+        }
+
+        $orderSystemStatus['ids_not_synchronized'] = $unsynchronizedOrderIds;
+        $orderSystemStatus['oldest_date_not_synchronized'] = $oldestUnsynchronizedOrderDateFormatted;
+
+        return $orderSystemStatus;
+    }
+
+    public static function getPluginOptions(): array
+    {
+        $pluginOptions = [];
+        $pluginOptions[self::IMAGE_CDN_PLUGIN_OPTION] = StoreKeeperOptions::isImageCdnEnabled();
+
+        return $pluginOptions;
     }
 
     /**
@@ -152,6 +276,7 @@ class InfoHandler
 
         $activeCapabilities[] = 's2b_image_variants';
         $activeCapabilities[] = 's2b_report_product_state';
+        $activeCapabilities[] = 's2b_report_system_status';
 
         return $activeCapabilities;
     }
@@ -196,6 +321,15 @@ class InfoHandler
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
             return WooCommerceOptions::get(WooCommerceOptions::LAST_SYNC_RUN);
+        }
+
+        return null;
+    }
+
+    public static function getLastSuccessSyncRunDate(): ?string
+    {
+        if (WooCommerceOptions::exists(WooCommerceOptions::SUCCESS_SYNC_RUN)) {
+            return WooCommerceOptions::get(WooCommerceOptions::SUCCESS_SYNC_RUN);
         }
 
         return null;
