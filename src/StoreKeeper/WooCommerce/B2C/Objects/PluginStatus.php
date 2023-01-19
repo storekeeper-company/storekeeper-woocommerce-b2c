@@ -8,6 +8,7 @@ class PluginStatus
     public const SK_SWATCHES = 'storekeeper-woocommerce-swatches/index.php';
     public const PORTO_FUNCTIONALITY = 'porto-functionality/porto-functionality.php';
     public const YOAST_SEO = 'wordpress-seo/wp-seo.php';
+    public const RANK_MATH_SEO = 'wordpress-seo/wp-seo.php';
 
     private static $plugins;
 
@@ -29,6 +30,11 @@ class PluginStatus
     public static function isYoastSeoEnabled(): bool
     {
         return self::isEnabled(self::YOAST_SEO);
+    }
+
+    public static function isRankMathSeoEnabled(): bool
+    {
+        return self::isEnabled(self::RANK_MATH_SEO);
     }
 
     public static function isWoocommerceVariationSwatchesEnabled(): bool

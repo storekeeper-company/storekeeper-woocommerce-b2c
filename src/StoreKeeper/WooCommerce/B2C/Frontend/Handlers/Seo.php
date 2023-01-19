@@ -7,6 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class Seo
 {
+    const RANK_MATH_HANDLER = 'rank-math';
     const YOAST_HANDLER = 'yoast';
     const STOREKEEPER_HANDLER = 'storekeeper';
     const NO_HANDLER = 'none';

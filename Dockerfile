@@ -30,15 +30,9 @@ RUN set -ex; \
 		libzip-dev \
 	; \
 	\
-	docker-php-ext-configure gd --with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr; \
-	docker-php-ext-install -j "$(nproc)" \
-		bcmath \
-		exif \
-		gd \
-		mysqli \
-		opcache \
-		zip \
-	; \
+#	docker-php-ext-configure gd --with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr; \
+    docker-php-ext-configure gd --with-freetype --with-jpeg \
+	docker-php-ext-install bcmath exif gd mysqli opcache zip ; \
 	pecl install imagick-3.4.4; \
 	docker-php-ext-enable imagick; \
 	\
@@ -175,7 +169,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -q -y install less 
  mkdir -p /var/www/.wp-cli/cache/ && chown -R www-data:www-data /var/www/.wp-cli;
 
 #install xdebug
-RUN pecl install xdebug && docker-php-ext-enable xdebug && apt-get clean
+RUN pecl install xdebug-3.1.6 && docker-php-ext-enable xdebug && apt-get clean
 
 # install node,npm,js + css
 RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y  install curl gnupg && \
@@ -249,7 +243,7 @@ RUN usermod -u $USER_ID www-data && groupmod -g $GROUP_ID www-data \
     && find /app/src /tmp /var /usr/local/bin /run -group 33 -exec chgrp $GROUP_ID {} \;
 
 RUN mkdir -p /app/src/wp-content/ && touch /app/src/wp-content/.persist  && chown -R www-data:www-data /app/src/wp-content \
-    && mkdir /tmp/storekeeper-for-woocommerce/ && touch /tmp/storekeeper-for-woocommerce/.persist  \
+#    && mkdir /tmp/storekeeper-for-woocommerce/ && touch /tmp/storekeeper-for-woocommerce/.persist  \
     && chown -R www-data:www-data /tmp/storekeeper-for-woocommerce \
     && mkdir /tmp/sk-log/ && touch /tmp/sk-log/.persist  && chown -R www-data:www-data /tmp/sk-log
 
