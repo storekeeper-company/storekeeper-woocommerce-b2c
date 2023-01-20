@@ -24,8 +24,12 @@ class DateTimeHelper
         return new DateTime('now', new DateTimeZone('UTC'));
     }
 
-    public static function formatForDisplay(DateTime $dateTime): string
+    public static function formatForDisplay(?DateTime $dateTime): string
     {
+        if (is_null($dateTime)) {
+            return '-';
+        }
+
         $dateFormat = get_option(self::WORDPRESS_DATE_FORMAT_OPTION);
         $timeFormat = get_option(self::WORDPRESS_TIME_FORMAT_OPTION);
 

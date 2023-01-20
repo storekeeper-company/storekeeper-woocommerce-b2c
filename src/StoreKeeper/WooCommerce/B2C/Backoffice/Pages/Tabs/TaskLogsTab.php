@@ -148,7 +148,7 @@ class TaskLogsTab extends AbstractLogsTab
     public function renderBodyDateCreated($value)
     {
         $dateCreated = DatabaseConnection::formatFromDatabaseDateIfNotEmpty($value);
-        $dateTime = $dateCreated ? DateTimeHelper::formatForDisplay($dateCreated) : '-';
+        $dateTime = DateTimeHelper::formatForDisplay($dateCreated);
         echo <<<HTML
             $dateTime
         HTML;
