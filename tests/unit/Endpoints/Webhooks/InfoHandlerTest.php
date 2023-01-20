@@ -130,7 +130,6 @@ class InfoHandlerTest extends AbstractTest
         $orderSystemStatus = $systemStatus['order'];
         $taskProcessorStatus = $systemStatus['task_processor'];
         $failedCompatibilityChecks = $systemStatus['failed_compatibility_checks'];
-        $b = TaskModel::findBy(['type = :type', 'status = :status'], ['type' => TaskHandler::ORDERS_EXPORT, 'status' => TaskHandler::STATUS_NEW]);
 
         // Assert system status
 
