@@ -136,7 +136,7 @@ SQL;
 
         $task = reset($results);
 
-        return DatabaseConnection::formatFromDatabaseDate(reset($task));
+        return DatabaseConnection::formatFromDatabaseDateIfNotEmpty(reset($task));
     }
 
     public static function getLatestSuccessfulSynchronizedDateForType($type): ?\DateTime
@@ -165,7 +165,7 @@ SQL;
 
         $task = reset($results);
 
-        return DatabaseConnection::formatFromDatabaseDate(reset($task));
+        return DatabaseConnection::formatFromDatabaseDateIfNotEmpty(reset($task));
     }
 
     public static function getFailedOrderIds(): array
@@ -379,7 +379,9 @@ SQL;
             ->where('status = :status')
             ->where('date_created < :old')
             ->bindValue('status', TaskHandler::STATUS_SUCCESS)
-            ->bindValue('old', date(DateTimeHelper::MYSQL_DATE_FORMAT, strtotime("-$numberOfDays days")));
+            ->bindValue('old', DatabaseConnection::formatToDatabaseDate(
+                (new \DateTime())->setTimestamp(strtotime("-$numberOfDays days"))
+            ));
 
         $affectedRows = $wpdb->query(static::prepareQuery($delete));
 

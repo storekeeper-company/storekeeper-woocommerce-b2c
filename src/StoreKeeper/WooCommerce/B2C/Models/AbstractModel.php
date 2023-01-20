@@ -8,8 +8,8 @@ use Aura\SqlQuery\Common\SelectInterface;
 use Aura\SqlQuery\Common\UpdateInterface;
 use Aura\SqlQuery\QueryInterface;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
-use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModel;
 use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
@@ -114,7 +114,7 @@ abstract class AbstractModel implements IModel
 
     protected static function updateDateField(array $data): array
     {
-        $data['date_updated'] = DateTimeHelper::currentFormattedDateTime();
+        $data['date_updated'] = DatabaseConnection::formatToDatabaseDate(new \DateTime());
 
         return $data;
     }

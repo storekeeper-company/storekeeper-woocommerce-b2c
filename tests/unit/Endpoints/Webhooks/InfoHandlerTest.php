@@ -130,6 +130,7 @@ class InfoHandlerTest extends AbstractTest
         $orderSystemStatus = $systemStatus['order'];
         $taskProcessorStatus = $systemStatus['task_processor'];
         $failedCompatibilityChecks = $systemStatus['failed_compatibility_checks'];
+        $b = TaskModel::findBy(['type = :type', 'status = :status'], ['type' => TaskHandler::ORDERS_EXPORT, 'status' => TaskHandler::STATUS_NEW]);
 
         // Assert system status
 
@@ -148,6 +149,9 @@ class InfoHandlerTest extends AbstractTest
             'Oldest order unsynchronized date should match with extras'
         );
 
+        // 6 tasks were queued because every single order created, 3 tasks were created
+        // We are expecting 2 unsynchronized orders, so 2 orders x 3 tasks = 6 tasks
+        // This is because of the updateWithIgnore hooks, see Core::setOrderHooks
         // Assert task processor
         $this->assertEquals(
             6,

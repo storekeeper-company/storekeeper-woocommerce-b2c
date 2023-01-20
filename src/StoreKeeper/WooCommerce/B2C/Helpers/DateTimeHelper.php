@@ -10,6 +10,8 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 class DateTimeHelper
 {
     const MYSQL_DATE_FORMAT = 'Y-m-d H:i:s';
+    const WORDPRESS_DATE_FORMAT_OPTION = 'date_format';
+    const WORDPRESS_TIME_FORMAT_OPTION = 'time_format';
 
     /**
      * Get current date and time
@@ -17,29 +19,31 @@ class DateTimeHelper
      *
      * @throws Exception
      */
-    public static function currentDateTime($gmt = true): DateTime
+    public static function currentDateTime(): DateTime
     {
-        $timezone = $gmt ? new DateTimeZone('UTC') : wp_timezone();
-
-        return new DateTime('now', $timezone);
+        return new DateTime('now', new DateTimeZone('UTC'));
     }
 
-    /**
-     * Get current formatted date and time
-     * Don't use non-GMT time, unless you know the difference and really need to.
-     *
-     * @throws Exception
-     */
-    public static function currentFormattedDateTime(string $format = self::MYSQL_DATE_FORMAT, $gmt = true): string
+    public static function formatForDisplay(DateTime $dateTime): string
     {
-        return self::currentDateTime($gmt)->format($format);
+        $dateFormat = get_option(self::WORDPRESS_DATE_FORMAT_OPTION);
+        $timeFormat = get_option(self::WORDPRESS_TIME_FORMAT_OPTION);
+
+        if (!$dateFormat) {
+            $dateFormat = 'F j, Y';
+        }
+
+        if (!$timeFormat) {
+            $timeFormat = 'g:i a';
+        }
+
+        return $dateTime->setTimezone(wp_timezone())->format("$dateFormat $timeFormat");
     }
 
-    public static function dateDiff($date, $maximumInactiveMinutes = 15)
+    public static function dateDiff(DateTime $datetime1, $maximumInactiveMinutes = 15)
     {
         $mydate = date(DATE_RFC2822);
 
-        $datetime1 = date_create($date);
         $datetime2 = date_create($mydate);
         $interval = date_diff($datetime1, $datetime2);
 

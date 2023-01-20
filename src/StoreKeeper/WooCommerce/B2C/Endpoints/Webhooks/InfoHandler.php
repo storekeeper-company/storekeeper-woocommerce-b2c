@@ -138,7 +138,7 @@ class InfoHandler
         $taskProcessorStatus['in_queue_quantity'] = TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]);
         $taskProcessorStatus['processing_p_h'] = $processedRate;
         $taskProcessorStatus['runner'] = $cronRunner;
-        $taskProcessorStatus['last_execute_date'] = $preExecutionDateTime ? DatabaseConnection::formatFromDatabaseDate($preExecutionDateTime) : null;
+        $taskProcessorStatus['last_execute_date'] = DatabaseConnection::formatFromDatabaseDateIfNotEmpty($preExecutionDateTime);
         $taskProcessorStatus['last_success_date'] = self::getLastSuccessSyncRunDate();
         $taskProcessorStatus['last_end_date'] = self::getLastSyncRunDate();
         $taskProcessorStatus['last_task_date'] = TaskModel::getLastProcessTaskDate();

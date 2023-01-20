@@ -230,7 +230,9 @@ HTML;
 
     private function generateCommonStatistics(array $data = []): array
     {
-        $preExecutionDateTime = CronOptions::get(CronOptions::LAST_PRE_EXECUTION_DATE);
+        $preExecutionDateTime = DatabaseConnection::formatFromDatabaseDateIfNotEmpty(
+            CronOptions::get(CronOptions::LAST_PRE_EXECUTION_DATE)
+        );
         $hasProcessed = CronOptions::get(CronOptions::LAST_EXECUTION_HAS_PROCESSED, CronOptions::HAS_PROCESSED_WAITING);
         $postExecutionStatus = CronOptions::get(CronOptions::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_UNEXECUTED);
         $postExecutionError = CronOptions::get(CronOptions::LAST_POST_EXECUTION_ERROR);
@@ -239,9 +241,7 @@ HTML;
         $isInactive = false;
         if (!is_null($preExecutionDateTime)) {
             // We use wp_timezone here because we display with the correct format of WordPress
-            $preExecutionValue = DatabaseConnection::formatFromDatabaseDate($preExecutionDateTime)
-                ->setTimezone(wp_timezone())
-                ->format(DateTimeHelper::MYSQL_DATE_FORMAT);
+            $preExecutionValue = DateTimeHelper::formatForDisplay($preExecutionDateTime);
             $inactiveTime = DateTimeHelper::dateDiff($preExecutionDateTime, 5);
             if ($inactiveTime) {
                 $isInactive = true;
@@ -266,9 +266,7 @@ HTML;
             // We use wp_timezone here because we display with the correct format of WordPress
             $data[] = [
                 'description' => __('Last processed task date and time', I18N::DOMAIN),
-                'value' => DatabaseConnection::formatFromDatabaseDate($lastSuccessSyncDate)
-                    ->setTimezone(wp_timezone())
-                    ->format(DateTimeHelper::MYSQL_DATE_FORMAT),
+                'value' => DateTimeHelper::formatForDisplay(DatabaseConnection::formatFromDatabaseDateIfNotEmpty($lastSuccessSyncDate)),
                 'status' => $this->generateStatusContent(true),
             ];
         }

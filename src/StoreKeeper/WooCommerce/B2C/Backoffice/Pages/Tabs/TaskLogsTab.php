@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
@@ -115,6 +117,7 @@ class TaskLogsTab extends AbstractLogsTab
                     'title' => __('Date', I18N::DOMAIN),
                     'key' => 'date_created',
                     'headerFunction' => [$this, 'renderDateCreated'],
+                    'bodyFunction' => [$this, 'renderBodyDateCreated'],
                 ],
                 [
                     'title' => __('Log type', I18N::DOMAIN),
@@ -140,6 +143,15 @@ class TaskLogsTab extends AbstractLogsTab
         echo '</form>';
 
         $this->renderPagination();
+    }
+
+    public function renderBodyDateCreated($value)
+    {
+        $dateCreated = DatabaseConnection::formatFromDatabaseDateIfNotEmpty($value);
+        $dateTime = $dateCreated ? DateTimeHelper::formatForDisplay($dateCreated) : '-';
+        echo <<<HTML
+            $dateTime
+        HTML;
     }
 
     public function renderSelectAll()

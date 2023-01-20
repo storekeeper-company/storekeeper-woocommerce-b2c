@@ -236,8 +236,8 @@ class AdminNotices
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
             $cronTime = DatabaseConnection::formatFromDatabaseDate(
-                    WooCommerceOptions::get(WooCommerceOptions::LAST_SYNC_RUN)
-            )->format(DateTimeHelper::MYSQL_DATE_FORMAT);
+                WooCommerceOptions::get(WooCommerceOptions::LAST_SYNC_RUN)
+            );
             $timeAgo = DateTimeHelper::dateDiff($cronTime);
             if ($timeAgo) {
                 $initialMessage = __(

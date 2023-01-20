@@ -176,9 +176,9 @@ class ConnectionTab extends AbstractTab
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::SUCCESS_SYNC_RUN)) {
             $date = WooCommerceOptions::get(WooCommerceOptions::SUCCESS_SYNC_RUN);
-            $date = DatabaseConnection::formatFromDatabaseDate($date);
+            $datetime = DatabaseConnection::formatFromDatabaseDate($date);
 
-            return $date->format(DateTimeHelper::MYSQL_DATE_FORMAT);
+            return DateTimeHelper::formatForDisplay($datetime);
         }
 
         if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
@@ -201,8 +201,8 @@ class ConnectionTab extends AbstractTab
 
         $lastHook = $wpdb->get_row(WebhookLogModel::prepareQuery($select));
         if ($lastHook) {
-            $date = DatabaseConnection::formatFromDatabaseDate($lastHook->date_updated);
-            $hookDescription = $date->format(DateTimeHelper::MYSQL_DATE_FORMAT);
+            $datetime = DatabaseConnection::formatFromDatabaseDate($lastHook->date_updated);
+            $hookDescription = DateTimeHelper::formatForDisplay($datetime);
         }
 
         return $hookDescription;

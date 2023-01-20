@@ -120,15 +120,25 @@ class OrderHandler
             $order = new WC_Order($orderId);
             $orderCreatedDate = $order->get_date_created();
 
+            if (is_null($orderCreatedDate)) {
+                return false;
+            }
+
+            $orderCreatedDateUTC = clone $orderCreatedDate;
+            $orderCreatedDateUTC->setTimezone(new \DateTimeZone('UTC'));
+
             if (is_null(StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE))) {
                 return true;
             }
 
-            $orderSyncFromDate = DatabaseConnection::formatFromDatabaseDate(
+            $orderSyncFromDate = DatabaseConnection::formatFromDatabaseDateIfNotEmpty(
                 StoreKeeperOptions::get(StoreKeeperOptions::ORDER_SYNC_FROM_DATE)
             );
 
-            if (!is_null($orderCreatedDate) && strtotime($orderSyncFromDate->format('Y-m-d')) <= strtotime($orderCreatedDate->format('Y-m-d'))) {
+            if (
+                $orderSyncFromDate &&
+                strtotime($orderSyncFromDate->format('Y-m-d')) <= strtotime($orderCreatedDateUTC->format('Y-m-d'))
+            ) {
                 return true;
             }
         }
