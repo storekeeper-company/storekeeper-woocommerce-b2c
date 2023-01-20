@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2022-12-27 09:17\n"
+"PO-Revision-Date: 2023-01-19 11:18\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: de_DE\n"
@@ -30,6 +30,17 @@ msgstr "Emballage-Gebühr"
 msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
 msgstr "Fehler beim Aktualisieren des Plug-ins 'StoreKeeper for WooCommerce' auf Version %s."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
+msgid "SKU feature for for WooCommerce has been disabled."
+msgstr "SKU in WooCommerce - Aktiviert (Aktiviert = erforderlich für vollständige Synchronisierung!)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:144
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:176
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportAll.php:35
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:27
+msgid "Skip empty tags (tags with no products attached)"
+msgstr "Leere Tags überspringen (Tags ohne angehängte Produkte)"
+
 #. Plugin Name of the plugin/theme
 msgid "StoreKeeper for WooCommerce"
 msgstr "StoreKeeper für WooCommerce"
@@ -41,6 +52,10 @@ msgstr "StoreKeeper"
 #. Description of the plugin/theme
 msgid "This plugin provides sync possibilities with the StoreKeeper Backoffice."
 msgstr "Dieses Plugin bietet Synchronisationsmöglichkeiten mit dem StoreKeeper Backoffice."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:164
+msgid "WooCommerce SKU feature enabled"
+msgstr "SKU in WooCommerce - Deaktiviert (ACHTUNG! > Aktiviert = für vollständige Synchronisierung erforderlich!)"
 
 #. Author URI of the plugin/theme
 msgid "https://www.storekeeper.nl/"

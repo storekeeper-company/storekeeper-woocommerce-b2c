@@ -8,6 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Helpers\ServerStatusChecker;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\AbstractModel;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
@@ -67,7 +68,7 @@ class StatusTab extends AbstractTab
         $table = new TableRenderer();
         $table->addColumn(__('Server status', I18N::DOMAIN), 'title');
         $table->addColumn('', 'value');
-        $table->setData($this->getServerStatusData());
+        $table->setData(ServerStatusChecker::getServerStatusData());
         $table->render();
     }
 
@@ -123,85 +124,6 @@ class StatusTab extends AbstractTab
                     ];
                 }
             }
-        }
-
-        return $data;
-    }
-
-    private function getServerStatusData(): array
-    {
-        $data = [];
-
-        $data[] = [
-            'title' => sprintf(
-                __('PHP version %s or up', I18N::DOMAIN),
-                STOREKEEPER_WOOCOMMERCE_B2C_PHP_VERSION
-            ),
-            'description' => sprintf(
-                __(
-                    'Contact your server provider to upgrade your PHP version to at least %s',
-                    I18N::DOMAIN
-                ),
-                STOREKEEPER_WOOCOMMERCE_B2C_PHP_VERSION
-            ),
-            'value' => phpversion() >= STOREKEEPER_WOOCOMMERCE_B2C_PHP_VERSION,
-            'function::value' => [$this, 'renderCheck'],
-        ];
-        $data[] = [
-            'title' => __('Writable tmp directory', I18N::DOMAIN),
-            'description' => sprintf(
-                __(
-                    'Contact your server provider to allow one of the those directories to be writable: %s',
-                    I18N::DOMAIN
-                ),
-                implode(', ', Core::getPossibleTmpDirs())
-            ),
-            'value' => Core::getTmpBaseDir(),
-            'function::value' => [$this, 'renderCheck'],
-        ];
-
-        $data[] = [
-            'title' => __('WooCommerce SKU feature enabled', I18N::DOMAIN),
-            'description' => __('SKU feature for WooCommerce has been disabled.', I18N::DOMAIN),
-            'value' => wc_product_sku_enabled(),
-            'function::value' => [$this, 'renderCheck'],
-        ];
-
-        $data[] = [
-            'title' => __('WooCommerce stock management feature enabled', I18N::DOMAIN),
-            'description' => __('WooCommerce stock management feature has been disabled.', I18N::DOMAIN),
-            'value' => get_option('woocommerce_manage_stock') === 'yes' ? true : false,
-            'function::value' => [$this, 'renderCheck'],
-        ];
-
-        $extensions = get_loaded_extensions();
-        foreach (static::REQUIRED_PHP_EXTENSION as $wantedExtension) {
-            $data[] = [
-                'title' => sprintf(__('PHP %s extension', I18N::DOMAIN), $wantedExtension),
-                'description' => sprintf(
-                    __(
-                        'Contact your server provider to enable the PHP %s extension for the StoreKeeper synchronization plugin to function properly',
-                        I18N::DOMAIN
-                    ),
-                    $wantedExtension
-                ),
-                'value' => in_array($wantedExtension, $extensions),
-                'function::value' => [$this, 'renderCheck'],
-            ];
-        }
-        foreach (static::OPTIONAL_PHP_EXTENSION as $wantedExtension) {
-            $data[] = [
-                'title' => sprintf(__('PHP %s extension', I18N::DOMAIN), $wantedExtension),
-                'description' => sprintf(
-                    __(
-                        'Contact your server provider to enable the PHP %s extension to improve the performance and stability',
-                        I18N::DOMAIN
-                    ),
-                    $wantedExtension
-                ),
-                'value' => in_array($wantedExtension, $extensions),
-                'function::value' => [$this, 'renderCheck'],
-            ];
         }
 
         return $data;
@@ -293,7 +215,7 @@ class StatusTab extends AbstractTab
 
     public function renderInnoDbCheck($value, $item, $tableName)
     {
-        $this->renderCheck($value, $item);
+        ServerStatusChecker::renderCheck($value, $item);
         if (!$value) {
             $this->renderFormStart();
             $this->renderRequestHiddenInputs();
@@ -322,29 +244,5 @@ class StatusTab extends AbstractTab
             ),
             $tableName
         ), );
-    }
-
-    public function renderCheck($value, $item)
-    {
-        $html = '<span class="dashicons dashicons-yes text-success"></span>';
-        if (!$value) {
-            $description = esc_html($item['description']) ?? '';
-            $html = <<<HTML
-<span class="text-danger">
-    <span class="dashicons dashicons-warning"></span>
-    $description
-</span>
-HTML;
-        }
-
-        echo $html;
-    }
-
-    public function renderCheckWithValue($value, $item)
-    {
-        $this->renderCheck($value, $item);
-        if ($value) {
-            echo esc_html($value);
-        }
     }
 }

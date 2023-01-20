@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Models;
 
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 
 class WebhookLogModel extends AbstractModel implements IModelPurge
@@ -100,7 +101,9 @@ SQL;
 
         $delete = static::getDeleteHelper()
             ->where('date_created < :old')
-            ->bindValue('old', date('Y-m-d H:i:s', strtotime("-$numberOfDays days")));
+            ->bindValue('old', DatabaseConnection::formatToDatabaseDate(
+                (new \DateTime())->setTimestamp(strtotime("-$numberOfDays days"))
+            ));
 
         $affectedRows = $wpdb->query(static::prepareQuery($delete));
 

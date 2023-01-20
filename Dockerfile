@@ -249,7 +249,7 @@ RUN usermod -u $USER_ID www-data && groupmod -g $GROUP_ID www-data \
     && find /app/src /tmp /var /usr/local/bin /run -group 33 -exec chgrp $GROUP_ID {} \;
 
 RUN mkdir -p /app/src/wp-content/ && touch /app/src/wp-content/.persist  && chown -R www-data:www-data /app/src/wp-content \
-    && mkdir /tmp/storekeeper-for-woocommerce/ && touch /tmp/storekeeper-for-woocommerce/.persist  \
+    && mkdir -p /tmp/storekeeper-for-woocommerce/ && touch /tmp/storekeeper-for-woocommerce/.persist  \
     && chown -R www-data:www-data /tmp/storekeeper-for-woocommerce \
     && mkdir /tmp/sk-log/ && touch /tmp/sk-log/.persist  && chown -R www-data:www-data /tmp/sk-log
 
