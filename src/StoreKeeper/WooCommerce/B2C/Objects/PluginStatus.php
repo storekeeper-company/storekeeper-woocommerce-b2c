@@ -8,7 +8,7 @@ class PluginStatus
     public const SK_SWATCHES = 'storekeeper-woocommerce-swatches/index.php';
     public const PORTO_FUNCTIONALITY = 'porto-functionality/porto-functionality.php';
     public const YOAST_SEO = 'wordpress-seo/wp-seo.php';
-    public const RANK_MATH_SEO = 'wordpress-seo/wp-seo.php';
+    public const RANK_MATH_SEO = 'seo-by-rank-math/rank-math.php';
 
     private static $plugins;
 

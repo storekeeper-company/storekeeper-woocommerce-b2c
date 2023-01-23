@@ -327,6 +327,10 @@ HTML;
             $options = [Seo::YOAST_HANDLER => esc_html__('Yoast SEO handler', I18N::DOMAIN)] + $options;
         }
 
+        if (PluginStatus::isRankMathSeoEnabled()) {
+            $options = [Seo::RANK_MATH_HANDLER => esc_html__('Rank Math SEO handler', I18N::DOMAIN)] + $options;
+        }
+
         $this->renderFormGroup(
             __('SEO handler', I18N::DOMAIN),
             $this->getFormSelect(

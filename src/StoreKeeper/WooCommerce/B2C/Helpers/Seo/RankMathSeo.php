@@ -11,8 +11,6 @@ use WC_Product;
 
 class RankMathSeo
 {
-    public const RANK_MATH_SEO_OPTION_KEY = 'wpseo_taxonomy_meta';
-
     /**
      * @throws WordpressException
      */
@@ -21,19 +19,12 @@ class RankMathSeo
         $post = WordpressExceptionThrower::throwExceptionOnWpError(
             get_post($postId)
         );
+
         $rankMathSeoTitle = '';
         if (PluginStatus::isRankMathSeoEnabled() && !is_null($post)) {
             $rankMathSeoTitle = WordpressExceptionThrower::throwExceptionOnWpError(
-                get_post_meta($postId, '_yoast_wpseo_title', true)
+                get_post_meta($postId, 'rank_math_title', true)
             );
-
-            if (empty($rankMathSeoTitle)) {
-                $rankMathSeoTitles = get_option('wpseo_titles', []);
-                $postTitleKey = 'title-'.$post->post_type;
-                $rankMathSeoTitle = $rankMathSeoTitles[$postTitleKey] ?? get_the_title($post);
-            }
-
-            return wpseo_replace_vars($rankMathSeoTitle, $post);
         }
 
         return $rankMathSeoTitle;
@@ -47,19 +38,12 @@ class RankMathSeo
         $post = WordpressExceptionThrower::throwExceptionOnWpError(
             get_post($postId)
         );
+
         $rankMathSeoDescription = '';
         if (PluginStatus::isRankMathSeoEnabled() && !is_null($post)) {
             $rankMathSeoDescription = WordpressExceptionThrower::throwExceptionOnWpError(
-                get_post_meta($postId, '_yoast_wpseo_metadesc', true)
+                get_post_meta($postId, 'rank_math_description', true)
             );
-
-            if (empty($rankMathSeoDescription)) {
-                $rankMathSeoTitles = get_option('wpseo_titles', []);
-                $postDescriptionKey = 'metadesc-'.$post->post_type;
-                $rankMathSeoDescription = $rankMathSeoTitles[$postDescriptionKey] ?? get_the_title($post);
-            }
-
-            return wpseo_replace_vars($rankMathSeoDescription, $post);
         }
 
         return $rankMathSeoDescription;
@@ -76,55 +60,47 @@ class RankMathSeo
         $rankMathSeoDescription = '';
         if (PluginStatus::isRankMathSeoEnabled() && !is_null($post)) {
             $rankMathSeoDescription = WordpressExceptionThrower::throwExceptionOnWpError(
-                get_post_meta($postId, '_yoast_wpseo_metakeywords', true)
+                get_post_meta($postId, 'rank_math_focus_keyword', true)
             );
         }
 
         return $rankMathSeoDescription;
     }
 
-    /**
-     * @throws WordpressException
-     */
     public static function getCategoryTitle(int $termId): string
     {
         $rankMathSeoTitle = '';
+
         if (PluginStatus::isRankMathSeoEnabled()) {
-            $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
-                get_option(self::RANK_MATH_SEO_OPTION_KEY)
-            );
-
-            $categories = $termMeta['product_cat'];
-
-            if (isset($categories[$termId])) {
-                $category = $categories[$termId];
-                $rankMathSeoTitle = $category['wpseo_title'] ?? '';
-            }
+            $title = get_term_meta($termId, 'rank_math_title', true);
+            $rankMathSeoTitle = $title ?? '';
         }
 
         return $rankMathSeoTitle;
     }
 
-    /**
-     * @throws WordpressException
-     */
-    public static function getCategoryDescription(int $termId): string
+    public static function getCategoryKeywords($termId): string
     {
-        $rankMathSeoTitle = '';
+        $rankMathSeoFocusKeywords = '';
+
         if (PluginStatus::isRankMathSeoEnabled()) {
-            $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
-                get_option(self::RANK_MATH_SEO_OPTION_KEY)
-            );
-
-            $categories = $termMeta['product_cat'];
-
-            if (isset($categories[$termId])) {
-                $category = $categories[$termId];
-                $rankMathSeoTitle = $category['wpseo_desc'] ?? '';
-            }
+            $focusKeywords = get_term_meta($termId, 'rank_math_focus_keyword', true);
+            $rankMathSeoFocusKeywords = $focusKeywords ?? '';
         }
 
-        return $rankMathSeoTitle;
+        return $rankMathSeoFocusKeywords;
+    }
+
+    public static function getCategoryDescription($termId): string
+    {
+        $rankMathSeoDescription = '';
+
+        if (PluginStatus::isRankMathSeoEnabled()) {
+            $description = get_term_meta($termId, 'rank_math_description', true);
+            $rankMathSeoDescription = $description ?? '';
+        }
+
+        return $rankMathSeoDescription;
     }
 
     /**
