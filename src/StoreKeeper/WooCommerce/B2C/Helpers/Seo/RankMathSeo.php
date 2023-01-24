@@ -11,6 +11,8 @@ use WC_Product;
 
 class RankMathSeo
 {
+    public const RANK_MATH_SEO_OPTION_KEY = 'wpseo_taxonomy_meta';
+
     /**
      * @throws WordpressException
      */
@@ -106,28 +108,29 @@ class RankMathSeo
     /**
      * @throws WordpressException
      */
-    public static function addSeoToWoocommerceProduct(WC_Product $product, ?string $title = null, ?string $description = null, ?string $keywords = null): void
-    {
+    public static function addSeoToWoocommerceProduct(
+        WC_Product $product,
+        ?string $title = null,
+        ?string $description = null,
+        ?string $keywords = null
+    ): void {
         if (PluginStatus::isRankMathSeoEnabled()) {
             if (!is_null($title)) {
                 // TODO: update references to _yoast_wpseo_title when you figure out the correct value
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('_yoast_wpseo_title', $title)
+                    $product->update_meta_data('rank_math_title', $title)
                 );
             }
 
             if (!is_null($description)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('_yoast_wpseo_metadesc', $description)
+                    $product->update_meta_data('rank_math_description', $description)
                 );
             }
 
             if (!is_null($keywords)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('_yoast_wpseo_metakeywords', $keywords)
-                );
-                WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('_yoast_wpseo_focuskw', $keywords)
+                    $product->update_meta_data('rank_math_focus_keyword', $keywords)
                 );
             }
         }
@@ -136,18 +139,20 @@ class RankMathSeo
     /**
      * @throws WordpressException
      */
-    public static function addSeoToCategory(int $termId, ?string $title = null, ?string $description = null, ?string $keywords = null): void
-    {
+    public static function addSeoToCategory(
+        int $termId,
+        ?string $title = null,
+        ?string $description = null,
+        ?string $keywords = null
+    ): void {
         if (PluginStatus::isRankMathSeoEnabled()) {
             $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
                 get_option(self::RANK_MATH_SEO_OPTION_KEY)
             );
+
             $categories = &$termMeta['product_cat'];
-            if (isset($categories[$termId])) {
-                $category = $categories[$termId];
-            } else {
-                $category = [];
-            }
+
+            $category = $categories[$termId] ?? [];
 
             if (!is_null($title)) {
                 $category['wpseo_title'] = $title;
@@ -157,7 +162,9 @@ class RankMathSeo
                 $category['wpseo_desc'] = $description;
             }
 
-            // Not sure how keywords is being stored, as it's a premium inclusion for Yoast
+            if (!is_null($keywords)) {
+                $category['wpseo_focuskw'] = $keywords;
+            }
 
             $categories[$termId] = $category;
 
