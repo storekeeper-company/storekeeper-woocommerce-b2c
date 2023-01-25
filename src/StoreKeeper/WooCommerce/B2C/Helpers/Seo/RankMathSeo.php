@@ -116,7 +116,6 @@ class RankMathSeo
     ): void {
         if (PluginStatus::isRankMathSeoEnabled()) {
             if (!is_null($title)) {
-                // TODO: update references to _yoast_wpseo_title when you figure out the correct value
                 WordpressExceptionThrower::throwExceptionOnWpError(
                     $product->update_meta_data('rank_math_title', $title)
                 );
