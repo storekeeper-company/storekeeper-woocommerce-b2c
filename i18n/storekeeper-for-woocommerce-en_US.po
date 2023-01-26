@@ -1350,6 +1350,10 @@ msgstr "Running invalid cron in last 5 minutes"
 msgid "SEO handler"
 msgstr "SEO handler"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
+msgid "SKU feature for for WooCommerce has been disabled."
+msgstr "SKU in WooCommerce - Enabled (Enabled = Required for Full Sync!)"
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceFullSync.php:19
 msgid "SYNCHRONIZATION SEQUENCE"
 msgstr "SYNCHRONIZATION SEQUENCE"
@@ -1431,6 +1435,13 @@ msgstr "Site language (%s)"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:54
 msgid "Size"
 msgstr "Size"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:144
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:176
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportAll.php:35
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:27
+msgid "Skip empty tags (tags with no products attached)"
+msgstr "Skip empty tags (tags with no products attached)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptionPage.php:27
 msgid "Skip other attribute options and synchronize from specified starting point."
@@ -2042,6 +2053,10 @@ msgstr "When checked, imported or updated products will have the backorder statu
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:231
 msgid "With the One Time Export you can export all the data from your WooCommerce webshop to your StoreKeeper BackOffice. After completing this export you should import the files into your StoreKeeper BackOffice."
 msgstr "With the One Time Export you can export all the data from your WooCommerce webshop to your StoreKeeper BackOffice. After completing this export you should import the files into your StoreKeeper BackOffice."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:164
+msgid "WooCommerce SKU feature enabled"
+msgstr "SKU in WooCommerce - Disabled (WARNING! > Enabled = Required for Full Sync!)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:113
 msgid "Wordpress Cron (slowest)"
