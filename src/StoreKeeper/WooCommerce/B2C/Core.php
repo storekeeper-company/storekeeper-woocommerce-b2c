@@ -54,6 +54,7 @@ use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StorekeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Hooks\AddressFormattingHook;
 use StoreKeeper\WooCommerce\B2C\Hooks\CustomerHook;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -159,6 +160,7 @@ class Core
             $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
+        $this->testWoocommerceHooks();
     }
 
     private function prepareCron()
@@ -483,5 +485,15 @@ HTML;
 HTML;
             }
         }
+    }
+
+    public function testWoocommerceHooks()
+    {
+        $storekeeperSeo = new StorekeeperSeo();
+        $this->loader->add_action(
+            'woocommerce_after_subcategory_title',
+            $storekeeperSeo,
+            'testWoocommerceSeo'
+        );
     }
 }
