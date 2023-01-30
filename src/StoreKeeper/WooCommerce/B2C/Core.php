@@ -490,10 +490,29 @@ HTML;
     public function testWoocommerceHooks()
     {
         $storekeeperSeo = new StorekeeperSeo();
+
+//        $this->loader->add_action(
+//            'all',
+//            $storekeeperSeo,
+//            'th_show_all_hooks'
+//        );
         $this->loader->add_action(
-            'woocommerce_after_subcategory_title',
+//            'edit_terms',
+//            'category_edit_form',
+//            'category_add_form',
+//            'category_add_form_fields',
+//            'category_edit_form_fields',
+//            'category_pre_add_form',
+//            'category_pre_edit_form',
+//            'category_term_edit_form_top',
+//            'load-post.php',
+//            'edit_category_form_fields',
+//            'category_term_edit_form_top',
+            'category_pre_edit_form',
+//            'edit_product_cat_per_page',
             $storekeeperSeo,
-            'testWoocommerceSeo'
+            'testCategoryUpdate'
         );
+//        add_term_meta();
     }
 }
