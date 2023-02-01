@@ -160,7 +160,8 @@ class Core
             $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
-        $this->testWoocommerceHooks();
+        $this->addCategorySeoFields();
+        $this->addProductSeoFields();
     }
 
     private function prepareCron()
@@ -487,7 +488,18 @@ HTML;
         }
     }
 
-    public function testWoocommerceHooks()
+    public function addCategorySeoFields()
+    {
+        $storekeeperSeo = new StorekeeperSeo();
+
+        $this->loader->add_action(
+            'product_cat_edit_form_fields',
+            $storekeeperSeo,
+            'extraCategoryFields'
+        );
+    }
+
+    public function addProductSeoFields()
     {
         $storekeeperSeo = new StorekeeperSeo();
 
@@ -496,23 +508,11 @@ HTML;
 //            $storekeeperSeo,
 //            'th_show_all_hooks'
 //        );
+
         $this->loader->add_action(
-//            'edit_terms',
-//            'category_edit_form',
-//            'category_add_form',
-//            'category_add_form_fields',
-//            'category_edit_form_fields',
-//            'category_pre_add_form',
-//            'category_pre_edit_form',
-//            'category_term_edit_form_top',
-//            'load-post.php',
-//            'edit_category_form_fields',
-//            'category_term_edit_form_top',
-            'category_pre_edit_form',
-//            'edit_product_cat_per_page',
+            'post_edit_form_tag',
             $storekeeperSeo,
-            'testCategoryUpdate'
+            'extraProductFields'
         );
-//        add_term_meta();
     }
 }

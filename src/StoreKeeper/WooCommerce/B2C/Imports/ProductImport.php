@@ -7,6 +7,7 @@ use Exception;
 use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StorekeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -1122,6 +1123,13 @@ SQL;
 
         if (YoastSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
             YoastSeo::addSeoToWoocommerceProduct($product, $seoTitle, $seoDescription, $seoKeywords);
+        }
+
+        if (
+            StorekeeperSeo::isSelectedHandler() &&
+            StorekeeperSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)
+        ) {
+            StorekeeperSeo::addSeoToWoocommerceProduct($product, $seoTitle, $seoDescription, $seoKeywords);
         }
     }
 
