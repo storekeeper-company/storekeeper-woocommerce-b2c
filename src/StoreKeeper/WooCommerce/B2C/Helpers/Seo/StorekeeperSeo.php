@@ -34,7 +34,7 @@ class StorekeeperSeo
                 <input
                         type="text" name="Cat_meta[seo_title]"
                         id="Cat_meta[seo_title]" size="3" style="width:60%;"
-                        value="<?php echo $category['wpseo_title'] ?? ''; ?>"
+                        value="<?php echo esc_html($category['wpseo_title']) ?? ''; ?>"
                         readonly
                 ><br />
             </td>
@@ -47,7 +47,7 @@ class StorekeeperSeo
                 <input
                         type="text" name="Cat_meta[seo_description]"
                         id="Cat_meta[seo_description]" size="3" style="width:60%;"
-                        value="<?php echo $category['wpseo_desc'] ?? ''; ?>"
+                        value="<?php echo esc_html($category['wpseo_desc']) ?? ''; ?>"
                         readonly
                 ><br />
             </td>
@@ -60,7 +60,7 @@ class StorekeeperSeo
                 <input
                         type="text" name="Cat_meta[seo_keywords]"
                         id="Cat_meta[seo_keywords]" size="3" style="width:60%;"
-                        value="<?php echo $category['wpseo_focuskw'] ?? ''; ?>"
+                        value="<?php echo esc_html($category['wpseo_focuskw']) ?? ''; ?>"
                         readonly
                 ><br />
             </td>
@@ -80,45 +80,47 @@ class StorekeeperSeo
         );
 
         ?>
-        <tr class="form-field">
-            <th scope="row" vertical-align="top">
-                <label for="post_seo_title"><?php _e('SEO Title'); ?></label>
-            </th>
-            <td>
-                <input
-                        type="text" name="Post_meta[seo_title]"
-                        id="Post_meta[seo_title]" size="3" style="width:60%;"
-                        value="<?php echo $seoTitle ?? ''; ?>"
-                        readonly
-                ><br />
-            </td>
-        </tr>
-        <tr class="form-field">
-            <th scope="row" vertical-align="top">
-                <label for="post_seo_description"><?php _e('SEO Description'); ?></label>
-            </th>
-            <td>
-                <input
-                        type="text" name="Post_meta[seo_description]"
-                        id="Post_meta[seo_description]" size="3" style="width:60%;"
-                        value="<?php echo $seoDescription ?? ''; ?>"
-                        readonly
-                ><br />
-            </td>
-        </tr>
-        <tr class="form-field">
-            <th scope="row" vertical-align="top">
-                <label for="post_seo_keywords"><?php _e('SEO Keywords'); ?></label>
-            </th>
-            <td>
-                <input
-                        type="text" name="Post_meta[seo_keywords]"
-                        id="Post_meta[seo_keywords]" size="3" style="width:60%;"
-                        value="<?php echo $seoKeywords ?? ''; ?>"
-                        readonly
-                ><br />
-            </td>
-        </tr>
+        <table id="alg-product-input-fields-table" class="alg-product-input-fields-table">
+            <tr>
+                <th scope="row" vertical-align="top">
+                    <label for="post_seo_title"><?php _e('SEO Title'); ?></label>
+                </th>
+                <td>
+                    <input
+                            type="text" name="Post_meta[seo_title]"
+                            id="Post_meta[seo_title]" size="3" style="width:800%;"
+                            value="<?php echo esc_html($seoTitle) ?? ''; ?>"
+                            readonly
+                    ><br />
+                </td>
+            </tr>
+            <tr class="form-field">
+                <th scope="row" vertical-align="top">
+                    <label for="post_seo_description"><?php _e('SEO Description'); ?></label>
+                </th>
+                <td>
+                    <input
+                            type="text" name="Post_meta[seo_description]"
+                            id="Post_meta[seo_description]" size="3" style="width:800%;"
+                            value="<?php echo esc_html($seoDescription) ?? ''; ?>"
+                            readonly
+                    ><br />
+                </td>
+            </tr>
+            <tr class="form-field">
+                <th scope="row" vertical-align="top">
+                    <label for="post_seo_keywords"><?php _e('SEO Keywords'); ?></label>
+                </th>
+                <td>
+                    <input
+                            type="text" name="Post_meta[seo_keywords]"
+                            id="Post_meta[seo_keywords]" size="3" style="width:800%;"
+                            value="<?php echo esc_html($seoKeywords) ?? ''; ?>"
+                            readonly
+                    ><br />
+                </td>
+            </tr>
+        </table>
         <?php
     }
 
