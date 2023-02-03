@@ -8,6 +8,7 @@ use Aura\SqlQuery\Common\SelectInterface;
 use Aura\SqlQuery\Common\UpdateInterface;
 use Aura\SqlQuery\QueryInterface;
 use Exception;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModel;
 use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
@@ -113,7 +114,7 @@ abstract class AbstractModel implements IModel
 
     protected static function updateDateField(array $data): array
     {
-        $data['date_updated'] = current_time('mysql', 1);
+        $data['date_updated'] = DatabaseConnection::formatToDatabaseDate(new \DateTime());
 
         return $data;
     }
@@ -293,6 +294,39 @@ abstract class AbstractModel implements IModel
         if ($checkRowAmount && $affectedRows <= 0) {
             throw new Exception('No rows where affected.');
         }
+    }
+
+    public static function findBy(
+        $whereClauses = [],
+        $whereValues = [],
+        $orderBy = null,
+        $orderDirection = null,
+        $limit = null
+    ) {
+        global $wpdb;
+        $select = static::getSelectHelper()
+            ->cols(['*'])
+            ->limit($limit);
+
+        if ($orderBy && $orderDirection) {
+            $select->orderBy(["$orderBy $orderDirection"]);
+        }
+
+        if (!is_null($limit)) {
+            $select->limit($limit);
+        }
+
+        foreach ($whereClauses as $whereClause) {
+            $select->where($whereClause);
+        }
+
+        if (count($whereValues) > 0) {
+            $select->bindValues($whereValues);
+        }
+
+        $query = static::prepareQuery($select);
+
+        return $wpdb->get_results($query);
     }
 
     public static function getSelectHelper($alias = ''): SelectInterface

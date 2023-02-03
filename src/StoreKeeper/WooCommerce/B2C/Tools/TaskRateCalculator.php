@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
+use Exception;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 
 class TaskRateCalculator
@@ -10,13 +12,17 @@ class TaskRateCalculator
     private $startDateTime;
     private $endDateTime;
 
-    public function __construct(?string $now = null)
+    /**
+     * @throws Exception
+     */
+    public function __construct(?\DateTime $now = null)
     {
         $this->endDateTime = $now;
         if (is_null($now)) {
-            $this->endDateTime = date('Y-m-d H:i:s');
+            $this->endDateTime = DateTimeHelper::currentDateTime();
         }
-        $this->startDateTime = date('Y-m-d H:i:s', strtotime("{$this->endDateTime} -".self::MINUTE_METRICS.' minutes'));
+        $this->startDateTime = clone $this->endDateTime;
+        $this->startDateTime->sub(new \DateInterval('PT'.self::MINUTE_METRICS.'M'));
     }
 
     public function countIncoming(): int

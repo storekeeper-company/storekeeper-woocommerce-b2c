@@ -31,7 +31,7 @@ class WebhookPostEndpoint extends AbstractEndpoint
 
                 return $handler->run();
             case 'info':
-                $handler = new InfoHandler($this->wrappedRequest);
+                $handler = new InfoHandler();
 
                 return $handler->run();
             case 'disconnect':

@@ -4,8 +4,10 @@ namespace StoreKeeper\WooCommerce\B2C\Exports;
 
 use Exception;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
@@ -62,7 +64,7 @@ class OrderExport extends AbstractExport
     /**
      * @param WC_Order $WpObject
      *
-     * @return bool|mixed
+     * @return bool
      *
      * @throws Exception
      */
@@ -283,9 +285,9 @@ class OrderExport extends AbstractExport
             );
         }
 
-        // Add last sync date meta for orders
-        // Time will be based on user's selected timezone on wordpress
-        $date = current_time('mysql');
+        $date = DatabaseConnection::formatToDatabaseDate(
+            DateTimeHelper::currentDateTime(),
+        );
         WordpressExceptionThrower::throwExceptionOnWpError(
             update_post_meta($WpObject->get_id(), 'storekeeper_sync_date', $date)
         );
@@ -325,6 +327,11 @@ class OrderExport extends AbstractExport
                     'storekeeper' => $storekeeper_status,
                 ]
             );
+        }
+
+        if ($WpObject->meta_exists(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY)) {
+            $WpObject->delete_meta_data(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY);
+            $WpObject->save();
         }
 
         return true;

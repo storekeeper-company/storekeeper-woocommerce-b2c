@@ -43,20 +43,6 @@ class WordPressHelpers extends ProcessHelpers
         return \StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions::isConnected();
     }
 
-    /**
-     * @return false|string
-     */
-    public static function updateLastRunTime()
-    {
-        $date = date('Y-m-d H:i:s');
-        \StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions::set(
-            \StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions::LAST_SYNC_RUN,
-            $date
-        );
-
-        return $date;
-    }
-
     public static function setTaskPostStatusToNew($task_post_id)
     {
         if (null !== get_post($task_post_id)) {

@@ -5,7 +5,9 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
@@ -106,7 +108,7 @@ class ConnectionTab extends AbstractTab
 
     private function renderStatistics()
     {
-        $now = current_time('mysql', 1);
+        $now = DateTimeHelper::currentDateTime();
         $calculator = new TaskRateCalculator($now);
         $incomingRate = $calculator->countIncoming();
         $processedRate = $calculator->calculateProcessed();
@@ -174,12 +176,13 @@ class ConnectionTab extends AbstractTab
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::SUCCESS_SYNC_RUN)) {
             $date = WooCommerceOptions::get(WooCommerceOptions::SUCCESS_SYNC_RUN);
+            $datetime = DatabaseConnection::formatFromDatabaseDate($date);
 
-            return date_create($date)->format('Y-m-d H:i:s');
-        } else {
-            if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
-                return __('No tasks processed (successfully) yet, but the cron is running');
-            }
+            return DateTimeHelper::formatForDisplay($datetime);
+        }
+
+        if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
+            return __('No tasks processed (successfully) yet, but the cron is running');
         }
 
         return __('Never, please check the "cron tab" notice.', I18N::DOMAIN);
@@ -198,8 +201,8 @@ class ConnectionTab extends AbstractTab
 
         $lastHook = $wpdb->get_row(WebhookLogModel::prepareQuery($select));
         if ($lastHook) {
-            $date = $lastHook->date_updated;
-            $hookDescription = date_create($date)->format('Y-m-d H:i:s');
+            $datetime = DatabaseConnection::formatFromDatabaseDate($lastHook->date_updated);
+            $hookDescription = DateTimeHelper::formatForDisplay($datetime);
         }
 
         return $hookDescription;

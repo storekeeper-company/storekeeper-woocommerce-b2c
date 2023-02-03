@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
@@ -255,7 +256,7 @@ abstract class AbstractProductImport extends AbstractImport
                         'product_id' => $woocommerceProductId,
                         'view_url' => get_permalink($woocommerceProductId),
                         'edit_url' => admin_url('post.php?post='.$woocommerceProductId).'&action=edit',
-                        'date_synchronized' => (new \DateTime())->format('Y-m-d H:i:s'),
+                        'date_synchronized' => DatabaseConnection::formatToDatabaseDate(new \DateTime()),
                         'plugin_version' => implode(', ', [
                             StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
                             StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,

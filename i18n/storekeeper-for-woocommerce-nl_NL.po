@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2022-12-27 09:17\n"
+"PO-Revision-Date: 2023-01-19 11:18\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
@@ -265,6 +265,10 @@ msgstr "Terugbetaling via Wordpress-plugin (Terugbetaling #%s)"
 msgid "Report error"
 msgstr "Fout melden"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
+msgid "SKU feature for for WooCommerce has been disabled."
+msgstr "SKU in WooCommerce - Ingeschakeld (Ingeschakeld = vereist voor volledige synchronisatie!)"
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:92
 msgid "Sales unit"
 msgstr "Verkoopeenheid"
@@ -272,6 +276,13 @@ msgstr "Verkoopeenheid"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:86
 msgid "Season"
 msgstr "Seizoen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:144
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:176
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportAll.php:35
+#: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:27
+msgid "Skip empty tags (tags with no products attached)"
+msgstr "Niet gebruikte tags (tags zonder producten) overslaan"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProducts.php:29
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProducts.php:29
@@ -366,6 +377,10 @@ msgstr "WP Cron geeft een onverwachte HTTP response code: %s"
 #: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:99
 msgid "Waiting for tasks to process"
 msgstr "Wachten tot taken zijn verwerkt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:164
+msgid "WooCommerce SKU feature enabled"
+msgstr "SKU in WooCommerce - Uitgeschakeld (WAARSCHUWING! > Ingeschakeld = vereist voor volledige synchronisatie!)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:113
 msgid "Wordpress Cron (slowest)"

@@ -5,9 +5,11 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 use Adbar\Dot;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Cache\ShopProductCache;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StorekeeperSeo;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -1024,9 +1026,9 @@ SQL;
     {
         update_post_meta($newProduct->get_id(), 'storekeeper_id', $dotObject->get('id'));
 
-        // Add last sync date meta for products
-        // Time will be based on user's selected timezone on wordpress
-        $date = current_time('mysql');
+        $date = DatabaseConnection::formatToDatabaseDate(
+            DateTimeHelper::currentDateTime(),
+        );
         update_post_meta($newProduct->get_id(), 'storekeeper_sync_date', $date);
         $this->debug('storekeeper_id added to post.', $log_data);
 
