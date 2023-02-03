@@ -113,7 +113,10 @@
                             "date_updated": "2022-12-02 04:22:24+01:00"
                         }
                     },
-                    "content_vars": []
+                    "content_vars": [],
+                    "seo_title": "SEO titel product id 2176",
+                    "seo_keywords": "SEO,zoekwoorden product id 2176",
+                    "seo_description": "SEO omschrijving product id 2176"
                 },
                 "id": 2054,
                 "product_id": 2176,
@@ -285,7 +288,10 @@
                             "slug": "iphone-accessories",
                             "published": true
                         }
-                    ]
+                    ],
+                    "seo_title": "SEO titel product id 16",
+                    "seo_keywords": "SEO,zoekwoorden product id 16",
+                    "seo_description": "SEO omschrijving product id 16"
                 },
                 "id": 9,
                 "product_id": 16,
@@ -409,7 +415,10 @@
                             "big_url": "https:\/\/lukishop-6rrsx4x6.sk-cdn.net\/f\/cat_sample_big_image.jpg?file_id=40547",
                             "cdn_url": "vfs:\/\/test-shop.sk-cdn.net\/g\/test-shop-img-scale\/{variant}\/f\/cat_sample.jpg"
                         }
-                    ]
+                    ],
+                    "seo_title": "SEO titel product id 21",
+                    "seo_keywords": "SEO,zoekwoorden product id 21",
+                    "seo_description": "SEO omschrijving product id 21"
                 },
                 "id": 14,
                 "product_id": 21,
@@ -532,7 +541,10 @@
                             "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MWVR2_small_image.jpeg?img_w=200&img_h=200&",
                             "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MWVR2_big_image.jpeg?img_w=1500&img_h=1500&"
                         }
-                    ]
+                    ],
+                    "seo_title": "SEO titel product id 22",
+                    "seo_keywords": "SEO,zoekwoorden product id 22",
+                    "seo_description": "SEO omschrijving product id 22"
                 },
                 "id": 15,
                 "product_id": 22,
@@ -645,7 +657,10 @@
                             "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MWVR2_small_image.jpeg?img_w=200&img_h=200&",
                             "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/MWVR2_big_image.jpeg?img_w=1500&img_h=1500&"
                         }
-                    ]
+                    ],
+                    "seo_title": "SEO titel product id 23",
+                    "seo_keywords": "SEO,zoekwoorden product id 23",
+                    "seo_description": "SEO omschrijving product id 23"
                 },
                 "id": 16,
                 "product_id": 23,
@@ -758,7 +773,10 @@
                             "url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_small_image.jpeg?img_w=200&img_h=200&",
                             "big_url": "\/download\/public\/myawesomeshop\/FileModule\/myawesomeshop\/main\/HM8W2_big_image.jpeg?img_w=1500&img_h=1500&"
                         }
-                    ]
+                    ],
+                    "seo_title": "SEO titel product id 24",
+                    "seo_keywords": "SEO,zoekwoorden product id 24",
+                    "seo_description": "SEO omschrijving product id 24"
                 },
                 "id": 17,
                 "product_id": 24,

@@ -15,6 +15,7 @@ use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
+use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
 class SyncWoocommerceProductsTest extends AbstractTest
 {
@@ -130,6 +131,18 @@ class SyncWoocommerceProductsTest extends AbstractTest
             );
 
             $this->assertProduct($original, $wc_simple_product);
+
+            $originalSeoTitle = $original->get('flat_product.seo_title');
+            $seoTitle = $wc_simple_product->get_meta('wpseo_title');
+            $this->assertEquals($originalSeoTitle, $seoTitle);
+
+            $originalSeoDescription = $original->get('flat_product.seo_description');
+            $seoDescription = $wc_simple_product->get_meta('wpseo_desc');
+            $this->assertEquals($originalSeoDescription, $seoDescription);
+
+            $originalSeoKeywords = $original->get('flat_product.seo_keywords');
+            $seoKeywords = $wc_simple_product->get_meta('wpseo_focuskw');
+            $this->assertEquals($originalSeoKeywords, $seoKeywords);
 
             // Test the products with emballage
             $wcProductEmballagePrice = $wc_simple_product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY);
@@ -375,6 +388,18 @@ class SyncWoocommerceProductsTest extends AbstractTest
             );
 
             $this->assertProduct($original, $wc_configurable_product);
+
+            $originalSeoTitle = $original->get('flat_product.seo_title');
+            $seoTitle = $wc_configurable_product->get_meta('wpseo_title');
+            $this->assertEquals($originalSeoTitle, $seoTitle);
+
+            $originalSeoDescription = $original->get('flat_product.seo_description');
+            $seoDescription = $wc_configurable_product->get_meta('wpseo_desc');
+            $this->assertEquals($originalSeoDescription, $seoDescription);
+
+            $originalSeoKeywords = $original->get('flat_product.seo_keywords');
+            $seoKeywords = $wc_configurable_product->get_meta('wpseo_focuskw');
+            $this->assertEquals($originalSeoKeywords, $seoKeywords);
         }
     }
 
