@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCategories;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StorekeeperSeo;
 use StoreKeeper\WooCommerce\B2C\TestLib\MediaHelper;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
@@ -28,7 +29,7 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
          */
 
         // Initialize the test
-        $this->initApiConnection();
+         $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
 
@@ -66,6 +67,15 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
 
         // Run the category import command
         $this->runner->execute(SyncWoocommerceCategories::getCommandName());
+
+        $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
+            get_option(StorekeeperSeo::STOREKEEPER_SEO_OPTION_KEY)
+        );
+        $this->assertEquals(
+            count($termMeta['product_cat']),
+            1,
+            'Only one category should have synchronized SEO data'
+        );
 
         /*
          * Assert

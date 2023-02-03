@@ -10,6 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 class StorekeeperSeo
 {
     public const STOREKEEPER_SEO_OPTION_KEY = 'wpseo_taxonomy_meta';
+    public const STOREKEEPER_HANDLER = 'storekeeper';
 
     public function extraCategoryFields( $tag ) {    //check for existing featured ID
         $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
@@ -128,7 +129,7 @@ class StorekeeperSeo
 
     public static function isSelectedHandler(): bool
     {
-        return Seo::STOREKEEPER_HANDLER === StoreKeeperOptions::get(StoreKeeperOptions::SEO_HANDLER);
+        return Seo::STOREKEEPER_HANDLER === StoreKeeperOptions::get(StoreKeeperOptions::SEO_HANDLER, self::STOREKEEPER_HANDLER);
     }
 
     /**
