@@ -58,6 +58,9 @@ make push-translations
 Define a new configuration template:
 ![phpunit configuration template](./phpunit-config.png)
 
+Setup path mapping
+![Setup path mapping](./phpunit-path-mapping.png)
+
 Add extra includes
 ![Add extra includes](./extra-includes.png)
 

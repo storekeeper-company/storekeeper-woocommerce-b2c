@@ -6,6 +6,7 @@ use Adbar\Dot;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\RankMathSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StorekeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -356,6 +357,10 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
             YoastSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)
         ) {
             YoastSeo::addSeoToCategory($term->term_id, $seoTitle, $seoDescription, $seoKeywords);
+        }
+
+        if (RankMathSeo::isSelectedHandler() && RankMathSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
+            RankMathSeo::addSeoToCategory($term->term_id, $seoTitle, $seoDescription, $seoKeywords);
         }
 
         if (

@@ -3,7 +3,9 @@
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\ProductSkuEmptyException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\RankMathSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Interfaces\ProductExportInterface;
 use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
@@ -403,6 +405,9 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
+    /**
+     * @throws WordpressException
+     */
     private function exportSEO(array $lineData, WC_Product $product): array
     {
         $lineData['seo_title'] = $product->get_title();
@@ -412,6 +417,12 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
             $lineData['seo_title'] = YoastSeo::getPostTitle($product->get_id());
             $lineData['seo_description'] = YoastSeo::getPostDescription($product->get_id());
             $lineData['seo_keywords'] = YoastSeo::getPostKeywords($product->get_id());
+        }
+
+        if (RankMathSeo::isSelectedHandler()) {
+            $lineData['seo_title'] = RankMathSeo::getPostTitle($product->get_id());
+            $lineData['seo_description'] = RankMathSeo::getPostDescription($product->get_id());
+            $lineData['seo_keywords'] = RankMathSeo::getPostKeywords($product->get_id());
         }
 
         return $lineData;

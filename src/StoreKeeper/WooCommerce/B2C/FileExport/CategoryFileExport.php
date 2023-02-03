@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\RankMathSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StorekeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
@@ -96,6 +97,12 @@ class CategoryFileExport extends AbstractCSVFileExport
         if (YoastSeo::isSelectedHandler()) {
             $lineData['seo_title'] = YoastSeo::getCategoryTitle($category->term_id);
             $lineData['seo_description'] = YoastSeo::getCategoryDescription($category->term_id);
+        }
+
+        if (RankMathSeo::isSelectedHandler()) {
+            $lineData['seo_title'] = RankMathSeo::getCategoryTitle($category->term_id);
+            $lineData['seo_keywords'] = RankMathSeo::getCategoryKeywords($category->term_id);
+            $lineData['seo_description'] = RankMathSeo::getCategoryDescription($category->term_id);
         }
 
         if (StorekeeperSeo::isSelectedHandler()) {
