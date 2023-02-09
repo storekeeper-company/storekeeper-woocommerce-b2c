@@ -9,10 +9,10 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
 class StorekeeperSeo
 {
-    public const STOREKEEPER_SEO_OPTION_KEY = 'wpseo_taxonomy_meta';
+    public const STOREKEEPER_SEO_OPTION_KEY = 'skseo_taxonomy_meta';
     public const STOREKEEPER_HANDLER = 'storekeeper';
 
-    public function extraCategoryFields( $tag ) {    //check for existing featured ID
+    public function extraCategoryFields( $tag ) {
         $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
             get_option(self::STOREKEEPER_SEO_OPTION_KEY)
         );
@@ -34,7 +34,7 @@ class StorekeeperSeo
                 <input
                         type="text" name="Cat_meta[seo_title]"
                         id="Cat_meta[seo_title]" size="3" style="width:60%;"
-                        value="<?php echo esc_html($category['wpseo_title']) ?? ''; ?>"
+                        value="<?php echo esc_html($category['skseo_title']) ?? ''; ?>"
                         readonly
                 ><br />
             </td>
@@ -47,7 +47,7 @@ class StorekeeperSeo
                 <input
                         type="text" name="Cat_meta[seo_description]"
                         id="Cat_meta[seo_description]" size="3" style="width:60%;"
-                        value="<?php echo esc_html($category['wpseo_desc']) ?? ''; ?>"
+                        value="<?php echo esc_html($category['skseo_desc']) ?? ''; ?>"
                         readonly
                 ><br />
             </td>
@@ -60,7 +60,7 @@ class StorekeeperSeo
                 <input
                         type="text" name="Cat_meta[seo_keywords]"
                         id="Cat_meta[seo_keywords]" size="3" style="width:60%;"
-                        value="<?php echo esc_html($category['wpseo_focuskw']) ?? ''; ?>"
+                        value="<?php echo esc_html($category['skseo_focuskw']) ?? ''; ?>"
                         readonly
                 ><br />
             </td>
@@ -141,7 +141,8 @@ class StorekeeperSeo
         int $termId,
         ?string $title = null,
         ?string $description = null,
-        ?string $keywords = null
+        ?string $keywords = null,
+        int $categoryId = null
     ): void {
         if (self::isSelectedHandler()) {
             $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
@@ -157,15 +158,19 @@ class StorekeeperSeo
             }
 
             if (!is_null($title)) {
-                $category['wpseo_title'] = $title;
+                $category['skseo_title'] = $title;
             }
 
             if (!is_null($description)) {
-                $category['wpseo_desc'] = $description;
+                $category['skseo_desc'] = $description;
             }
 
             if (!is_null($keywords)) {
-                $category['wpseo_focuskw'] = $keywords;
+                $category['skseo_focuskw'] = $keywords;
+            }
+
+            if (!is_null($categoryId)) {
+                $category['category_id'] = $categoryId;
             }
 
             $categories[$termId] = $category;

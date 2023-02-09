@@ -1133,7 +1133,7 @@ SQL;
         }
 
         if (
-            StorekeeperSeo::isSelectedHandler() &&
+            // StorekeeperSeo::isSelectedHandler() &&
             StorekeeperSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)
         ) {
             StorekeeperSeo::addSeoToWoocommerceProduct($product, $seoTitle, $seoDescription, $seoKeywords);

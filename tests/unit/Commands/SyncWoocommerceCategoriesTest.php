@@ -29,7 +29,7 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
          */
 
         // Initialize the test
-         $this->initApiConnection();
+        $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
 
@@ -91,6 +91,20 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
 
         foreach ($original_categories_data as $category_data) {
             $original = new Dot($category_data);
+
+            foreach ($termMeta['product_cat'] as $categoryMeta) {
+                if ($categoryMeta['category_id'] == $category_data['id']) {
+                    if (isset($category_data['seo_title'])) {
+                        $this->assertEquals($category_data['seo_title'], $categoryMeta['skseo_title']);
+                    }
+                    if (isset($category_data['seo_keywords'])) {
+                        $this->assertEquals($category_data['seo_keywords'], $categoryMeta['skseo_desc']);
+                    }
+                    if (isset($category_data['seo_description'])) {
+                        $this->assertEquals($category_data['seo_description'], $categoryMeta['skseo_focuskw']);
+                    }
+                }
+            }
 
             // Get the WooCommerce category by the StoreKeeper ID. This also checks whether the ID is set correctly
             $wc_category = $this->getCategoryByStoreKeeperID($original->get('id'));
