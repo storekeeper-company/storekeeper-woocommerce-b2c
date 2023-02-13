@@ -115,21 +115,23 @@ class RankMathSeo
         ?string $keywords = null
     ): void {
         if (PluginStatus::isRankMathSeoEnabled()) {
+            $id = $product->get_id();
+
             if (!is_null($title)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('rank_math_title', $title)
+                    update_post_meta($id, 'rank_math_title', $title)
                 );
             }
 
             if (!is_null($description)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('rank_math_description', $description)
+                    update_post_meta($id, 'rank_math_description', $description)
                 );
             }
 
             if (!is_null($keywords)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('rank_math_focus_keyword', $keywords)
+                    update_post_meta($id, 'rank_math_focus_keyword', $keywords)
                 );
             }
         }
@@ -145,31 +147,23 @@ class RankMathSeo
         ?string $keywords = null
     ): void {
         if (PluginStatus::isRankMathSeoEnabled()) {
-            $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
-                get_option(self::RANK_MATH_SEO_OPTION_KEY)
-            );
-
-            $categories = &$termMeta['product_cat'];
-
-            $category = $categories[$termId] ?? [];
-
             if (!is_null($title)) {
-                $category['wpseo_title'] = $title;
+                WordpressExceptionThrower::throwExceptionOnWpError(
+                    update_term_meta($termId, 'rank_math_title', $title)
+                );
             }
 
             if (!is_null($description)) {
-                $category['wpseo_desc'] = $description;
+                WordpressExceptionThrower::throwExceptionOnWpError(
+                    update_term_meta($termId, 'rank_math_description', $description)
+                );
             }
 
             if (!is_null($keywords)) {
-                $category['wpseo_focuskw'] = $keywords;
+                WordpressExceptionThrower::throwExceptionOnWpError(
+                    update_term_meta($termId, 'rank_math_focus_keyword', $keywords)
+                );
             }
-
-            $categories[$termId] = $category;
-
-            WordpressExceptionThrower::throwExceptionOnWpError(
-                update_option(self::RANK_MATH_SEO_OPTION_KEY, $termMeta)
-            );
         }
     }
 
