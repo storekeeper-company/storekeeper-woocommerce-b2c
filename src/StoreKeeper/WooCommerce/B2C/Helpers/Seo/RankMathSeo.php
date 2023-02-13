@@ -115,21 +115,23 @@ class RankMathSeo
         ?string $keywords = null
     ): void {
         if (PluginStatus::isRankMathSeoEnabled()) {
+            $id = $product->get_id();
+
             if (!is_null($title)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('rank_math_title', $title)
+                    update_post_meta($id, 'rank_math_title', $title)
                 );
             }
 
             if (!is_null($description)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('rank_math_description', $description)
+                    update_post_meta($id, 'rank_math_description', $description)
                 );
             }
 
             if (!is_null($keywords)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('rank_math_focus_keyword', $keywords)
+                    update_post_meta($id, 'rank_math_focus_keyword', $keywords)
                 );
             }
         }
@@ -146,15 +148,21 @@ class RankMathSeo
     ): void {
         if (PluginStatus::isRankMathSeoEnabled()) {
             if (!is_null($title)) {
-                update_term_meta($termId, 'rank_math_title', $title);
+                WordpressExceptionThrower::throwExceptionOnWpError(
+                    update_term_meta($termId, 'rank_math_title', $title)
+                );
             }
 
             if (!is_null($description)) {
-                update_term_meta($termId, 'rank_math_description', $description);
+                WordpressExceptionThrower::throwExceptionOnWpError(
+                    update_term_meta($termId, 'rank_math_description', $description)
+                );
             }
 
             if (!is_null($keywords)) {
-                update_term_meta($termId, 'rank_math_focus_keyword', $keywords);
+                WordpressExceptionThrower::throwExceptionOnWpError(
+                    update_term_meta($termId, 'rank_math_focus_keyword', $keywords)
+                );
             }
         }
     }
