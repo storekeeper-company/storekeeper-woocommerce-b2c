@@ -145,31 +145,17 @@ class RankMathSeo
         ?string $keywords = null
     ): void {
         if (PluginStatus::isRankMathSeoEnabled()) {
-            $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
-                get_option(self::RANK_MATH_SEO_OPTION_KEY)
-            );
-
-            $categories = &$termMeta['product_cat'];
-
-            $category = $categories[$termId] ?? [];
-
             if (!is_null($title)) {
-                $category['wpseo_title'] = $title;
+                update_term_meta($termId, 'rank_math_title', $title);
             }
 
             if (!is_null($description)) {
-                $category['wpseo_desc'] = $description;
+                update_term_meta($termId, 'rank_math_description', $description);
             }
 
             if (!is_null($keywords)) {
-                $category['wpseo_focuskw'] = $keywords;
+                update_term_meta($termId, 'rank_math_focus_keyword', $keywords);
             }
-
-            $categories[$termId] = $category;
-
-            WordpressExceptionThrower::throwExceptionOnWpError(
-                update_option(self::RANK_MATH_SEO_OPTION_KEY, $termMeta)
-            );
         }
     }
 
