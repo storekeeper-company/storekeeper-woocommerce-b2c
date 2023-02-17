@@ -99,6 +99,10 @@ msgstr "All orders won't be synced automatically with your currently selected Sy
 msgid "All skus was generated successfully"
 msgstr "All skus was generated successfully"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:50
+msgid "Allowing of at least one of the following directories to be writable is required: %s"
+msgstr "Allowing of at least one of the following directories to be writable is required: %s"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:86
 msgid "Alternatively, you can get the API key via command line."
 msgstr "Alternatively, you can get the API key via command line."
@@ -469,6 +473,14 @@ msgstr "Each run will return the path of the exported file."
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
 msgid "Emballage fee"
 msgstr "Emballage fee"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:98
+msgid "Enabling PHP %s extension is optional to improve performance"
+msgstr "Enabling PHP %s extension is optional to improve performance"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:82
+msgid "Enabling PHP %s extension is required"
+msgstr "Enabling PHP %s extension is required"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:330
 msgid "English"
@@ -1014,6 +1026,10 @@ msgstr "Other backoffice roles"
 msgid "PHP %s extension"
 msgstr "PHP %s extension"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:35
+msgid "PHP version %s found, plugin requires at least version %s"
+msgstr "PHP version %s found, plugin requires at least version %s"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:137
 msgid "PHP version %s or up"
 msgstr "PHP version %s or up"
@@ -1047,6 +1063,10 @@ msgstr "Please wait and keep the page and popup window open while we are prepari
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/ToolsPage.php:18
 msgid "Plugin conflict checker"
 msgstr "Plugin conflict checker"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/PluginConflictChecker.php:107
+msgid "Plugin version %s is not compatible with the plugin"
+msgstr "Plugin version %s is not compatible with the plugin"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:276
 msgid "Post-execution error"
@@ -1349,6 +1369,11 @@ msgstr "Running invalid cron in last 5 minutes"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:331
 msgid "SEO handler"
 msgstr "SEO handler"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:63
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:149
+msgid "SKU feature for WooCommerce has been disabled."
+msgstr "SKU feature for WooCommerce has been disabled."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
 msgid "SKU feature for for WooCommerce has been disabled."
@@ -2057,6 +2082,16 @@ msgstr "With the One Time Export you can export all the data from your WooCommer
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:164
 msgid "WooCommerce SKU feature enabled"
 msgstr "SKU in WooCommerce - Disabled (WARNING! > Enabled = Required for Full Sync!)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:69
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:157
+msgid "WooCommerce stock management feature enabled"
+msgstr "WooCommerce stock management feature has been enabled."
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:71
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:158
+msgid "WooCommerce stock management feature has been disabled."
+msgstr "WooCommerce stock management feature has been disabled."
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:113
 msgid "Wordpress Cron (slowest)"

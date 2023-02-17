@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-01-19 11:18\n"
+"PO-Revision-Date: 2023-02-17 05:35\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: de_DE\n"
@@ -25,6 +25,10 @@ msgstr "Produkt löschen"
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
 msgid "Emballage fee"
 msgstr "Emballage-Gebühr"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:98
+msgid "Enabling PHP %s extension is optional to improve performance"
+msgstr "Die Aktivierung der PHP-Erweiterung %s ist optional, um die Leistung zu verbessern"
 
 #: src/StoreKeeper/WooCommerce/B2C/Updator.php:117
 msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."

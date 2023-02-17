@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-01-19 11:18\n"
+"PO-Revision-Date: 2023-02-17 05:35\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
@@ -123,6 +123,10 @@ msgstr "Duur in seconden"
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
 msgid "Emballage fee"
 msgstr "Emballage bedrag"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:98
+msgid "Enabling PHP %s extension is optional to improve performance"
+msgstr "Het inschakelen van PHP %s extensie is optioneel om de prestaties te verbeteren"
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:33
 msgid "Every minute"
