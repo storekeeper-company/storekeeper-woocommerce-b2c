@@ -14,20 +14,7 @@ class WebCommandRunner extends CommandRunner
         $command = new $class();
         $command->setRunner($this);
 
-        try {
-            while (true) {
-                $data .= str_repeat('#', PHP_INT_MAX);
-            }
-        } catch (\Exception $throwable) {
-            $s = $throwable;
-
-            echo 'Caught in try/catch';
-        }
-//        try {
-//            return (int) $command->execute($arguments, $assoc_arguments);
-//        } catch (\Throwable $throwable) {
-//            $s = $throwable;
-//        }
+        return (int) $command->execute($arguments, $assoc_arguments);
     }
 
     public function executeAsSubProcess(
@@ -42,14 +29,12 @@ class WebCommandRunner extends CommandRunner
 
     private function prepareExecution()
     {
-        $memory_limit = ini_get('memory_limit');
         // To make sure even big webshops work..
         IniHelper::setIni(
             'memory_limit',
-            '1K',
+            0,
             [$this->logger, 'notice']
         );
-        $memory_limit = ini_get('memory_limit');
 
         // To see the logs, instead of waiting until the end.
         for ($i = ob_get_level(); $i > 0; --$i) {
