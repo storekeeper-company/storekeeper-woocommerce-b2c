@@ -2,7 +2,9 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Helpers;
 
+use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 
 class OverlayRenderer
 {
@@ -91,32 +93,22 @@ HTML;
         $this->renderContentItem($content);
     }
 
-    public function renderMemoryExhaustError($message, $description = '')
+    public function renderMemoryExhaustError($message, $description = ''): void
     {
         $message = esc_html($message);
         $description = esc_html($description);
 
-        $firstExplanationText = __('Your allowed memory size has been exhausted. Here are some solution that may solve the issue.', I18N::DOMAIN);
-        $secondExplanationText = __('But before trying some of these you can check what is the defined memory_limit of your site. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting.', I18N::DOMAIN);
-
-        $serverInfoImagePath = plugin_dir_url(__FILE__).'../static/server-information.png';
-
-        $instructionHeading = __('After identifying the value defined on memory and still the error persist.', I18N::DOMAIN);
-        $firstInstruction = sprintf(
-            __('You try can increasing the memory by adding %s on the wp-config.', I18N::DOMAIN),
-            "<code>define('WP_MEMORY_LIMIT', '256M');</code>"
-        );
-        $firstInstructionFirstBullet = __('256M is a size sample you can put and then do a full sync.', I18N::DOMAIN);
-
-        $secondInstruction = __('You can try executing this command via ssh.', I18N::DOMAIN);
-        $secondInstructionFirstBullet = __('Go to the public_html folder of your webshop (e.g. /webshop/public_html/)', I18N::DOMAIN);
-        $secondInstructionSecondBullet = sprintf(
-            __('Execute %s.', I18N::DOMAIN),
-            '<code>wp sk sync-woocommerce-full-sync</code>'
+        $firstExplanationText = esc_html(__('Your allowed memory size has been exhausted.', I18N::DOMAIN));
+        $secondExplanationText = wp_kses(
+            sprintf(
+            __('Current memory limit configured: %s'),
+            '<strong>'.IniHelper::getIni('memory_limit').'</strong>'
+            ),
+            HtmlEscape::ALLOWED_COMMON
         );
 
-        $thirdInstruction = __('Contact your hosting provider.', I18N::DOMAIN);
-        $thirdInstructionFirstBullet = __('If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit.', I18N::DOMAIN);
+        $instructionHeading = esc_html(__('Below are actions you can do to increase PHP memory limit:', I18N::DOMAIN));
+        $instructionsHtml = $this->getMemoryLimitInstructions();
 
         $content = <<<HTML
 <strong style="color:red">$message</strong>
@@ -128,27 +120,74 @@ $firstExplanationText
 <br/>
 $secondExplanationText
 <br/>
-<img src='$serverInfoImagePath' style="height: 100%; width: 100%; margin-top: 15px; margin-bottom: 15px;" alt="Server information">
 <br/>
 $instructionHeading
 <br/>
-1. $firstInstruction
-<br/>
-<span style="margin-left: 20px">&bull; $firstInstructionFirstBullet</span>
-<br/>
-2. $secondInstruction
-<br/>
-<span style="margin-left: 20px">&bull; $secondInstructionFirstBullet</span>
-<br/>
-<span style="margin-left: 20px">&bull; $secondInstructionSecondBullet</span>
-<br/>
-3. $thirdInstruction
-<br/>
-<span style="margin-left: 20px">&bull; $thirdInstructionFirstBullet</span>
+$instructionsHtml
 </p>
 HTML;
 
         $this->renderContentItem($content);
+    }
+
+    private function getMemoryLimitInstructions(): string
+    {
+        $instructions = [
+            [
+                'message' => sprintf(
+                    __('You can increase the memory by adding %s on the wp-config.', I18N::DOMAIN),
+                    "<code>define('WP_MEMORY_LIMIT', '1G');</code>"
+                ),
+                'bullets' => [
+                    __('Suggested memory limit is 1G and then do a full sync.', I18N::DOMAIN),
+                ],
+            ],
+            [
+                'message' => __('You can try executing this command via ssh.', I18N::DOMAIN),
+                'bullets' => [
+                    sprintf(
+                        __('Go to the public_html folder of your webshop: %s', I18N::DOMAIN),
+                        '<code>'.ABSPATH.'</code>',
+                    ),
+                    sprintf(
+                        __('Execute %s.', I18N::DOMAIN),
+                        '<code>wp sk sync-woocommerce-full-sync</code>'
+                    ),
+                ],
+            ],
+            [
+                'message' => __('Contact your hosting provider.', I18N::DOMAIN),
+                'bullets' => [
+                    __('If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit.', I18N::DOMAIN),
+                ],
+            ],
+        ];
+
+        $instructionsHtml = '';
+        $instructionsCount = count($instructions);
+        for ($counter = 1; $counter <= $instructionsCount; ++$counter) {
+            $instruction = $instructions[$counter - 1];
+            $message = $instruction['message'];
+            $bullets = $instruction['bullets'];
+
+            $instructionsHtml .= wp_kses(
+                <<<HTML
+$counter. $message
+<br/>
+HTML,
+            HtmlEscape::ALLOWED_COMMON);
+
+            foreach ($bullets as $bullet) {
+                $instructionsHtml .= wp_kses(
+                    <<<HTML
+<span style="margin-left: 20px">&bull; $bullet</span>
+<br/>
+HTML,
+                    HtmlEscape::ALLOWED_COMMON);
+            }
+        }
+
+        return $instructionsHtml;
     }
 
     private function renderContentItem(string $content)

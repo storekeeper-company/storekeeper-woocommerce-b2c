@@ -62,6 +62,10 @@ msgstr "%s: You need to have WooCommerce installed for this add-on to work"
 msgid "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
 msgstr "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:109
+msgid "256M is a size sample you can put and then do a full sync."
+msgstr "You can set 256M for example and then do a full sync. "
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:133
 msgid "Action"
 msgstr "Action"
@@ -82,6 +86,10 @@ msgstr "Add %s to crontab."
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:92
 msgid "Advanced configuration"
 msgstr "Advanced configuration"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
+msgid "After identifying the value defined on memory and still the error persist."
+msgstr "After identifying the config value for memory the error still persist."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:251
 msgid "After you complete the full \"One Time Export\" procedure, be aware that from this moment on the management of your webshop goes through the StoreKeeper BackOffice."
@@ -181,6 +189,10 @@ msgstr "Barcode meta key"
 msgid "Brand"
 msgstr "Brand"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:100
+msgid "But before trying some of these you can check what is the defined memory_limit of your site. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting."
+msgstr "Before trying some of these options you can check what the defined memory_limit of your site is. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting."
+
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:63
 msgid "Categories"
 msgstr "Categories"
@@ -238,6 +250,10 @@ msgstr "Conflicts"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:18
 msgid "Connection"
 msgstr "Connection"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:118
+msgid "Contact your hosting provider."
+msgstr "Contact your hosting provider."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:153
 msgid "Contact your server provider to allow one of the those directories to be writable: %s"
@@ -494,6 +510,10 @@ msgstr "Error:"
 msgid "Every minute"
 msgstr "Every minute"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:114
+msgid "Execute %s."
+msgstr "Execute %s."
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:59
 msgid "Execute this command to delete all tags, coupons, attribute values, attributes, categories, products, orders, tasks and web hook logs."
 msgstr "Execute this command to delete all tags, coupons, attribute values, attributes, categories, products, orders, tasks and web hook logs."
@@ -705,6 +725,10 @@ msgstr "German"
 msgid "Go to backoffice import form"
 msgstr "Go to backoffice import form"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:112
+msgid "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
+msgstr "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptionPage.php:39
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProductPage.php:48
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceProductPage.php:44
@@ -724,6 +748,10 @@ msgstr "House number"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:107
 msgid "ID"
 msgstr "ID"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:119
+msgid "If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit."
+msgstr "If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:233
 msgid "Import & Export Center"
@@ -1259,6 +1287,10 @@ msgstr "Purge webhooks"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:174
 msgid "Purged %s items"
 msgstr "Purged %s items"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:334
+msgid "Rank Math SEO handler"
+msgstr "Rank Math SEO handler"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:231
 msgid "Redirect"
@@ -2129,13 +2161,25 @@ msgstr "You are now subscribed."
 msgid "You can improve Wordpress Cron performance by using System Task Scheduler. %s"
 msgstr "You can improve Wordpress Cron performance by using System Task Scheduler. %s"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:111
+msgid "You can try executing this command via ssh."
+msgstr "You can try executing this command via SSH (WP-CLI)."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:243
 msgid "You should generate all the export files and then go to the \"%1$s\" of this account."
 msgstr "You should generate all the export files and then go to the \"%1$s\" of this account."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:106
+msgid "You try can increasing the memory by adding %s on the wp-config."
+msgstr "You try can increasing the available memory by adding %s in the wp-config."
+
 #: src/StoreKeeper/WooCommerce/B2C/Core.php:304
 msgid "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
 msgstr "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:99
+msgid "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
+msgstr "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:50
 msgid "Your download will start in a few seconds. If not, you can download the file manually using the link below"

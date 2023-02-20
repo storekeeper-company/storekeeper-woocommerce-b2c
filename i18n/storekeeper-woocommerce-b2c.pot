@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
 "woocommerce\n"
-"POT-Creation-Date: 2023-02-17 04:32:56+00:00\n"
+"POT-Creation-Date: 2023-02-20 06:36:43+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,51 +13,43 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:99
-msgid ""
-"Your allowed memory size has been exhausted. Here are some solution that may "
-"solve the issue."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:100
-msgid ""
-"But before trying some of these you can check what is the defined "
-"memory_limit of your site. You can check this by Clicking Tools > Site "
-"Health > Info > Server. Here you can check the current settings of your "
-"hosting."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:101
+msgid "Your allowed memory size has been exhausted."
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
-msgid ""
-"After identifying the value defined on memory and still the error persist."
+msgid "Current memory limit configured: %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:106
-msgid "You try can increasing the memory by adding %s on the wp-config."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:110
+msgid "Below are actions you can do to increase PHP memory limit:"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:109
-msgid "256M is a size sample you can put and then do a full sync."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:138
+msgid "You can increase the memory by adding %s on the wp-config."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:111
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:142
+msgid "Suggested memory limit is 1G and then do a full sync."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:146
 msgid "You can try executing this command via ssh."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:112
-msgid ""
-"Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:149
+msgid "Go to the public_html folder of your webshop: %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:114
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:153
 msgid "Execute %s."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:118
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:159
 msgid "Contact your hosting provider."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:119
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:161
 msgid ""
 "If you are not comfortable in trying the methods above, or it did not work "
 "for you. You can talk to your hosting provider about having them increase "
@@ -2308,7 +2300,7 @@ msgstr ""
 msgid "Sales unit"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/IniHelper.php:44
+#: src/StoreKeeper/WooCommerce/B2C/Tools/IniHelper.php:49
 msgid "Unable to set php configuration option %s"
 msgstr ""
 

@@ -47,6 +47,10 @@ class HtmlEscape
             'class' => [],
             'style' => [],
         ],
+        'span' => [
+            'class' => [],
+            'style' => [],
+        ],
     ];
 
     public const ALLOWED_FORM = [

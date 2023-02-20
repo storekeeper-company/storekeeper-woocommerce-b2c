@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-02-17 05:35\n"
+"PO-Revision-Date: 2023-02-20 07:37\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
@@ -23,9 +23,21 @@ msgstr "%s: Je moet WooCommerce geïnstalleerd hebben om deze plug-in te laten w
 msgid "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
 msgstr "%s: Jouw PHP-versie is lager dan de minimaal vereiste %s, daarom is de activering van deze plug-in is niet mogelijk."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:109
+msgid "256M is a size sample you can put and then do a full sync."
+msgstr "Je kunt bijvoorbeeld 256M instellen en dan een volledige synchronisatie doen. "
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:288
 msgid "Activeer product"
 msgstr "Activeer product"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
+msgid "After identifying the value defined on memory and still the error persist."
+msgstr "Na identificatie van de config-waarde voor geheugen blijft de fout nog steeds bestaan."
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:50
+msgid "Allowing of at least one of the following directories to be writable is required: %s"
+msgstr "Het is vereist dat ten minste één van de volgende mappen beschrijfbaar is: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:32
 msgid "An error occurred!"
@@ -34,6 +46,10 @@ msgstr "Er is een fout opgetreden!"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:252
 msgid "Attribute import"
 msgstr "Attribuutimporteren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:100
+msgid "But before trying some of these you can check what is the defined memory_limit of your site. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting."
+msgstr "Voordat je enkele van deze opties probeert, kun je controleren wat de gedefinieerde memory_limit van je site is. Je kunt dit controleren door te klikken op Tools > Site Health > Info > Server. Hier kun je de huidige instellingen van je hosting controleren."
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:255
 msgid "Category import"
@@ -47,6 +63,10 @@ msgstr "Verwijder alle producten."
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:90
 msgid "Condition"
 msgstr "Staat"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:118
+msgid "Contact your hosting provider."
+msgstr "Neem contact op met je hostingprovider."
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:102
 msgid "Contact your system administrator if the problem persists."
@@ -128,9 +148,17 @@ msgstr "Emballage bedrag"
 msgid "Enabling PHP %s extension is optional to improve performance"
 msgstr "Het inschakelen van PHP %s extensie is optioneel om de prestaties te verbeteren"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:82
+msgid "Enabling PHP %s extension is required"
+msgstr "Het inschakelen van PHP extensie %s is vereist"
+
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:33
 msgid "Every minute"
 msgstr "Elke minuut"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:114
+msgid "Execute %s."
+msgstr "%s uitvoeren."
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportAll.php:14
 msgid "Export CSV files for Storekeeper WooCommerce related entities/objects."
@@ -148,10 +176,18 @@ msgstr "Volledige import"
 msgid "Function returned false"
 msgstr "Functie heeft false geretourneerd"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:112
+msgid "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
+msgstr "Ga naar de public_html map van je webshop (bijv. /webshop/public_html/)"
+
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:125
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:131
 msgid "House number"
 msgstr "Huisnummer"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:119
+msgid "If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit."
+msgstr "Als je je er niet prettig bij voelt om de bovenstaande methoden te proberen, of als het niet werkte voor jou. Praat dan met je hosting provider over het verhogen van je geheugenlimiet."
 
 #: vendor/wp-cli/wp-cli/php/utils-wp.php:230
 msgid "Inactive Widgets"
@@ -205,10 +241,18 @@ msgstr "Bestelling met dit bestelnummer bestaat al."
 msgid "Other"
 msgstr "Overige"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:35
+msgid "PHP version %s found, plugin requires at least version %s"
+msgstr "PHP versie %s gevonden, plugin vereist minstens versie %s"
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:237
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:303
 msgid "Parent product recalculation"
 msgstr "Herberekening van het product"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/PluginConflictChecker.php:107
+msgid "Plugin version %s is not compatible with the plugin"
+msgstr "Plugin versie %s is niet compatibel met de plugin"
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:76
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:77
@@ -247,6 +291,10 @@ msgstr "Product update"
 msgid "Products"
 msgstr "Producten"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:334
+msgid "Rank Math SEO handler"
+msgstr "Rank Math SEO gebruiken"
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:231
 msgid "Redirect"
 msgstr "Redirect"
@@ -268,6 +316,11 @@ msgstr "Terugbetaling via Wordpress-plugin (Terugbetaling #%s)"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
 msgid "Report error"
 msgstr "Fout melden"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:63
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:149
+msgid "SKU feature for WooCommerce has been disabled."
+msgstr "De SKU-functie voor WooCommerce is uitgeschakeld."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
 msgid "SKU feature for for WooCommerce has been disabled."
@@ -386,6 +439,16 @@ msgstr "Wachten tot taken zijn verwerkt"
 msgid "WooCommerce SKU feature enabled"
 msgstr "SKU in WooCommerce - Uitgeschakeld (WAARSCHUWING! > Ingeschakeld = vereist voor volledige synchronisatie!)"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:69
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:157
+msgid "WooCommerce stock management feature enabled"
+msgstr "De WooCommerce voorraadbeheerfunctie is ingeschakeld"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:71
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:158
+msgid "WooCommerce stock management feature has been disabled."
+msgstr "WooCommerce voorraadbeheer is uitgeschakeld."
+
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:113
 msgid "Wordpress Cron (slowest)"
 msgstr "Wordpress Cron (langzaamste)"
@@ -406,9 +469,21 @@ msgstr "Je bent al ingeschreven."
 msgid "You are now subscribed."
 msgstr "Je bent nu ingeschreven."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:111
+msgid "You can try executing this command via ssh."
+msgstr "Je kunt proberen dit commando uit te voeren via SSH (WP-CLI)."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:106
+msgid "You try can increasing the memory by adding %s on the wp-config."
+msgstr "Je kunt proberen het geheugen te vergroten door %s toe te voegen aan de wp-config."
+
 #: src/StoreKeeper/WooCommerce/B2C/Core.php:304
 msgid "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
 msgstr "Jouw WooCommerce versie (%s) is lager dan het minimum vereiste %s wat onverwacht gedrag kan veroorzaken."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:99
+msgid "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
+msgstr "Je toegestane geheugengrootte is volledig gebruikt. Hier zijn enkele oplossingen die het probleem kunnen oplossen."
 
 #: src/StoreKeeper/WooCommerce/B2C/Imports/CouponCodeImport.php:305
 msgid "coupon codes"
