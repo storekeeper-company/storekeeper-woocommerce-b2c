@@ -12,6 +12,21 @@ class OverlayRenderer
     const ACTION_BACK = 'action-back';
 
     private $active = false;
+    private $commandName;
+
+    public function __construct(?string $class = null)
+    {
+        $this->commandName = $this->getCommandName($class);
+    }
+
+    private function getCommandName(?string $class)
+    {
+        if (!is_null($class)) {
+            return call_user_func("$class::getCommandName");
+        }
+
+        return null;
+    }
 
     public function start(string $title, string $description = '')
     {
@@ -54,7 +69,7 @@ class OverlayRenderer
                         ) {
                             $this->renderMemoryExhaustError(
                                 $error['message'],
-                                $error['file'].':'.$error['line']
+                                $error['file'].':'.$error['line'],
                             );
                         } else {
                             $this->renderError(
@@ -142,24 +157,28 @@ HTML;
                     __('Suggested memory limit is 1G and then do a full sync.', I18N::DOMAIN),
                 ],
             ],
-            [
-                'message' => __('You can try executing this command via ssh.', I18N::DOMAIN),
-                'bullets' => [
-                    sprintf(
-                        __('Go to the public_html folder of your webshop: %s', I18N::DOMAIN),
-                        '<code>'.ABSPATH.'</code>',
-                    ),
-                    sprintf(
-                        __('Execute %s.', I18N::DOMAIN),
-                        '<code>wp sk sync-woocommerce-full-sync</code>'
-                    ),
-                ],
-            ],
-            [
-                'message' => __('Contact your hosting provider.', I18N::DOMAIN),
-                'bullets' => [
-                    __('If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit.', I18N::DOMAIN),
-                ],
+        ];
+
+        if ($this->commandName) {
+            $instructions[] = [
+                 'message' => __('You can try executing this command via ssh.', I18N::DOMAIN),
+                 'bullets' => [
+                     sprintf(
+                         __('Go to the public_html folder of your webshop: %s', I18N::DOMAIN),
+                         '<code>'.ABSPATH.'</code>',
+                     ),
+                     sprintf(
+                         __('Execute %s.', I18N::DOMAIN),
+                         '<code>wp sk '.$this->commandName.'</code>'
+                     ),
+                 ],
+            ];
+        }
+
+        $instructions[] = [
+            'message' => __('Contact your hosting provider.', I18N::DOMAIN),
+            'bullets' => [
+                __('If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit.', I18N::DOMAIN),
             ],
         ];
 
