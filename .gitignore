@@ -1,6 +1,7 @@
 
 # test envs
 .env.test.local
+.php-cs-fixer.cache
 
 ### Composer template
 composer.phar

@@ -6,11 +6,10 @@ use StoreKeeper\WooCommerce\B2C\Imports\AttributeImport;
 
 class AttributeImportTask extends AbstractTask
 {
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
-            $exceptions = [];
             $tag = new AttributeImport(
                 [
                     'storekeeper_id' => $storekeeper_id,
@@ -18,11 +17,7 @@ class AttributeImportTask extends AbstractTask
                 ]
             );
             $tag->setLogger($this->logger);
-            $exceptions = array_merge($exceptions, $tag->run());
-
-            $this->throwExceptionArray($exceptions);
+            $tag->run();
         }
-
-        return true;
     }
 }

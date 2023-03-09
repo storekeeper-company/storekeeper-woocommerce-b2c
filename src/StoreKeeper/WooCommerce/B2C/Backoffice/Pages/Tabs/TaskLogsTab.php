@@ -238,12 +238,25 @@ class TaskLogsTab extends AbstractLogsTab
         if (TaskHandler::STATUS_FAILED === $task['status']) {
             echo '<a class="dialog-logs" href="javascript:;" data-id="'.esc_attr($task['id']).'">'.TaskHandler::getStatusLabel($task['status']).'</a>';
             if ($errorOutput = unserialize($task['meta_data'])) {
+                $trace = $errorOutput['exception-trace'];
+                $replace_pairs = [
+                    rtrim(WP_PLUGIN_DIR, '/').'/' => '[WP-PLUGINS]/',
+                    rtrim(ABSPATH, '/').'/' => '[WP]/',
+                ];
+                $trace = strtr($trace, $replace_pairs);
+
                 echo '<div id="error-message-'.esc_attr($task['id']).'" style="display: none">
                         <h3><strong style="color:darkred">'.esc_html($errorOutput['exception-class']).': '.esc_html($errorOutput['exception-message']).'</strong></h3>
                         '.__('Stack Trace', I18N::DOMAIN).':
-                        <br>
-                        <pre>'.esc_html($errorOutput['exception-trace']).'</pre>
-                    </div>';
+                        <br>';
+
+                echo '<div>';
+                foreach ($replace_pairs as $from => $to) {
+                    echo esc_html($to.' => '.$from).'<br/>';
+                }
+                echo '</div>';
+                echo '<pre>'.esc_html($trace).'</pre>';
+                echo '</div>';
             }
         } else {
             echo TaskHandler::getStatusLabel($task['status']);

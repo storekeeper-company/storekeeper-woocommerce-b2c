@@ -62,29 +62,27 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param WC_Order $WpObject
-     *
-     * @return bool
+     * @param WC_Order $order
      *
      * @throws Exception
      */
-    protected function processItem($WpObject)
+    protected function processItem($order): void
     {
-        $this->debug('Exporting order with id '.$WpObject->get_id());
+        $this->debug('Exporting order with id '.$order->get_id());
         if ('eur' !== strtolower(get_woocommerce_currency())) {
             $iso = get_woocommerce_currency();
             throw new Exception("Orders with woocommerce with currency_iso3 '$iso' are not supported");
         }
 
-        if ($WpObject->get_id() <= 0) {
-            throw new Exception("Order with id {$WpObject->get_id()} does not exists.");
+        if ($order->get_id() <= 0) {
+            throw new Exception("Order with id {$order->get_id()} does not exists.");
         }
 
         $isUpdate = $this->already_exported();
-        $isGuest = false === $WpObject->get_user();
+        $isGuest = false === $order->get_user();
 
         $callData = [
-            'customer_comment' => !empty($WpObject->get_customer_note(self::CONTEXT)) ? $WpObject->get_customer_note(
+            'customer_comment' => !empty($order->get_customer_note(self::CONTEXT)) ? $order->get_customer_note(
                 self::CONTEXT
             ) : null,
             'billing_address__merge' => false,  // defaults to true when not set
@@ -95,7 +93,7 @@ class OrderExport extends AbstractExport
 
         // Adding the shop order number on order creation.
         if (!$isUpdate) {
-            $callData['shop_order_number'] = $WpObject->get_id();
+            $callData['shop_order_number'] = $order->get_id();
         }
 
         $this->debug('started export of order', $callData);
@@ -103,9 +101,9 @@ class OrderExport extends AbstractExport
         if ($isGuest) {
             $callData['customer_reference'] = get_bloginfo('name')
                 .PHP_EOL
-                .__('Customer Email', I18N::DOMAIN).': '.$WpObject->get_billing_email(self::CONTEXT)
+                .__('Customer Email', I18N::DOMAIN).': '.$order->get_billing_email(self::CONTEXT)
                 .PHP_EOL
-                .__('Customer phone number', I18N::DOMAIN).': '.$WpObject->get_billing_phone(self::CONTEXT);
+                .__('Customer phone number', I18N::DOMAIN).': '.$order->get_billing_phone(self::CONTEXT);
         } else {
             $callData['customer_reference'] = get_bloginfo('name');
         }
@@ -117,7 +115,7 @@ class OrderExport extends AbstractExport
         if (!$isUpdate) {
             try {
                 $callData['is_anonymous'] = false;
-                $callData['relation_data_id'] = CustomerFinder::ensureCustomerFromOrder($WpObject);
+                $callData['relation_data_id'] = CustomerFinder::ensureCustomerFromOrder($order);
             } catch (GeneralException $exception) {
                 $callData['is_anonymous'] = true; // sets the order to anonymous;
             }
@@ -130,21 +128,21 @@ class OrderExport extends AbstractExport
          * Order products
          */
         if (!$isUpdate) {
-            $callData['order_items'] = $this->getOrderItems($WpObject);
+            $callData['order_items'] = $this->getOrderItems($order);
             $this->debug('Added order_items information', $callData);
         } else {
             $storekeeperId = $this->get_storekeeper_id();
             $storekeeperOrder = $ShopModule->getOrder($storekeeperId, null);
 
-            $hasDifference = $this->checkOrderDifference($WpObject, $storekeeperOrder);
+            $hasDifference = $this->checkOrderDifference($order, $storekeeperOrder);
             // Only update order items if they have difference and order is not paid yet
             if ($hasDifference && !$storekeeperOrder['is_paid']) {
-                $callData['order_items'] = $this->getOrderItems($WpObject);
+                $callData['order_items'] = $this->getOrderItems($order);
                 $this->debug('Updated order_items information due to difference with the backoffice order items', $callData);
             } elseif ($hasDifference && $storekeeperOrder['is_paid']) {
                 $this->debug('Cannot synchronize order, there are differences but order is already paid',
                     array_merge(
-                        ['shop_order_id' => $WpObject->get_id()],
+                        ['shop_order_id' => $order->get_id()],
                         $callData
                     ));
                 throw new Exception('Order is paid but has differences, synchronization fails');
@@ -158,7 +156,7 @@ class OrderExport extends AbstractExport
         /*
          * Add coupon codes
          */
-        if ($coupons = $WpObject->get_coupons()) {
+        if ($coupons = $order->get_coupons()) {
             $orderCouponCodes = [];
             foreach ($coupons as $couponId => $coupon) {
                 $orderCouponCodes[] = [
@@ -176,37 +174,37 @@ class OrderExport extends AbstractExport
          * Billing address
          */
         $callData['billing_address'] = [
-            'name' => $WpObject->get_formatted_billing_full_name(),
+            'name' => $order->get_formatted_billing_full_name(),
             'address_billing' => [
-                'state' => $WpObject->get_billing_state(self::CONTEXT),
-                'city' => $WpObject->get_billing_city(self::CONTEXT),
-                'zipcode' => $WpObject->get_billing_postcode(self::CONTEXT),
-                'street' => trim($WpObject->get_billing_address_1(self::CONTEXT)).' '.trim(
-                        $WpObject->get_billing_address_2(self::CONTEXT)
+                'state' => $order->get_billing_state(self::CONTEXT),
+                'city' => $order->get_billing_city(self::CONTEXT),
+                'zipcode' => $order->get_billing_postcode(self::CONTEXT),
+                'street' => trim($order->get_billing_address_1(self::CONTEXT)).' '.trim(
+                        $order->get_billing_address_2(self::CONTEXT)
                     ),
-                'country_iso2' => $WpObject->get_billing_country(self::CONTEXT),
-                'name' => $WpObject->get_formatted_billing_full_name(),
+                'country_iso2' => $order->get_billing_country(self::CONTEXT),
+                'name' => $order->get_formatted_billing_full_name(),
             ],
             'contact_set' => [
-                'email' => $WpObject->get_billing_email(self::CONTEXT),
-                'phone' => $WpObject->get_billing_phone(self::CONTEXT),
-                'name' => $WpObject->get_formatted_billing_full_name(),
+                'email' => $order->get_billing_email(self::CONTEXT),
+                'phone' => $order->get_billing_phone(self::CONTEXT),
+                'name' => $order->get_formatted_billing_full_name(),
             ],
             'contact_person' => [
-                'firstname' => $WpObject->get_billing_first_name(self::CONTEXT),
-                'familyname' => $WpObject->get_billing_last_name(self::CONTEXT),
+                'firstname' => $order->get_billing_first_name(self::CONTEXT),
+                'familyname' => $order->get_billing_last_name(self::CONTEXT),
             ],
         ];
 
-        if (!empty($WpObject->get_billing_company(self::CONTEXT))) {
+        if (!empty($order->get_billing_company(self::CONTEXT))) {
             $callData['billing_address']['business_data'] = [
-                'name' => $WpObject->get_billing_company(self::CONTEXT),
-                'country_iso2' => $WpObject->get_billing_country(self::CONTEXT),
+                'name' => $order->get_billing_company(self::CONTEXT),
+                'country_iso2' => $order->get_billing_country(self::CONTEXT),
             ];
         }
 
-        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
-            $houseNumber = $WpObject->get_meta('billing_address_house_number', true);
+        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_billing_country(self::CONTEXT)) {
+            $houseNumber = $order->get_meta('billing_address_house_number', true);
             if (!empty($houseNumber)) {
                 $splitStreet = self::splitStreetNumber($houseNumber);
                 $streetNumber = $splitStreet['streetnumber'];
@@ -223,39 +221,39 @@ class OrderExport extends AbstractExport
         /*
          * Shipping address
          */
-        if ($WpObject->has_shipping_address()) {
+        if ($order->has_shipping_address()) {
             $callData['shipping_address'] = [
-                'name' => $WpObject->get_formatted_shipping_full_name(),
+                'name' => $order->get_formatted_shipping_full_name(),
                 'contact_address' => [
-                    'state' => $WpObject->get_shipping_state(self::CONTEXT),
-                    'city' => $WpObject->get_shipping_city(self::CONTEXT),
-                    'zipcode' => $WpObject->get_shipping_postcode(self::CONTEXT),
-                    'street' => trim($WpObject->get_shipping_address_1(self::CONTEXT)).' '.trim(
-                            $WpObject->get_shipping_address_2(self::CONTEXT)
+                    'state' => $order->get_shipping_state(self::CONTEXT),
+                    'city' => $order->get_shipping_city(self::CONTEXT),
+                    'zipcode' => $order->get_shipping_postcode(self::CONTEXT),
+                    'street' => trim($order->get_shipping_address_1(self::CONTEXT)).' '.trim(
+                            $order->get_shipping_address_2(self::CONTEXT)
                         ),
-                    'country_iso2' => $WpObject->get_shipping_country(self::CONTEXT),
-                    'name' => $WpObject->get_formatted_shipping_full_name(),
+                    'country_iso2' => $order->get_shipping_country(self::CONTEXT),
+                    'name' => $order->get_formatted_shipping_full_name(),
                 ],
                 'contact_set' => [
-                    'email' => $WpObject->get_billing_email(self::CONTEXT),
-                    'phone' => $WpObject->get_billing_phone(self::CONTEXT),
-                    'name' => $WpObject->get_formatted_shipping_full_name(),
+                    'email' => $order->get_billing_email(self::CONTEXT),
+                    'phone' => $order->get_billing_phone(self::CONTEXT),
+                    'name' => $order->get_formatted_shipping_full_name(),
                 ],
                 'contact_person' => [
-                    'firstname' => $WpObject->get_shipping_first_name(self::CONTEXT),
-                    'familyname' => $WpObject->get_shipping_last_name(self::CONTEXT),
+                    'firstname' => $order->get_shipping_first_name(self::CONTEXT),
+                    'familyname' => $order->get_shipping_last_name(self::CONTEXT),
                 ],
             ];
 
-            if (!empty($WpObject->get_shipping_company(self::CONTEXT))) {
+            if (!empty($order->get_shipping_company(self::CONTEXT))) {
                 $callData['shipping_address']['business_data'] = [
-                    'name' => $WpObject->get_shipping_company(self::CONTEXT),
-                    'country_iso2' => $WpObject->get_shipping_country(self::CONTEXT),
+                    'name' => $order->get_shipping_company(self::CONTEXT),
+                    'country_iso2' => $order->get_shipping_country(self::CONTEXT),
                 ];
             }
 
-            if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_shipping_country(self::CONTEXT)) {
-                $houseNumber = $WpObject->get_meta('shipping_address_house_number', true);
+            if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_shipping_country(self::CONTEXT)) {
+                $houseNumber = $order->get_meta('shipping_address_house_number', true);
                 if (!empty($houseNumber)) {
                     $splitStreet = self::splitStreetNumber($houseNumber);
                     $streetNumber = $splitStreet['streetnumber'];
@@ -281,7 +279,7 @@ class OrderExport extends AbstractExport
         } else {
             $storekeeper_id = $ShopModule->newOrder($callData);
             WordpressExceptionThrower::throwExceptionOnWpError(
-                update_post_meta($WpObject->get_id(), 'storekeeper_id', $storekeeper_id)
+                update_post_meta($order->get_id(), 'storekeeper_id', $storekeeper_id)
             );
         }
 
@@ -289,12 +287,12 @@ class OrderExport extends AbstractExport
             DateTimeHelper::currentDateTime(),
         );
         WordpressExceptionThrower::throwExceptionOnWpError(
-            update_post_meta($WpObject->get_id(), 'storekeeper_sync_date', $date)
+            update_post_meta($order->get_id(), 'storekeeper_sync_date', $date)
         );
         $this->debug('Saved order data', $storekeeper_id);
 
         // Handle payments and refunds
-        $this->processPaymentsAndRefunds($WpObject, $storekeeper_id);
+        $this->processPaymentsAndRefunds($order, $storekeeper_id);
 
         /**
          * Status.
@@ -305,7 +303,7 @@ class OrderExport extends AbstractExport
 
         // Get the storekeeper and converted woocommerce status.
         $storekeeper_status = $storekeeper_order['status'];
-        $woocommerce_status = self::convertWooCommerceToStorekeeperOrderStatus($WpObject->get_status(self::CONTEXT));
+        $woocommerce_status = self::convertWooCommerceToStorekeeperOrderStatus($order->get_status(self::CONTEXT));
 
         // Check if we should update the status
         if ($this->shouldUpdateStatus($storekeeper_status, $woocommerce_status)) {
@@ -329,12 +327,10 @@ class OrderExport extends AbstractExport
             );
         }
 
-        if ($WpObject->meta_exists(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY)) {
-            $WpObject->delete_meta_data(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY);
-            $WpObject->save();
+        if ($order->meta_exists(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY)) {
+            $order->delete_meta_data(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY);
+            $order->save();
         }
-
-        return true;
     }
 
     /**
@@ -709,9 +705,9 @@ class OrderExport extends AbstractExport
         return null;
     }
 
-    protected function catchKnownExceptions($throwable)
+    protected function convertKnownGeneralException(GeneralException $throwable): Throwable
     {
-        if (($throwable instanceof GeneralException) && 'ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
+        if ('ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
             return new ExportException(
                 esc_html__('Order with this order number already exists.', I18N::DOMAIN),
                 $throwable->getCode(),
@@ -719,7 +715,7 @@ class OrderExport extends AbstractExport
             );
         }
 
-        return parent::catchKnownExceptions($throwable);
+        return parent::convertKnownGeneralException($throwable);
     }
 
     protected function processPaymentsAndRefunds(WC_Order $WpObject, int $storekeeper_id): void

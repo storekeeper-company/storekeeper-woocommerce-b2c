@@ -9,11 +9,11 @@ class RedirectDeleteTask extends AbstractTask
     /**
      * @param $task_options array
      *
-     * @return bool returns true in the import was succeeded
+     * @return void returns true in the import was succeeded
      *
      * @throws \Exception
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         $this->debug('Deleting redirect', $this->getTaskMeta());
 
@@ -24,7 +24,5 @@ class RedirectDeleteTask extends AbstractTask
         }
 
         $this->debug('Deleted redirect', $this->getTaskMeta());
-
-        return true;
     }
 }

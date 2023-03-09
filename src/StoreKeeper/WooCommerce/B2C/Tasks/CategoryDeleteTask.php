@@ -8,13 +8,9 @@ use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 class CategoryDeleteTask extends AbstractTask
 {
     /**
-     * @param $task_options
-     *
-     * @return bool
-     *
      * @throws WordpressException
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
@@ -29,7 +25,5 @@ class CategoryDeleteTask extends AbstractTask
                 Categories::deleteCategoryByTermId($term->term_id);
             }
         }
-
-        return true;
     }
 }

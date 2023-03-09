@@ -112,7 +112,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         return $f;
     }
 
-    public function run($options = [])
+    public function run(array $options = []): void
     {
         if (StoreKeeperOptions::exists(StoreKeeperOptions::MAIN_CATEGORY_ID) && StoreKeeperOptions::get(
                 StoreKeeperOptions::MAIN_CATEGORY_ID
@@ -120,7 +120,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
             $this->importMainCategory(StoreKeeperOptions::get(StoreKeeperOptions::MAIN_CATEGORY_ID));
         }
 
-        return parent::run();
+        parent::run();
     }
 
     public function importMainCategory($id)

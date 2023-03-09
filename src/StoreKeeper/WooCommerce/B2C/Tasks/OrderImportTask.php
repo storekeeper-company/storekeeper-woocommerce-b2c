@@ -7,13 +7,9 @@ use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
 class OrderImportTask extends AbstractTask
 {
     /**
-     * @param $task_options
-     *
-     * @return array|bool
-     *
      * @throws \Exception
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if (
             $this->taskMetaExists('storekeeper_id') &&
@@ -30,9 +26,7 @@ class OrderImportTask extends AbstractTask
                 ]
             );
 
-            return $order->run();
+            $order->run();
         }
-
-        return true;
     }
 }

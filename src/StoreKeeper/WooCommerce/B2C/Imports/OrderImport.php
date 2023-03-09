@@ -36,24 +36,18 @@ class OrderImport extends AbstractImport
     }
 
     /**
-     * @param array $options
-     *
-     * @return array|bool
-     *
      * @throws Exception
      */
-    public function run($options = [])
+    public function run(array $options = []): void
     {
         try {
             $this->lock();
             $this->processItem(new Dot($this->new_order));
-
-            return true;
         } catch (LockTimeoutException|LockException $exception) {
             $this->logger->error('Cannot run. lock on.');
             throw $exception;
         } catch (NonExistentObjectException $exception) {
-            $this->logger->info('Order import is marked as success', [
+            $this->logger->info('Order import is marked as success (order does not exist)', [
                 'storekeeper_id' => $this->storekeeper_id,
                 'message' => $exception->getMessage(),
             ]);

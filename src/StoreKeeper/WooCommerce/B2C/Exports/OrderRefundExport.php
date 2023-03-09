@@ -18,19 +18,15 @@ class OrderRefundExport extends OrderExport
     }
 
     /**
-     * @param WC_Order $WpObject
-     *
-     * @return bool|mixed
+     * @param WC_Order $order
      *
      * @throws Exception
      */
-    protected function processItem($WpObject)
+    protected function processItem($order): void
     {
-        $orderId = $WpObject->get_id();
+        $orderId = $order->get_id();
         $this->debug('Exporting order refund for order with id '.$orderId);
 
         $this->processRefunds($orderId, $this->get_storekeeper_id());
-
-        return true;
     }
 }

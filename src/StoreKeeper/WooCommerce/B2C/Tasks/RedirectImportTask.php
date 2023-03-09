@@ -9,11 +9,11 @@ class RedirectImportTask extends AbstractTask
     /**
      * @param $task_options array
      *
-     * @return bool returns true in the import was succeeded
+     * @return void returns true in the import was succeeded
      *
      * @throws \Exception
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         // Check if the meta has an storekeeper id
         if ($this->taskMetaExists('storekeeper_id')) {
@@ -28,7 +28,5 @@ class RedirectImportTask extends AbstractTask
             );
             $tag->run();
         }
-
-        return true;
     }
 }

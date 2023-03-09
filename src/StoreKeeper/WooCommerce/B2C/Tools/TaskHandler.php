@@ -527,10 +527,7 @@ class TaskHandler
 
         try {
             $import->increaseTimesRan();
-
-            if (!$import->run($task_options)) {
-                throw new Exception("Failed to run the task (id=$storekeeper_id) (task_id=$task_id)");
-            }
+            $import->run($task_options);
 
             $this->logger->notice(
                 'Task success',

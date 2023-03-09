@@ -7,13 +7,9 @@ use StoreKeeper\WooCommerce\B2C\Exports\OrderRefundExport;
 class OrderRefundTask extends AbstractTask
 {
     /**
-     * @param $task_options
-     *
-     * @return bool
-     *
      * @throws \Exception
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('woocommerce_order_id')) {
             $refundExport = new OrderRefundExport(
@@ -23,9 +19,7 @@ class OrderRefundTask extends AbstractTask
                 ]
             );
 
-            $this->throwExceptionArray($refundExport->run());
+            $refundExport->run();
         }
-
-        return true;
     }
 }

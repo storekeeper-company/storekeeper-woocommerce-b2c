@@ -183,7 +183,7 @@ abstract class AbstractImport
      * @throws LockTimeoutException
      * @throws LockException
      */
-    public function run($options = [])
+    public function run(array $options = []): void
     {
         try {
             $this->lock();
@@ -204,7 +204,6 @@ abstract class AbstractImport
         $start = $this->import_start;
         $fetched_total = 0;
         $fetch_max = $this->import_limit;
-        $exceptions = [];
         $done_importing = false;
 
         $this->debug("Started $moduleName::$functionName");
@@ -297,20 +296,14 @@ abstract class AbstractImport
 
                         ++$this->processedItemCount;
                         $this->debug("Processed {$count}/{$response['count']} items");
-                    } catch (Exception $exception) {
-                        $this->debug('Caught an exception');
-                        $exceptions[] = $exception;
-                        $exceptions[] = new Exception(
-                            "Issue with following item from $moduleName::$functionName: ".PHP_EOL.json_encode($item)
-                        );
-
+                    } catch (\Throwable $exception) {
                         $errorMessage = $exception->getMessage();
                         $data = [
                             'item' => $item,
                             'exception' => $exception,
                         ];
 
-                        $this->debug(
+                        $this->logger->error(
                             "Failed to process item({$count}/{$response['count']}) with exception: {$errorMessage}",
                             $data
                         );
@@ -340,8 +333,6 @@ abstract class AbstractImport
         $this->debug('started after run', $fetched_total);
 
         $this->afterRun();
-
-        return $exceptions;
     }
 
     public function getTranslationIfRequired(Dot $deepArray, $path, $fallback = null)

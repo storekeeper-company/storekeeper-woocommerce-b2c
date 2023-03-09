@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Exports;
 
 use StoreKeeper\ApiWrapper\ApiWrapper;
 use StoreKeeper\ApiWrapper\Exception\AuthException;
+use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\PluginDisconnectedException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
@@ -89,65 +90,57 @@ abstract class AbstractExport
         return $this->storekeeper_id;
     }
 
-    public function run()
+    public function run(): void
     {
         $this->debug('Started export');
-        $exceptions = [];
-        if ($this->isSingle()) {
-            $function = $this->getFunction();
-            $this->debug('[single] Export for function: '.$this->getFunction());
-            try {
+
+        try {
+            if ($this->isSingle()) {
+                $function = $this->getFunction();
+                $this->debug('[single] Export for function: '.$this->getFunction());
+
                 $wpObject = new $function($this->id);
                 $this->debug('Found object', $wpObject);
                 $this->processItem($wpObject);
-            } catch (\Throwable $exception) {
-                $exceptions[] = $this->catchKnownExceptions($exception);
-            }
-        } else {
-            $this->debug('Found multiple');
-            $function = $this->getFunctionMultiple();
-            $this->debug('[multiple] Export for function: '.$this->getFunctionMultiple());
-            $arguments = $this->getArguments();
-            $arguments['number'] = key_exists('number', $arguments) ? $arguments['number'] : -1;
-            $this->debug('[multiple] Export function arguments: '.$arguments);
-            try {
+            } else {
+                $this->debug('Found multiple');
+                $function = $this->getFunctionMultiple();
+                $this->debug('[multiple] Export for function: '.$this->getFunctionMultiple());
+                $arguments = $this->getArguments();
+                $arguments['number'] = key_exists('number', $arguments) ? $arguments['number'] : -1;
+                $this->debug('[multiple] Export function arguments: '.$arguments);
                 if (!function_exists($function)) {
                     throw new \Exception("Function '$function' does not exists");
                 }
                 $wpArray = $function($arguments);
                 foreach ($wpArray as $index => $wpObject) {
                     $this->debug('['.count($wpArray).'/'.$index.'] [multiple] Export object: '.$wpObject);
-                    try {
-                        $this->processItem($wpObject);
-                    } catch (\Throwable $exception) {
-                        $exceptions[] = $this->catchKnownExceptions($exception);
-                    }
+                    $this->processItem($wpObject);
                 }
-            } catch (\Throwable $exception) {
-                $exceptions[] = $this->catchKnownExceptions($exception);
             }
+        } catch (AuthException $e) {
+            throw $this->buildPluginDisconnectedException($e);
+        } catch (GeneralException $e) {
+            throw $this->convertKnownGeneralException($e);
         }
-
-        return $exceptions;
     }
 
-    protected function catchKnownExceptions($throwable)
+    protected function convertKnownGeneralException(GeneralException $throwable): \Throwable
     {
-        if ($throwable instanceof AuthException) {
-            return new PluginDisconnectedException(
-                esc_html__('This channel was disconnected in StoreKeeper Backoffice, please reconnect it manually.', I18N::DOMAIN),
-                $throwable->getCode(),
-                $throwable
-            );
-        }
-
         return $throwable;
     }
 
     /**
      * @param $order
-     *
-     * @return mixed
      */
-    abstract protected function processItem($order);
+    abstract protected function processItem($order): void;
+
+    protected function buildPluginDisconnectedException($e): PluginDisconnectedException
+    {
+        return new PluginDisconnectedException(
+            esc_html__('This channel was disconnected in StoreKeeper Backoffice, please reconnect it manually.', I18N::DOMAIN),
+            0,
+            $e
+        );
+    }
 }

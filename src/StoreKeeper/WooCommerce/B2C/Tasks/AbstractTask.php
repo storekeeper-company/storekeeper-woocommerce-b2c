@@ -6,7 +6,6 @@ use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\ApiWrapper;
-use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -111,43 +110,11 @@ abstract class AbstractTask
     /**
      * @param $task_options array
      *
-     * @return bool returns true in the import was succeeded
+     * @return void returns true in the import was succeeded
      *
      * @throws Exception
      */
-    abstract public function run($task_options = []);
-
-    /**
-     * @param $exceptions
-     *
-     * @return bool
-     *
-     * @throws Exception
-     */
-    public function throwExceptionArray($exceptions)
-    {
-        if (count($exceptions) <= 0) {
-            return true;
-        }
-
-        $issues = array_map(
-            function ($exception) {
-                if (GeneralException::class === get_class($exception)) {
-                    $message = $exception->getMessage();
-                    $ref = $exception->getReference();
-                    $trace = $exception->getTraceAsString();
-                    $error = "reference: [$ref] message: [$message] trace: [$trace]";
-                } else {
-                    $error = $exception->getMessage()."\r\n".$exception->getTraceAsString();
-                }
-
-                return $error;
-            },
-            $exceptions
-        );
-
-        throw new Exception(implode("\n", $issues));
-    }
+    abstract public function run(array $task_options = []): void;
 
     protected function setDebug($debug = false)
     {

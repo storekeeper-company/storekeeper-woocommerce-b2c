@@ -7,13 +7,9 @@ use StoreKeeper\WooCommerce\B2C\Imports\MenuItemImport;
 class MenuItemImportTask extends AbstractTask
 {
     /**
-     * @param $task_options
-     *
-     * @return bool
-     *
      * @throws \Exception
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         // Check if the meta has an storekeeper id
         if ($this->taskMetaExists('storekeeper_id')) {
@@ -27,9 +23,7 @@ class MenuItemImportTask extends AbstractTask
                 ]
             );
 
-            $this->throwExceptionArray($tag->run());
+            $tag->run();
         }
-
-        return true;
     }
 }

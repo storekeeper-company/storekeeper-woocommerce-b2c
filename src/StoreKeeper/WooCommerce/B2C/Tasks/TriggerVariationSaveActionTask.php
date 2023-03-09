@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tasks;
 
 class TriggerVariationSaveActionTask extends AbstractTask
 {
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('parent_id')) {
             $debug = array_key_exists('debug', $task_options) ? $task_options['debug'] : false;
@@ -18,7 +18,5 @@ class TriggerVariationSaveActionTask extends AbstractTask
                 $this->debug("Triggered action for $visible_child_id");
             }
         }
-
-        return true;
     }
 }
