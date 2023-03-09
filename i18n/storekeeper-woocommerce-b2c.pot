@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
 "woocommerce\n"
-"POT-Creation-Date: 2023-02-20 06:36:43+00:00\n"
+"POT-Creation-Date: 2023-03-09 17:07:54+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,43 +13,43 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:101
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:116
 msgid "Your allowed memory size has been exhausted."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:119
 msgid "Current memory limit configured: %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:110
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:125
 msgid "Below are actions you can do to increase PHP memory limit:"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:138
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:153
 msgid "You can increase the memory by adding %s on the wp-config."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:142
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:157
 msgid "Suggested memory limit is 1G and then do a full sync."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:146
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:164
 msgid "You can try executing this command via ssh."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:149
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:167
 msgid "Go to the public_html folder of your webshop: %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:153
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:171
 msgid "Execute %s."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:159
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:179
 msgid "Contact your hosting provider."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:161
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:181
 msgid ""
 "If you are not comfortable in trying the methods above, or it did not work "
 "for you. You can talk to your hosting provider about having them increase "
@@ -923,7 +923,7 @@ msgid "Cron runner"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:137
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:345
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:358
 msgid "Apply"
 msgstr ""
 
@@ -1024,55 +1024,67 @@ msgstr ""
 msgid "Product with empty title (id=%s)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:60
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:62
 msgid "StoreKeeper options"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:69
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:71
 msgid "Server status"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:78
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:80
 msgid "Database status"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:87
-msgid "Tables are using InnoDB engine"
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:89
+msgid "Table foreign keys and InnoDB"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:140
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:145
 msgid "StoreKeeper database version"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:148
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:153
 msgid "Database prefix"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:156
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:161
 msgid "Total database size"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:160
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
 msgid "Data database size"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:164
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:169
 msgid "Index database size"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:179
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:185
 msgid "Data: %.2fMB | Index: %.2fMB | Engine: %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:204
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:210
 msgid "The %s table needs to be using Engine=InnoDB in order to use the plugin"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:225
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:240
+msgid "Foreign key constraint exists"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:243
+msgid "Foreign key constraint is missing"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:260
 msgid "Set InnoDb  on this table"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:241
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:269
+msgid "Table is using InnoDB engine"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:278
 msgid "The %s table was set to Engine=InnoDB."
 msgstr ""
 
@@ -1169,32 +1181,32 @@ msgid "Action"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:199
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:338
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:351
 msgid "Retry"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:200
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:339
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:352
 msgid "Mark as success"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:243
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:250
 msgid "Stack Trace"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:286
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:299
 msgid "Apply filter"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:301
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:314
 msgid "Select log type"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:318
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:331
 msgid "Select log status"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:335
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:348
 msgid "Select action"
 msgstr ""
 
@@ -1663,7 +1675,7 @@ msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProductPage.php:96
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:96
-#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:285
+#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:284
 msgid "Syncing %s from Storekeeper backoffice"
 msgstr ""
 
@@ -1920,29 +1932,29 @@ msgstr ""
 msgid "Wordpress error message: "
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/AbstractExport.php:138
+#: src/StoreKeeper/WooCommerce/B2C/Exports/AbstractExport.php:141
 msgid ""
 "This channel was disconnected in StoreKeeper Backoffice, please reconnect it "
 "manually."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:106
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:104
 msgid "Customer Email"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:108
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:106
 msgid "Customer phone number"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:716
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:712
 msgid "Order with this order number already exists."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:793
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:789
 msgid "Wordpress plugin"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:912
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:908
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:340
 msgid "Refund via Wordpress plugin (Refund #%s)"
 msgstr ""
@@ -2165,7 +2177,7 @@ msgstr ""
 msgid "Login expired, please try again"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:393
+#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:384
 msgid "Done processing %s items of %s"
 msgstr ""
 
@@ -2189,7 +2201,7 @@ msgstr ""
 msgid "menu items"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/OrderImport.php:221
+#: src/StoreKeeper/WooCommerce/B2C/Imports/OrderImport.php:215
 msgid "orders"
 msgstr ""
 

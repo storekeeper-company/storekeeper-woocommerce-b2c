@@ -23,7 +23,7 @@ test:
 ## ---- Translations ----------------------------------------
 extract-translations:
 	docker-compose up --build -d web
-	docker-compose exec -T web extract-translations
+	docker-compose exec -T web bash /bin/extract-translations
 
 pull-translations:
 	dev-tools/lokalise2 --token=${LOKALISE_TOKEN} --project-id=${LOKALISE_PROJECT_ID} \
