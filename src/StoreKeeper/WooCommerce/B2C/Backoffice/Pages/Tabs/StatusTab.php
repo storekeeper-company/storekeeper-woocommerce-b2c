@@ -236,7 +236,7 @@ class StatusTab extends AbstractTab
                     'value' => AbstractModel::foreignKeyExists($tableName, $foreignKey),
                     'function::value' => function ($value, $item) {
                         ServerStatusChecker::renderCheck($value, $item);
-                        if( $value ){
+                        if ($value) {
                             echo __('Foreign key constraint exists', I18N::DOMAIN);
                         }
                     },
