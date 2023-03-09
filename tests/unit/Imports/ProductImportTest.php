@@ -5,7 +5,9 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Imports;
 use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Imports\AbstractProductImport;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\AbstractTest;
 use Throwable;
@@ -104,6 +106,66 @@ class ProductImportTest extends AbstractTest
         );
 
         $this->assertEquals($expectedStatusCallCount, $setShopProductObjectSyncStatusForHookCallCount, 'Product sync status should be sent to Backoffice');
+    }
+
+    /**
+     * fix getting attribute options when there is old data in the table.
+     *
+     * @see https://app.clickup.com/t/8677jc5x4
+     */
+    public function testImportFixingOfRemovedAttributeOptions(): void
+    {
+        $dumpHookFile = self::CREATE_DATADUMP_SUCCESS_HOOK;
+        $expectedProductCount = 1;
+
+        $attribute_id = Attributes::importAttribute(
+            13,
+            'kleur',
+            'Kleur'
+        );
+
+        $term_id = Attributes::importAttributeOption(
+            $attribute_id,
+            99999, // correct=7
+            'sk_kleur_wit', // correct=sk_kleur_wit
+            'Wit'
+        );
+
+        $attribute_row = AttributeOptionModel::findBy(['term_id' => $term_id])[0];
+        AttributeOptionModel::update(
+            $attribute_row->id,
+            [
+                'storekeeper_alias' => 'broken_old_alias',
+            ] + (array) $attribute_row
+        );
+
+        $taxonomy = wc_attribute_taxonomy_name_by_id($attribute_id);
+        wp_delete_term($term_id, $taxonomy); // remove the term
+
+        global $wpdb;
+        $wpdb->delete($wpdb->terms, ['term_id' => $term_id]);
+
+        $opt = AttributeOptionModel::get($attribute_row->id);
+
+        // Handle the product creation hook event
+        $creationOptions = $this->handleHookRequest(
+            self::CREATE_DATADUMP_DIRECTORY,
+            $dumpHookFile,
+        );
+
+        // Retrieve the product from wordpress using the storekeeper id
+        $products = wc_get_products(
+            [
+                'post_type' => 'product',
+                'meta_key' => 'storekeeper_id',
+                'meta_value' => $creationOptions['id'],
+            ]
+        );
+        $this->assertCount(
+            $expectedProductCount,
+            $products,
+            'Actual size of the retrieved product collection is wrong'
+        );
     }
 
     /**

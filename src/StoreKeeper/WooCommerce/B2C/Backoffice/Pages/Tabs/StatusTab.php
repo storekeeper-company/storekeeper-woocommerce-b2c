@@ -11,6 +11,8 @@ use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Helpers\ServerStatusChecker;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\AbstractModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
@@ -49,7 +51,7 @@ class StatusTab extends AbstractTab
     public function render(): void
     {
         $this->renderServerStatus();
-        $this->renderInnodbStatus();
+        $this->renderTableRelationData();
         $this->renderDatabaseStatus();
         $this->renderStoreKeeperOptions();
     }
@@ -81,12 +83,15 @@ class StatusTab extends AbstractTab
         $table->render();
     }
 
-    private function renderInnodbStatus()
+    private function renderTableRelationData()
     {
         $table = new TableRenderer('table-innodb');
-        $table->addColumn(__('Tables are using InnoDB engine', I18N::DOMAIN), 'title');
+        $table->addColumn(__('Table foreign keys and InnoDB', I18N::DOMAIN), 'title');
         $table->addColumn('', 'value');
-        $table->setData($this->getInnoDBStatusData());
+        $table->setData(array_merge(
+            $this->getInnoDBStatusData(),
+            $this->getForeignKeyStatusData()
+        ));
         $table->render();
     }
 
@@ -167,8 +172,9 @@ class StatusTab extends AbstractTab
 
         $tables = array_filter(
             $database['database_tables']['other'],
-            function ($key) {
-                return false !== strpos($key, 'storekeeper');
+            function ($key) use ($wpdb) {
+                return false !== strpos($key, 'storekeeper')
+                    && 0 === strpos($key, $wpdb->prefix);
             },
             ARRAY_FILTER_USE_KEY
         );
@@ -213,6 +219,35 @@ class StatusTab extends AbstractTab
         return $data;
     }
 
+    private function getForeignKeyStatusData(): array
+    {
+        $keys = [];
+        $attTable = AttributeModel::getTableName();
+        $keys[$attTable][] = AttributeModel::getValidForeignFieldKey('attribute_id_fk', $attTable);
+        $attOptTable = AttributeOptionModel::getTableName();
+        $keys[$attOptTable][] = AttributeOptionModel::getValidForeignFieldKey('storekeeper_attribute_id_fk', $attOptTable);
+        $keys[$attOptTable][] = AttributeOptionModel::getValidForeignFieldKey('term_id_fk', $attOptTable);
+
+        $data = [];
+        foreach ($keys as $tableName => $foreignKeys) {
+            foreach ($foreignKeys as $foreignKey) {
+                $data[] = [
+                    'title' => $tableName.'.'.$foreignKey,
+                    'value' => AbstractModel::foreignKeyExists($tableName, $foreignKey),
+                    'function::value' => function ($value, $item) {
+                        ServerStatusChecker::renderCheck($value, $item);
+                        if( $value ){
+                            echo __('Foreign key constraint exists', I18N::DOMAIN);
+                        }
+                    },
+                    'description' => __('Foreign key constraint is missing', I18N::DOMAIN),
+                ];
+            }
+        }
+
+        return $data;
+    }
+
     public function renderInnoDbCheck($value, $item, $tableName)
     {
         ServerStatusChecker::renderCheck($value, $item);
@@ -230,6 +265,8 @@ class StatusTab extends AbstractTab
             );
 
             $this->renderFormEnd();
+        } else {
+            echo esc_html__('Table is using InnoDB engine', I18N::DOMAIN);
         }
     }
 

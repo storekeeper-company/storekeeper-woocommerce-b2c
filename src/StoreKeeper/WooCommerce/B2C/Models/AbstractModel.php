@@ -139,6 +139,22 @@ abstract class AbstractModel implements IModel
         return $wpdb->get_row($sql)->Engine;
     }
 
+    protected static function getTableForeignKey(string $tableName, string $foreignKey)
+    {
+        global $wpdb;
+        $sql = $wpdb->prepare(
+            'SELECT 
+  TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
+FROM
+  INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+WHERE
+  REFERENCED_TABLE_SCHEMA = %s AND TABLE_NAME =  %s AND CONSTRAINT_NAME = %s; ',
+            [DB_NAME, $tableName, $foreignKey]
+        );
+
+        return $wpdb->get_row($sql);
+    }
+
     public static function setTableEngineToInnoDB(string $tableName)
     {
         global $wpdb;
@@ -159,6 +175,13 @@ abstract class AbstractModel implements IModel
         if (!self::isTableEngineInnoDB($tableName)) {
             throw new TableNeedsInnoDbException($tableName);
         }
+    }
+
+    public static function foreignKeyExists(string $tableName, string $fkName): bool
+    {
+        $tableForeignKey = self::getTableForeignKey($tableName, $fkName);
+
+        return !empty($tableForeignKey);
     }
 
     public static function create(array $data): int
@@ -380,7 +403,7 @@ abstract class AbstractModel implements IModel
     /**
      * @throws Exception
      */
-    protected static function getValidForeignFieldKey(string $foreignKey, string $tableName): string
+    public static function getValidForeignFieldKey(string $foreignKey, string $tableName): string
     {
         $foreignKeyName = "{$tableName}_{$foreignKey}";
         /* @since 9.0.8 */
