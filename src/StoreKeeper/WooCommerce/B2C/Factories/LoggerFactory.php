@@ -59,11 +59,9 @@ class LoggerFactory
     /**
      * @param $type
      *
-     * @return Logger
-     *
      * @throws \Exception
      */
-    public static function create($type)
+    public static function create($type): Logger
     {
         $wpLogDirectory = self::getWpLogDirectory();
         if (is_null($wpLogDirectory)) {
@@ -113,17 +111,16 @@ class LoggerFactory
      *
      * @param string     $key
      * @param \Exception $exception
-     * @param int        $post_id
      *
      * @throws WordpressException
      */
-    public static function createErrorTask($key, $exception, $post_id = 0, $custom_metadata = [])
+    public static function createErrorTask($key, $exception, $custom_metadata = [])
     {
         $full_metadata = self::generateMetadata($key, $exception, $custom_metadata);
 
         TaskHandler::scheduleTask(
             TaskHandler::REPORT_ERROR,
-            $post_id,
+            null,
             $full_metadata,
             true,
             TaskHandler::STATUS_FAILED

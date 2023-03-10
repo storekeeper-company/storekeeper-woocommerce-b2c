@@ -2,8 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
-use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
-use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
