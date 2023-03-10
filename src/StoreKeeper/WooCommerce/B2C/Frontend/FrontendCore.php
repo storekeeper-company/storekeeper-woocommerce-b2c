@@ -41,6 +41,7 @@ class FrontendCore
 
         $cartHandler = new CartHandler();
         $this->loader->add_action('woocommerce_cart_calculate_fees', $cartHandler, 'addEmballageFee', 11);
+        $this->loader->add_action('woocommerce_add_to_cart_validation', $cartHandler, 'validateConfigurableProducts', 10, 3);
 
         $this->registerShortCodes();
         $this->registerHandlers();

@@ -46,4 +46,15 @@ class CartHandler
             $woocommerce->cart->fees_api()->add_fee($emballagePrice);
         }
     }
+
+    public function validateConfigurableProducts($passed, $product_id, $quantity, $variation_id, $variations, $cart_item_data)
+    {
+        $product = wc_get_product($product_id);
+        if ($product && 'variable' === $product->get_type()) {
+            // todo more checks
+            wc_add_notice(__('You cannot add variable product directly.', 'woocommerce'), 'error');
+        }
+
+        return false;
+    }
 }
