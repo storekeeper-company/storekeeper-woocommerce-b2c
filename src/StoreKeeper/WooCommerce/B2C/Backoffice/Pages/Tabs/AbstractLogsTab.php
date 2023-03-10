@@ -4,6 +4,8 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\TableRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\AbstractModel;
 
@@ -112,6 +114,17 @@ abstract class AbstractLogsTab extends AbstractTab
         echo <<<HTML
             $dateString <a href="$url">$caret</a>
             HTML;
+    }
+
+    public function renderDate($date)
+    {
+        if (!empty($date)) {
+            $datetime = DatabaseConnection::formatFromDatabaseDateIfNotEmpty($date);
+            $date = DateTimeHelper::formatForDisplay($datetime);
+            echo esc_html($date);
+        } else {
+            echo '-';
+        }
     }
 
     private function getPreviousNavigation($currentIndex): string

@@ -38,8 +38,9 @@ class WebhookLogsTab extends AbstractLogsTab
                 ],
                 [
                     'title' => __('Date', I18N::DOMAIN),
-                    'key' => 'date_created',
+                    'key' => WebhookLogModel::FIELD_DATE_CREATED,
                     'headerFunction' => [$this, 'renderDateCreated'],
+                    'bodyFunction' => [$this, 'renderDate'],
                 ],
             ]
         );

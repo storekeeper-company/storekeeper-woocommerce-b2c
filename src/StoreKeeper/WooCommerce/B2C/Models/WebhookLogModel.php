@@ -14,8 +14,8 @@ class WebhookLogModel extends AbstractModel implements IModelPurge
         return [
             'id' => true,
             'action' => true,
-            'date_created' => false,
-            'date_updated' => false,
+            self::FIELD_DATE_CREATED => false,
+            self::FIELD_DATE_UPDATED => false,
             'body' => true,
             'headers' => true,
             'method' => true,
@@ -44,12 +44,6 @@ class WebhookLogModel extends AbstractModel implements IModelPurge
 SQL;
 
         return static::querySql($query);
-    }
-
-    public static function update($id, array $data): void
-    {
-        $data = parent::updateDateField($data);
-        parent::update($id, $data);
     }
 
     public static function purge(): int

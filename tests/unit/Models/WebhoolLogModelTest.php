@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Models;
 
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 
 class WebhoolLogModelTest extends AbstractModelTest
@@ -13,17 +14,21 @@ class WebhoolLogModelTest extends AbstractModelTest
 
     public function testPurgeOldModels()
     {
+        $date = DatabaseConnection::formatToDatabaseDate(new \DateTime('-31 days'));
         WebhookLogModel::create(
             $this->getNewObjectData(
                 [
-                    'date_created' => date('Y-m-d H:i:s', strtotime('-31 days')),
+                    WebhookLogModel::FIELD_DATE_CREATED => $date,
+                    WebhookLogModel::FIELD_DATE_UPDATED => $date,
                 ]
             )
         );
+        $date = DatabaseConnection::formatToDatabaseDate();
         WebhookLogModel::create(
             $this->getNewObjectData(
                 [
-                    'date_created' => date('Y-m-d H:i:s'),
+                    WebhookLogModel::FIELD_DATE_CREATED => $date,
+                    WebhookLogModel::FIELD_DATE_UPDATED => $date,
                 ]
             )
         );
@@ -107,7 +112,7 @@ class WebhoolLogModelTest extends AbstractModelTest
                 'method' => 'GET',
                 'response_code' => 404,
                 'route' => '/storekeeper-woocommerce-b2c/v1/sso',
-            ] + $data;
+            ];
     }
 
     public function assertModelData(array $expected, array $actual, string $ModelClass): void

@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\Models;
 
 use Aura\SqlQuery\Common\SelectInterface;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
-use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
@@ -28,8 +27,8 @@ class TaskModel extends AbstractModel implements IModelPurge
             'date_last_processed' => false,
             'meta_data' => false,
             'error_output' => false,
-            'date_created' => false,
-            'date_updated' => false,
+            self::FIELD_DATE_CREATED => false,
+            self::FIELD_DATE_UPDATED => false,
         ];
     }
 
@@ -103,8 +102,6 @@ SQL;
             'meta_data'
         );
         $data['name'] = static::getName($type, $storekeeper_id);
-        $data['date_created'] = DatabaseConnection::formatToDatabaseDate(DateTimeHelper::currentDateTime());
-        static::updateDateField($data);
 
         return static::create($data);
     }
@@ -225,7 +222,6 @@ SQL;
     public static function update($id, array $data): void
     {
         $data['meta_data'] = serialize($data['meta_data'] ?? []);
-        $data = parent::updateDateField($data);
         parent::update($id, $data);
     }
 

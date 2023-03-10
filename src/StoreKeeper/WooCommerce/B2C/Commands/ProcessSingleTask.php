@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
-use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
@@ -41,9 +40,7 @@ class ProcessSingleTask extends AbstractCommand
     public function execute(array $arguments, array $assoc_arguments)
     {
         $preExecutionMicroTime = microtime(true);
-        $preExecutionDateTime = DatabaseConnection::formatToDatabaseDate(
-            DateTimeHelper::currentDateTime(),
-        );
+        $preExecutionDateTime = DatabaseConnection::formatToDatabaseDate();
         $this->setupApi();
 
         $task_id = $arguments[0];
@@ -72,9 +69,7 @@ class ProcessSingleTask extends AbstractCommand
         $task['meta_data']['removed_task_ids'] = $handler->getTrashedTasks();
 
         $postExecutionMicroTime = microtime(true);
-        $postExecutionDateTime = DatabaseConnection::formatToDatabaseDate(
-            DateTimeHelper::currentDateTime(),
-        );
+        $postExecutionDateTime = DatabaseConnection::formatToDatabaseDate();
         $executionDuration = $postExecutionMicroTime - $preExecutionMicroTime;
 
         $task['meta_data']['pre_execution'] = $preExecutionDateTime;

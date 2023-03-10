@@ -134,8 +134,8 @@ class InfoHandlerTest extends AbstractTest
         // Assert system status
 
         // Assert order system status
-        $this->assertEquals($expectedIdsNotSynchronized, $orderSystemStatus['ids_not_synchronized'], 'Not synchronized IDs should match with extras');
-        $this->assertEquals($expectedFailedOrderIds, $orderSystemStatus['ids_with_failed_tasks'], 'Failed order IDs should match with extras');
+        $this->assertEqualsCanonicalizing($expectedIdsNotSynchronized, $orderSystemStatus['ids_not_synchronized'], 'Not synchronized IDs should match with extras');
+        $this->assertEqualsCanonicalizing($expectedFailedOrderIds, $orderSystemStatus['ids_with_failed_tasks'], 'Failed order IDs should match with extras');
         $this->assertEquals($expectedLastOrderDate, $orderSystemStatus['last_date']);
         $this->assertEquals(
             DatabaseConnection::formatFromDatabaseDate($expectedSuccessfulOrderTask->date_last_processed)->format(DATE_RFC2822),
