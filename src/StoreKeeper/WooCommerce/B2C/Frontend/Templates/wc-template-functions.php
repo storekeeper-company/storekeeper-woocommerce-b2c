@@ -69,7 +69,7 @@ if (!function_exists('woocommerce_markdown_description')) {
     function woocommerce_markdown_description($content)
     {
         if (is_product()) {
-            $product = get_product(); // Gets the current product
+            $product = wc_get_product(); // Gets the current product
 
             return do_shortcode($product->get_description());
         }
@@ -86,7 +86,7 @@ if (!function_exists('woocommerce_markdown_short_description')) {
     function woocommerce_markdown_short_description($excerpt)
     {
         if (is_product()) {
-            $product = get_product(); // Gets the current product
+            $product = wc_get_product(); // Gets the current product
 
             return do_shortcode($product->get_short_description());
         }
