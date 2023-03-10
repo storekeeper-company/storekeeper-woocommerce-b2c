@@ -115,9 +115,9 @@ class TaskLogsTab extends AbstractLogsTab
                 ],
                 [
                     'title' => __('Date', I18N::DOMAIN),
-                    'key' => 'date_created',
+                    'key' => TaskModel::FIELD_DATE_CREATED,
                     'headerFunction' => [$this, 'renderDateCreated'],
-                    'bodyFunction' => [$this, 'renderBodyDateCreated'],
+                    'bodyFunction' => [$this, 'renderDate'],
                 ],
                 [
                     'title' => __('Log type', I18N::DOMAIN),
@@ -143,15 +143,6 @@ class TaskLogsTab extends AbstractLogsTab
         echo '</form>';
 
         $this->renderPagination();
-    }
-
-    public function renderBodyDateCreated($value)
-    {
-        $dateCreated = DatabaseConnection::formatFromDatabaseDateIfNotEmpty($value);
-        $dateTime = DateTimeHelper::formatForDisplay($dateCreated);
-        echo <<<HTML
-            $dateTime
-        HTML;
     }
 
     public function renderSelectAll()

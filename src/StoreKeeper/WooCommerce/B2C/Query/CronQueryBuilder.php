@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Query;
 
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
-use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 
 class CronQueryBuilder
@@ -15,9 +14,7 @@ class CronQueryBuilder
     {
         return OptionQueryBuilder::getUpdateOptionSql(
             WooCommerceOptions::LAST_SYNC_RUN,
-            DatabaseConnection::formatToDatabaseDate(
-                DateTimeHelper::currentDateTime(),
-            )
+            DatabaseConnection::formatToDatabaseDate()
         );
     }
 
@@ -25,9 +22,7 @@ class CronQueryBuilder
     {
         return OptionQueryBuilder::getInsertOptionSql(
             WooCommerceOptions::LAST_SYNC_RUN,
-            DatabaseConnection::formatToDatabaseDate(
-                DateTimeHelper::currentDateTime(),
-            )
+            DatabaseConnection::formatToDatabaseDate()
         );
     }
 
@@ -45,9 +40,7 @@ class CronQueryBuilder
     {
         return OptionQueryBuilder::getUpdateOptionSql(
             WooCommerceOptions::SUCCESS_SYNC_RUN,
-            DatabaseConnection::formatToDatabaseDate(
-                DateTimeHelper::currentDateTime(),
-            )
+            DatabaseConnection::formatToDatabaseDate()
         );
     }
 
@@ -55,9 +48,7 @@ class CronQueryBuilder
     {
         return OptionQueryBuilder::getInsertOptionSql(
             WooCommerceOptions::SUCCESS_SYNC_RUN,
-            DatabaseConnection::formatToDatabaseDate(
-                DateTimeHelper::currentDateTime(),
-            )
+            DatabaseConnection::formatToDatabaseDate()
         );
     }
 

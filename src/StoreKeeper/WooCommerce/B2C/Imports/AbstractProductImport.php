@@ -256,7 +256,7 @@ abstract class AbstractProductImport extends AbstractImport
                         'product_id' => $woocommerceProductId,
                         'view_url' => get_permalink($woocommerceProductId),
                         'edit_url' => admin_url('post.php?post='.$woocommerceProductId).'&action=edit',
-                        'date_synchronized' => DatabaseConnection::formatToDatabaseDate(new \DateTime()),
+                        'date_synchronized' => DatabaseConnection::formatToDatabaseDate(),
                         'plugin_version' => implode(', ', [
                             StoreKeeperOptions::PLATFORM_NAME.': '.get_bloginfo('version'),
                             StoreKeeperOptions::VENDOR.' plugin: '.STOREKEEPER_WOOCOMMERCE_B2C_VERSION,

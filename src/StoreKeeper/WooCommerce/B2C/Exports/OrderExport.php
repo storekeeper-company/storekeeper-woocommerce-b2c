@@ -7,7 +7,6 @@ use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
-use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
@@ -283,9 +282,7 @@ class OrderExport extends AbstractExport
             );
         }
 
-        $date = DatabaseConnection::formatToDatabaseDate(
-            DateTimeHelper::currentDateTime(),
-        );
+        $date = DatabaseConnection::formatToDatabaseDate();
         WordpressExceptionThrower::throwExceptionOnWpError(
             update_post_meta($order->get_id(), 'storekeeper_sync_date', $date)
         );

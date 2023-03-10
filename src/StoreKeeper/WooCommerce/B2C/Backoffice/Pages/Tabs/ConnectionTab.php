@@ -195,11 +195,12 @@ class ConnectionTab extends AbstractTab
         $hookDescription = __('Never', I18N::DOMAIN);
 
         $select = WebhookLogModel::getSelectHelper()
-            ->cols(['date_updated'])
-            ->orderBy(['date_updated DESC'])
+            ->cols([WebhookLogModel::FIELD_DATE_UPDATED])
+            ->orderBy([WebhookLogModel::FIELD_DATE_UPDATED.' DESC'])
             ->limit(1);
 
         $lastHook = $wpdb->get_row(WebhookLogModel::prepareQuery($select));
+
         if ($lastHook) {
             $datetime = DatabaseConnection::formatFromDatabaseDate($lastHook->date_updated);
             $hookDescription = DateTimeHelper::formatForDisplay($datetime);

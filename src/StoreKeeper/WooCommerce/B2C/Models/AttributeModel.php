@@ -18,8 +18,8 @@ class AttributeModel extends AbstractModel implements IModelPurge
             'common_name' => true,
             'storekeeper_id' => false,
             'storekeeper_alias' => false,
-            'date_created' => false,
-            'date_updated' => false,
+            self::FIELD_DATE_CREATED => false,
+            self::FIELD_DATE_UPDATED => false,
         ];
     }
 

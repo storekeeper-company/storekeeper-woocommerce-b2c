@@ -21,6 +21,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
  */
 abstract class AbstractModel implements IModel
 {
+    public const FIELD_DATE_CREATED = 'date_created';
+    public const FIELD_DATE_UPDATED = 'date_updated';
     public const TABLE_VERSION = '1.0.0';
     public const MAX_FOREIGN_KEY_LENGTH = 63;
 
@@ -85,13 +87,29 @@ abstract class AbstractModel implements IModel
 
     public static function validateData(array $data, $isUpdate = false): void
     {
-        if ($isUpdate && empty($data['id'])) {
-            $stringData = json_encode($data);
-            throw new Exception('Object is missing ID when updating in: '.$stringData);
+        if ($isUpdate) {
+            if (empty($data['id'])) {
+                $stringData = json_encode($data);
+                throw new Exception('Update: Object is missing ID: '.$stringData);
+            }
+            foreach (static::getFieldsWithRequired() as $key => $required) {
+                if (
+                    'id' !== $key
+                    && $required
+                    && array_key_exists($key, $data)
+                    && is_null($data[$key])
+                ) {
+                    throw new Exception("Update: Key $key not in object: ".json_encode($data));
+                }
+            }
         } else {
             foreach (static::getFieldsWithRequired() as $key => $required) {
-                if ('id' !== $key && $required && !isset($data[$key])) {
-                    throw new Exception("Key $key not in object: ".json_encode($data));
+                if (
+                    'id' !== $key
+                    && $required
+                    && !isset($data[$key])
+                ) {
+                    throw new Exception("Create: Key $key not in object: ".json_encode($data));
                 }
             }
         }
@@ -114,7 +132,7 @@ abstract class AbstractModel implements IModel
 
     protected static function updateDateField(array $data): array
     {
-        $data['date_updated'] = DatabaseConnection::formatToDatabaseDate(new \DateTime());
+        $data[self::FIELD_DATE_UPDATED] = DatabaseConnection::formatToDatabaseDate();
 
         return $data;
     }
@@ -190,6 +208,14 @@ WHERE
 
         static::validateData($data);
 
+        $fields = static::getFieldsWithRequired();
+        if (array_key_exists(self::FIELD_DATE_CREATED, $fields) && empty($data[self::FIELD_DATE_CREATED])) {
+            $data[self::FIELD_DATE_CREATED] = DatabaseConnection::formatToDatabaseDate();
+        }
+        if (array_key_exists(self::FIELD_DATE_UPDATED, $fields) && empty($data[self::FIELD_DATE_UPDATED])) {
+            $data[self::FIELD_DATE_UPDATED] = DatabaseConnection::formatToDatabaseDate();
+        }
+
         $insert = static::getInsertHelper()
             ->cols(static::prepareData($data));
 
@@ -243,6 +269,11 @@ WHERE
 
         $data['id'] = $id;
         static::validateData($data, true);
+
+        $fields = static::getFieldsWithRequired();
+        if (array_key_exists(self::FIELD_DATE_UPDATED, $fields) && empty($data[self::FIELD_DATE_UPDATED])) {
+            $data[self::FIELD_DATE_UPDATED] = DatabaseConnection::formatToDatabaseDate();
+        }
 
         $update = static::getUpdateHelper()
             ->cols(static::prepareData($data))
