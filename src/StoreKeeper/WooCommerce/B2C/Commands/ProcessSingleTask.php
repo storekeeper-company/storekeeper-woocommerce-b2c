@@ -57,7 +57,7 @@ class ProcessSingleTask extends AbstractCommand
 
         $handler = new TaskHandler();
         $handler->setLogger($this->logger);
-        $handler->handleImport($task_id, $task['name']);
+        $handler->handleTask($task_id, $task['name']);
         $this->logger->info(
             'Task done',
             [

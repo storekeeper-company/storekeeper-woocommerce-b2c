@@ -391,7 +391,7 @@ class TaskHandler
      * @throws Exception
      * @throws Throwable
      */
-    public function handleImport(int $task_id, string $typeName, $task_options = [])
+    public function handleTask(int $task_id, string $typeName, $task_options = [])
     {
         $regexOutput = preg_match(self::$typeRegex, $typeName, $regexMatches);
 
