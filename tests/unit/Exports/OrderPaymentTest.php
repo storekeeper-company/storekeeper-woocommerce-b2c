@@ -256,7 +256,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
             'Order is unpaid paid'
         );
         $this->assertEquals(
-            StoreKeeperBaseGateway::STATUS_PROCESSING,
+            StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING,
             $wc_order->get_status(self::WC_CONTEXT_EDIT),
             'Order status is not processing'
         );
@@ -467,7 +467,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
             'Payment successfully created'
         );
         $this->assertEquals(
-            StoreKeeperBaseGateway::STATUS_PENDING,
+            StoreKeeperBaseGateway::ORDER_STATUS_PENDING,
             $new_order->get_status(self::GET_CONTEXT),
             'Check unpaid order status'
         );
@@ -487,7 +487,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
         $new_order = wc_get_order($new_order_id);
 
         $this->assertEquals(
-            StoreKeeperBaseGateway::STATUS_PROCESSING,
+            StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING,
             $new_order->get_status(self::GET_CONTEXT),
             'Check paid order status'
         );
@@ -648,7 +648,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
             'Payment successfully created'
         );
         $this->assertEquals(
-            StoreKeeperBaseGateway::STATUS_PROCESSING,
+            StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING,
             $new_order->get_status(self::GET_CONTEXT),
             'Check unpaid order status'
         );

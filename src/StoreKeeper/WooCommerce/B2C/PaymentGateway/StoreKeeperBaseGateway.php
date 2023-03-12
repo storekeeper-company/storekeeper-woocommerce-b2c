@@ -13,13 +13,10 @@ use WC_Product_Factory;
 
 class StoreKeeperBaseGateway extends \WC_Payment_Gateway
 {
-    const STATUS_PENDING = 'pending';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_ON_HOLD = 'on-hold';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_REFUNDED = 'refunded';
-    const STATUS_FAILED = 'failed';
+    // https://woocommerce.com/document/managing-orders/#order-statuses
+    const ORDER_STATUS_PENDING = 'pending'; // Order received, no payment initiated. Awaiting payment (unpaid).
+    const ORDER_STATUS_PROCESSING = 'processing'; //  Payment received (paid) and stock has been reduced;
+    const ORDER_STATUS_ON_HOLD = 'on-hold'; //  waiting payment – stock is reduced, but you need to confirm payment.
     private $provider_method_id;
 
     /**
@@ -52,15 +49,20 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
 
     public function process_payment($order_id)
     {
+        $logger = PaymentGateway::getCheckOutLogger();
         $order = new \WC_Order($order_id);
+        $logs = ['order_id' => $order_id];
 
         try {
+            $paymentUrl = $this->getPaymentUrl($order);
+            $logger->debug('Starting payment', $logs + ['paymentUrl' => $paymentUrl]);
+
             return [
                 'result' => 'success',
-                'redirect' => $this->getPaymentUrl($order),
+                'redirect' => $paymentUrl,
             ];
         } catch (\Throwable $exception) {
-            LoggerFactory::create('checkout')->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $logger->error($exception->getMessage(), $logs);
             LoggerFactory::createErrorTask('process-payment', $exception);
 
             $this->lastError = $exception;
@@ -94,7 +96,7 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         } catch (GeneralException $exception) {
             // Unable to create the customer.
             // this can be due to the customer having a admin account in the backoffice.
-            LoggerFactory::createErrorTask('order-payment-url', $exception, $order->get_id(), $order->get_data());
+            LoggerFactory::createErrorTask('order-payment-url', $exception, $order->get_data());
         }
 
         $products = [];
@@ -157,7 +159,7 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         $order->add_order_note(sprintf($status_text, $payment_eid, $payment_trx));
 
         // Mark order as pending AKA waiting for payment.
-        $order->set_status(self::STATUS_PENDING);
+        $order->set_status(self::ORDER_STATUS_PENDING);
         $order->save();
 
         return $payment['payment_url'];
