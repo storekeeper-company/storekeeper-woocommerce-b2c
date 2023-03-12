@@ -87,7 +87,6 @@ if (!function_exists('woocommerce_markdown_short_description')) {
     {
         if (is_product()) {
             $product = wc_get_product(); // Gets the current product
-            var_dump($product->get_type());
 
             return do_shortcode($product->get_short_description());
         }
