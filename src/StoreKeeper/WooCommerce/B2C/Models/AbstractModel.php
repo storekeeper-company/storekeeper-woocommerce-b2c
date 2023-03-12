@@ -9,6 +9,7 @@ use Aura\SqlQuery\Common\UpdateInterface;
 use Aura\SqlQuery\QueryInterface;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Exceptions\SqlException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableOperationSqlException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModel;
@@ -58,7 +59,7 @@ abstract class AbstractModel implements IModel
         global $wpdb;
 
         if (false === $wpdb->query($sql)) {
-            throw new Exception($wpdb->last_error);
+            throw new SqlException($wpdb->last_error, $sql);
         }
 
         return true;
@@ -130,13 +131,6 @@ abstract class AbstractModel implements IModel
         }
 
         return $preparedData;
-    }
-
-    protected static function updateDateField(array $data): array
-    {
-        $data[self::FIELD_DATE_UPDATED] = DatabaseConnection::formatToDatabaseDate();
-
-        return $data;
     }
 
     public static function hasTable(): bool

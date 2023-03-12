@@ -2,12 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
-use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
-use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
-use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
-use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
-use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
-use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
+use StoreKeeper\WooCommerce\B2C\Migrations\MigrationManager;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\RedirectHandler;
@@ -20,7 +15,10 @@ class Activator
         $this->setWooCommerceUuid();
         $this->setOrderPrefix();
         $this->setMainCategoryId();
-        $this->ensureModelTables();
+
+        $migrations = new MigrationManager();
+        $migrations->migrateAll();
+
         $this->createRedirectTable();
         $this->setVersion();
     }
@@ -64,15 +62,5 @@ class Activator
     private function setVersion()
     {
         StoreKeeperOptions::set(StoreKeeperOptions::INSTALLED_VERSION, STOREKEEPER_WOOCOMMERCE_B2C_VERSION);
-    }
-
-    protected function ensureModelTables(): void
-    {
-        WebhookLogModel::ensureTable();
-        TaskModel::ensureTable();
-        AttributeModel::ensureTable();
-        AttributeOptionModel::ensureTable();
-        PaymentModel::ensureTable();
-        RefundModel::ensureTable();
     }
 }

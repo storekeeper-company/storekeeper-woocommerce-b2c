@@ -7,6 +7,7 @@ use Exception;
 use mysqli;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\SqlException;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
 
@@ -70,8 +71,8 @@ class DatabaseConnection
         // Use the query function to query the database
         $connection = $this->getConnection();
         $result = $connection->query($sql);
-        if (!$result) {
-            throw new Exception("Query exited with error \"{$connection->error}\".");
+        if (false === $result) {
+            throw new SqlException("Sql query error: \"{$connection->error}\".", $sql);
         }
 
         return $result;
