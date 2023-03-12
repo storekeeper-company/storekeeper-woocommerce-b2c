@@ -15,10 +15,11 @@ class TableOperationSqlException extends SqlException
         $this->table = $table;
         parent::__construct(
             sprintf(
-                __('Sql on %s::%create operation', I18N::DOMAIN),
+                __('Sql on %s::%s operation: %s', I18N::DOMAIN),
                 $table,
                 $this->action,
-            ).$message,
+                $message
+            ),
             $sql
         );
     }

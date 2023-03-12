@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 
-class V_20230312_154010_task extends AbstractMigration
+class V20230312154010task extends AbstractMigration
 {
     public function up(DatabaseConnection $connection): ?string
     {
@@ -37,5 +37,7 @@ SQL;
         } else {
             return 'Table already exist';
         }
+
+        return null;
     }
 }

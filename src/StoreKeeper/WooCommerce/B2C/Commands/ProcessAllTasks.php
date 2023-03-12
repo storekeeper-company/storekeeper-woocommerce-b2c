@@ -365,7 +365,7 @@ class ProcessAllTasks extends AbstractCommand
         TaskModel::validateData($data, true);
 
         $update = TaskModel::getUpdateHelper()
-            ->cols(TaskModel::prepareData($data))
+            ->cols(TaskModel::prepareUpdateData($data))
             ->where('id = :id')
             ->bindValue('id', $id);
 

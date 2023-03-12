@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 
-class V_20230312_154030_attribute_option extends AbstractMigration
+class V20230312154030attributeOption extends AbstractMigration
 {
     public function up(DatabaseConnection $connection): ?string
     {
@@ -42,5 +42,7 @@ SQL;
         } else {
             return 'Table already exist';
         }
+
+        return null;
     }
 }

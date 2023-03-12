@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 
-class V_20230312_154050_refund extends AbstractMigration
+class V20230312154040Payment extends AbstractMigration
 {
     public function up(DatabaseConnection $connection): ?string
     {
@@ -15,18 +15,18 @@ class V_20230312_154050_refund extends AbstractMigration
 
             $query = <<<SQL
     CREATE TABLE `$name` (
-        `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-        `wc_order_id` bigint(20) NOT NULL,
-        `wc_refund_id` bigint(20) NOT NULL,
-        `sk_refund_id` bigint(20) NULL,
+        `order_id` bigint(20) NOT NULL,
+        `payment_id` bigint(20) NOT NULL,
         `amount` TEXT COLLATE utf8mb4_unicode_ci NULL,
         `is_synced` boolean NOT NULL DEFAULT 0,
-        PRIMARY KEY (`id`)
+        PRIMARY KEY (`order_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
             $connection->querySql($query);
         } else {
             return 'Table already exist';
         }
+
+        return null;
     }
 }

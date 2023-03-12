@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Migrations;
 
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
-use StoreKeeper\WooCommerce\B2C\Exceptions\MigrationExeption;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Models\MigrationVersionModel;
 
@@ -33,18 +32,27 @@ class MigrationManager
 
         $logger = LoggerFactory::create('migrations');
         $versions = $this->versions->getVersionsById();
-        $logger->debug('Expected migrations', ['versions' => $versions, 'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION]);
-        $toExecute = MigrationVersionModel::findNotExecutedMigrations($versions);
+
+        $existingIds = MigrationVersionModel::getAllMigrations(array_keys($versions));
+        $toExecute = array_diff_key($versions, array_flip($existingIds));
+
+        $logger->debug('Expected migrations', [
+            'versions' => $versions,
+            'existingIds' => $existingIds,
+            'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+        ]);
 
         if (!empty($toExecute)) {
             $logger->notice('Executing migrations', ['versions' => $toExecute, 'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION]);
-            foreach ($toExecute as $executeId) {
-                if (!array_key_exists($executeId, $versions)) {
-                    throw new MigrationExeption("Version with id=$executeId not found");
-                }
+            foreach ($toExecute as $executeId => $class) {
                 $class = $versions[$executeId];
                 $obj = new $class();
                 $this->migrateOne($executeId, $obj);
+                $logger->info('Migrated', [
+                    'id' => $executeId,
+                    'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                    'class' => $class,
+                ]);
             }
         } else {
             $logger->info('All is migrated', ['versions' => $toExecute, 'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION]);
@@ -61,7 +69,7 @@ class MigrationManager
             [
                 'id' => $id,
                 'plugin_version' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
-                'log' => $log,
+                'log' => $log ?? 'OK',
             ]
         );
     }

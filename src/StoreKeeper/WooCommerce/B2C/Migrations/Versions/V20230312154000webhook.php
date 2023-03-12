@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 
-class V_20230312_154000_webhook extends AbstractMigration
+class V20230312154000webhook extends AbstractMigration
 {
     public function up(DatabaseConnection $connection): ?string
     {
@@ -32,5 +32,7 @@ SQL;
         } else {
             return 'Table already exist';
         }
+
+        return null;
     }
 }

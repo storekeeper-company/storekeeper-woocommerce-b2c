@@ -24,10 +24,6 @@ class WebhookLogModel extends AbstractModel implements IModelPurge
         ];
     }
 
-    public static function createTable(): bool
-    {
-    }
-
     public static function purge(): int
     {
         $affectedRows = 0;
@@ -86,10 +82,5 @@ SQL;
         AbstractModel::ensureAffectedRows($affectedRows);
 
         return (int) $affectedRows;
-    }
-
-    public static function alterTable(): void
-    {
-        // No implementation yet.
     }
 }

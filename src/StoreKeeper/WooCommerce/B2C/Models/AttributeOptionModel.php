@@ -2,15 +2,12 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Models;
 
-use Exception;
-use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeOptionName;
 
 class AttributeOptionModel extends AbstractModel implements IModelPurge
 {
     const TABLE_NAME = 'storekeeper_attribute_options';
-    const TABLE_VERSION = '1.0.0';
 
     public static function getFieldsWithRequired(): array
     {
@@ -24,45 +21,6 @@ class AttributeOptionModel extends AbstractModel implements IModelPurge
             self::FIELD_DATE_CREATED => false,
             self::FIELD_DATE_UPDATED => false,
         ];
-    }
-
-    /**
-     * @throws TableNeedsInnoDbException
-     * @throws Exception
-     */
-    public static function createTable(): bool
-    {
-        $wp = self::getWpPrefix();
-//        self::checkTableEngineInnoDB("{$wp}terms");
-
-        $name = self::getTableName();
-
-        $attributeForeignKey = static::getValidForeignFieldKey('storekeeper_attribute_id_fk', $name);
-        $termsForeignKey = static::getValidForeignFieldKey('term_id_fk', $name);
-
-        $tableQuery = <<<SQL
-    CREATE TABLE `$name` (
-        `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-        `storekeeper_attribute_id` BIGINT(20) UNSIGNED NULL,
-        `term_id` BIGINT(20) UNSIGNED NULL UNIQUE,
-        `common_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
-        `storekeeper_id` BIGINT(20) NOT NULL UNIQUE,
-        `storekeeper_alias` VARCHAR(1500) COLLATE utf8mb4_unicode_ci,
-        `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
-        `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
-        PRIMARY KEY (`id`),
-        CONSTRAINT `$attributeForeignKey` 
-            FOREIGN KEY (`storekeeper_attribute_id`) 
-            REFERENCES  `{$wp}storekeeper_attributes` (`id`)
-            ON DELETE CASCADE ON UPDATE CASCADE,
-        CONSTRAINT `{$termsForeignKey}` 
-            FOREIGN KEY (`term_id`) 
-            REFERENCES  `{$wp}terms` (`term_id`)
-            ON DELETE CASCADE ON UPDATE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQL;
-
-        return static::querySql($tableQuery);
     }
 
     public static function getTermIdByStorekeeperId(int $attribute_id, int $sk_attribute_option_id): ?int

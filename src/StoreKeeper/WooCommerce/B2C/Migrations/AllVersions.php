@@ -3,23 +3,23 @@
 namespace StoreKeeper\WooCommerce\B2C\Migrations;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V_20230312_154000_webhook;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V_20230312_154010_task;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V_20230312_154020_attribute;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V_20230312_154030_attribute_option;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V_20230312_154040_payment;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V_20230312_154050_refund;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154000webhook;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154010task;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154020attribute;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154030attributeOption;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154040Payment;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154050Refund;
 
 class AllVersions implements VersionsInterface
 {
-    const VERSION_REGEX = '/\\V_(?<date>\d{8})_(?<time>\d{6})_\w+$/';
+    const VERSION_REGEX = '/\\V(?<date>\d{8})(?<time>\d{6})\w*$/';
     const VERSION = [
-        V_20230312_154000_webhook::class,
-        V_20230312_154010_task::class,
-        V_20230312_154020_attribute::class,
-        V_20230312_154030_attribute_option::class,
-        V_20230312_154040_payment::class,
-        V_20230312_154050_refund::class,
+        V20230312154000webhook::class,
+        V20230312154010task::class,
+        V20230312154020attribute::class,
+        V20230312154030attributeOption::class,
+        V20230312154040Payment::class,
+        V20230312154050Refund::class,
     ];
 
     public function getVersionId(string $class): int
@@ -28,7 +28,7 @@ class AllVersions implements VersionsInterface
             throw new BaseException('Wrong version class naming: '.$class);
         }
 
-        return  $matches['date'].$matches['time'];
+        return $matches['date'].$matches['time'];
     }
 
     public function getVersionsById(): array

@@ -32,26 +32,15 @@ SQL;
         return $tableQuery;
     }
 
-    public static function createTable(): bool
+    public static function prepareInsertData(array $data): array
     {
-        // todo, remove
+        return self::prepareData($data, true);
     }
 
-    public static function findNotExecutedMigrations(array $expected): array
+    public static function getAllMigrations(): array
     {
-        if (empty($expected)) {
-            return [];
-        }
         global $wpdb;
-        $select = static::getSelectHelper()
-            ->cols([self::PRIMARY_KEY])
-            ->orderBy([self::PRIMARY_KEY])
-        ;
-
-        $select->where(self::PRIMARY_KEY.' NOT IN :ids');
-        $select->bindValues([
-            'ids' => $expected,
-        ]);
+        $select = static::getSelectHelper()->cols([self::PRIMARY_KEY]);
 
         $query = static::prepareQuery($select);
 

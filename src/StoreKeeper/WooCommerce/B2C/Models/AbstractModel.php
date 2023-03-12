@@ -25,19 +25,8 @@ abstract class AbstractModel implements IModel
 {
     public const FIELD_DATE_CREATED = 'date_created';
     public const FIELD_DATE_UPDATED = 'date_updated';
-    public const TABLE_VERSION = '1.0.0';
     public const MAX_FOREIGN_KEY_LENGTH = 63;
     const PRIMARY_KEY = 'id';
-
-    public static function getTableVersion(): string
-    {
-        return get_option(static::TABLE_NAME.'_version');
-    }
-
-    private static function setTableVersion()
-    {
-        update_option(static::TABLE_NAME.'_version', static::TABLE_VERSION);
-    }
 
     const TABLE_NAME = 'storekeeper_abstract';
 
@@ -63,29 +52,6 @@ abstract class AbstractModel implements IModel
         }
 
         return true;
-    }
-
-    public static function ensureTable(): bool
-    {
-        if (!static::hasTable()) {
-            if (static::createTable()) {
-                static::setTableVersion();
-
-                return true;
-            }
-
-            return false;
-        } elseif (static::isTableOutdated()) {
-            static::alterTable();
-            static::setTableVersion();
-        }
-
-        return true;
-    }
-
-    protected static function isTableOutdated(): bool
-    {
-        return version_compare(static::TABLE_VERSION, static::getTableVersion(), '>');
     }
 
     public static function validateData(array $data, $isUpdate = false): void
@@ -118,19 +84,14 @@ abstract class AbstractModel implements IModel
         }
     }
 
-    public static function prepareData(array $data): array
+    public static function prepareInsertData(array $data): array
     {
-        $preparedData = [];
+        return self::prepareData($data, false);
+    }
 
-        foreach (static::getFieldsWithRequired() as $key => $required) {
-            if (!empty($data[$key])) {
-                if (static::PRIMARY_KEY !== $key) {
-                    $preparedData[$key] = $data[$key];
-                }
-            }
-        }
-
-        return $preparedData;
+    public static function prepareUpdateData(array $data): array
+    {
+        return self::prepareData($data, false);
     }
 
     public static function hasTable(): bool
@@ -212,9 +173,7 @@ WHERE
             $data[self::FIELD_DATE_UPDATED] = DatabaseConnection::formatToDatabaseDate();
         }
 
-        $insert = static::getInsertHelper()
-            ->cols(static::prepareData($data));
-
+        $insert = static::getInsertHelper()->cols(static::prepareInsertData($data));
         $query = static::prepareQuery($insert);
 
         $affectedRows = $wpdb->query($query);
@@ -275,7 +234,7 @@ WHERE
         }
 
         $update = static::getUpdateHelper()
-            ->cols(static::prepareData($data))
+            ->cols(static::prepareUpdateData($data))
             ->where(static::PRIMARY_KEY.' = :id')
             ->bindValue('id', $id);
 
@@ -435,10 +394,6 @@ WHERE
             ->prepare($query);
     }
 
-    public static function alterTable(): void
-    {
-    }
-
     public static function purge(): int
     {
         return 0;
@@ -461,5 +416,20 @@ WHERE
         }
 
         return $foreignKeyName;
+    }
+
+    protected static function prepareData(array $data, bool $includePk): array
+    {
+        $preparedData = [];
+
+        foreach (static::getFieldsWithRequired() as $key => $required) {
+            if (!empty($data[$key])) {
+                if ($includePk || static::PRIMARY_KEY !== $key) {
+                    $preparedData[$key] = $data[$key];
+                }
+            }
+        }
+
+        return $preparedData;
     }
 }

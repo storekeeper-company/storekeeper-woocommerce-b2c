@@ -18,7 +18,7 @@ test-pull:
 test:
 	docker-compose -f docker-compose.test.yml build
 	docker-compose -f docker-compose.test.yml up -d db-test web-test
-	docker-compose -f docker-compose.test.yml exec -T web-test run-unit-tests --filter OrderPaymentTest # todo remove it
+	docker-compose -f docker-compose.test.yml exec -T web-test run-unit-tests
 
 ## ---- Translations ----------------------------------------
 extract-translations:
