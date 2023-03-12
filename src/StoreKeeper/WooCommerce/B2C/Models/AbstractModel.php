@@ -10,6 +10,7 @@ use Aura\SqlQuery\QueryInterface;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\TableOperationSqlException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModel;
 use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
@@ -25,6 +26,7 @@ abstract class AbstractModel implements IModel
     public const FIELD_DATE_UPDATED = 'date_updated';
     public const TABLE_VERSION = '1.0.0';
     public const MAX_FOREIGN_KEY_LENGTH = 63;
+    const PRIMARY_KEY = 'id';
 
     public static function getTableVersion(): string
     {
@@ -88,13 +90,13 @@ abstract class AbstractModel implements IModel
     public static function validateData(array $data, $isUpdate = false): void
     {
         if ($isUpdate) {
-            if (empty($data['id'])) {
+            if (empty($data[static::PRIMARY_KEY])) {
                 $stringData = json_encode($data);
                 throw new Exception('Update: Object is missing ID: '.$stringData);
             }
             foreach (static::getFieldsWithRequired() as $key => $required) {
                 if (
-                    'id' !== $key
+                    static::PRIMARY_KEY !== $key
                     && $required
                     && array_key_exists($key, $data)
                     && is_null($data[$key])
@@ -105,7 +107,7 @@ abstract class AbstractModel implements IModel
         } else {
             foreach (static::getFieldsWithRequired() as $key => $required) {
                 if (
-                    'id' !== $key
+                    static::PRIMARY_KEY !== $key
                     && $required
                     && !isset($data[$key])
                 ) {
@@ -121,7 +123,7 @@ abstract class AbstractModel implements IModel
 
         foreach (static::getFieldsWithRequired() as $key => $required) {
             if (!empty($data[$key])) {
-                if ('id' !== $key) {
+                if (static::PRIMARY_KEY !== $key) {
                     $preparedData[$key] = $data[$key];
                 }
             }
@@ -222,6 +224,9 @@ WHERE
         $query = static::prepareQuery($insert);
 
         $affectedRows = $wpdb->query($query);
+        if (false === $affectedRows) {
+            throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__, $query);
+        }
 
         static::ensureAffectedRows($affectedRows, true);
 
@@ -234,7 +239,7 @@ WHERE
 
         $select = static::getSelectHelper()
             ->cols(['*'])
-            ->where('id = :id')
+            ->where(static::PRIMARY_KEY.' = :id')
             ->bindValue('id', $id);
 
         $query = static::prepareQuery($select);
@@ -267,7 +272,7 @@ WHERE
     {
         global $wpdb;
 
-        $data['id'] = $id;
+        $data[static::PRIMARY_KEY] = $id;
         static::validateData($data, true);
 
         $fields = static::getFieldsWithRequired();
@@ -277,12 +282,16 @@ WHERE
 
         $update = static::getUpdateHelper()
             ->cols(static::prepareData($data))
-            ->where('id = :id')
+            ->where(static::PRIMARY_KEY.' = :id')
             ->bindValue('id', $id);
 
         $query = static::prepareQuery($update);
 
         $affectedRows = $wpdb->query($query);
+
+        if (false === $affectedRows) {
+            throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__, $query);
+        }
 
         static::ensureAffectedRows($affectedRows, true);
     }
@@ -292,7 +301,7 @@ WHERE
         if (empty($existingRow)) {
             $id = static::create($updates);
         } else {
-            $id = $existingRow['id'];
+            $id = $existingRow[static::PRIMARY_KEY];
             $hasChange = false;
             foreach ($updates as $k => $v) {
                 if ($v != $existingRow[$k]) {
@@ -317,9 +326,13 @@ WHERE
         $affectedRows = $wpdb->delete(
             static::getTableName(),
             [
-                'id' => $id,
+                static::PRIMARY_KEY => $id,
             ]
         );
+
+        if (false === $affectedRows) {
+            throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__);
+        }
 
         static::ensureAffectedRows($affectedRows, true);
     }
@@ -329,14 +342,20 @@ WHERE
         global $wpdb;
 
         $select = static::getSelectHelper()
-            ->cols(['count(id)'])
+            ->cols(['count('.static::PRIMARY_KEY.')'])
             ->bindValues($whereValues);
 
         foreach ($whereClauses as $whereClause) {
             $select->where($whereClause);
         }
 
-        return $wpdb->get_var(static::prepareQuery($select));
+        $query = static::prepareQuery($select);
+        $result = $wpdb->get_var($query);
+        if (null === $result) {
+            throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__, $query);
+        }
+
+        return $result;
     }
 
     public static function ensureAffectedRows($affectedRows, bool $checkRowAmount = false)

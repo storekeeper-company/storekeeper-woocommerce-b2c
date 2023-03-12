@@ -9,10 +9,12 @@ class PaymentModel extends AbstractModel implements IModelPurge
     const TABLE_NAME = 'storekeeper_pay_orders_payments';
     const TABLE_VERSION = '1.1.0';
 
+    const PRIMARY_KEY = 'order_id';
+
     public static function getFieldsWithRequired(): array
     {
         return [
-            'order_id' => true,
+            self::PRIMARY_KEY => true,
             'payment_id' => true,
             'amount' => false,
             'is_synced' => true,

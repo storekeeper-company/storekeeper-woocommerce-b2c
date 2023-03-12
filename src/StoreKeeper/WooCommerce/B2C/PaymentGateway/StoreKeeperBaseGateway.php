@@ -22,6 +22,11 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
     const STATUS_FAILED = 'failed';
     private $provider_method_id;
 
+    /**
+     * @var \Throwable|null
+     */
+    private $lastError = null;
+
     public function __construct(string $id, string $title, int $provider_method_id, string $icon_url)
     {
         $this->id = $id;
@@ -57,9 +62,24 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         } catch (\Throwable $exception) {
             LoggerFactory::create('checkout')->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             LoggerFactory::createErrorTask('process-payment', $exception);
+
+            $this->lastError = $exception;
         }
 
         return [];
+    }
+
+    public function getLastError(): ?\Throwable
+    {
+        return $this->lastError;
+    }
+
+    /**
+     * @param \Throwable|null $lastError
+     */
+    public function clearLastError(): void
+    {
+        $this->lastError = null;
     }
 
     private function getPaymentUrl(\WC_Order $order)
@@ -125,13 +145,9 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         //we insert the order id with payment id here so on the detail page later on we can check
         //whether or not the order is paid
         if (PaymentGateway::hasPayment($order->get_id())) {
-            $update = PaymentGateway::updatePayment($order->get_id(), $payment['id'], $order->get_total());
+            PaymentGateway::updatePayment($order->get_id(), $payment['id'], $order->get_total());
         } else {
-            $update = PaymentGateway::addPayment($order->get_id(), $payment['id'], $order->get_total());
-        }
-
-        if (!$update) {
-            throw new \Exception('Not able to add or update payment');
+            PaymentGateway::addPayment($order->get_id(), $payment['id'], $order->get_total());
         }
 
         // Make a note about the current payment after creation

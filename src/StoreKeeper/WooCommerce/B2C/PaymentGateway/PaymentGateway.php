@@ -124,30 +124,15 @@ SQL;
      *
      * @return bool whenever the payment update was success or not
      */
-    public static function updatePayment($order_id, $payment_id, $amount)
+    public static function updatePayment(int $order_id, int $payment_id, string $amount, bool $is_synced = false)
     {
-        global $wpdb;
-
-        return false !== $wpdb->update(
-            // table
-                PaymentModel::getTableName(),
-                // data
-                [
-                    'payment_id' => $payment_id,
-                    'is_synced' => false, // Update un sets the payment sync status.
-                    'amount' => $amount,
-                ],
-                // where
-                ['order_id' => $order_id],
-                // data format
-                [
-                    '%d',
-                    '%d',
-                    '%s',
-                ],
-                    // where format
-                ['%d']
-            );
+        PaymentModel::update(
+            $order_id,
+            [
+                'payment_id' => $payment_id,
+                'amount' => $amount,
+            ]
+        );
     }
 
     /**
@@ -157,26 +142,16 @@ SQL;
      *
      * @return bool
      */
-    public static function addPayment($order_id, $payment_id, $amount)
+    public static function addPayment(int $order_id, int $payment_id, string $amount, bool $is_synced = false)
     {
-        global $wpdb;
-
-        return false !== $wpdb->insert(
-            // table
-                PaymentModel::getTableName(),
-                // data
-                [
-                    'order_id' => $order_id,
-                    'payment_id' => $payment_id,
-                    'amount' => $amount,
-                ],
-                // format
-                [
-                    '%d',
-                    '%d',
-                    '%s',
-                ]
-            );
+        return PaymentModel::create(
+            [
+                'order_id' => $order_id,
+                'payment_id' => $payment_id,
+                'amount' => $amount,
+                'is_synced' => $is_synced,
+            ]
+        );
     }
 
     /**

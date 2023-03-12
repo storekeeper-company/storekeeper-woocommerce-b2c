@@ -776,48 +776,40 @@ class OrderExport extends AbstractExport
 
                 // Order paid in WP but not in the Backoffice.
                 if (!$storekeeper_is_paid) {
-                    // Try to mark the order as paid in the backoffice
-                    try {
-                        $PaymentModule = $this->storekeeper_api->getModule('PaymentModule');
+                    $PaymentModule = $this->storekeeper_api->getModule('PaymentModule');
 
-                        $paymentGateway = wc_get_payment_gateway_by_order($WpObject);
-                        if ($paymentGateway) {
-                            $paymentGatewayTitle = $paymentGateway->get_method_title();
-                            $comment = $paymentGatewayTitle.' ('.__('Wordpress plugin').')';
-                        } else {
-                            $comment = ucwords(str_replace('pay_gateway_', '', $WpObject->get_payment_method()));
-                        }
+                    $paymentGateway = wc_get_payment_gateway_by_order($WpObject);
+                    if ($paymentGateway) {
+                        $paymentGatewayTitle = $paymentGateway->get_method_title();
+                        $comment = $paymentGatewayTitle.' ('.__('Wordpress plugin').')';
+                    } else {
+                        $comment = ucwords(str_replace('pay_gateway_', '', $WpObject->get_payment_method()));
+                    }
 
-                        if (!empty($WpObject->get_meta('transactionId'))) {
-                            $comment .= ' #'.$WpObject->get_meta('transactionId');
-                        } elseif (!empty($WpObject->get_transaction_id())) {
-                            $comment .= ' #'.$WpObject->get_transaction_id();
-                        }
+                    if (!empty($WpObject->get_meta('transactionId'))) {
+                        $comment .= ' #'.$WpObject->get_meta('transactionId');
+                    } elseif (!empty($WpObject->get_transaction_id())) {
+                        $comment .= ' #'.$WpObject->get_transaction_id();
+                    }
 
-                        $paymentId = $PaymentModule->newWebPayment([
-                            'amount' => $WpObject->get_total(),
-                            'description' => $comment,
-                        ]);
+                    $paymentId = $PaymentModule->newWebPayment([
+                        'amount' => $WpObject->get_total(),
+                        'description' => $comment,
+                    ]);
 
-                        if ($paymentId) {
-                            PaymentGateway::addPayment($WpObject->get_id(), $paymentId, $WpObject->get_total());
-                            // Check for the error being thrown.
-                            try {
-                                $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$paymentId]], $storekeeper_id);
-                            } catch (GeneralException $generalException) {
-                                // Check if the payment is already attached to the order, we can ignore it an move on.
-                                $strpos = strpos($generalException->getMessage(), 'This payment is already linked');
-                                if (!is_numeric($strpos)) {
-                                    throw $generalException;
-                                }
+                    if ($paymentId) {
+                        PaymentGateway::addPayment($WpObject->get_id(), $paymentId, $WpObject->get_total());
+                        // Check for the error being thrown.
+                        try {
+                            $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$paymentId]], $storekeeper_id);
+                        } catch (GeneralException $generalException) {
+                            // Check if the payment is already attached to the order, we can ignore it an move on.
+                            $strpos = strpos($generalException->getMessage(), 'This payment is already linked');
+                            if (false === $strpos) {
+                                throw $generalException;
                             }
-                            PaymentGateway::markPaymentAsSynced($WpObject->get_id());
                         }
-                    } catch (GeneralException $generalException) {
-                        // If the error message is not that the order was already paid, Re-throw the order.
-                        if ('Order is already paid' !== trim($generalException->getMessage())) {
-                            throw $generalException;
-                        }
+                        PaymentGateway::markPaymentAsSynced($WpObject->get_id());
                     }
 
                     $this->debug('The order is paid: Marked the order as paid. '.$comment);
