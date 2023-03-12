@@ -59,7 +59,7 @@ class ProcessAllTasks extends AbstractCommand
             [
                 'type' => 'flag',
                 'name' => self::ARG_FAIL_ON_ERROR,
-                'description' => __('It will stop on first task failing', I18N::DOMAIN),
+                'description' => __('It will stop on first failing task', I18N::DOMAIN),
                 'optional' => true,
             ],
         ];
@@ -71,6 +71,9 @@ class ProcessAllTasks extends AbstractCommand
     public function execute(array $arguments, array $assoc_arguments)
     {
         $rethrow = !empty($assoc_arguments[self::ARG_FAIL_ON_ERROR]);
+        if ($rethrow) {
+            $this->logger->notice('Processing will stop on first failing task');
+        }
         $task_ids = [];
         try {
             $this->lock();
