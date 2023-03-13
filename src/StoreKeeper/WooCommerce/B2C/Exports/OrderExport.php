@@ -518,31 +518,27 @@ class OrderExport extends AbstractExport
         /**
          * @var $orderProduct WC_Order_Item_Product
          */
-        foreach ($order->get_items() as $index => $orderProduct) {
-            $this->debug($index.' Adding product item');
+        foreach ($order->get_items() as $index => $orderItemProduct) {
+            $this->debug('Adding product item', [
+                'name' => $orderItemProduct->get_name(),
+                'order_id' => $orderItemProduct->get_order_id(),
+                'quantity' => $orderItemProduct->get_quantity(),
+            ]);
 
-            $variationProductId = $orderProduct->get_variation_id();
-            $isVariation = $variationProductId > 0; // Variation_id is 0 by default, if it is any other, its a variation products;
+            $currentProduct = $this->getProductForOrderLine($orderItemProduct, $productFactory);
 
-            if ($isVariation) {
-                $productId = $variationProductId;
-            } else {
-                $productId = $orderProduct->get_product_id();
-            }
-
-            $currentProduct = $productFactory->get_product($productId);
-
-            if (false === $currentProduct) {
+            if (is_null($currentProduct)) {
                 $data = [
                     'isSkipped' => true,
-                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
-                    'name' => $orderProduct->get_name(self::CONTEXT),
+                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderItemProduct->get_name(self::CONTEXT),
                 ];
                 $this->debug($index.' Woocommerce product object can\'t be found, it may have been deleted and this will be skipped during checking', [
-                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
-                    'name' => $orderProduct->get_name(self::CONTEXT),
+                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderItemProduct->get_name(self::CONTEXT),
                 ]);
             } else {
+                $productId = $currentProduct->get_id();
                 if (array_key_exists($productId, $shopProductIdMap)) {
                     $shopProductId = $shopProductIdMap[$productId];
                 } else {
@@ -550,31 +546,35 @@ class OrderExport extends AbstractExport
                 }
 
                 $description = '';
-                if ($isVariation) {
+                if ($currentProduct instanceof \WC_Product_Variation) {
                     /**
                      * @var $meta_datum WC_Meta_Data
                      *                  This is the metadata that is set on the product order, for a variation product that.
                      *                  More info about meta_data: https://docs.woocommerce.com/wc-apidocs/class-WC_Data.html
                      */
-                    $metaData = $orderProduct->get_meta_data();
+                    $metaData = $orderItemProduct->get_meta_data();
                     $meta = [];
                     foreach ($metaData as $metaDatum) {
                         $data = $metaDatum->get_data();
                         $meta[] = $data['value'];
                     }
                     $description = implode(', ', $meta);
+
+                    if (empty($description)) {
+                        $description = $currentProduct->get_attribute_summary();
+                    }
                 }
 
                 $this->debug('Got product', $currentProduct);
 
                 $data = [
-                    'sku' => $currentProduct ? $currentProduct->get_sku(self::CONTEXT) : $orderProduct->get_name(
-                        self::CONTEXT
-                    ),
-                    'ppu_wt' => $order->get_item_total($orderProduct, true, false), //get price with discount
-                    'before_discount_ppu_wt' => $order->get_item_subtotal($orderProduct, true, false), //get without discount
-                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
-                    'name' => $orderProduct->get_name(self::CONTEXT),
+                    'sku' => $currentProduct ?
+                        $currentProduct->get_sku(self::CONTEXT) :
+                        $orderItemProduct->get_name(self::CONTEXT),
+                    'ppu_wt' => $order->get_item_total($orderItemProduct, true, false), //get price with discount
+                    'before_discount_ppu_wt' => $order->get_item_subtotal($orderItemProduct, true, false), //get without discount
+                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderItemProduct->get_name(self::CONTEXT),
                     'description' => $description,
                     'shop_product_id' => $shopProductId,
                 ];
@@ -584,13 +584,14 @@ class OrderExport extends AbstractExport
                     $data['name'] = $currentProduct->get_name(self::CONTEXT);
                 }
 
-                $productData = $orderProduct->get_data();
+                $productData = $orderItemProduct->get_data();
                 // Need to unset meta_data as it changes like '_reduced_stock' which causes order difference error
                 unset($productData['meta_data']);
                 $extra = [
-                    'wp_row_id' => $orderProduct->get_id(),
+                    'wp_row_id' => $orderItemProduct->get_id(),
                     'wp_row_md5' => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
                     'wp_row_type' => self::ROW_PRODUCT_TYPE,
+                    'wp_product_id' => $currentProduct->get_id(),
                 ];
 
                 $data['extra'] = $extra;
@@ -947,5 +948,35 @@ class OrderExport extends AbstractExport
             'streetnumber' => $streetNumber,
             'flatnumber' => '',
         ];
+    }
+
+    protected function getProductForOrderLine(\WC_Order_Item $orderItemProduct, WC_Product_Factory $productFactory): ?WC_Product
+    {
+        $variationProductId = $orderItemProduct->get_variation_id();
+        $isVariation = $variationProductId > 0; // Variation_id is 0 by default, if it is any other, its a variation products;
+        if ($isVariation) {
+            $productId = $variationProductId;
+            $currentProduct = $productFactory->get_product($productId);
+        } else {
+            $productId = $orderItemProduct->get_product_id();
+
+            // not a variation but might be variable due to gui bug
+            $currentProduct = $productFactory->get_product($productId);
+            if ($currentProduct instanceof \WC_Product_Variable) {
+                $variations = $currentProduct->get_visible_children();
+                $count = count($variations);
+                if (1 === $count) {
+                    $productId = array_pop($variations);
+                } else {
+                    throw new ExportException('Order contains a variable product '.$currentProduct->get_name().' with '.$count.' variations. Fixed the order manually in woocommerce to a correct product.');
+                }
+                $currentProduct = $productFactory->get_product($productId);
+            }
+        }
+        if (false === $currentProduct) {
+            return null;
+        }
+
+        return $currentProduct;
     }
 }
