@@ -12,6 +12,7 @@ class MigrationVersionModel extends AbstractModel
             'id' => true,
             'plugin_version' => true,
             'log' => false,
+            'class' => false,
             self::FIELD_DATE_CREATED => false,
         ];
     }
@@ -23,7 +24,8 @@ class MigrationVersionModel extends AbstractModel
     CREATE TABLE `$name` (
         `id` BIGINT(20) UNSIGNED NOT NULL,
         `plugin_version` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `log` TEXT COLLATE utf8mb4_unicode_ci NULL,
+        `log` TEXT(5000) COLLATE utf8mb4_unicode_ci NULL,
+        `class` TEXT(5000) COLLATE utf8mb4_unicode_ci NULL,
         `date_created` TIMESTAMP NOT NULL,
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

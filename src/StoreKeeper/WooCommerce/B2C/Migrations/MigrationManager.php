@@ -70,6 +70,7 @@ class MigrationManager
                 'id' => $id,
                 'plugin_version' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
                 'log' => $log ?? 'OK',
+                'class' => get_class($migration),
             ]
         );
     }
