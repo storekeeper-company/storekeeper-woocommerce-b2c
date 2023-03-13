@@ -453,7 +453,6 @@ SQL;
     {
         global $wpdb;
 
-        // Pay NL
         $payment_id = null;
         $table_name = PaymentModel::getTableName();
 
@@ -467,10 +466,10 @@ SQL;
         // Getting the results and getting the first one.
         $results = $wpdb->get_results($sql, ARRAY_A);
         if (!empty($results)) {
-            $payment_id = array_shift($results)['payment_id'];
+            $payment_id = (int) array_shift($results)['payment_id'];
         }
 
-        return $payment_id;
+        return  $payment_id;
     }
 
     public static function getPaymentAmount($order_id)

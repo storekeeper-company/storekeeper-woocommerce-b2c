@@ -726,13 +726,13 @@ class OrderExport extends AbstractExport
         $this->processRefunds($woocommerceOrderId, $storekeeper_id);
     }
 
-    protected function processPayments(WC_Order $WpObject, int $storekeeper_id, $storekeeperOrder): void
+    protected function processPayments(WC_Order $WpObject, int $storekeeper_id, array $storekeeperOrder): void
     {
-        $isPaidInBackoffice = $storekeeperOrder['is_paid'];
+        $isPaidInBackoffice =  (bool)  $storekeeperOrder['is_paid'];
         $shopModule = $this->storekeeper_api->getModule('ShopModule');
 
         if (PaymentGateway::hasPayment($WpObject->get_id())) {
-            if( !PaymentGateway::isPaymentSynced($WpObject->get_id()) ){
+            if (!PaymentGateway::isPaymentSynced($WpObject->get_id())) {
                 $gateway_payment_id = PaymentGateway::getPaymentId($WpObject->get_id());
                 $this->debug(
                     'Attaching payment to order',
@@ -754,29 +754,19 @@ class OrderExport extends AbstractExport
                 // payment is already synchronized
             }
         } else {
-            // no sk payment at this point
-
-            // Check if the WP order is paid and has not PaymentGateway payment.
-            // Example: the order was paid using the PayNL plugin
-
-            if (
-                ($WpObject->is_paid() && !PaymentGateway::hasPayment($WpObject->get_id())) || // Paid in WordPress, but no payment from payment gateway
-                (
-                    $WpObject->is_paid() &&
-                    PaymentGateway::hasPayment($WpObject->get_id()) &&
-                    PaymentGateway::isPaymentSynced($WpObject->get_id()) &&
-                    !$isPaidInBackoffice
-                ) // Paid in WordPress, has payment in payment gateway, but not marked as paid in WordPress
-            ) {
+            // no sk payment yes at this point
+            if ($WpObject->is_paid()) {
                 /**
-                 * Retrieve the current payment status of the order from the backend.
-                 * When the invoice is already payed, we should't set the payment again.
+                 * WP order is paid and has not PaymentGateway payment.
+                 * Example: the order was paid using the PayNL plugin
                  */
-                $storekeeper_is_paid = (bool) $isPaidInBackoffice;
-                $this->debug('Backend payment state of this order', json_encode($storekeeper_is_paid));
+                $this->debug('Backend payment state of this order (wp order is paid)', [
+                    'storekeeper_order_is_paid' => $isPaidInBackoffice,
+                    'order_id' => $WpObject->get_id()
+                ]);
 
                 // Order paid in WP but not in the Backoffice.
-                if (!$storekeeper_is_paid) {
+                if (!$isPaidInBackoffice) {
                     $PaymentModule = $this->storekeeper_api->getModule('PaymentModule');
 
                     $paymentGateway = wc_get_payment_gateway_by_order($WpObject);
@@ -842,15 +832,16 @@ class OrderExport extends AbstractExport
 
                 try {
                     $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$refundPaymentId]], $storekeeperId);
-                    PaymentGateway::markRefundAsSynced($woocommerceOrderId, $refundPaymentId, $refundId);
                 } catch (Throwable $exception) {
                     $this->debug('Refund was not attached to order', [
                         'order_id' => $storekeeperId,
                         'payment_id' => $refundPaymentId,
+                        'error' => $exception->getMessage()
                     ]);
 
                     throw $exception;
                 }
+                PaymentGateway::markRefundAsSynced($woocommerceOrderId, $refundPaymentId, $refundId);
             }
         }
 
@@ -862,6 +853,8 @@ class OrderExport extends AbstractExport
                 } catch (Throwable $exception) {
                     $this->debug('Failed to refund order', [
                         'order_id' => $storekeeperId,
+                        'error' => $exception->getMessage(),
+                        'unsyncedRefundsWithoutId' => $unsyncedRefundsWithoutId
                     ]);
 
                     throw $exception;

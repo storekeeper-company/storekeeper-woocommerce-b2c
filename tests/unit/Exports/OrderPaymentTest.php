@@ -71,19 +71,6 @@ class OrderPaymentTest extends AbstractOrderExportTest
         $getOrderStatus = OrderExport::STATUS_NEW; // initial getOrder status return
 
         // Mockup tasks
-        // todo
-//        StoreKeeperApi::$mockAdapter->withModule(
-//            'PaymentModule',
-//            function (MockInterface $module) use ($sk_cancelled_payment_id, $sk_paid_payment_id) {
-//                $module->shouldReceive('newWebPayment')->andReturnUsing(
-//                    function ($got) use ($sk_cancelled_payment_id, $sk_paid_payment_id) {
-//                        $payment = $got[0];
-//
-//                        return $skPaymentId;
-//                    }
-//                );
-//            }
-//        );
         StoreKeeperApi::$mockAdapter
             ->withModule(
                 'ShopModule',
