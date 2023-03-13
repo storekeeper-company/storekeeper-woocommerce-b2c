@@ -215,8 +215,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
                 }
             );
 
-
-        /**
+        /*
          * cancelled payment on order.
          */
         $OrderHandler->create($wc_order_id);
@@ -242,7 +241,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
             'Order status changed'
         );
 
-        /**
+        /*
          * paid payment on order.
          */
         $this->createPaymentForMethodId($sk_paid_method_id, $wc_order, 'Create paid payment');

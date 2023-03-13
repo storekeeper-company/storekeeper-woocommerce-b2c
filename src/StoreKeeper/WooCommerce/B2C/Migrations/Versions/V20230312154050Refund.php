@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\Migrations\Versions;
 
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
-use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 
 class V20230312154050Refund extends AbstractMigration

@@ -144,7 +144,7 @@ SQL;
             [
                 'payment_id' => $payment_id,
                 'amount' => $amount,
-                'is_synced' => $is_synced
+                'is_synced' => $is_synced,
             ]
         );
     }
@@ -469,7 +469,7 @@ SQL;
             $payment_id = (int) array_shift($results)['payment_id'];
         }
 
-        return  $payment_id;
+        return $payment_id;
     }
 
     public static function getPaymentAmount($order_id)

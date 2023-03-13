@@ -728,8 +728,7 @@ class OrderExport extends AbstractExport
 
     protected function processPayments(WC_Order $WpObject, int $storekeeper_id, array $storekeeperOrder): void
     {
-        $isPaidInBackoffice =  (bool)  $storekeeperOrder['is_paid'];
-        $shopModule = $this->storekeeper_api->getModule('ShopModule');
+        $isPaidInBackoffice = (bool) $storekeeperOrder['is_paid'];
 
         if (PaymentGateway::hasPayment($WpObject->get_id())) {
             if (!PaymentGateway::isPaymentSynced($WpObject->get_id())) {
@@ -738,17 +737,7 @@ class OrderExport extends AbstractExport
                     'Attaching payment to order',
                     ['order_id' => $storekeeper_id, 'payment_id' => $gateway_payment_id]
                 );
-
-                // Check for the error being thrown.
-                try {
-                    $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$gateway_payment_id]], $storekeeper_id);
-                } catch (GeneralException $generalException) {
-                    // Check if the payment is already attached to the order, we can ignore it an move on.
-                    $strpos = strpos($generalException->getMessage(), 'This payment is already linked');
-                    if (false === $strpos) {
-                        throw $generalException;
-                    }
-                }
+                $this->syncPaymentToBackend($gateway_payment_id, $storekeeper_id);
                 PaymentGateway::markPaymentAsSynced($WpObject->get_id());
             } else {
                 // payment is already synchronized
@@ -756,13 +745,13 @@ class OrderExport extends AbstractExport
         } else {
             // no sk payment yes at this point
             if ($WpObject->is_paid()) {
-                /**
+                /*
                  * WP order is paid and has not PaymentGateway payment.
                  * Example: the order was paid using the PayNL plugin
                  */
                 $this->debug('Backend payment state of this order (wp order is paid)', [
                     'storekeeper_order_is_paid' => $isPaidInBackoffice,
-                    'order_id' => $WpObject->get_id()
+                    'order_id' => $WpObject->get_id(),
                 ]);
 
                 // Order paid in WP but not in the Backoffice.
@@ -790,15 +779,7 @@ class OrderExport extends AbstractExport
 
                     if ($paymentId) {
                         PaymentGateway::addPayment($WpObject->get_id(), $paymentId, $WpObject->get_total());
-                        try {
-                            $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$paymentId]], $storekeeper_id);
-                        } catch (GeneralException $generalException) {
-                            // Check if the payment is already attached to the order, we can ignore it an move on.
-                            $strpos = strpos($generalException->getMessage(), 'This payment is already linked');
-                            if (false === $strpos) {
-                                throw $generalException;
-                            }
-                        }
+                        $this->syncPaymentToBackend($paymentId, $storekeeper_id);
                         PaymentGateway::markPaymentAsSynced($WpObject->get_id());
                     }
 
@@ -830,17 +811,7 @@ class OrderExport extends AbstractExport
                     ['order_id' => $storekeeperId, 'payment_id' => $refundPaymentId]
                 );
 
-                try {
-                    $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$refundPaymentId]], $storekeeperId);
-                } catch (Throwable $exception) {
-                    $this->debug('Refund was not attached to order', [
-                        'order_id' => $storekeeperId,
-                        'payment_id' => $refundPaymentId,
-                        'error' => $exception->getMessage()
-                    ]);
-
-                    throw $exception;
-                }
+                $this->syncPaymentToBackend($refundPaymentId, $storekeeperId);
                 PaymentGateway::markRefundAsSynced($woocommerceOrderId, $refundPaymentId, $refundId);
             }
         }
@@ -854,7 +825,7 @@ class OrderExport extends AbstractExport
                     $this->debug('Failed to refund order', [
                         'order_id' => $storekeeperId,
                         'error' => $exception->getMessage(),
-                        'unsyncedRefundsWithoutId' => $unsyncedRefundsWithoutId
+                        'unsyncedRefundsWithoutId' => $unsyncedRefundsWithoutId,
                     ]);
 
                     throw $exception;
@@ -906,8 +877,7 @@ class OrderExport extends AbstractExport
                         'payment_id' => $storekeeperRefundId,
                     ]);
                     PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
-
-                    $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$storekeeperRefundId]], $storekeeperId);
+                    $this->syncPaymentToBackend($storekeeperRefundId, $storekeeperId);
                 } else {
                     throw $generalException;
                 }
@@ -921,8 +891,7 @@ class OrderExport extends AbstractExport
                 'payment_id' => $storekeeperRefundId,
             ]);
             PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
-
-            $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$storekeeperRefundId]], $storekeeperId);
+            $this->syncPaymentToBackend($storekeeperRefundId, $storekeeperId);
             PaymentGateway::markRefundAsSynced($woocommerceOrderId, $storekeeperRefundId, $refundId);
         }
     }
@@ -970,5 +939,31 @@ class OrderExport extends AbstractExport
         }
 
         return $currentProduct;
+    }
+
+    protected function isAlreadyLinkedError($generalException): bool
+    {
+        return false !== strpos($generalException->getMessage(), 'This payment is already linked');
+    }
+
+    protected function syncPaymentToBackend($storekeeperPaymentId, $storekeeperOrderId): void
+    {
+        $shopModule = $this->storekeeper_api->getModule('ShopModule');
+        try {
+            $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$storekeeperPaymentId]], $storekeeperOrderId);
+        } catch (GeneralException $generalException) {
+            // Check if the payment is already attached to the order, we can ignore it an move on.
+            if (!$this->isAlreadyLinkedError($generalException)) {
+                throw $generalException;
+            }
+        } catch (Throwable $exception) {
+            $this->debug('Failed to attach payment to order', [
+                'order_id' => $storekeeperOrderId,
+                'payment_id' => $storekeeperPaymentId,
+                'error' => $exception->getMessage(),
+            ]);
+
+            throw $exception;
+        }
     }
 }
