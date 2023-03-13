@@ -124,15 +124,10 @@ SQL;
      */
     public static function markPaymentAsSynced($order_id)
     {
-        global $wpdb;
-
-        return false !== $wpdb->update(
-                PaymentModel::getTableName(), // table
-                ['is_synced' => true], // data
-                ['order_id' => $order_id], // where
-                ['%d'], // data format
-                ['%d'] // where format
-            );
+        PaymentModel::update(
+            $order_id,
+            ['is_synced' => true]
+        );
     }
 
     /**
@@ -149,6 +144,7 @@ SQL;
             [
                 'payment_id' => $payment_id,
                 'amount' => $amount,
+                'is_synced' => $is_synced
             ]
         );
     }
@@ -520,7 +516,7 @@ SQL;
                 $shop_module = $api->getModule('ShopModule');
                 $payment = $shop_module->syncWebShopPaymentWithReturn($payment_id);
 
-                if (in_array($payment['status'], ['paid', 'authorized'], true)) {
+                if (in_array($payment['status'], self::PAYMENT_PAID_STATUSES, true)) {
                     //payment in backend is marked as paid
                     $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING);
                     $order->save();

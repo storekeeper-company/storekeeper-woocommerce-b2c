@@ -71,6 +71,19 @@ class OrderPaymentTest extends AbstractOrderExportTest
         $getOrderStatus = OrderExport::STATUS_NEW; // initial getOrder status return
 
         // Mockup tasks
+        // todo
+//        StoreKeeperApi::$mockAdapter->withModule(
+//            'PaymentModule',
+//            function (MockInterface $module) use ($sk_cancelled_payment_id, $sk_paid_payment_id) {
+//                $module->shouldReceive('newWebPayment')->andReturnUsing(
+//                    function ($got) use ($sk_cancelled_payment_id, $sk_paid_payment_id) {
+//                        $payment = $got[0];
+//
+//                        return $skPaymentId;
+//                    }
+//                );
+//            }
+//        );
         StoreKeeperApi::$mockAdapter
             ->withModule(
                 'ShopModule',
@@ -215,17 +228,21 @@ class OrderPaymentTest extends AbstractOrderExportTest
                 }
             );
 
+
+        /**
+         * cancelled payment on order.
+         */
         $OrderHandler->create($wc_order_id);
+
         $this->createPaymentForMethodId($sk_cancelled_method_id, $wc_order, 'Create cancelled payment');
         $OrderHandler->create($wc_order_id);
+
         $paymentGateway = new PaymentGateway();
         $paymentGateway->checkPayment($wc_order->get_id());
+
         $OrderHandler->create($wc_order_id);
         $this->processAllTasks();
 
-        /**
-         * Assert cancelled payment on order.
-         */
         $wc_order = wc_get_order($wc_order->get_id()); // Refresh wc_order
 
         $this->assertFalse(
@@ -238,6 +255,9 @@ class OrderPaymentTest extends AbstractOrderExportTest
             'Order status changed'
         );
 
+        /**
+         * paid payment on order.
+         */
         $this->createPaymentForMethodId($sk_paid_method_id, $wc_order, 'Create paid payment');
         $OrderHandler->create($wc_order_id);
         $paymentGateway = new PaymentGateway();

@@ -5,13 +5,14 @@ namespace StoreKeeper\WooCommerce\B2C\Migrations\Versions;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
+use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 
 class V20230312154050Refund extends AbstractMigration
 {
     public function up(DatabaseConnection $connection): ?string
     {
-        if (!PaymentModel::hasTable()) {
-            $name = PaymentModel::getTableName();
+        if (!RefundModel::hasTable()) {
+            $name = RefundModel::getTableName();
 
             $query = <<<SQL
     CREATE TABLE `$name` (
