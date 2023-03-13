@@ -730,33 +730,33 @@ class OrderExport extends AbstractExport
     {
         $isPaidInBackoffice = $storekeeperOrder['is_paid'];
         $shopModule = $this->storekeeper_api->getModule('ShopModule');
-        /*
-         * Attach payment to order
-         */
-        if (
-            // Check if there is an payment
-            PaymentGateway::hasPayment($WpObject->get_id()) &&
-            // Check if the payment was not synced yet.
-            !PaymentGateway::isPaymentSynced($WpObject->get_id())
-        ) {
-            $gateway_payment_id = PaymentGateway::getPaymentId($WpObject->get_id());
-            $this->debug(
-                'Attaching payment to order',
-                ['order_id' => $storekeeper_id, 'payment_id' => $gateway_payment_id]
-            );
 
-            // Check for the error being thrown.
-            try {
-                $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$gateway_payment_id]], $storekeeper_id);
-            } catch (GeneralException $generalException) {
-                // Check if the payment is already attached to the order, we can ignore it an move on.
-                $strpos = strpos($generalException->getMessage(), 'This payment is already linked');
-                if (false === $strpos) {
-                    throw $generalException;
+        if (PaymentGateway::hasPayment($WpObject->get_id())) {
+            if( !PaymentGateway::isPaymentSynced($WpObject->get_id()) ){
+                $gateway_payment_id = PaymentGateway::getPaymentId($WpObject->get_id());
+                $this->debug(
+                    'Attaching payment to order',
+                    ['order_id' => $storekeeper_id, 'payment_id' => $gateway_payment_id]
+                );
+
+                // Check for the error being thrown.
+                try {
+                    $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$gateway_payment_id]], $storekeeper_id);
+                } catch (GeneralException $generalException) {
+                    // Check if the payment is already attached to the order, we can ignore it an move on.
+                    $strpos = strpos($generalException->getMessage(), 'This payment is already linked');
+                    if (false === $strpos) {
+                        throw $generalException;
+                    }
                 }
+                PaymentGateway::markPaymentAsSynced($WpObject->get_id());
+            } else {
+                // payment is already synchronized
             }
-            PaymentGateway::markPaymentAsSynced($WpObject->get_id());
-        } else { // Check if the WP order is paid and has not PaymentGateway payment.
+        } else {
+            // no sk payment at this point
+
+            // Check if the WP order is paid and has not PaymentGateway payment.
             // Example: the order was paid using the PayNL plugin
 
             if (
@@ -800,7 +800,6 @@ class OrderExport extends AbstractExport
 
                     if ($paymentId) {
                         PaymentGateway::addPayment($WpObject->get_id(), $paymentId, $WpObject->get_total());
-                        // Check for the error being thrown.
                         try {
                             $shopModule->attachPaymentIdsToOrder(['payment_ids' => [$paymentId]], $storekeeper_id);
                         } catch (GeneralException $generalException) {
