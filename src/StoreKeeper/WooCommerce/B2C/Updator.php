@@ -56,23 +56,17 @@ class Updator
         }
     }
 
-    public function update(bool $forceUpdate = false)
+    public function update()
     {
-        $this->migrateDatabase();
-
         $currentVersion = STOREKEEPER_WOOCOMMERCE_B2C_VERSION;
         $databaseVersion = StoreKeeperOptions::get(StoreKeeperOptions::INSTALLED_VERSION, '0.0.0');
-        if ($forceUpdate || version_compare($currentVersion, $databaseVersion, '>')) {
+        if (version_compare($currentVersion, $databaseVersion, '>')) {
             $activator = new Activator();
             $activator->run();
+        } else {
+            $manager = new MigrationManager();
+            $manager->migrateAll();
         }
-    }
-
-    private function migrateDatabase(): void
-    {
-        $manager = new MigrationManager();
-        $manager->migrateAll();
-        // todo, catch error if failed
     }
 
     protected function getUpgradeFailMessage(): string

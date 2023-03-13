@@ -9,6 +9,8 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154020attribute;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154030attributeOption;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154040Payment;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154050Refund;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313161100RedirectTable;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313161110SetUpOptions;
 
 class AllVersions implements VersionsInterface
 {
@@ -20,6 +22,8 @@ class AllVersions implements VersionsInterface
         V20230312154030attributeOption::class,
         V20230312154040Payment::class,
         V20230312154050Refund::class,
+        V20230313161100RedirectTable::class,
+        V20230313161110SetUpOptions::class,
     ];
 
     public function getVersionId(string $class): int

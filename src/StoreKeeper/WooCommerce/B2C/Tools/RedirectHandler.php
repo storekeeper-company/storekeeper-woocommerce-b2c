@@ -41,7 +41,7 @@ class RedirectHandler
     /**
      * Creates the redirection database table.
      */
-    public static function createTable()
+    public static function createTable(): bool
     {
         global $wpdb;
 
@@ -72,7 +72,11 @@ SQL;
             }
 
             self::setVersion('1.0');
+
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -156,6 +160,9 @@ SQL;
      */
     public static function checkRedirect($currentUrl)
     {
+        if (!self::databaseTableExists()) {
+            return null;
+        }
         global $wpdb;
         $table_name = self::getTableName();
         $sql = <<<SQL
