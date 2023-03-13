@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\PaymentGateway;
 
+use Monolog\Logger;
 use StoreKeeper\ApiWrapper\Exception\AuthException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -13,7 +14,13 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class PaymentGateway
 {
-    public const STATUS_CANCELLED = 'CANCELED';
+    public const FLASH_QUERY_ARG = 'payment_status';
+    public const FLASH_STATUS_CANCELLED = 'CANCELED';
+    public const FLASH_STATUS_ON_HOLD = 'ONHOLD';
+    public const FLASH_STATUS_PENDING = 'PENDING';
+    const PAYMENT_PENDING_STATUSES = ['open', 'authorized', 'verify'];
+    const PAYMENT_PAID_STATUSES = ['paid', 'paidout',  'refunded', 'refunding', 'partial_refund'];
+    const PAYMENT_CANCELLED_STATUSES = ['cancelled', 'expired', 'error'];
     public static $refundedBySkStatus = false;
 
     protected static function querySql(string $sql): bool
@@ -41,8 +48,14 @@ class PaymentGateway
 
     public static function registerCheckoutFlash()
     {
-        if (isset($_REQUEST['payment_status']) && self::STATUS_CANCELLED == $_REQUEST['payment_status']) {
+        if (isset($_REQUEST[PaymentGateway::FLASH_QUERY_ARG]) && self::FLASH_STATUS_CANCELLED == $_REQUEST[PaymentGateway::FLASH_QUERY_ARG]) {
             add_action('woocommerce_before_checkout_form', [__CLASS__, 'displayFlashCanceled'], 20);
+        }
+        if (isset($_REQUEST[PaymentGateway::FLASH_QUERY_ARG]) && self::FLASH_STATUS_PENDING == $_REQUEST[PaymentGateway::FLASH_QUERY_ARG]) {
+            add_action('woocommerce_thankyou_order_received_text', [__CLASS__, 'displayFlashPending'], 20);
+        }
+        if (isset($_REQUEST[PaymentGateway::FLASH_QUERY_ARG]) && self::FLASH_STATUS_ON_HOLD == $_REQUEST[PaymentGateway::FLASH_QUERY_ARG]) {
+            add_action('woocommerce_thankyou_order_received_text', [__CLASS__, 'displayFlashPending'], 20);
         }
         if (isset($_REQUEST['payment_error'])) {
             add_action('woocommerce_before_checkout_form', [__CLASS__, 'displayFlashError'], 20);
@@ -52,6 +65,11 @@ class PaymentGateway
     public static function displayFlashCanceled()
     {
         wc_print_notice(__('The payment has been canceled, please try again', I18N::DOMAIN), 'error');
+    }
+
+    public static function displayFlashPending()
+    {
+        wc_print_notice(__('Your order is awaiting payment. Once we receive it, we\'ll process your purchase.', I18N::DOMAIN), 'notice');
     }
 
     public static function displayFlashError()
@@ -239,44 +257,60 @@ SQL;
 
     public function onReturn()
     {
-        global $woocommerce;
-        $url = $woocommerce->cart->get_checkout_url();
-
+        $log_context = [
+            'get_params' => $_GET,
+        ];
+        $checkOutLogger = $this->getCheckOutLogger();
+        $checkOutLogger->debug('Loading checkout page', $log_context);
         try {
             // Getting the WC order
             $order = new \WC_Order(sanitize_key($_GET['wc-order-id']));
             $payment_id = self::getPaymentId($order->get_id());
 
+            $log_context += [
+                'order_id' => $order->get_id(),
+                'payment_id' => $payment_id,
+            ];
             // Check payment in the backend
             $api = StoreKeeperApi::getApiByAuthName();
             $shop_module = $api->getModule('ShopModule');
             $payment = $shop_module->syncWebShopPaymentWithReturn($payment_id);
             $payment_status = $payment['status'];
 
+            $log_context += [
+                PaymentGateway::FLASH_QUERY_ARG => $payment_status,
+            ];
             // Make a note with the received order payment status
             $statusText = __('The order\'s payment status received: %s', I18N::DOMAIN);
             $order->add_order_note(sprintf($statusText, $payment_status));
 
-            // Check if the payment was paid
-            if (in_array($payment_status, ['paid', 'authorized'], true)) {
-                $url = self::getOrderReturnUrl($order);
-
-                // Payment done, mark order as completed
-                $order->set_status(StoreKeeperBaseGateway::STATUS_PROCESSING);
+            if (in_array($payment_status, self::PAYMENT_PAID_STATUSES, true)) {
+                $checkOutLogger->debug('Payment paid', $log_context);
+                $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING);
+            } elseif (in_array($payment_status, self::PAYMENT_PENDING_STATUSES, true)) {
+                $checkOutLogger->debug('Payment pending', $log_context);
+                $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PENDING);
+            } elseif (in_array($payment_status, self::PAYMENT_CANCELLED_STATUSES, true)) {
+                $checkOutLogger->debug('Payment canceled, redirecting back to checkout', $log_context);
             } else {
-                $url = add_query_arg('payment_status', self::STATUS_CANCELLED, $url);
+                $checkOutLogger->warning('Unknown payment status', $log_context);
+                $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_ON_HOLD);
             }
 
             $order->save();
+
+            $url = $this->getFinalPaymentPageUrl($payment_status, $order);
         } catch (\Throwable $exception) {
             // Log error
-            LoggerFactory::create('checkout')->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
-            LoggerFactory::createErrorTask('payment-error', $exception);
+            $checkOutLogger->error($exception->getMessage(), $log_context);
+            LoggerFactory::createErrorTask('payment-error', $exception, $log_context);
 
             // Update url
+            $url = wc_get_checkout_url();
             $url = add_query_arg('payment_error', urlencode($exception->getMessage()), $url);
         }
 
+        $checkOutLogger->debug('Redirect to final page', $log_context + ['url' => $url]);
         wp_redirect($url);
     }
 
@@ -491,17 +525,6 @@ SQL;
         return $amount;
     }
 
-    public static function getOrderReturnUrl(\WC_Order $order)
-    {
-        // return url return
-        $return_url = $order->get_checkout_order_received_url();
-        if (is_ssl() || 'yes' == get_option('woocommerce_force_ssl_checkout')) {
-            $return_url = str_replace('http:', 'https:', $return_url);
-        }
-
-        return apply_filters('woocommerce_get_return_url', $return_url, $order);
-    }
-
     /**
      * Get backend payment id by woocommerce order id.
      *
@@ -514,7 +537,7 @@ SQL;
         $order = new \WC_Order($order_id);
 
         // Check if the order was not marked as completed yet.
-        if (StoreKeeperBaseGateway::STATUS_PROCESSING !== $order->get_status()) {
+        if (StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING !== $order->get_status()) {
             //old orders may not have order_id and payment_id linked or orders that didn't use the Payment Gateway
             $payment_id = self::getPaymentId($order_id);
             if ($payment_id) {
@@ -524,7 +547,7 @@ SQL;
 
                 if (in_array($payment['status'], ['paid', 'authorized'], true)) {
                     //payment in backend is marked as paid
-                    $order->set_status(StoreKeeperBaseGateway::STATUS_PROCESSING);
+                    $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING);
                     $order->save();
                 }
             }
@@ -569,7 +592,7 @@ SQL;
                 );
             }
         } catch (AuthException $authException) {
-            LoggerFactory::create('checkout')->error($authException->getMessage(), ['trace' => $authException->getTraceAsString()]);
+            $this->getCheckOutLogger()->error($authException->getMessage(), ['trace' => $authException->getTraceAsString()]);
             LoggerFactory::createErrorTask('add-storeKeeper-gateway-auth', $authException);
 
             return $default_gateway_classes;
@@ -586,5 +609,38 @@ SQL;
         }
 
         return $hasRefund;
+    }
+
+    protected function getFinalPaymentPageUrl(string $payment_status, \WC_Order $order): string
+    {
+        if (in_array($payment_status, self::PAYMENT_CANCELLED_STATUSES, true)) {
+            $url = wc_get_checkout_url();
+
+            return add_query_arg(PaymentGateway::FLASH_QUERY_ARG, self::FLASH_STATUS_CANCELLED, $url);
+        }
+
+        // return url return
+        $return_url = $order->get_checkout_order_received_url();
+        if (is_ssl() || 'yes' == get_option('woocommerce_force_ssl_checkout')) {
+            $return_url = str_replace('http:', 'https:', $return_url);
+        }
+
+        $url = apply_filters('woocommerce_get_return_url', $return_url, $order);
+
+        $status = $order->get_status('edit');
+        if (StoreKeeperBaseGateway::ORDER_STATUS_PENDING === $status) {
+            $url = add_query_arg(PaymentGateway::FLASH_QUERY_ARG, self::FLASH_STATUS_PENDING, $url);
+        } elseif (StoreKeeperBaseGateway::ORDER_STATUS_ON_HOLD === $status) {
+            $url = add_query_arg(PaymentGateway::FLASH_QUERY_ARG, self::FLASH_STATUS_ON_HOLD, $url);
+        }
+
+        return $url;
+    }
+
+    public static function getCheckOutLogger(): Logger
+    {
+        $checkOutLogger = LoggerFactory::create('checkout');
+
+        return $checkOutLogger;
     }
 }
