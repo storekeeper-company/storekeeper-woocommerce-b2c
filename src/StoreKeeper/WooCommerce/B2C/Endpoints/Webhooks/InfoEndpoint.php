@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks;
 
-use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Endpoints\AbstractEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\AccessDeniedException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WpRestException;
@@ -33,10 +32,16 @@ class InfoEndpoint extends AbstractEndpoint
             $response['shop'] = $this->getShopDetails();
             $response['webhook'] = $this->getWebhookDetails();
         } catch (AccessDeniedException $exception) {
+            $this->logger->debug('Token does not match', [
+                'apiToken' => $apiToken,
+                'infoToken' => WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_INFO_TOKEN),
+            ]);
             throw new WpRestException('Access Denied: '.$exception->getMessage(), 401, $exception);
-        } catch (GeneralException $exception) {
-            throw new WpRestException('General exception: '.$exception->getMessage(), 500, $exception);
         } catch (\Throwable $exception) {
+            $this->logger->debug('An error occurred', [
+                'apiToken' => $apiToken,
+                'message' => $exception->getMessage(),
+            ]);
             throw new WpRestException('Something went wrong', 500, $exception);
         }
 
@@ -48,9 +53,7 @@ class InfoEndpoint extends AbstractEndpoint
         $syncAuth = StoreKeeperOptions::get(StoreKeeperOptions::SYNC_AUTH);
 
         if (!is_null($syncAuth)) {
-            $accountName = isset($syncAuth['account']) ? $syncAuth['account'] : null;
-
-            return $accountName;
+            return $syncAuth['account'] ?? null;
         }
 
         return null;

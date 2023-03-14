@@ -26,9 +26,7 @@ class ConnectionTab extends AbstractTab
     const CONNECT_ACTION = 'connect-action';
     const SAVE_ACTION = 'save-action';
 
-//    const INTEGRATIONS_HOST = 'https://integrations.storekeeper.software';
-    const INTEGRATIONS_HOST = 'https://junmar-accounts.code4.pizza';
-    const PLUGIN_INITIALIZE_URL = self::INTEGRATIONS_HOST.'/sk_connect/sales_channel/init_plugin_connect';
+    const PLUGIN_INITIALIZE_URL = STOREKEEPER_WOOCOMMERCE_INTEGRATIONS.'/sk_connect/sales_channel/init_plugin_connect';
 
     public function __construct(string $title, string $slug = '')
     {
