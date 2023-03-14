@@ -185,6 +185,10 @@ msgstr "Barcode"
 msgid "Barcode meta key"
 msgstr "Barcode meta key"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:110
+msgid "Below are actions you can do to increase PHP memory limit:"
+msgstr "Below are actions you can do to increase PHP memory limit:"
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:66
 msgid "Brand"
 msgstr "Brand"
@@ -314,6 +318,10 @@ msgstr "Crontab with wp-cli (fastest)"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:100
 msgid "Cross sell product sync"
 msgstr "Cross sell product sync"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
+msgid "Current memory limit configured: %s"
+msgstr "Current memory limit configured: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:58
 msgid "Currently connected to"
@@ -660,6 +668,14 @@ msgstr "Flag to prevent spawning of child processes. Having this might cause tim
 msgid "Force sync"
 msgstr "Force sync"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:240
+msgid "Foreign key constraint exists"
+msgstr "Foreign key constraint exists"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:243
+msgid "Foreign key constraint is missing"
+msgstr "Foreign key constraint is missing"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:19
 msgid "Frontend settings"
 msgstr "Frontend settings"
@@ -728,6 +744,10 @@ msgstr "Go to backoffice import form"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:112
 msgid "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
 msgstr "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:149
+msgid "Go to the public_html folder of your webshop: %s"
+msgstr "Go to the public_html folder of your webshop: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptionPage.php:39
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProductPage.php:48
@@ -1693,6 +1713,10 @@ msgstr "Successful tasks"
 msgid "Successfully processing tasks"
 msgstr "Successfully processing tasks"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:142
+msgid "Suggested memory limit is 1G and then do a full sync."
+msgstr "Suggested memory limit is 1G and then do a full sync."
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:74
 msgid "Suppress the logs of this command."
 msgstr "Suppress the logs of this command."
@@ -1841,6 +1865,14 @@ msgstr "Syncing from Storekeeper backoffice"
 #: src/StoreKeeper/WooCommerce/B2C/Updator.php:23
 msgid "Table \"%s\" need to be using InnoDB ENGINE. <a href=\"%s\">Go to status page</a> to fix this dependency."
 msgstr "Table \"%s\" need to be using InnoDB ENGINE. <a href=\"%s\">Go to status page</a> to fix this dependency."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:89
+msgid "Table foreign keys and InnoDB"
+msgstr "Table foreign keys and InnoDB"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:269
+msgid "Table is using InnoDB engine"
+msgstr "Table is using InnoDB engine"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:86
 msgid "Tables are using InnoDB engine"
@@ -2161,6 +2193,10 @@ msgstr "You are now subscribed."
 msgid "You can improve Wordpress Cron performance by using System Task Scheduler. %s"
 msgstr "You can improve Wordpress Cron performance by using System Task Scheduler. %s"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:138
+msgid "You can increase the memory by adding %s on the wp-config."
+msgstr "You can increase the memory by adding %s on the wp-config."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:111
 msgid "You can try executing this command via ssh."
 msgstr "You can try executing this command via SSH (WP-CLI)."
@@ -2176,6 +2212,10 @@ msgstr "You try can increasing the available memory by adding %s in the wp-confi
 #: src/StoreKeeper/WooCommerce/B2C/Core.php:304
 msgid "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
 msgstr "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:101
+msgid "Your allowed memory size has been exhausted."
+msgstr "Your allowed memory size has been exhausted."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:99
 msgid "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
