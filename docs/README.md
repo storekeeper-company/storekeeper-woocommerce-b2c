@@ -81,22 +81,23 @@ WP cli debug
 
 ## Setting up the webhook to local docker
 
-Services like ngrok.com or localtunnel.me  can be used
 
-Example: `./ngrok http 8888 --region=eu` or `lt --port 8080 -s lukiwp` 
+Services like cloudflare zero conf tunnel can be used  can be used.
+https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/
 
 Then change the `WordPress Address (URL)` and `Site Address (URL)` to the url given out by service.
 
 You can now connect using the wp command (where url is the url given back by ngrok)
 ```bash
-docker-compose exec web wp sk connect-backend https://ab756f93def8.eu.ngrok.io
+docker-compose exec web wp sk connect-backend https://extranal_url/
 ```
 
-If you want to share the show externally set it's urls to the ngrok url
+If you want to share the show externally set it's urls to the cloudflare zero conf tunnel url
 ```bash
-docker-compose exec web wp option set home https://ab756f93def8.eu.ngrok.io/
-docker-compose exec web wp option set siteurl https://ab756f93def8.eu.ngrok.io/
+docker-compose exec web  bash
+root@8942cbe3780d:/app/src# wp search-replace http://localhost:8888 https://extranal_url/ --all-tables
 ```
+
 After this you can set it back to default.
 ```bash
 docker-compose exec web wp option set home http://localhost:8888/

@@ -75,7 +75,7 @@ class InfoEndpoint extends AbstractEndpoint
         return [
             'url' => WooCommerceOptions::getWebhookUrl(),
             'auth' => self::AUTH_TYPE,
-            'webhook_secret' => WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_TOKEN),
+            'secret' => WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_TOKEN),
         ];
     }
 }
