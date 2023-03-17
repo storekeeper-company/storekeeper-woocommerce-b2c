@@ -7,6 +7,7 @@ class WooCommerceOptions extends AbstractOptions
     const API_KEY = 'api-key';
     const WOOCOMMERCE_TOKEN = 'woocommerce-token';
     const WOOCOMMERCE_UUID = 'woocommerce-uuid';
+    const WOOCOMMERCE_INFO_TOKEN = 'woocommerce-info-token';
 
     const LAST_SYNC_RUN = 'last-sync-run';
     const SUCCESS_SYNC_RUN = 'success-sync-run';
@@ -17,21 +18,34 @@ class WooCommerceOptions extends AbstractOptions
         if (empty($siteUrl)) {
             $siteUrl = site_url();
         }
-        $json = json_encode(
-            [
-                'token' => self::get(self::WOOCOMMERCE_TOKEN), // Needs to the same over the applications lifespan.
-                'webhook_url' => $siteUrl.'/?rest_route=/storekeeper-woocommerce-b2c/v1/webhook/', // Endpoint
-            ]
-        );
+        $json = json_encode([
+            'token' => self::get(self::WOOCOMMERCE_TOKEN), // Needs to the same over the applications lifespan.
+            'webhook_url' => self::getWebhookUrl($siteUrl),
+        ], JSON_THROW_ON_ERROR);
 
         return base64_encode($json);
     }
 
+    public static function getWebhookUrl(string $siteUrl = null): string
+    {
+        if (empty($siteUrl)) {
+            $siteUrl = site_url();
+        }
+
+        return $siteUrl.'/?rest_route=/storekeeper-woocommerce-b2c/v1/webhook/'; // Endpoint
+    }
+
     public static function resetToken($length = 64)
     {
-        $random_bytes = openssl_random_pseudo_bytes($length / 2);
-        $token = bin2hex($random_bytes);
+        $token = self::createToken($length);
         WooCommerceOptions::set(WooCommerceOptions::WOOCOMMERCE_TOKEN, $token);
+    }
+
+    public static function createToken($length = 64)
+    {
+        $random_bytes = openssl_random_pseudo_bytes($length / 2);
+
+        return bin2hex($random_bytes);
     }
 
     public static function getWooCommerceTypeFromProductType($shop_product_type)

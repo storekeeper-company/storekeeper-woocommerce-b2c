@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-02-20 07:37\n"
+"PO-Revision-Date: 2023-03-14 08:37\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
@@ -47,6 +47,10 @@ msgstr "Er is een fout opgetreden!"
 msgid "Attribute import"
 msgstr "Attribuutimporteren"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:110
+msgid "Below are actions you can do to increase PHP memory limit:"
+msgstr "Hieronder staan acties die je kan doen om het geheugenlimiet van PHP te verhogen:"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:100
 msgid "But before trying some of these you can check what is the defined memory_limit of your site. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting."
 msgstr "Voordat je enkele van deze opties probeert, kun je controleren wat de gedefinieerde memory_limit van je site is. Je kunt dit controleren door te klikken op Tools > Site Health > Info > Server. Hier kun je de huidige instellingen van je hosting controleren."
@@ -87,6 +91,10 @@ msgstr "Crontab met curl API-calls"
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:115
 msgid "Crontab with wp-cli (fastest)"
 msgstr "Crontab met wp-cli (snelste)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
+msgid "Current memory limit configured: %s"
+msgstr "Huidige geheugenlimiet volgens configuratie: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:101
 msgid "Customer Email"
@@ -168,6 +176,14 @@ msgstr "Exporteer CSV-bestanden voor Storekeeper WooCommerce-gerelateerde entite
 msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
 msgstr "Niet gelukt om de plug-in 'StoreKeeper for WooCommerce' bij te werken naar versie %s."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:240
+msgid "Foreign key constraint exists"
+msgstr "Foreign key constraint bestaat"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:243
+msgid "Foreign key constraint is missing"
+msgstr "Foreign key constraint ontbreekt"
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:249
 msgid "Full import"
 msgstr "Volledige import"
@@ -179,6 +195,10 @@ msgstr "Functie heeft false geretourneerd"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:112
 msgid "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
 msgstr "Ga naar de public_html map van je webshop (bijv. /webshop/public_html/)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:149
+msgid "Go to the public_html folder of your webshop: %s"
+msgstr "Ga naar de public_html folder van je webshop: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:125
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:131
@@ -374,9 +394,21 @@ msgstr "Gelukt"
 msgid "Successfully processing tasks"
 msgstr "Succesvolle verwerking van taken"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:142
+msgid "Suggested memory limit is 1G and then do a full sync."
+msgstr "De voorgestelde geheugenlimiet is 1G en voer vervolgens een volledige synchronisatie uit."
+
 #: src/StoreKeeper/WooCommerce/B2C/Updator.php:23
 msgid "Table \"%s\" need to be using InnoDB ENGINE. <a href=\"%s\">Go to status page</a> to fix this dependency."
 msgstr "Tabel \"%s\" moet InnoDB ENGINE gebruiken. <a href=\"%s\">Ga naar de statuspagina</a> om deze afhankelijkheid op te lossen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:89
+msgid "Table foreign keys and InnoDB"
+msgstr "Tabel foreign keys en InnoDB"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:269
+msgid "Table is using InnoDB engine"
+msgstr "Tabel gebruikt de InnoDB-engine"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:225
 msgid "Tag"
@@ -469,6 +501,10 @@ msgstr "Je bent al ingeschreven."
 msgid "You are now subscribed."
 msgstr "Je bent nu ingeschreven."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:138
+msgid "You can increase the memory by adding %s on the wp-config."
+msgstr "Je kan het geheugen-limiet verhogen door %s toe te voegen aan de wp-config."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:111
 msgid "You can try executing this command via ssh."
 msgstr "Je kunt proberen dit commando uit te voeren via SSH (WP-CLI)."
@@ -480,6 +516,10 @@ msgstr "Je kunt proberen het geheugen te vergroten door %s toe te voegen aan de 
 #: src/StoreKeeper/WooCommerce/B2C/Core.php:304
 msgid "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
 msgstr "Jouw WooCommerce versie (%s) is lager dan het minimum vereiste %s wat onverwacht gedrag kan veroorzaken."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:101
+msgid "Your allowed memory size has been exhausted."
+msgstr "Je toegestane geheugengrootte is gebruikt."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:99
 msgid "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
