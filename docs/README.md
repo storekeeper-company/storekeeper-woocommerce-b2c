@@ -147,6 +147,18 @@ Read content of hook data dump to use in the unit test
 $file = $this->getHookDataDump( PATH_TO_DATADUMP_SOURCE_FILE );
 ```
 
+## Adding sql migrations
+
+Add new class in `src/StoreKeeper/WooCommerce/B2C/Migrations/Versions` than include this class as last in 
+`StoreKeeper\WooCommerce\B2C\Migrations\AllVersions::VERSION`.
+
+Version migration will run if plugin is updated or activated.
+
+You can find the new version in `wp_storekeeper_migration_versions` table after update/activate.
+
+When adding  migration versions keep in mind that [mysql has autocommit](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html) 
+on some changes. Make sure you place those in separate versions so the migrations remain atomic. 
+
 ## Make a new tagged release
 
 Tagging a commit will trigger a release build on github.

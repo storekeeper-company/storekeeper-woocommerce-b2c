@@ -11,6 +11,9 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154040Payment;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154050Refund;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313161100RedirectTable;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313161110SetUpOptions;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V2023031317165000AttributeFkEnsure;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V2023031317165010AttributeOptionFkAttributeEnsure;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V2023031317165020AttributeOptionFkTermEnsure;
 
 class AllVersions implements VersionsInterface
 {
@@ -24,6 +27,9 @@ class AllVersions implements VersionsInterface
         V20230312154050Refund::class,
         V20230313161100RedirectTable::class,
         V20230313161110SetUpOptions::class,
+        V2023031317165000AttributeFkEnsure::class,
+        V2023031317165010AttributeOptionFkAttributeEnsure::class,
+        V2023031317165020AttributeOptionFkTermEnsure::class,
     ];
 
     public function getVersionId(string $class): int
