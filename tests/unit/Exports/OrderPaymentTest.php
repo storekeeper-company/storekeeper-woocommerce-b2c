@@ -260,7 +260,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
 
         $this->assertTrue(
             $wc_order->is_paid(),
-            'Order is unpaid paid'
+            'Order is paid'
         );
         $this->assertEquals(
             StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING,
@@ -271,6 +271,16 @@ class OrderPaymentTest extends AbstractOrderExportTest
             1,
             $updateStatusCount,
             'Order status changed too often'
+        );
+        $orderPayments = PaymentModel::findOrderPayments($wc_order->get_id());
+        $this->assertEquals(
+            2,
+            count($orderPayments),
+            'Both orders ware saved'
+        );
+        $this->assertTrue(
+            PaymentModel::isAllPaymentInSync($wc_order_id),
+            'All is synched'
         );
     }
 
