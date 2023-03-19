@@ -5,14 +5,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-01-19 11:18\n"
+"PO-Revision-Date: 2023-03-14 08:37\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: de_DE\n"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:109
+msgid "256M is a size sample you can put and then do a full sync."
+msgstr "Du kannst zum Beispiel 256M einstellen und dann eine vollständige Synchronisierung durchführen. "
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
+msgid "After identifying the value defined on memory and still the error persist."
+msgstr "Nachdem ich den Konfigurationswert für den Speicher ermittelt habe, bleibt der Fehler weiterhin bestehen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:50
+msgid "Allowing of at least one of the following directories to be writable is required: %s"
+msgstr "Mindestens eines der folgenden Verzeichnisse muss beschreibbar sein: %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:100
+msgid "But before trying some of these you can check what is the defined memory_limit of your site. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting."
+msgstr "Bevor du einige dieser Optionen ausprobierst, kannst du prüfen, wie hoch das definierte memory_limit deiner Website ist. Das kannst du überprüfen, indem du auf Extras > Site Health > Info > Server klickst. Hier kannst du die aktuellen Einstellungen deines Hostings überprüfen."
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:85
 msgid "Clean products only."
 msgstr "Entfernen Sie alle Produkte."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:118
+msgid "Contact your hosting provider."
+msgstr "Wende dich an deinen Hosting-Anbieter."
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
 msgid "Deactiveer product"
@@ -26,9 +46,46 @@ msgstr "Produkt löschen"
 msgid "Emballage fee"
 msgstr "Emballage-Gebühr"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:98
+msgid "Enabling PHP %s extension is optional to improve performance"
+msgstr "Die Aktivierung der PHP-Erweiterung %s ist optional, um die Leistung zu verbessern"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:82
+msgid "Enabling PHP %s extension is required"
+msgstr "Die Aktivierung der PHP-Erweiterung %s ist erforderlich"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:114
+msgid "Execute %s."
+msgstr "Ausführen von %s."
+
 #: src/StoreKeeper/WooCommerce/B2C/Updator.php:117
 msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
 msgstr "Fehler beim Aktualisieren des Plug-ins 'StoreKeeper for WooCommerce' auf Version %s."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:112
+msgid "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
+msgstr "Gehe in den Ordner public_html deines Webshops (z.B. /webshop/public_html/)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:119
+msgid "If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit."
+msgstr "Wenn du dich nicht wohl dabei fühlst, die oben genannten Methoden auszuprobieren, oder wenn es bei dir nicht funktioniert hat. Dann sprich mit deinem Hosting-Anbieter über die Erhöhung deines Speicherlimits."
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:35
+msgid "PHP version %s found, plugin requires at least version %s"
+msgstr "PHP-Version %s gefunden, Plugin benötigt mindestens Version %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/PluginConflictChecker.php:107
+msgid "Plugin version %s is not compatible with the plugin"
+msgstr "Plugin-Version %s ist nicht kompatibel mit dem Plugin"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:334
+msgid "Rank Math SEO handler"
+msgstr "Verwendung von Rank Math SEO"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:63
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:149
+msgid "SKU feature for WooCommerce has been disabled."
+msgstr "Die SKU-Funktion für WooCommerce wurde deaktiviert."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
 msgid "SKU feature for for WooCommerce has been disabled."
@@ -56,6 +113,28 @@ msgstr "Dieses Plugin bietet Synchronisationsmöglichkeiten mit dem StoreKeeper 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:164
 msgid "WooCommerce SKU feature enabled"
 msgstr "SKU in WooCommerce - Deaktiviert (ACHTUNG! > Aktiviert = für vollständige Synchronisierung erforderlich!)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:69
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:157
+msgid "WooCommerce stock management feature enabled"
+msgstr "Die WooCommerce-Funktion zur Lagerverwaltung wurde aktiviert."
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:71
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:158
+msgid "WooCommerce stock management feature has been disabled."
+msgstr "Die Lagerverwaltungsfunktion von WooCommerce wurde deaktiviert."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:111
+msgid "You can try executing this command via ssh."
+msgstr "Du kannst versuchen, diesen Befehl über SSH (WP-CLI) auszuführen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:106
+msgid "You try can increasing the memory by adding %s on the wp-config."
+msgstr "Du kannst versuchen, den verfügbaren Speicher durch Hinzufügen von %s in der wp-config zu erhöhen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:99
+msgid "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
+msgstr "Deine erlaubte Speichergröße ist erschöpft. Hier sind einige Lösungen, die das Problem lösen können."
 
 #. Author URI of the plugin/theme
 msgid "https://www.storekeeper.nl/"

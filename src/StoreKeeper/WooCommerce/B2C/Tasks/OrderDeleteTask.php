@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tasks;
 
 class OrderDeleteTask extends AbstractTask
 {
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
@@ -12,8 +12,6 @@ class OrderDeleteTask extends AbstractTask
                 $this->storekeeper_api->getModule('ShopModule')->deleteExternalOrder($storekeeper_id);
             }
         }
-
-        return true;
     }
 
     private function externalOrderExists($storekeeper_id)

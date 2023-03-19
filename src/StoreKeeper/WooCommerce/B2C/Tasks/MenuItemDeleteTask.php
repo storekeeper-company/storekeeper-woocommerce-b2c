@@ -7,11 +7,11 @@ class MenuItemDeleteTask extends AbstractTask
     /**
      * @param $task_options array
      *
-     * @return bool returns true in the import was succeeded
+     * @return void returns true in the import was succeeded
      *
      * @throws \Exception
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         $this->debug('Deleting menu item', $this->getTaskMeta());
 
@@ -22,8 +22,6 @@ class MenuItemDeleteTask extends AbstractTask
         }
 
         $this->debug('Deleted menu item', $this->getTaskMeta());
-
-        return true;
     }
 
     /**

@@ -349,7 +349,7 @@ class Attributes
         string $option_name,
         ?string $option_image = null,
         int $option_order = 0
-    ) {
+    ): int {
         $wc_attribute = wc_get_attribute($attribute_id);
         self::registerAttributeTemporary($wc_attribute->slug, $wc_attribute->name);
 

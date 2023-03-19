@@ -18,10 +18,13 @@ use Throwable;
  */
 class ProcessAllTasks extends AbstractCommand
 {
+    const ARG_FAIL_ON_ERROR = 'fail-on-error';
     const HAS_ERROR_TRANSIENT_KEY = 'process_has_error';
     const MASSAGE_TASK_FAILED = 'Task failed';
-
-    private $hasError = 'no';
+    /**
+     * @var \Throwable|null
+     */
+    private $lastError = null;
     /**
      * @var DatabaseConnection
      */
@@ -53,6 +56,12 @@ class ProcessAllTasks extends AbstractCommand
                 'description' => __('Flag to prevent spawning of child processes. Having this might cause timeouts during execution.', I18N::DOMAIN),
                 'optional' => true,
             ],
+            [
+                'type' => 'flag',
+                'name' => self::ARG_FAIL_ON_ERROR,
+                'description' => __('It will stop on first failing task', I18N::DOMAIN),
+                'optional' => true,
+            ],
         ];
     }
 
@@ -61,112 +70,26 @@ class ProcessAllTasks extends AbstractCommand
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
+        $rethrow = !empty($assoc_arguments[self::ARG_FAIL_ON_ERROR]);
+        if ($rethrow) {
+            $this->logger->notice('Processing will stop on first failing task');
+        }
+        $task_ids = [];
         try {
             $this->lock();
-            $this->db = new DatabaseConnection();
+            $this->setUpDb();
 
-            $this->logger->debug(
-                'Connected to DB',
-                [
-                    'host' => DB_HOST,
-                    'user' => DB_USER,
-                    'db' => DB_NAME,
-                ]
-            );
-
-            $limit = 0;
-            if (isset($assoc_arguments['limit'])) {
-                $limit = (int) $assoc_arguments['limit'];
-                $this->logger->notice(
-                    'Limiting process',
-                    [
-                        'process_limit_count' => $limit,
-                    ]
-                );
-            }
-            // Update the last run cron to now.
+            $limit = $this->getTaskLimitFromArguments($assoc_arguments);
             $task_ids = $this->getTaskIds($limit);
-            $task_quantity = count($task_ids);
-
-            $this->logger->info(
-                'Tasks to process',
-                [
-                    'total' => $task_quantity,
-                ]
-            );
-
-            $removed_task_ids = [];
-
-            // Looping over the tasks ids
-            foreach ($task_ids as $index => $task_id) {
-                if (in_array($task_id, $removed_task_ids)) {
-                    continue; // task is removed
-                }
-
-                $task = $this->getTask($task_id);
-
-                if (!$task) {
-                    $this->logger->notice(
-                        'Task not found -> skipping',
-                        [
-                            'post_id' => $task_id,
-                        ]
-                    );
-                    continue;
-                }
-
-                if (!in_array($task['status'], [TaskHandler::STATUS_NEW, TaskHandler::STATUS_SUCCESS], true)) {
-                    $this->logger->notice(
-                        'Task not in new state -> skipping',
-                        [
-                            'post_id' => $task_id,
-                            'state' => $task['status'],
-                        ]
-                    );
-                    continue;
-                }
-
-                $log_context = [
-                    'index' => $index,
-                    'task_id' => $task_id,
-                    'task_left' => $task_quantity - $index - 1,
-                ];
-                try {
-                    // Mark task as processing
-                    $this->updateTaskStatus($task, TaskHandler::STATUS_PROCESSING);
-                    // Processing task
-                    $this->executeSubCommand(ProcessSingleTask::getCommandName(), [$task_id]);
-
-                    // Check if running the tasks remove any of the old tasks
-                    $removed_task_ids = array_merge(
-                        $removed_task_ids,
-                        $this->getRemovedTaskIds($task['id'])
-                    );
-
-                    $task = $this->getTask($task_id);
-
-                    // Mark task as success
-                    $this->updateTaskStatus($task, TaskHandler::STATUS_SUCCESS);
-
-                    $this->logger->info('Task processed', $log_context);
-
-                    // Update the last run cron to now.
-                    $this->ensureSuccessRunTime();
-                } catch (Throwable $e) {
-                    $this->hasError = 'yes';
-                    $task = $this->getTask($task_id);
-                    // The task has failed, set the status to failed
-                    $this->updateTaskStatus($task, TaskHandler::STATUS_FAILED);
-
-                    $this->reportErrorDetails($task_id, $e, $log_context);
-                }
-            }
-            if (0 !== $task_quantity) {
-                set_transient(self::HAS_ERROR_TRANSIENT_KEY, $this->hasError, 300); // 5 minutes transient expiry
-            }
-            $this->deduplicateCron();
+            $this->processTaskIds($task_ids, $rethrow);
         } catch (LockActiveException $exception) {
             $this->logger->notice('Cannot run. lock on.');
+        } catch (\Throwable $exception) {
+            $this->lastError = $exception;
+            throw $exception;
+        } finally {
+            $this->setLastErrorTransient(count($task_ids));
+            $this->deduplicateCron();
         }
     }
 
@@ -279,8 +202,13 @@ class ProcessAllTasks extends AbstractCommand
      *
      * @throws Exception
      */
-    protected function reportErrorDetails($task_id, Throwable $e, array $log_context): void
+    protected function reportTaskError($task_id, Throwable $e, array $log_context): void
     {
+        $this->lastError = $e;
+
+        $task = $this->getTask($task_id);
+        $this->updateTaskStatus($task, TaskHandler::STATUS_FAILED);
+
         $error_parts = [
             'plugin_version' => constant('STOREKEEPER_WOOCOMMERCE_B2C_VERSION'),
             'task_url' => $this->getSiteUrl()."/wp-admin/admin.php?page=storekeeper-logs&task-id=$task_id",
@@ -444,5 +372,120 @@ class ProcessAllTasks extends AbstractCommand
         $query = $this->db->prepare($update);
 
         return $this->db->querySql($query);
+    }
+
+    protected function setLastErrorTransient(int $task_quantity): void
+    {
+        if (0 !== $task_quantity) {
+            set_transient(
+                self::HAS_ERROR_TRANSIENT_KEY,
+                is_null($this->lastError) ? 'no' : 'yes',
+                300
+            ); // 5 minutes transient expiry
+        }
+    }
+
+    protected function setUpDb(): void
+    {
+        $this->db = new DatabaseConnection();
+        $this->logger->debug(
+            'Connected to DB',
+            [
+                'host' => DB_HOST,
+                'user' => DB_USER,
+                'db' => DB_NAME,
+            ]
+        );
+    }
+
+    protected function getTaskLimitFromArguments(array $assoc_arguments): int
+    {
+        $limit = 0;
+        if (isset($assoc_arguments['limit'])) {
+            $limit = (int) $assoc_arguments['limit'];
+            $this->logger->notice(
+                'Limiting process',
+                [
+                    'process_limit_count' => $limit,
+                ]
+            );
+        }
+
+        return $limit;
+    }
+
+    protected function processTaskIds(array $task_ids, bool $rethrow): void
+    {
+        $task_quantity = count($task_ids);
+
+        $this->logger->info(
+            'Tasks to process',
+            [
+                'total' => $task_quantity,
+            ]
+        );
+
+        $removed_task_ids = [];
+        foreach ($task_ids as $index => $task_id) {
+            if (in_array($task_id, $removed_task_ids)) {
+                continue; // task is removed
+            }
+
+            $task = $this->getTask($task_id);
+
+            if (!$task) {
+                $this->logger->notice(
+                    'Task not found -> skipping',
+                    [
+                        'post_id' => $task_id,
+                    ]
+                );
+                continue;
+            }
+
+            if (!in_array($task['status'], [TaskHandler::STATUS_NEW, TaskHandler::STATUS_SUCCESS], true)) {
+                $this->logger->notice(
+                    'Task not in new state -> skipping',
+                    [
+                        'post_id' => $task_id,
+                        'state' => $task['status'],
+                    ]
+                );
+                continue;
+            }
+
+            $log_context = [
+                'index' => $index,
+                'task_id' => $task_id,
+                'task_left' => $task_quantity - $index - 1,
+            ];
+            try {
+                $this->updateTaskStatus($task, TaskHandler::STATUS_PROCESSING);
+                $this->executeSubCommand(ProcessSingleTask::getCommandName(), [$task_id]);
+
+                // Check if running the tasks remove any of the old tasks
+                $removed_task_ids = array_merge(
+                    $removed_task_ids,
+                    $this->getRemovedTaskIds($task['id'])
+                );
+
+                $this->reportTaskSuccess($task_id, $log_context);
+            } catch (Throwable $e) {
+                $this->reportTaskError($task_id, $e, $log_context);
+
+                if ($rethrow) {
+                    throw $e;
+                }
+            }
+        }
+    }
+
+    protected function reportTaskSuccess($task_id, array $log_context)
+    {
+        $task = $this->getTask($task_id);
+        $this->updateTaskStatus($task, TaskHandler::STATUS_SUCCESS);
+        $this->ensureSuccessRunTime();
+
+        $this->logger->info('Task success', $log_context);
     }
 }

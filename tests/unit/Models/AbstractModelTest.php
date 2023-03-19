@@ -38,7 +38,7 @@ abstract class AbstractModelTest extends AbstractTest
         $updateData = $this->updateExistingObjectData($getData);
         $Model::update($id, $updateData);
         $this->assertModelData(
-            $updateData,
+            $updateData + $getData,
             $Model::get($id),
             "[$ModelClass] Model data did not match after inserting"
         );

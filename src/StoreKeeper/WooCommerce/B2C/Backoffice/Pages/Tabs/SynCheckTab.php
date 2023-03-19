@@ -154,7 +154,7 @@ class SynCheckTab extends AbstractTab
         if ($type && $class = self::SYNC_TYPES[$type]) {
             $label = $this->getTypeLabel($type);
 
-            $overlay = new OverlayRenderer();
+            $overlay = new OverlayRenderer($class);
             $overlay->start(
                 sprintf(__('Executing %s.', I18N::DOMAIN), strtolower($label)),
                 __('This can take up to 24 hours depending of your data, please do not close the tab.', I18N::DOMAIN)

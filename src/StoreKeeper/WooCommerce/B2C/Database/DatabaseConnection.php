@@ -126,11 +126,11 @@ class DatabaseConnection
     public static function formatToDatabaseDate(?\DateTime $dateTime = null): string
     {
         if (is_null($dateTime)) {
-            $dateTime = new \DateTime();
+            $dateTimeClone = DateTimeHelper::currentDateTime();
+        } else {
+            $dateTimeClone = clone $dateTime;
+            $dateTimeClone->setTimezone(new \DateTimeZone('UTC'));
         }
-
-        $dateTimeClone = clone $dateTime;
-        $dateTimeClone->setTimezone(new \DateTimeZone('UTC'));
 
         return $dateTimeClone->format(DateTimeHelper::MYSQL_DATE_FORMAT);
     }

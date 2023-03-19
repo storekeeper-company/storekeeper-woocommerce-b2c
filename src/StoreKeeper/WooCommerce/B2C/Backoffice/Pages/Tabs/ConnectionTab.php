@@ -2,10 +2,11 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
-use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
+use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoEndpoint;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -22,13 +23,17 @@ class ConnectionTab extends AbstractTab
     use FormElementTrait;
 
     const DISCONNECT_ACTION = 'disconnect-action';
+    const CONNECT_ACTION = 'connect-action';
     const SAVE_ACTION = 'save-action';
+
+    const PLUGIN_INITIALIZE_URL = STOREKEEPER_WOOCOMMERCE_INTEGRATIONS.'/sk_connect/sales_channel/init_plugin_connect';
 
     public function __construct(string $title, string $slug = '')
     {
         parent::__construct($title, $slug);
 
         $this->addAction(self::DISCONNECT_ACTION, [$this, 'disconnectAction']);
+        $this->addAction(self::CONNECT_ACTION, [$this, 'connectAction']);
         $this->addAction(self::SAVE_ACTION, [$this, 'saveAction']);
     }
 
@@ -72,36 +77,15 @@ class ConnectionTab extends AbstractTab
     {
         $this->renderFormStart();
 
-        $key = esc_attr(WooCommerceOptions::getApiKey());
+        $url = $this->getActionUrl(self::CONNECT_ACTION);
         $this->renderFormGroup(
             __('Backoffice API key', I18N::DOMAIN),
-            "<input type='text' readonly onfocus='this.select()' onclick='this.select()' value='$key' />"
+            $this->getFormLink(
+                esc_url($url),
+                __('Connect to StoreKeeper', I18N::DOMAIN),
+                'button-primary'
+            )
         );
-
-        $title = __('Steps', I18N::DOMAIN);
-        $this->renderFormGroup('', "<b>$title</b>");
-        $documentationText = esc_html__('See documentation', I18N::DOMAIN);
-
-        $steps = [
-            esc_html__('Copy the "Backoffice API key" from the text area above.', I18n::DOMAIN),
-            [
-                'parent' => esc_html__('Alternatively, you can get the API key via command line.', I18n::DOMAIN),
-                'children' => [
-                    esc_html__('Check if `wp-cli` is installed in the website\'s server.', I18N::DOMAIN).
-                    " <a target='_blank' href='".BackofficeCore::DOCS_WPCLI_LINK."'>{$documentationText}</a>",
-                    esc_html__('Open command line and navigate to website directory', I18N::DOMAIN).': <code>cd '.ABSPATH.'</code>',
-                    sprintf(esc_html__('Run %s and copy the generated API key.', I18N::DOMAIN), '<code>wp sk connect-backend '.site_url().'</code>'),
-                ],
-            ],
-            esc_html__('Log into your backoffice admin environment.', I18n::DOMAIN),
-            esc_html__('On your sidebar, under "Sales channels", open your webshop and click "Settings".', I18n::DOMAIN),
-            esc_html__('On settings page, click "Connect sync" under "Actions" section.', I18n::DOMAIN),
-            esc_html__('Paste your API key into the field that says "Api key" and click connect.', I18n::DOMAIN),
-            esc_html__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
-        ];
-
-        $stepsHtml = static::generateOrderedListHtml($steps);
-        $this->renderFormGroup('', $stepsHtml);
 
         $this->renderFormEnd();
     }
@@ -195,11 +179,12 @@ class ConnectionTab extends AbstractTab
         $hookDescription = __('Never', I18N::DOMAIN);
 
         $select = WebhookLogModel::getSelectHelper()
-            ->cols(['date_updated'])
-            ->orderBy(['date_updated DESC'])
+            ->cols([WebhookLogModel::FIELD_DATE_UPDATED])
+            ->orderBy([WebhookLogModel::FIELD_DATE_UPDATED.' DESC'])
             ->limit(1);
 
         $lastHook = $wpdb->get_row(WebhookLogModel::prepareQuery($select));
+
         if ($lastHook) {
             $datetime = DatabaseConnection::formatFromDatabaseDate($lastHook->date_updated);
             $hookDescription = DateTimeHelper::formatForDisplay($datetime);
@@ -212,6 +197,25 @@ class ConnectionTab extends AbstractTab
     {
         StoreKeeperOptions::disconnect();
         wp_redirect(remove_query_arg('action'));
+    }
+
+    public function connectAction(): void
+    {
+        $woocommerceToken = WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_INFO_TOKEN);
+        if (is_null($woocommerceToken)) {
+            $woocommerceToken = WooCommerceOptions::createToken();
+            WooCommerceOptions::set(WooCommerceOptions::WOOCOMMERCE_INFO_TOKEN, $woocommerceToken);
+        }
+
+        $pluginInitUrl = add_query_arg([
+            'rest_info_url' => urlencode(add_query_arg([
+                    'api-token' => $woocommerceToken,
+                ],
+                rest_url(EndpointLoader::getFullNamespace().'/'.InfoEndpoint::ROUTE)
+            )),
+        ], self::PLUGIN_INITIALIZE_URL);
+
+        wp_redirect($pluginInitUrl);
     }
 
     public function saveAction()

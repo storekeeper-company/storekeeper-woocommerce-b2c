@@ -160,6 +160,7 @@ FROM wordpress-distro as test
 
 # get the develop version wo we can run tests
 ARG WORDPRESS_VERSION
+ARG XDEBUG_VERSION
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -q -y install git
 RUN git clone --branch ${WORDPRESS_VERSION} --single-branch git://develop.git.wordpress.org/ /app/
 
@@ -175,7 +176,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -q -y install less 
  mkdir -p /var/www/.wp-cli/cache/ && chown -R www-data:www-data /var/www/.wp-cli;
 
 #install xdebug
-RUN pecl install xdebug && docker-php-ext-enable xdebug && apt-get clean
+RUN pecl install xdebug-${XDEBUG_VERSION} && docker-php-ext-enable xdebug && apt-get clean
 
 # install node,npm,js + css
 RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y  install curl gnupg && \

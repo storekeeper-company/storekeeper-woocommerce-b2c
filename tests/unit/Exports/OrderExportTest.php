@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Exports;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
@@ -14,6 +15,7 @@ use WC_Helper_Order;
 
 class OrderExportTest extends AbstractOrderExportTest
 {
+    use ArraySubsetAsserts;
     const DATA_DUMP_FOLDER_CREATE = 'exports/orderExports/newOrder';
 
     const GET_CONTEXT = 'edit';
@@ -510,10 +512,11 @@ class OrderExportTest extends AbstractOrderExportTest
         $order = WC_Helper_Order::create_order();
         $order->save();
 
+        $sent_order = [];
         StoreKeeperApi::$mockAdapter
             ->withModule(
                 'ShopModule',
-                function (MockInterface $module) {
+                function (MockInterface $module) use (&$sent_order) {
                     $module->shouldReceive('findShopCustomerBySubuserEmail')->andReturnUsing(
                         function () {
                             return ['id' => rand()];
@@ -531,18 +534,20 @@ class OrderExportTest extends AbstractOrderExportTest
                     );
 
                     $module->shouldReceive('newOrder')->andReturnUsing(
-                        function () {
-                            return rand();
+                        function ($params) use (&$sent_order) {
+                            [$order] = $params;
+
+                            $sent_order = $order;
+                            $sent_order['id'] = rand();
+                            $sent_order = $this->calculateNewOrder($sent_order);
+
+                            return $sent_order['id'];
                         }
                     );
 
                     $module->shouldReceive('getOrder')->andReturnUsing(
-                        function ($got) {
-                            return [
-                                'id' => current($got),
-                                'status' => OrderExport::STATUS_NEW,
-                                'is_paid' => false,
-                            ];
+                        function () use (&$sent_order) {
+                            return $sent_order;
                         }
                     );
 
@@ -557,14 +562,128 @@ class OrderExportTest extends AbstractOrderExportTest
         $OrderHandler = new OrderHandler();
         $task = $OrderHandler->create($order->get_id());
 
-        $this->runner->execute(ProcessAllTasks::getCommandName());
+        $this->processTask($task);
+    }
 
-        $task = TaskModel::get($task['id']);
-        $this->assertEquals(
-            TaskHandler::STATUS_SUCCESS,
-            $task['status'],
-            'Task was marked as failed'
+    /**
+     * In some cases when the theme is broken the order gets a Variable product instead of variance
+     * So far it only happen when the order has single variance.
+     *
+     * @see https://app.clickup.com/t/861mfzp0z
+     */
+    public function testVariableProductAutoselect()
+    {
+        $this->initApiConnection();
+        $this->emptyEnvironment();
+
+        // create variable product with single variation and order it
+        $product = new \WC_Product_Variable();
+        $product->set_props(
+            [
+                'name' => 'Dummy Variable Product',
+                'sku' => 'DUMMY VARIABLE SKU',
+            ]
         );
+
+        $attributes = [];
+
+        $attribute = new \WC_Product_Attribute();
+        $attribute_data = \WC_Helper_Product::create_attribute('size', ['small', 'large', 'huge']);
+        $attribute->set_id($attribute_data['attribute_id']);
+        $attribute->set_name($attribute_data['attribute_taxonomy']);
+        $attribute->set_options($attribute_data['term_ids']);
+        $attribute->set_position(1);
+        $attribute->set_visible(true);
+        $attribute->set_variation(true);
+        $attributes[] = $attribute;
+
+        $product->set_attributes($attributes);
+        $product->save();
+
+        $variation_1 = new \WC_Product_Variation();
+        $variation_1->set_props(
+            [
+                'parent_id' => $product->get_id(),
+                'sku' => 'DUMMY SKU VARIABLE SMALL',
+                'regular_price' => 10,
+            ]
+        );
+        $variation_1->set_attributes(['pa_size' => 'small']);
+        $variation_1->save();
+
+        $order = WC_Helper_Order::create_order(1, $product);
+        $order->save();
+
+        $sent_order = [];
+        StoreKeeperApi::$mockAdapter
+            ->withModule(
+                'ShopModule',
+                function (MockInterface $module) use ($variation_1, $product, &$sent_order) {
+                    $module->shouldReceive('findShopCustomerBySubuserEmail')->andReturnUsing(
+                        function () {
+                            return ['id' => rand()];
+                        }
+                    );
+
+                    $module->shouldReceive('naturalSearchShopFlatProductForHooks')->andReturnUsing(
+                        function () {
+                            return [
+                                'data' => [],
+                                'total' => 0,
+                                'count' => 0,
+                            ];
+                        }
+                    );
+
+                    $module->shouldReceive('newOrder')->andReturnUsing(
+                        function ($params) use ($variation_1, $product, &$sent_order) {
+                            [$order] = $params;
+
+                            $productLine = null;
+                            foreach ($order['order_items']  as $item) {
+                                if (empty($item['is_shipping'])) {
+                                    $productLine = $item;
+                                }
+                            }
+                            $this->assertArraySubset(
+                                [
+                                    'sku' => $variation_1->get_sku('edit'),
+                                    'name' => $product->get_name('edit'),
+                                    'extra' => [
+                                        'wp_product_id' => $variation_1->get_id(),
+                                    ],
+                                ],
+                                $productLine,
+                                false,
+                                'Variance was send to order'
+                            );
+
+                            $sent_order = $order;
+                            $sent_order['id'] = rand();
+                            $sent_order = $this->calculateNewOrder($sent_order);
+
+                            return $sent_order['id'];
+                        }
+                    );
+
+                    $module->shouldReceive('getOrder')->andReturnUsing(
+                        function ($got) use (&$sent_order) {
+                            return $sent_order;
+                        }
+                    );
+
+                    $module->shouldReceive('updateOrder')->andReturnUsing(
+                        function () {
+                            return null;
+                        }
+                    );
+                }
+            );
+
+        $OrderHandler = new OrderHandler();
+        $task = $OrderHandler->create($order->get_id());
+
+        $this->processTask($task);
     }
 
     public function testOrderCreateNoShippingAddress()
@@ -605,13 +724,20 @@ class OrderExportTest extends AbstractOrderExportTest
         $sk_order_id = rand();
         $sk_customer_id = rand();
 
+        $sent_order = [];
         StoreKeeperApi::$mockAdapter->withModule(
             'ShopModule',
-            function (MockInterface $module) use ($sk_customer_id, $sk_order_id, $new_order, $new_order_id) {
+            function (MockInterface $module) use ($sk_customer_id, $sk_order_id, $new_order, $new_order_id, &$sent_order) {
                 $module->shouldReceive('newOrder')
                     ->andReturnUsing(
-                        function ($got) use ($new_order_id, $sk_customer_id, $new_order, $sk_order_id) {
-                            $this->assertNewOrder($new_order_id, $sk_customer_id, $new_order, $got[0]);
+                        function ($got) use ($new_order_id, $sk_customer_id, $new_order, $sk_order_id, &$sent_order) {
+                            [$order] = $got;
+
+                            $this->assertNewOrder($new_order_id, $sk_customer_id, $new_order, $order);
+
+                            $sent_order = $order;
+                            $sent_order['id'] = $sk_order_id;
+                            $sent_order = $this->calculateNewOrder($sent_order);
 
                             return $sk_order_id;
                         }
@@ -630,14 +756,10 @@ class OrderExportTest extends AbstractOrderExportTest
                     );
                 $module->shouldReceive('getOrder')
                     ->andReturnUsing(
-                        function ($got) use ($sk_order_id) {
+                        function ($got) use (&$sent_order, $sk_order_id) {
                             $this->assertEquals($sk_order_id, $got[0]);
 
-                            return [
-                                'id' => $sk_order_id,
-                                'status' => OrderExport::STATUS_NEW,
-                                'is_paid' => false,
-                            ];
+                            return $sent_order;
                         }
                     );
 
@@ -653,14 +775,7 @@ class OrderExportTest extends AbstractOrderExportTest
         );
 
         // run the sync
-        $this->runner->execute(ProcessAllTasks::getCommandName());
-
-        $task = TaskModel::get($task['id']);
-        $this->assertEquals(
-            TaskHandler::STATUS_SUCCESS,
-            $task['status'],
-            'Order task is succesful'
-        );
+        $this->processTask($task);
 
         $this->assertEquals(
             $sk_order_id,
@@ -731,5 +846,39 @@ class OrderExportTest extends AbstractOrderExportTest
     public function testStreetNumberSplit($streetNumber, $expected): void
     {
         $this->assertEquals($expected, OrderExport::splitStreetNumber($streetNumber));
+    }
+
+    protected function processTask(array $task): void
+    {
+        $this->runner->execute(
+            ProcessAllTasks::getCommandName(), [],
+            [ProcessAllTasks::ARG_FAIL_ON_ERROR => true]
+        );
+
+        $task = TaskModel::get($task['id']);
+        $this->assertEquals(
+            TaskHandler::STATUS_SUCCESS,
+            $task['status'],
+            'Task success'
+        );
+    }
+
+    public function calculateNewOrder(array $sent_order)
+    {
+        $sent_order['status'] = OrderExport::STATUS_NEW;
+        $sent_order['is_paid'] = false;
+        $total_wt = 0;
+        foreach ($sent_order['order_items'] as &$item) {
+            if (!isset($item['quantity'])) {
+                $item['quantity'] = 1;
+            }
+            if (!isset($item['value_wt'])) {
+                $item['value_wt'] = round($item['quantity'] * $item['ppu_wt'], 2);
+            }
+            $total_wt = round($item['value_wt'] + $total_wt, 2);
+        }
+        $sent_order['value_wt'] = $total_wt;
+
+        return $sent_order;
     }
 }

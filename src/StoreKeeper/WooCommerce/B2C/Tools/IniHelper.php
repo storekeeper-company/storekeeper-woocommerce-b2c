@@ -17,6 +17,11 @@ class IniHelper
         );
     }
 
+    public static function getIni(string $option)
+    {
+        return @ini_get($option);
+    }
+
     private static function saveInitialIni(string $option)
     {
         if (!array_key_exists($option, static::$initialIni)) {

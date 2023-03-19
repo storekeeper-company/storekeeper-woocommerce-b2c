@@ -55,7 +55,7 @@ class StorekeeperHandler implements SeoHandlerInterface
             $barcode = $product->get_attribute($barcode_name);
             if (!empty($barcode)) {
                 $matched = false;
-                if (preg_match('/^[\d-\s]{8,}$/', $barcode)) {
+                if (preg_match('/^[\d\-\s]{8,}$/', $barcode)) {
                     // only numbers (space and minus)
                     $barcode = preg_replace('/[-\s]/', '', $barcode);
                     if (8 === strlen($barcode)) {

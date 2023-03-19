@@ -2,12 +2,31 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Helpers;
 
+use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
+use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
+
 class OverlayRenderer
 {
     const ACTION_REDIRECT = 'action-redirect';
     const ACTION_BACK = 'action-back';
 
     private $active = false;
+    private $commandName;
+
+    public function __construct(?string $class = null)
+    {
+        $this->commandName = $this->getCommandName($class);
+    }
+
+    private function getCommandName(?string $class)
+    {
+        if (!is_null($class)) {
+            return call_user_func("$class::getCommandName");
+        }
+
+        return null;
+    }
 
     public function start(string $title, string $description = '')
     {
@@ -44,10 +63,20 @@ class OverlayRenderer
                 if ($this->active) {
                     $error = error_get_last();
                     if (null !== $error) {
-                        $this->renderError(
-                            $error['message'],
-                            $error['file'].':'.$error['line']
-                        );
+                        if (
+                            preg_match('/Allowed memory size of \d+ bytes exhausted/', $error['message']) ||
+                            str_contains(strtolower($error['message']), 'out of memory')
+                        ) {
+                            $this->renderMemoryExhaustError(
+                                $error['message'],
+                                $error['file'].':'.$error['line'],
+                            );
+                        } else {
+                            $this->renderError(
+                                $error['message'],
+                                $error['file'].':'.$error['line']
+                            );
+                        }
                     }
                 }
             }
@@ -77,6 +106,107 @@ HTML;
 HTML;
 
         $this->renderContentItem($content);
+    }
+
+    public function renderMemoryExhaustError($message, $description = ''): void
+    {
+        $message = esc_html($message);
+        $description = esc_html($description);
+
+        $firstExplanationText = esc_html(__('Your allowed memory size has been exhausted.', I18N::DOMAIN));
+        $secondExplanationText = wp_kses(
+            sprintf(
+            __('Current memory limit configured: %s'),
+            '<strong>'.IniHelper::getIni('memory_limit').'</strong>'
+            ),
+            HtmlEscape::ALLOWED_COMMON
+        );
+
+        $instructionHeading = esc_html(__('Below are actions you can do to increase PHP memory limit:', I18N::DOMAIN));
+        $instructionsHtml = $this->getMemoryLimitInstructions();
+
+        $content = <<<HTML
+<strong style="color:red">$message</strong>
+<br/>
+<p style="color: red;white-space: pre-wrap;background: #f1f1f1;padding: 5px;" >$description</p>
+
+<p style="padding: 5px;" >
+$firstExplanationText
+<br/>
+$secondExplanationText
+<br/>
+<br/>
+$instructionHeading
+<br/>
+$instructionsHtml
+</p>
+HTML;
+
+        $this->renderContentItem($content);
+    }
+
+    private function getMemoryLimitInstructions(): string
+    {
+        $instructions = [
+            [
+                'message' => sprintf(
+                    __('You can increase the memory by adding %s on the wp-config.', I18N::DOMAIN),
+                    "<code>define('WP_MEMORY_LIMIT', '1G');</code>"
+                ),
+                'bullets' => [
+                    __('Suggested memory limit is 1G and then do a full sync.', I18N::DOMAIN),
+                ],
+            ],
+        ];
+
+        if ($this->commandName) {
+            $instructions[] = [
+                 'message' => __('You can try executing this command via ssh.', I18N::DOMAIN),
+                 'bullets' => [
+                     sprintf(
+                         __('Go to the public_html folder of your webshop: %s', I18N::DOMAIN),
+                         '<code>'.ABSPATH.'</code>',
+                     ),
+                     sprintf(
+                         __('Execute %s.', I18N::DOMAIN),
+                         '<code>wp sk '.$this->commandName.'</code>'
+                     ),
+                 ],
+            ];
+        }
+
+        $instructions[] = [
+            'message' => __('Contact your hosting provider.', I18N::DOMAIN),
+            'bullets' => [
+                __('If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit.', I18N::DOMAIN),
+            ],
+        ];
+
+        $instructionsHtml = '';
+        $instructionsCount = count($instructions);
+        for ($counter = 1; $counter <= $instructionsCount; ++$counter) {
+            $instruction = $instructions[$counter - 1];
+            $message = $instruction['message'];
+            $bullets = $instruction['bullets'];
+
+            $instructionsHtml .= wp_kses(
+                <<<HTML
+$counter. $message
+<br/>
+HTML,
+            HtmlEscape::ALLOWED_COMMON);
+
+            foreach ($bullets as $bullet) {
+                $instructionsHtml .= wp_kses(
+                    <<<HTML
+<span style="margin-left: 20px">&bull; $bullet</span>
+<br/>
+HTML,
+                    HtmlEscape::ALLOWED_COMMON);
+            }
+        }
+
+        return $instructionsHtml;
     }
 
     private function renderContentItem(string $content)

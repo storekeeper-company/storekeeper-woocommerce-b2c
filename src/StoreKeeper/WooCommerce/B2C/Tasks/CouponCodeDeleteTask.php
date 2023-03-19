@@ -9,13 +9,9 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 class CouponCodeDeleteTask extends AbstractTask
 {
     /**
-     * @param $task_options
-     *
-     * @return bool
-     *
      * @throws WordpressException
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
@@ -27,8 +23,6 @@ class CouponCodeDeleteTask extends AbstractTask
                 wp_trash_post($coupon_code->ID);
             }
         }
-
-        return true;
     }
 
     /**

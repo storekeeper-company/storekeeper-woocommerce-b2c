@@ -7,13 +7,9 @@ use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 class OrderExportTask extends AbstractTask
 {
     /**
-     * @param $task_options
-     *
-     * @return bool
-     *
      * @throws \Exception
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('woocommerce_id')) {
             $prod = new OrderExport(
@@ -23,9 +19,7 @@ class OrderExportTask extends AbstractTask
                 ]
             );
 
-            $this->throwExceptionArray($prod->run());
+            $prod->run();
         }
-
-        return true;
     }
 }

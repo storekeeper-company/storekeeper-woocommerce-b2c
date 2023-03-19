@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Imports\ProductUpdateImport;
 
 class ProductUpdateImportTask extends AbstractTask
 {
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if (
             $this->taskMetaExists('storekeeper_id') &&
@@ -14,7 +14,6 @@ class ProductUpdateImportTask extends AbstractTask
         ) {
             $storekeeperId = $this->getTaskMeta('storekeeper_id');
             $scope = $this->getTaskMeta('scope');
-            $exceptions = [];
             $product = new ProductUpdateImport(
                 [
                     'storekeeper_id' => $storekeeperId,
@@ -23,11 +22,7 @@ class ProductUpdateImportTask extends AbstractTask
                 ]
             );
             $product->setTaskHandler($this->getTaskHandler());
-            $exceptions = array_merge($exceptions, $product->run());
-
-            $this->throwExceptionArray($exceptions);
+            $product->run();
         }
-
-        return true;
     }
 }

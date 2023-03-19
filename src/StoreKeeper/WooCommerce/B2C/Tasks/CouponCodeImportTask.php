@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Imports\CouponCodeImport;
 
 class CouponCodeImportTask extends AbstractTask
 {
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
@@ -18,9 +18,7 @@ class CouponCodeImportTask extends AbstractTask
                 ]
             );
 
-            $this->throwExceptionArray($coupon_code_import->run());
+            $coupon_code_import->run();
         }
-
-        return true;
     }
 }

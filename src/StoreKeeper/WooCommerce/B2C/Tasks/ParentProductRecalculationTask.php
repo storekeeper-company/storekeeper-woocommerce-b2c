@@ -13,7 +13,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
  */
 class ParentProductRecalculationTask extends AbstractTask
 {
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         $debug = array_key_exists('debug', $task_options) ? $task_options['debug'] : false;
         $this->setDebug($debug);
@@ -44,7 +44,7 @@ class ParentProductRecalculationTask extends AbstractTask
                             ]
                         );
 
-                        return true;
+                        return;
                     } else {
                         // If the meta does not exist there must be something wrong.
                         throw new \Exception("Product with post id (post_id=$parent_post_id) does not have a shop_product_id");
@@ -56,33 +56,29 @@ class ParentProductRecalculationTask extends AbstractTask
         $parent_product_object = $this->getParentProductObject($parent_shop_product_id);
 
         if (!$parent_product_object) {
-            $logger->error(
+            $logger->warning(
                 'Parent not found',
                 [
                     'parent_shop_product_id' => $parent_shop_product_id,
                     'parent_post_id' => $parent_post_id,
                 ]
             );
-            // Task not fully ran, but returning false will cause the task to fail. And we need to it succeed.
-            return true;
+        } else {
+            $parent_post = ProductImport::gettingSimpleOrConfigurableProduct($parent_product_object);
+            if (!$parent_post || 'publish' !== $parent_post->post_status) {
+                throw new \Exception('Could not find parent post');
+            }
+
+            $options_config = $this->getOptionsConfig($parent_shop_product_id);
+
+            $parent_product = new \WC_Product_Variable($parent_post);
+
+            ProductAttributes::setConfigurableAttributes(
+                $parent_product, $parent_product_object, $options_config
+            );
+
+            $parent_product->save();
         }
-
-        $parent_post = ProductImport::gettingSimpleOrConfigurableProduct($parent_product_object);
-        if (!$parent_post || 'publish' !== $parent_post->post_status) {
-            throw new \Exception('Could not find parent post');
-        }
-
-        $options_config = $this->getOptionsConfig($parent_shop_product_id);
-
-        $parent_product = new \WC_Product_Variable($parent_post);
-
-        ProductAttributes::setConfigurableAttributes(
-            $parent_product, $parent_product_object, $options_config
-        );
-
-        $parent_product->save();
-
-        return true;
     }
 
     /**

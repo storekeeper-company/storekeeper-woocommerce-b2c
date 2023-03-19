@@ -1027,9 +1027,7 @@ SQL;
     {
         update_post_meta($newProduct->get_id(), 'storekeeper_id', $dotObject->get('id'));
 
-        $date = DatabaseConnection::formatToDatabaseDate(
-            DateTimeHelper::currentDateTime(),
-        );
+        $date = DatabaseConnection::formatToDatabaseDate();
         update_post_meta($newProduct->get_id(), 'storekeeper_sync_date', $date);
         $this->debug('storekeeper_id added to post.', $log_data);
 

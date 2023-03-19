@@ -13,7 +13,6 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\InvalidRunnerException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
-use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
 use Symfony\Component\Process\Process;
 use Throwable;
@@ -232,9 +231,7 @@ class CommandRunner
             CronRegistrar::validateRunner($runner);
             CronOptions::set(
                 CronOptions::LAST_PRE_EXECUTION_DATE,
-                DatabaseConnection::formatToDatabaseDate(
-                    DateTimeHelper::currentDateTime()
-                )
+                DatabaseConnection::formatToDatabaseDate()
             );
 
             $callback();

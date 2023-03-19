@@ -345,7 +345,7 @@ class TaskHandler
 
     /**
      * @param $type
-     * @param int    $id
+     * @param int    $storekeeper_id
      * @param array  $meta_data
      * @param bool   $force_add
      * @param string $task_status
@@ -354,12 +354,12 @@ class TaskHandler
      */
     public static function scheduleTask(
         $type,
-        $id = 0,
+        $storekeeper_id = 0,
         $meta_data = [],
         $force_add = false,
         $task_status = self::STATUS_NEW
     ) {
-        $existingTask = self::getScheduledTask($type, $id);
+        $existingTask = self::getScheduledTask($type, $storekeeper_id);
         if (!$force_add && !empty($existingTask)) {
             // Dont update status if the status is new of success
             if (!in_array($existingTask['status'], [self::STATUS_NEW, self::STATUS_SUCCESS])) {
@@ -371,15 +371,15 @@ class TaskHandler
         }
 
         TaskModel::newTask(
-            self::getTitle($type, $id),
+            self::getTitle($type, $storekeeper_id),
             $type,
             self::getTypeGroup($type),
-            (int) $id,
+            (int) $storekeeper_id,
             $meta_data,
             $task_status
         );
 
-        return self::getScheduledTask($type, $id);
+        return self::getScheduledTask($type, $storekeeper_id);
     }
 
     /**
@@ -391,7 +391,7 @@ class TaskHandler
      * @throws Exception
      * @throws Throwable
      */
-    public function handleImport(int $task_id, string $typeName, $task_options = [])
+    public function handleTask(int $task_id, string $typeName, $task_options = [])
     {
         $regexOutput = preg_match(self::$typeRegex, $typeName, $regexMatches);
 
@@ -527,10 +527,7 @@ class TaskHandler
 
         try {
             $import->increaseTimesRan();
-
-            if (!$import->run($task_options)) {
-                throw new Exception("Failed to run the task (id=$storekeeper_id) (task_id=$task_id)");
-            }
+            $import->run($task_options);
 
             $this->logger->notice(
                 'Task success',
@@ -604,7 +601,7 @@ class TaskHandler
         }
 
         // Create an error task in the task queue
-        LoggerFactory::createErrorTask('task-in-queue-failed', $exception, $task_id, $metaData);
+        LoggerFactory::createErrorTask('task-in-queue-failed', $exception, $metaData);
     }
 
     /**

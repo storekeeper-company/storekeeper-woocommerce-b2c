@@ -7,7 +7,6 @@ use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
-use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
@@ -62,29 +61,27 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param WC_Order $WpObject
-     *
-     * @return bool
+     * @param WC_Order $order
      *
      * @throws Exception
      */
-    protected function processItem($WpObject)
+    protected function processItem($order): void
     {
-        $this->debug('Exporting order with id '.$WpObject->get_id());
+        $this->debug('Exporting order with id '.$order->get_id());
         if ('eur' !== strtolower(get_woocommerce_currency())) {
             $iso = get_woocommerce_currency();
             throw new Exception("Orders with woocommerce with currency_iso3 '$iso' are not supported");
         }
 
-        if ($WpObject->get_id() <= 0) {
-            throw new Exception("Order with id {$WpObject->get_id()} does not exists.");
+        if ($order->get_id() <= 0) {
+            throw new Exception("Order with id {$order->get_id()} does not exists.");
         }
 
         $isUpdate = $this->already_exported();
-        $isGuest = false === $WpObject->get_user();
+        $isGuest = false === $order->get_user();
 
         $callData = [
-            'customer_comment' => !empty($WpObject->get_customer_note(self::CONTEXT)) ? $WpObject->get_customer_note(
+            'customer_comment' => !empty($order->get_customer_note(self::CONTEXT)) ? $order->get_customer_note(
                 self::CONTEXT
             ) : null,
             'billing_address__merge' => false,  // defaults to true when not set
@@ -95,7 +92,7 @@ class OrderExport extends AbstractExport
 
         // Adding the shop order number on order creation.
         if (!$isUpdate) {
-            $callData['shop_order_number'] = $WpObject->get_id();
+            $callData['shop_order_number'] = $order->get_id();
         }
 
         $this->debug('started export of order', $callData);
@@ -103,9 +100,9 @@ class OrderExport extends AbstractExport
         if ($isGuest) {
             $callData['customer_reference'] = get_bloginfo('name')
                 .PHP_EOL
-                .__('Customer Email', I18N::DOMAIN).': '.$WpObject->get_billing_email(self::CONTEXT)
+                .__('Customer Email', I18N::DOMAIN).': '.$order->get_billing_email(self::CONTEXT)
                 .PHP_EOL
-                .__('Customer phone number', I18N::DOMAIN).': '.$WpObject->get_billing_phone(self::CONTEXT);
+                .__('Customer phone number', I18N::DOMAIN).': '.$order->get_billing_phone(self::CONTEXT);
         } else {
             $callData['customer_reference'] = get_bloginfo('name');
         }
@@ -117,7 +114,7 @@ class OrderExport extends AbstractExport
         if (!$isUpdate) {
             try {
                 $callData['is_anonymous'] = false;
-                $callData['relation_data_id'] = CustomerFinder::ensureCustomerFromOrder($WpObject);
+                $callData['relation_data_id'] = CustomerFinder::ensureCustomerFromOrder($order);
             } catch (GeneralException $exception) {
                 $callData['is_anonymous'] = true; // sets the order to anonymous;
             }
@@ -130,21 +127,21 @@ class OrderExport extends AbstractExport
          * Order products
          */
         if (!$isUpdate) {
-            $callData['order_items'] = $this->getOrderItems($WpObject);
+            $callData['order_items'] = $this->getOrderItems($order);
             $this->debug('Added order_items information', $callData);
         } else {
             $storekeeperId = $this->get_storekeeper_id();
             $storekeeperOrder = $ShopModule->getOrder($storekeeperId, null);
 
-            $hasDifference = $this->checkOrderDifference($WpObject, $storekeeperOrder);
+            $hasDifference = $this->checkOrderDifference($order, $storekeeperOrder);
             // Only update order items if they have difference and order is not paid yet
             if ($hasDifference && !$storekeeperOrder['is_paid']) {
-                $callData['order_items'] = $this->getOrderItems($WpObject);
+                $callData['order_items'] = $this->getOrderItems($order);
                 $this->debug('Updated order_items information due to difference with the backoffice order items', $callData);
             } elseif ($hasDifference && $storekeeperOrder['is_paid']) {
                 $this->debug('Cannot synchronize order, there are differences but order is already paid',
                     array_merge(
-                        ['shop_order_id' => $WpObject->get_id()],
+                        ['shop_order_id' => $order->get_id()],
                         $callData
                     ));
                 throw new Exception('Order is paid but has differences, synchronization fails');
@@ -158,7 +155,7 @@ class OrderExport extends AbstractExport
         /*
          * Add coupon codes
          */
-        if ($coupons = $WpObject->get_coupons()) {
+        if ($coupons = $order->get_coupons()) {
             $orderCouponCodes = [];
             foreach ($coupons as $couponId => $coupon) {
                 $orderCouponCodes[] = [
@@ -176,37 +173,37 @@ class OrderExport extends AbstractExport
          * Billing address
          */
         $callData['billing_address'] = [
-            'name' => $WpObject->get_formatted_billing_full_name(),
+            'name' => $order->get_formatted_billing_full_name(),
             'address_billing' => [
-                'state' => $WpObject->get_billing_state(self::CONTEXT),
-                'city' => $WpObject->get_billing_city(self::CONTEXT),
-                'zipcode' => $WpObject->get_billing_postcode(self::CONTEXT),
-                'street' => trim($WpObject->get_billing_address_1(self::CONTEXT)).' '.trim(
-                        $WpObject->get_billing_address_2(self::CONTEXT)
+                'state' => $order->get_billing_state(self::CONTEXT),
+                'city' => $order->get_billing_city(self::CONTEXT),
+                'zipcode' => $order->get_billing_postcode(self::CONTEXT),
+                'street' => trim($order->get_billing_address_1(self::CONTEXT)).' '.trim(
+                        $order->get_billing_address_2(self::CONTEXT)
                     ),
-                'country_iso2' => $WpObject->get_billing_country(self::CONTEXT),
-                'name' => $WpObject->get_formatted_billing_full_name(),
+                'country_iso2' => $order->get_billing_country(self::CONTEXT),
+                'name' => $order->get_formatted_billing_full_name(),
             ],
             'contact_set' => [
-                'email' => $WpObject->get_billing_email(self::CONTEXT),
-                'phone' => $WpObject->get_billing_phone(self::CONTEXT),
-                'name' => $WpObject->get_formatted_billing_full_name(),
+                'email' => $order->get_billing_email(self::CONTEXT),
+                'phone' => $order->get_billing_phone(self::CONTEXT),
+                'name' => $order->get_formatted_billing_full_name(),
             ],
             'contact_person' => [
-                'firstname' => $WpObject->get_billing_first_name(self::CONTEXT),
-                'familyname' => $WpObject->get_billing_last_name(self::CONTEXT),
+                'firstname' => $order->get_billing_first_name(self::CONTEXT),
+                'familyname' => $order->get_billing_last_name(self::CONTEXT),
             ],
         ];
 
-        if (!empty($WpObject->get_billing_company(self::CONTEXT))) {
+        if (!empty($order->get_billing_company(self::CONTEXT))) {
             $callData['billing_address']['business_data'] = [
-                'name' => $WpObject->get_billing_company(self::CONTEXT),
-                'country_iso2' => $WpObject->get_billing_country(self::CONTEXT),
+                'name' => $order->get_billing_company(self::CONTEXT),
+                'country_iso2' => $order->get_billing_country(self::CONTEXT),
             ];
         }
 
-        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_billing_country(self::CONTEXT)) {
-            $houseNumber = $WpObject->get_meta('billing_address_house_number', true);
+        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_billing_country(self::CONTEXT)) {
+            $houseNumber = $order->get_meta('billing_address_house_number', true);
             if (!empty($houseNumber)) {
                 $splitStreet = self::splitStreetNumber($houseNumber);
                 $streetNumber = $splitStreet['streetnumber'];
@@ -223,39 +220,39 @@ class OrderExport extends AbstractExport
         /*
          * Shipping address
          */
-        if ($WpObject->has_shipping_address()) {
+        if ($order->has_shipping_address()) {
             $callData['shipping_address'] = [
-                'name' => $WpObject->get_formatted_shipping_full_name(),
+                'name' => $order->get_formatted_shipping_full_name(),
                 'contact_address' => [
-                    'state' => $WpObject->get_shipping_state(self::CONTEXT),
-                    'city' => $WpObject->get_shipping_city(self::CONTEXT),
-                    'zipcode' => $WpObject->get_shipping_postcode(self::CONTEXT),
-                    'street' => trim($WpObject->get_shipping_address_1(self::CONTEXT)).' '.trim(
-                            $WpObject->get_shipping_address_2(self::CONTEXT)
+                    'state' => $order->get_shipping_state(self::CONTEXT),
+                    'city' => $order->get_shipping_city(self::CONTEXT),
+                    'zipcode' => $order->get_shipping_postcode(self::CONTEXT),
+                    'street' => trim($order->get_shipping_address_1(self::CONTEXT)).' '.trim(
+                            $order->get_shipping_address_2(self::CONTEXT)
                         ),
-                    'country_iso2' => $WpObject->get_shipping_country(self::CONTEXT),
-                    'name' => $WpObject->get_formatted_shipping_full_name(),
+                    'country_iso2' => $order->get_shipping_country(self::CONTEXT),
+                    'name' => $order->get_formatted_shipping_full_name(),
                 ],
                 'contact_set' => [
-                    'email' => $WpObject->get_billing_email(self::CONTEXT),
-                    'phone' => $WpObject->get_billing_phone(self::CONTEXT),
-                    'name' => $WpObject->get_formatted_shipping_full_name(),
+                    'email' => $order->get_billing_email(self::CONTEXT),
+                    'phone' => $order->get_billing_phone(self::CONTEXT),
+                    'name' => $order->get_formatted_shipping_full_name(),
                 ],
                 'contact_person' => [
-                    'firstname' => $WpObject->get_shipping_first_name(self::CONTEXT),
-                    'familyname' => $WpObject->get_shipping_last_name(self::CONTEXT),
+                    'firstname' => $order->get_shipping_first_name(self::CONTEXT),
+                    'familyname' => $order->get_shipping_last_name(self::CONTEXT),
                 ],
             ];
 
-            if (!empty($WpObject->get_shipping_company(self::CONTEXT))) {
+            if (!empty($order->get_shipping_company(self::CONTEXT))) {
                 $callData['shipping_address']['business_data'] = [
-                    'name' => $WpObject->get_shipping_company(self::CONTEXT),
-                    'country_iso2' => $WpObject->get_shipping_country(self::CONTEXT),
+                    'name' => $order->get_shipping_company(self::CONTEXT),
+                    'country_iso2' => $order->get_shipping_country(self::CONTEXT),
                 ];
             }
 
-            if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $WpObject->get_shipping_country(self::CONTEXT)) {
-                $houseNumber = $WpObject->get_meta('shipping_address_house_number', true);
+            if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_shipping_country(self::CONTEXT)) {
+                $houseNumber = $order->get_meta('shipping_address_house_number', true);
                 if (!empty($houseNumber)) {
                     $splitStreet = self::splitStreetNumber($houseNumber);
                     $streetNumber = $splitStreet['streetnumber'];
@@ -281,20 +278,18 @@ class OrderExport extends AbstractExport
         } else {
             $storekeeper_id = $ShopModule->newOrder($callData);
             WordpressExceptionThrower::throwExceptionOnWpError(
-                update_post_meta($WpObject->get_id(), 'storekeeper_id', $storekeeper_id)
+                update_post_meta($order->get_id(), 'storekeeper_id', $storekeeper_id)
             );
         }
 
-        $date = DatabaseConnection::formatToDatabaseDate(
-            DateTimeHelper::currentDateTime(),
-        );
+        $date = DatabaseConnection::formatToDatabaseDate();
         WordpressExceptionThrower::throwExceptionOnWpError(
-            update_post_meta($WpObject->get_id(), 'storekeeper_sync_date', $date)
+            update_post_meta($order->get_id(), 'storekeeper_sync_date', $date)
         );
         $this->debug('Saved order data', $storekeeper_id);
 
         // Handle payments and refunds
-        $this->processPaymentsAndRefunds($WpObject, $storekeeper_id);
+        $this->processPaymentsAndRefunds($order, $storekeeper_id);
 
         /**
          * Status.
@@ -305,7 +300,7 @@ class OrderExport extends AbstractExport
 
         // Get the storekeeper and converted woocommerce status.
         $storekeeper_status = $storekeeper_order['status'];
-        $woocommerce_status = self::convertWooCommerceToStorekeeperOrderStatus($WpObject->get_status(self::CONTEXT));
+        $woocommerce_status = self::convertWooCommerceToStorekeeperOrderStatus($order->get_status(self::CONTEXT));
 
         // Check if we should update the status
         if ($this->shouldUpdateStatus($storekeeper_status, $woocommerce_status)) {
@@ -329,12 +324,10 @@ class OrderExport extends AbstractExport
             );
         }
 
-        if ($WpObject->meta_exists(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY)) {
-            $WpObject->delete_meta_data(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY);
-            $WpObject->save();
+        if ($order->meta_exists(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY)) {
+            $order->delete_meta_data(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY);
+            $order->save();
         }
-
-        return true;
     }
 
     /**
@@ -525,31 +518,27 @@ class OrderExport extends AbstractExport
         /**
          * @var $orderProduct WC_Order_Item_Product
          */
-        foreach ($order->get_items() as $index => $orderProduct) {
-            $this->debug($index.' Adding product item');
+        foreach ($order->get_items() as $index => $orderItemProduct) {
+            $this->debug('Adding product item', [
+                'name' => $orderItemProduct->get_name(),
+                'order_id' => $orderItemProduct->get_order_id(),
+                'quantity' => $orderItemProduct->get_quantity(),
+            ]);
 
-            $variationProductId = $orderProduct->get_variation_id();
-            $isVariation = $variationProductId > 0; // Variation_id is 0 by default, if it is any other, its a variation products;
+            $currentProduct = $this->getProductForOrderLine($orderItemProduct, $productFactory);
 
-            if ($isVariation) {
-                $productId = $variationProductId;
-            } else {
-                $productId = $orderProduct->get_product_id();
-            }
-
-            $currentProduct = $productFactory->get_product($productId);
-
-            if (false === $currentProduct) {
+            if (is_null($currentProduct)) {
                 $data = [
                     'isSkipped' => true,
-                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
-                    'name' => $orderProduct->get_name(self::CONTEXT),
+                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderItemProduct->get_name(self::CONTEXT),
                 ];
                 $this->debug($index.' Woocommerce product object can\'t be found, it may have been deleted and this will be skipped during checking', [
-                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
-                    'name' => $orderProduct->get_name(self::CONTEXT),
+                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderItemProduct->get_name(self::CONTEXT),
                 ]);
             } else {
+                $productId = $currentProduct->get_id();
                 if (array_key_exists($productId, $shopProductIdMap)) {
                     $shopProductId = $shopProductIdMap[$productId];
                 } else {
@@ -557,31 +546,35 @@ class OrderExport extends AbstractExport
                 }
 
                 $description = '';
-                if ($isVariation) {
+                if ($currentProduct instanceof \WC_Product_Variation) {
                     /**
                      * @var $meta_datum WC_Meta_Data
                      *                  This is the metadata that is set on the product order, for a variation product that.
                      *                  More info about meta_data: https://docs.woocommerce.com/wc-apidocs/class-WC_Data.html
                      */
-                    $metaData = $orderProduct->get_meta_data();
+                    $metaData = $orderItemProduct->get_meta_data();
                     $meta = [];
                     foreach ($metaData as $metaDatum) {
                         $data = $metaDatum->get_data();
                         $meta[] = $data['value'];
                     }
                     $description = implode(', ', $meta);
+
+                    if (empty($description)) {
+                        $description = $currentProduct->get_attribute_summary();
+                    }
                 }
 
                 $this->debug('Got product', $currentProduct);
 
                 $data = [
-                    'sku' => $currentProduct ? $currentProduct->get_sku(self::CONTEXT) : $orderProduct->get_name(
-                        self::CONTEXT
-                    ),
-                    'ppu_wt' => $order->get_item_total($orderProduct, true, false), //get price with discount
-                    'before_discount_ppu_wt' => $order->get_item_subtotal($orderProduct, true, false), //get without discount
-                    'quantity' => $orderProduct->get_quantity(self::CONTEXT),
-                    'name' => $orderProduct->get_name(self::CONTEXT),
+                    'sku' => $currentProduct ?
+                        $currentProduct->get_sku(self::CONTEXT) :
+                        $orderItemProduct->get_name(self::CONTEXT),
+                    'ppu_wt' => $order->get_item_total($orderItemProduct, true, false), //get price with discount
+                    'before_discount_ppu_wt' => $order->get_item_subtotal($orderItemProduct, true, false), //get without discount
+                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'name' => $orderItemProduct->get_name(self::CONTEXT),
                     'description' => $description,
                     'shop_product_id' => $shopProductId,
                 ];
@@ -591,13 +584,14 @@ class OrderExport extends AbstractExport
                     $data['name'] = $currentProduct->get_name(self::CONTEXT);
                 }
 
-                $productData = $orderProduct->get_data();
+                $productData = $orderItemProduct->get_data();
                 // Need to unset meta_data as it changes like '_reduced_stock' which causes order difference error
                 unset($productData['meta_data']);
                 $extra = [
-                    'wp_row_id' => $orderProduct->get_id(),
+                    'wp_row_id' => $orderItemProduct->get_id(),
                     'wp_row_md5' => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
                     'wp_row_type' => self::ROW_PRODUCT_TYPE,
+                    'wp_product_id' => $currentProduct->get_id(),
                 ];
 
                 $data['extra'] = $extra;
@@ -709,9 +703,9 @@ class OrderExport extends AbstractExport
         return null;
     }
 
-    protected function catchKnownExceptions($throwable)
+    protected function convertKnownGeneralException(GeneralException $throwable): Throwable
     {
-        if (($throwable instanceof GeneralException) && 'ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
+        if ('ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
             return new ExportException(
                 esc_html__('Order with this order number already exists.', I18N::DOMAIN),
                 $throwable->getCode(),
@@ -719,7 +713,7 @@ class OrderExport extends AbstractExport
             );
         }
 
-        return parent::catchKnownExceptions($throwable);
+        return parent::convertKnownGeneralException($throwable);
     }
 
     protected function processPaymentsAndRefunds(WC_Order $WpObject, int $storekeeper_id): void
@@ -962,5 +956,35 @@ class OrderExport extends AbstractExport
             'streetnumber' => $streetNumber,
             'flatnumber' => '',
         ];
+    }
+
+    protected function getProductForOrderLine(\WC_Order_Item $orderItemProduct, WC_Product_Factory $productFactory): ?WC_Product
+    {
+        $variationProductId = $orderItemProduct->get_variation_id();
+        $isVariation = $variationProductId > 0; // Variation_id is 0 by default, if it is any other, its a variation products;
+        if ($isVariation) {
+            $productId = $variationProductId;
+            $currentProduct = $productFactory->get_product($productId);
+        } else {
+            $productId = $orderItemProduct->get_product_id();
+
+            // not a variation but might be variable due to gui bug
+            $currentProduct = $productFactory->get_product($productId);
+            if ($currentProduct instanceof \WC_Product_Variable) {
+                $variations = $currentProduct->get_visible_children();
+                $count = count($variations);
+                if (1 === $count) {
+                    $productId = array_pop($variations);
+                } else {
+                    throw new ExportException('Order contains a variable product '.$currentProduct->get_name().' with '.$count.' variations. Fixed the order manually in woocommerce to a correct product.');
+                }
+                $currentProduct = $productFactory->get_product($productId);
+            }
+        }
+        if (false === $currentProduct) {
+            return null;
+        }
+
+        return $currentProduct;
     }
 }

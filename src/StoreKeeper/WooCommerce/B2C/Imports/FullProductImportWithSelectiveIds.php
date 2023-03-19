@@ -74,7 +74,7 @@ class FullProductImportWithSelectiveIds extends ProductImport
         return $f;
     }
 
-    public function run($options = [])
+    public function run(array $options = []): void
     {
         if (!empty($this->shop_product_ids)) {
             $this->debug(
@@ -94,7 +94,7 @@ class FullProductImportWithSelectiveIds extends ProductImport
             );
         }
 
-        return parent::run();
+        parent::run();
     }
 
     // During fullsync we dont set the upsell ids.

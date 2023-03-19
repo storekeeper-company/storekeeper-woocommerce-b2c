@@ -9,7 +9,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tasks;
  */
 class ProductDeactivateTask extends ProductDeleteTask
 {
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
@@ -27,7 +27,5 @@ class ProductDeactivateTask extends ProductDeleteTask
                 wp_trash_post($post->ID);
             }
         }
-
-        return true;
     }
 }

@@ -6,22 +6,17 @@ use StoreKeeper\WooCommerce\B2C\Imports\TagImport;
 
 class TagImportTask extends AbstractTask
 {
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
-            $exceptions = [];
             $tag = new TagImport(
                 [
                     'storekeeper_id' => $storekeeper_id,
                     'debug' => key_exists('debug', $task_options) ? $task_options['debug'] : false,
                 ]
             );
-            $exceptions = array_merge($exceptions, $tag->run());
-
-            $this->throwExceptionArray($exceptions);
+            $tag->run();
         }
-
-        return true;
     }
 }

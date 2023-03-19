@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Models;
 
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
@@ -82,18 +83,22 @@ class TaskModelTest extends AbstractModelTest
 
     public function testPurgeOldModels()
     {
+        $date = DatabaseConnection::formatToDatabaseDate(new \DateTime('-31 days'));
         TaskModel::create(
             $this->getNewObjectData(
                 [
-                    'date_created' => date('Y-m-d H:i:s', strtotime('-31 days')),
+                    TaskModel::FIELD_DATE_CREATED => $date,
+                    TaskModel::FIELD_DATE_UPDATED => $date,
                     'status' => TaskHandler::STATUS_SUCCESS,
                 ]
             )
         );
+        $date = DatabaseConnection::formatToDatabaseDate();
         TaskModel::create(
             $this->getNewObjectData(
                 [
-                    'date_created' => date('Y-m-d H:i:s'),
+                    TaskModel::FIELD_DATE_CREATED => $date,
+                    TaskModel::FIELD_DATE_UPDATED => $date,
                     'status' => TaskHandler::STATUS_SUCCESS,
                 ]
             )
@@ -105,8 +110,13 @@ class TaskModelTest extends AbstractModelTest
             'Task models where not created properly'
         );
 
-        TaskModel::purge();
+        $purged = TaskModel::purge();
 
+        $this->assertEquals(
+            1,
+            $purged,
+            'Tasks ware purged'
+        );
         $this->assertEquals(
             1,
             TaskModel::count(),
@@ -160,8 +170,8 @@ class TaskModelTest extends AbstractModelTest
                     ],
                 ],
                 'error_output' => null,
-                'date_created' => null,
-                'date_updated' => null,
+                TaskModel::FIELD_DATE_CREATED => null,
+                TaskModel::FIELD_DATE_UPDATED => null,
             ];
     }
 
@@ -177,7 +187,7 @@ class TaskModelTest extends AbstractModelTest
                         'lastname' => 'Bar',
                     ],
                 ],
-            ] + $data;
+            ];
     }
 
     public function assertModelData(array $expected, array $actual, string $ModelClass): void

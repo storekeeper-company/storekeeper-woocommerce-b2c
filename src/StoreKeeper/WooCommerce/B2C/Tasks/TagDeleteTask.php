@@ -8,13 +8,9 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 class TagDeleteTask extends AbstractTask
 {
     /**
-     * @param $task_options
-     *
-     * @return bool
-     *
      * @throws WordpressException
      */
-    public function run($task_options = [])
+    public function run(array $task_options = []): void
     {
         if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
@@ -26,8 +22,6 @@ class TagDeleteTask extends AbstractTask
                 wp_delete_term($term->term_id, 'product_tag');
             }
         }
-
-        return true;
     }
 
     /**

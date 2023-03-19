@@ -272,8 +272,8 @@ class InfoHandler
         global $wpdb;
 
         $select = WebhookLogModel::getSelectHelper()
-            ->cols(['date_updated'])
-            ->orderBy(['date_updated DESC'])
+            ->cols([WebhookLogModel::FIELD_DATE_UPDATED])
+            ->orderBy([WebhookLogModel::FIELD_DATE_UPDATED.' DESC'])
             ->limit(1);
 
         return $wpdb->get_var(WebhookLogModel::prepareQuery($select));
