@@ -127,7 +127,7 @@ class PaymentModel extends AbstractModel implements IModelPurge
     public static function getPaymentIdByTrx(string $trx): ?int
     {
         $select = static::getSelectHelper()
-            ->cols(['id'])
+            ->cols(['payment_id'])
             ->where('trx = :trx')
             ->bindValue('trx', $trx);
 
