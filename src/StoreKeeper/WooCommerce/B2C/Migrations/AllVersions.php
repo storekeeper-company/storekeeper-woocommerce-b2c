@@ -14,6 +14,10 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313161110SetUpOptions;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313171650AttributeFkEnsure;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313171651AttributeOptionFkAttributeEnsure;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313171652AttributeOptionFkTermEnsure;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230319110710DropPkPayments;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230319110720PaymentsAddPkey;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230319114000PaymentsAddTrx;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230319124000PaymentsAddIsPaid;
 
 class AllVersions implements VersionsInterface
 {
@@ -30,6 +34,10 @@ class AllVersions implements VersionsInterface
         V20230313171650AttributeFkEnsure::class,
         V20230313171651AttributeOptionFkAttributeEnsure::class,
         V20230313171652AttributeOptionFkTermEnsure::class,
+        V20230319110710DropPkPayments::class,
+        V20230319110720PaymentsAddPkey::class,
+        V20230319114000PaymentsAddTrx::class,
+        V20230319124000PaymentsAddIsPaid::class,
     ];
 
     public function getVersionId(string $class): int

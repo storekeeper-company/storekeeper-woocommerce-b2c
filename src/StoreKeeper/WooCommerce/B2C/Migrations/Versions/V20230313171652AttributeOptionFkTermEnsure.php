@@ -36,6 +36,7 @@ SQL
         } else {
             return 'Key '.$foreignKey.' already exists on table '.$tableName;
         }
+
         return null;
     }
 }

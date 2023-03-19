@@ -6,6 +6,7 @@ use Adbar\Dot;
 use Exception;
 use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
+use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\StoreKeeperBaseGateway;
@@ -516,7 +517,11 @@ class OrderPaymentTest extends AbstractOrderExportTest
             'Order status should only be updated once during this flow'
         );
         $this->assertTrue(
-            PaymentGateway::isPaymentSynced($new_order_id),
+            PaymentModel::orderHasPayment($new_order_id),
+            'Order has payment'
+        );
+        $this->assertTrue(
+            PaymentModel::isAllPaymentInSync($new_order_id),
             'Check if the payment was synced'
         );
     }

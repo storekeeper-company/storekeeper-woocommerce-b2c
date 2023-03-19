@@ -8,6 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
@@ -729,18 +730,20 @@ class OrderExport extends AbstractExport
     protected function processPayments(WC_Order $WpObject, int $storekeeper_id, array $storekeeperOrder): void
     {
         $isPaidInBackoffice = (bool) $storekeeperOrder['is_paid'];
+        $order_id = $WpObject->get_id();
 
-        if (PaymentGateway::hasPayment($WpObject->get_id())) {
-            if (!PaymentGateway::isPaymentSynced($WpObject->get_id())) {
-                $gateway_payment_id = PaymentGateway::getPaymentId($WpObject->get_id());
-                $this->debug(
-                    'Attaching payment to order',
-                    ['order_id' => $storekeeper_id, 'payment_id' => $gateway_payment_id]
-                );
-                $this->syncPaymentToBackend($gateway_payment_id, $storekeeper_id);
-                PaymentGateway::markPaymentAsSynced($WpObject->get_id());
-            } else {
-                // payment is already synchronized
+        if (PaymentModel::orderHasPayment($order_id)) {
+            $paymentsToSync = PaymentModel::findOrderPaymentsNotInSync($order_id);
+            foreach ($paymentsToSync as $payment) {
+                if (!empty($payment['payment_id'])) {
+                    $gateway_payment_id = $payment['payment_id'];
+                    $this->debug(
+                        'Attaching payment to order',
+                        ['order_id' => $storekeeper_id, 'payment_id' => $gateway_payment_id]
+                    );
+                    $this->syncPaymentToBackend($gateway_payment_id, $storekeeper_id);
+                }
+                PaymentModel::markPaymentAsSynced($payment);
             }
         } else {
             // no sk payment yes at this point
@@ -751,39 +754,18 @@ class OrderExport extends AbstractExport
                  */
                 $this->debug('Backend payment state of this order (wp order is paid)', [
                     'storekeeper_order_is_paid' => $isPaidInBackoffice,
-                    'order_id' => $WpObject->get_id(),
+                    'order_id' => $order_id,
                 ]);
 
                 // Order paid in WP but not in the Backoffice.
                 if (!$isPaidInBackoffice) {
-                    $PaymentModule = $this->storekeeper_api->getModule('PaymentModule');
+                    $paymentId = $this->newSkPaymentForWcPayment($WpObject);
 
-                    $paymentGateway = wc_get_payment_gateway_by_order($WpObject);
-                    if ($paymentGateway) {
-                        $paymentGatewayTitle = $paymentGateway->get_method_title();
-                        $comment = $paymentGatewayTitle.' ('.__('Wordpress plugin').')';
-                    } else {
-                        $comment = ucwords(str_replace('pay_gateway_', '', $WpObject->get_payment_method()));
-                    }
+                    $id = PaymentModel::addPayment($order_id, $paymentId, $WpObject->get_total(), true);
+                    $this->syncPaymentToBackend($paymentId, $storekeeper_id);
+                    PaymentModel::markIdAsSynced($id);
 
-                    if (!empty($WpObject->get_meta('transactionId'))) {
-                        $comment .= ' #'.$WpObject->get_meta('transactionId');
-                    } elseif (!empty($WpObject->get_transaction_id())) {
-                        $comment .= ' #'.$WpObject->get_transaction_id();
-                    }
-
-                    $paymentId = $PaymentModule->newWebPayment([
-                        'amount' => $WpObject->get_total(),
-                        'description' => $comment,
-                    ]);
-
-                    if ($paymentId) {
-                        PaymentGateway::addPayment($WpObject->get_id(), $paymentId, $WpObject->get_total());
-                        $this->syncPaymentToBackend($paymentId, $storekeeper_id);
-                        PaymentGateway::markPaymentAsSynced($WpObject->get_id());
-                    }
-
-                    $this->debug('The order is paid: Marked the order as paid. '.$comment);
+                    $this->debug('The order is paid: Marked the order as paid. Payment_id='.$paymentId);
                 } else {
                     $this->debug('Did not mark the order as paid since it is not paid yet according to WooCommerce');
                 }
@@ -848,14 +830,14 @@ class OrderExport extends AbstractExport
         $id = $unsyncedRefundsWithoutId['id'];
         $refundId = $unsyncedRefundsWithoutId['wc_refund_id'];
         $refundAmount = $unsyncedRefundsWithoutId['amount'];
-        if (PaymentGateway::hasPayment($woocommerceOrderId)) {
-            $storekeeperPaymentId = PaymentGateway::getPaymentId($woocommerceOrderId);
+        if (PaymentModel::orderHasPayment($woocommerceOrderId)) {
             try {
+                $storekeeperPayment = $this->getPaymentForRefund($woocommerceOrderId);
                 $storekeeperRefundId = $shopModule->refundAllOrderItems([
                     'id' => $storekeeperId,
                     'refund_payments' => [
                         [
-                            'payment_id' => $storekeeperPaymentId,
+                            'payment_id' => $storekeeperPayment['payment_id'],
                             'amount' => round(-abs($refundAmount), 2),
                             'description' => sprintf(
                                 __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
@@ -865,8 +847,8 @@ class OrderExport extends AbstractExport
                     ],
                 ]);
                 $this->debug('Storekeeper refund was created', [
-                    'order_id' => $storekeeperId,
-                    'payment_id' => $storekeeperRefundId,
+                    'payment' => $storekeeperPayment,
+                    'refund_id' => $storekeeperRefundId,
                 ]);
                 PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
             } catch (GeneralException $generalException) {
@@ -965,5 +947,52 @@ class OrderExport extends AbstractExport
 
             throw $exception;
         }
+    }
+
+    protected function newSkPaymentForWcPayment(WC_Order $WpObject): int
+    {
+        $PaymentModule = $this->storekeeper_api->getModule('PaymentModule');
+
+        $paymentGateway = wc_get_payment_gateway_by_order($WpObject);
+        if ($paymentGateway) {
+            $paymentGatewayTitle = $paymentGateway->get_method_title();
+            $comment = $paymentGatewayTitle.' ('.__('Wordpress plugin').')';
+        } else {
+            $comment = ucwords(str_replace('pay_gateway_', '', $WpObject->get_payment_method()));
+        }
+
+        if (!empty($WpObject->get_meta('transactionId'))) {
+            $comment .= ' #'.$WpObject->get_meta('transactionId');
+        } elseif (!empty($WpObject->get_transaction_id())) {
+            $comment .= ' #'.$WpObject->get_transaction_id();
+        }
+
+        return $PaymentModule->newWebPayment([
+            'amount' => $WpObject->get_total(),
+            'description' => $comment,
+        ]);
+    }
+
+    /**
+     * get first paid payment, if no payment found it will take any payment.
+     *
+     * @param $woocommerceOrderId
+     *
+     * @return mixed|null
+     */
+    protected function getPaymentForRefund(int $woocommerceOrderId): ?array
+    {
+        $storekeeperPayment = null;
+        $storekeeperPayments = PaymentModel::findOrderPayments($woocommerceOrderId);
+        foreach ($storekeeperPayments as $payment) {
+            if (is_null($storekeeperPayment)) {
+                $storekeeperPayment = $payment;
+            }
+            if ($payment['is_paid']) {
+                break;
+            }
+        }
+
+        return $storekeeperPayment;
     }
 }

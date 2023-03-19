@@ -188,8 +188,6 @@ WHERE
 
     public static function read($id): ?array
     {
-        global $wpdb;
-
         $select = static::getSelectHelper()
             ->cols(['*'])
             ->where(static::PRIMARY_KEY.' = :id')
@@ -197,6 +195,12 @@ WHERE
 
         $query = static::prepareQuery($select);
 
+        return self::fetchSingleRowForQuery($query);
+    }
+
+    protected static function fetchSingleRowForQuery(string $query): ?array
+    {
+        global $wpdb;
         $row = $wpdb->get_row(
             $query,
             ARRAY_A
@@ -323,11 +327,11 @@ WHERE
     }
 
     public static function findBy(
-        $whereClauses = [],
-        $whereValues = [],
-        $orderBy = null,
-        $orderDirection = null,
-        $limit = null
+        array $whereClauses = [],
+        array $whereValues = [],
+        ?string $orderBy = null,
+        ?string $orderDirection = null,
+        ?int $limit = null
     ) {
         global $wpdb;
         $select = static::getSelectHelper()
@@ -352,7 +356,7 @@ WHERE
 
         $query = static::prepareQuery($select);
 
-        return $wpdb->get_results($query);
+        return $wpdb->get_results($query, ARRAY_A);
     }
 
     public static function getSelectHelper($alias = ''): SelectInterface

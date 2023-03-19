@@ -45,14 +45,28 @@ class MigrationManager
         if (!empty($toExecute)) {
             $logger->notice('Executing migrations', ['versions' => $toExecute, 'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION]);
             foreach ($toExecute as $executeId => $class) {
-                $class = $versions[$executeId];
-                $obj = new $class();
-                $this->migrateOne($executeId, $obj);
-                $logger->info('Migrated', [
-                    'id' => $executeId,
-                    'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
-                    'class' => $class,
-                ]);
+                try {
+                    $class = $versions[$executeId];
+                    $obj = new $class();
+                    $this->migrateOne($executeId, $obj);
+                    $logger->info('Migrated', [
+                        'id' => $executeId,
+                        'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                        'class' => $class,
+                    ]);
+                } catch (\Throwable $e) {
+                    $logger->error('Migration failed',
+                        [
+                            'id' => $executeId,
+                            'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+                            'class' => $class,
+                            'e' => $e->getMessage(),
+                            'e_class' => get_class($e),
+                            'e_trace' => $e->getTraceAsString(),
+                        ]
+                    );
+                    throw $e;
+                }
             }
         } else {
             $logger->info('All is migrated', ['versions' => $toExecute, 'plugin' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION]);

@@ -32,7 +32,7 @@ abstract class AbstractExport
      *
      * @throws \Exception
      */
-    public function __construct(array $settings)
+    public function __construct(array $settings = [])
     {
         $this->id = key_exists('id', $settings) ? (int) $settings['id'] : 0;
         $this->storekeeper_api = StoreKeeperApi::getApiByAuthName(StoreKeeperApi::SYNC_AUTH_DATA);
