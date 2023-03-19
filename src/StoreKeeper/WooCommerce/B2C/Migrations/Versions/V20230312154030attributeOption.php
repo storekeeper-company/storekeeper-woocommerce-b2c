@@ -14,8 +14,8 @@ class V20230312154030attributeOption extends AbstractMigration
             $wp = AttributeOptionModel::getWpPrefix();
             $name = AttributeOptionModel::getTableName();
 
-            $attributeForeignKey = AttributeOptionModel::getValidForeignFieldKey('storekeeper_attribute_id_fk', $name);
-            $termsForeignKey = AttributeOptionModel::getValidForeignFieldKey('term_id_fk', $name);
+            $attributeForeignKey = AttributeOptionModel::getValidForeignFieldKey(AttributeOptionModel::FK_STOREKEEPER_ATTRIBUTE_ID, $name);
+            $termsForeignKey = AttributeOptionModel::getValidForeignFieldKey(AttributeOptionModel::FK_TERM_ID, $name);
 
             $query = <<<SQL
     CREATE TABLE `$name` (

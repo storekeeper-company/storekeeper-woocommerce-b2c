@@ -7,6 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 
 class AttributeModel extends AbstractModel implements IModelPurge
 {
+    const FK_ATTRIBUTE_ID = 'attribute_id_fk';
     const TABLE_NAME = 'storekeeper_attributes';
 
     public static function getFieldsWithRequired(): array

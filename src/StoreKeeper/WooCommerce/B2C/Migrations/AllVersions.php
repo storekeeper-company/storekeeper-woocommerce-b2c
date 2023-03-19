@@ -11,13 +11,13 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154040Payment;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230312154050Refund;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313161100RedirectTable;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313161110SetUpOptions;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V2023031317165000AttributeFkEnsure;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V2023031317165010AttributeOptionFkAttributeEnsure;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V2023031317165020AttributeOptionFkTermEnsure;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313171650AttributeFkEnsure;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313171651AttributeOptionFkAttributeEnsure;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230313171652AttributeOptionFkTermEnsure;
 
 class AllVersions implements VersionsInterface
 {
-    const VERSION_REGEX = '/\\V(?<date>\d{8})(?<time>\d{6})\w*$/';
+    const VERSION_REGEX = '/\\V(?<date>\d{8})(?<time>\d{6})(\D\w*)$/';
     const VERSION = [
         V20230312154000webhook::class,
         V20230312154010task::class,
@@ -27,9 +27,9 @@ class AllVersions implements VersionsInterface
         V20230312154050Refund::class,
         V20230313161100RedirectTable::class,
         V20230313161110SetUpOptions::class,
-        V2023031317165000AttributeFkEnsure::class,
-        V2023031317165010AttributeOptionFkAttributeEnsure::class,
-        V2023031317165020AttributeOptionFkTermEnsure::class,
+        V20230313171650AttributeFkEnsure::class,
+        V20230313171651AttributeOptionFkAttributeEnsure::class,
+        V20230313171652AttributeOptionFkTermEnsure::class,
     ];
 
     public function getVersionId(string $class): int
@@ -45,7 +45,11 @@ class AllVersions implements VersionsInterface
     {
         $versions = [];
         foreach (self::VERSION as $class) {
-            $versions[self::getVersionId($class)] = $class;
+            $versionId = self::getVersionId($class);
+            if (array_key_exists($versionId, $versions)) {
+                throw new \Exception("Version duplicate $versionId. Classes: ".implode(', ', [$class, $versions[$versionId]]));
+            }
+            $versions[$versionId] = $class;
         }
 
         return $versions;

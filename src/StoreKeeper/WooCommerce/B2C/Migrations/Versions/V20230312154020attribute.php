@@ -14,7 +14,7 @@ class V20230312154020attribute extends AbstractMigration
             $wp = AttributeModel::getWpPrefix();
             $name = AttributeModel::getTableName();
 
-            $attributeForeignKey = AttributeModel::getValidForeignFieldKey('attribute_id_fk', $name);
+            $attributeForeignKey = AttributeModel::getValidForeignFieldKey(AttributeModel::FK_ATTRIBUTE_ID, $name);
             $query = <<<SQL
     CREATE TABLE `$name` (
         `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
