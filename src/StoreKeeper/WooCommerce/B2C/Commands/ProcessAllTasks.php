@@ -361,17 +361,7 @@ class ProcessAllTasks extends AbstractCommand
 
     private function updateTask($id, $data)
     {
-        $data['id'] = $id;
-        TaskModel::validateData($data, true);
-
-        $update = TaskModel::getUpdateHelper()
-            ->cols(TaskModel::prepareUpdateData($data))
-            ->where('id = :id')
-            ->bindValue('id', $id);
-
-        $query = $this->db->prepare($update);
-
-        return $this->db->querySql($query);
+        TaskModel::update($id, $data);
     }
 
     protected function setLastErrorTransient(int $task_quantity): void

@@ -173,7 +173,17 @@ WHERE
             $data[self::FIELD_DATE_UPDATED] = DatabaseConnection::formatToDatabaseDate();
         }
 
-        $insert = static::getInsertHelper()->cols(static::prepareInsertData($data));
+        $insert = static::getInsertHelper();
+        $data = static::prepareInsertData($data);
+        $cols = [];
+        foreach ($data as $k => $v) {
+            if (is_bool($v)) {
+                $insert->set($k, $v ? 1 : 0);
+            } else {
+                $cols[$k] = $v;
+            }
+        }
+        $insert->cols($cols);
         $query = static::prepareQuery($insert);
 
         $affectedRows = $wpdb->query($query);
@@ -222,7 +232,9 @@ WHERE
 
     public static function get($id): ?array
     {
-        return static::read($id);
+        $data = static::read($id);
+
+        return $data;
     }
 
     public static function update($id, array $data): void
@@ -427,7 +439,7 @@ WHERE
         $preparedData = [];
 
         foreach (static::getFieldsWithRequired() as $key => $required) {
-            if (!empty($data[$key])) {
+            if (array_key_exists($key, $data)) {
                 if ($includePk || static::PRIMARY_KEY !== $key) {
                     $preparedData[$key] = $data[$key];
                 }

@@ -109,12 +109,11 @@ class LoggerFactory
      * Create an error task in the task queue.
      * This task cannot be executed, it is only for reporting the errors.
      *
-     * @param string     $key
      * @param \Exception $exception
      *
      * @throws WordpressException
      */
-    public static function createErrorTask($key, $exception, $custom_metadata = [])
+    public static function createErrorTask(string $key, \Throwable $exception, array $custom_metadata = [])
     {
         $full_metadata = self::generateMetadata($key, $exception, $custom_metadata);
 
@@ -130,7 +129,7 @@ class LoggerFactory
     /**
      * @param $custom_metadata
      */
-    public static function generateMetadata(string $key, \Throwable $exception, $custom_metadata): array
+    public static function generateMetadata(string $key, \Throwable $exception, array $custom_metadata): array
     {
         $metadata = [
             'error-key' => $key,

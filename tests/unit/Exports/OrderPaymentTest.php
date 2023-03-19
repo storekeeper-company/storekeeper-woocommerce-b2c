@@ -57,9 +57,9 @@ class OrderPaymentTest extends AbstractOrderExportTest
 
         // Payment constants
         $sk_cancelled_payment_id = rand();
-        $sk_cancelled_method_id = rand();
-        $sk_paid_payment_id = rand();
-        $sk_paid_method_id = rand();
+        $sk_cancelled_method_id = $sk_cancelled_payment_id + 1;
+        $sk_paid_payment_id = $sk_cancelled_payment_id + 2;
+        $sk_paid_method_id = $sk_cancelled_payment_id + 3;
 
         // other constants
         $sk_order_id = rand();
@@ -282,6 +282,20 @@ class OrderPaymentTest extends AbstractOrderExportTest
             PaymentModel::isAllPaymentInSync($wc_order_id),
             'All is synched'
         );
+
+        $expect = [
+            'canceled' => false,
+            'paid' => true,
+        ];
+        $got = [];
+        foreach ($orderPayments as $orderPayment) {
+            if ($orderPayment['payment_id'] == $sk_cancelled_payment_id) {
+                $got['canceled'] = $orderPayment['is_paid'];
+            } elseif ($orderPayment['payment_id'] == $sk_paid_payment_id) {
+                $got['paid'] = $orderPayment['is_paid'];
+            }
+        }
+        $this->assertEquals($expect, $got, 'Paid statuses are correct');
     }
 
     public function testOrderStoreKeeperPayment()

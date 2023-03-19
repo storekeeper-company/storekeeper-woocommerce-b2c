@@ -171,7 +171,9 @@ class TaskModel extends AbstractModel implements IModelPurge
 
     public static function update($id, array $data): void
     {
-        $data['meta_data'] = serialize($data['meta_data'] ?? []);
+        if (array_key_exists('meta_data', $data) && is_array($data['meta_data'])) {
+            $data['meta_data'] = serialize($data['meta_data'] ?? []);
+        }
         parent::update($id, $data);
     }
 
