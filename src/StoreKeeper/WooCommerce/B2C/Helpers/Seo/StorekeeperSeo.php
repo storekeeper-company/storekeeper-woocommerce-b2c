@@ -9,10 +9,15 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
 class StorekeeperSeo
 {
-    public const STOREKEEPER_SEO_OPTION_KEY = 'skseo_taxonomy_meta';
+    public const META_PREFIX = 'skseo_';
+    public const STOREKEEPER_SEO_OPTION_KEY = self::META_PREFIX.'taxonomy_meta';
     public const STOREKEEPER_HANDLER = 'storekeeper';
+    const META_TITLE = self::META_PREFIX . 'title';
+    const META_DESCRIPTION = self::META_PREFIX . 'desc';
+    const META_KEYWORDS = self::META_PREFIX . 'focuskw';
 
-    public function extraCategoryFields( $tag ) {
+    public function extraCategoryFields($tag)
+    {
         $termMeta = WordpressExceptionThrower::throwExceptionOnWpError(
             get_option(self::STOREKEEPER_SEO_OPTION_KEY)
         );
@@ -23,9 +28,7 @@ class StorekeeperSeo
             $category = $categories[$tag->term_id];
         } else {
             $category = [];
-        }
-
-        ?>
+        } ?>
         <tr class="form-field">
             <th scope="row" valign="top">
                 <label for="cat_seo_title"><?php _e('SEO Title'); ?></label>
@@ -68,18 +71,17 @@ class StorekeeperSeo
         <?php
     }
 
-    public function extraProductFields($post) {
+    public function extraProductFields($post)
+    {
         $seoTitle = WordpressExceptionThrower::throwExceptionOnWpError(
-            get_post_meta($post->ID, 'wpseo_title', true)
+            get_post_meta($post->ID, self::META_TITLE, true)
         );
         $seoDescription = WordpressExceptionThrower::throwExceptionOnWpError(
-            get_post_meta($post->ID, 'wpseo_desc', true)
+            get_post_meta($post->ID, self::META_DESCRIPTION, true)
         );
         $seoKeywords = WordpressExceptionThrower::throwExceptionOnWpError(
-            get_post_meta($post->ID, 'wpseo_focuskw', true)
-        );
-
-        ?>
+            get_post_meta($post->ID, self::META_KEYWORDS, true)
+        ); ?>
         <table id="alg-product-input-fields-table" class="alg-product-input-fields-table">
             <tr>
                 <th scope="row" vertical-align="top">
@@ -185,7 +187,7 @@ class StorekeeperSeo
      * @throws WordpressException
      */
     public static function addSeoToWoocommerceProduct(
-        Object $product,
+        object $product,
         ?string $title = null,
         ?string $description = null,
         ?string $keywords = null
@@ -193,19 +195,19 @@ class StorekeeperSeo
         if (self::isSelectedHandler()) {
             if (!is_null($title)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('wpseo_title', $title)
+                    $product->update_meta_data(self::META_TITLE, $title)
                 );
             }
 
             if (!is_null($description)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('wpseo_desc', $description)
+                    $product->update_meta_data(self::META_DESCRIPTION, $description)
                 );
             }
 
             if (!is_null($keywords)) {
                 WordpressExceptionThrower::throwExceptionOnWpError(
-                    $product->update_meta_data('wpseo_focuskw', $keywords)
+                    $product->update_meta_data(self::META_KEYWORDS, $keywords)
                 );
             }
         }
@@ -224,7 +226,7 @@ class StorekeeperSeo
 
             if (isset($categories[$termId])) {
                 $category = $categories[$termId];
-                $storekeeperSeoTitle = $category['wpseo_title'] ?? '';
+                $storekeeperSeoTitle = $category[self::META_TITLE] ?? '';
             }
         }
 
@@ -244,7 +246,7 @@ class StorekeeperSeo
 
             if (isset($categories[$termId])) {
                 $category = $categories[$termId];
-                $storeSeoFocusKeywords = $category['wpseo_focuskw'] ?? '';
+                $storeSeoFocusKeywords = $category[self::META_KEYWORDS] ?? '';
             }
         }
 
@@ -264,7 +266,7 @@ class StorekeeperSeo
 
             if (isset($categories[$termId])) {
                 $category = $categories[$termId];
-                $storekeeperSeoDescription = $category['wpseo_desc']  ?? '';
+                $storekeeperSeoDescription = $category[self::META_DESCRIPTION] ?? '';
             }
         }
 

@@ -363,10 +363,8 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
             RankMathSeo::addSeoToCategory($term->term_id, $seoTitle, $seoDescription, $seoKeywords);
         }
 
-        if (
-            // StorekeeperSeo::isSelectedHandler() &&
-            StorekeeperSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)
-        ) {
+        if (StorekeeperSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
+            // always add storekeeper so easier to change to it
             $categoryId = null;
             if ($dotObject->has('id')) {
                 $categoryId = $dotObject->get('id');

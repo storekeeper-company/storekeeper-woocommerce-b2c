@@ -160,8 +160,7 @@ class Core
             $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
-        $this->addCategorySeoFields();
-        $this->addProductSeoFields();
+        $this->registerStoreKeeperSEO();
     }
 
     private function prepareCron()
@@ -489,7 +488,7 @@ HTML;
         }
     }
 
-    public function addCategorySeoFields()
+    public function registerStoreKeeperSEO()
     {
         $storekeeperSeo = new StorekeeperSeo();
 
@@ -498,16 +497,11 @@ HTML;
             $storekeeperSeo,
             'extraCategoryFields'
         );
-    }
-
-    public function addProductSeoFields()
-    {
-        $storekeeperSeo = new StorekeeperSeo();
-
         $this->loader->add_action(
             'edit_form_advanced',
             $storekeeperSeo,
             'extraProductFields'
         );
     }
+
 }

@@ -15,7 +15,6 @@ use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
-use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
 class SyncWoocommerceProductsTest extends AbstractTest
 {
