@@ -32,6 +32,10 @@ if (!defined('STOREKEEPER_WOOCOMMERCE_INTEGRATIONS')) {
     define('STOREKEEPER_WOOCOMMERCE_INTEGRATIONS', 'https://integrations.storekeeper.software');
 }
 
+if (!defined('STOREKEEPER_WOOCOMMERCE_INTEGRATIONS_USE_FLAG')) {
+    define('STOREKEEPER_WOOCOMMERCE_INTEGRATIONS_USE_FLAG', false);
+}
+
 include_once __DIR__.'/autoload.php';
 
 if (phpversion() < STOREKEEPER_WOOCOMMERCE_B2C_PHP_VERSION) {

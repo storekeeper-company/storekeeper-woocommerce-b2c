@@ -77,15 +77,39 @@ class ConnectionTab extends AbstractTab
     {
         $this->renderFormStart();
 
-        $url = $this->getActionUrl(self::CONNECT_ACTION);
-        $this->renderFormGroup(
-            __('Backoffice API key', I18N::DOMAIN),
-            $this->getFormLink(
-                esc_url($url),
-                __('Connect to StoreKeeper', I18N::DOMAIN),
-                'button-primary'
-            )
-        );
+        if (STOREKEEPER_WOOCOMMERCE_INTEGRATIONS_USE_FLAG) {
+            $url = $this->getActionUrl(self::CONNECT_ACTION);
+            $this->renderFormGroup(
+                __('Backoffice connection', I18N::DOMAIN),
+                $this->getFormLink(
+                    esc_url($url),
+                    __('Connect to StoreKeeper', I18N::DOMAIN),
+                    'button-primary'
+                )
+            );
+        } else {
+            $this->renderFormStart();
+
+            $key = esc_attr(WooCommerceOptions::getApiKey());
+            $this->renderFormGroup(
+                __('Backoffice API key', I18N::DOMAIN),
+                "<input type='text' readonly onfocus='this.select()' onclick='this.select()' value='$key' />"
+            );
+
+            $title = __('Steps', I18N::DOMAIN);
+            $this->renderFormGroup('', "<b>$title</b>");
+
+            $steps = [
+                '1. '.__('Copy the "Backoffice API Key" from the text area.', I18n::DOMAIN),
+                '2. '.__('Log into your admin environment', I18n::DOMAIN),
+                '3. '.__('Navigate to settings > technical settings and click on the "webhook" tab.', I18n::DOMAIN),
+                '4. '.__('Paste your api key into the field that says "Api key" and click connect.', I18n::DOMAIN),
+                '5. '.__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
+            ];
+            $this->renderFormGroup('', implode('<br/>', $steps));
+
+            $this->renderFormEnd();
+        }
 
         $this->renderFormEnd();
     }
