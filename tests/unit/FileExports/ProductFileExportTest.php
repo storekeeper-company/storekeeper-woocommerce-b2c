@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
 use StoreKeeper\WooCommerce\B2C\FileExport\AbstractCSVFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\ProductFileExport;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Tools\Base36Coder;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
@@ -31,6 +32,26 @@ class ProductFileExportTest extends AbstractFileExportTest
          * @var WC_Product_Simple   $simpleProduct
          */
         [$simpleProduct, $variableProduct, $noImageProduct] = $this->setupTests();
+        $noImageSeo = [
+            StoreKeeperSeo::SEO_TITLE => uniqid('title'),
+            StoreKeeperSeo::SEO_DESCRIPTION => uniqid('description'),
+            StoreKeeperSeo::SEO_KEYWORDS => uniqid('keywords'),
+        ];
+        StoreKeeperSeo::setProductSeo($noImageProduct,
+            $noImageSeo[StoreKeeperSeo::SEO_TITLE],
+            $noImageSeo[StoreKeeperSeo::SEO_DESCRIPTION],
+            $noImageSeo[StoreKeeperSeo::SEO_KEYWORDS]
+        );
+        $variableSeo = [
+            StoreKeeperSeo::SEO_TITLE => uniqid('title'),
+            StoreKeeperSeo::SEO_DESCRIPTION => uniqid('description'),
+            StoreKeeperSeo::SEO_KEYWORDS => uniqid('keywords'),
+        ];
+        StoreKeeperSeo::setProductSeo($variableProduct,
+            $variableSeo[StoreKeeperSeo::SEO_TITLE],
+            $variableSeo[StoreKeeperSeo::SEO_DESCRIPTION],
+            $variableSeo[StoreKeeperSeo::SEO_KEYWORDS]
+        );
 
         $instance = $this->getNewFileExportInstance();
         $path = $instance->runExport(Language::getSiteLanguageIso2());
@@ -47,7 +68,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         $this->assertProductExportRow(
             $noImageProduct,
             $mappedRows[$noImageProduct->get_sku()],
-            'No image'
+            'No image', null, $noImageSeo
         );
         $this->assertProductExportRow(
             $simpleProduct,
@@ -57,7 +78,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         $this->assertProductExportRow(
             $variableProduct,
             $mappedRows[$variableProduct->get_sku()],
-            'Variable'
+            'Variable', null, $variableSeo
         );
         /* @var WC_Product_Variation $variationProduct */
         foreach ($variableProduct->get_available_variations() as $index => $variationProductData) {
@@ -94,7 +115,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         return $product->get_title();
     }
 
-    private function assertProductExportRow(WC_Product $product, array $productRow, string $type, ?WC_Product $parentProduct = null)
+    private function assertProductExportRow(WC_Product $product, array $productRow, string $type, ?WC_Product $parentProduct = null, array $seo = [])
     {
         $this->assertEquals(
             $this->getProductTitle($product),
@@ -157,17 +178,12 @@ class ProductFileExportTest extends AbstractFileExportTest
             "$type product tax rate is incorrectly exported"
         );
 
-        $this->assertEquals(
-            $product->get_title(),
-            $productRow['seo_title'],
-            "$type product seo title is incorrectly exported"
-        );
-
-        $this->assertEquals(
-            $product->get_short_description(),
-            $productRow['seo_description'],
-            "$type product seo description is incorrectly exported"
-        );
+        $got = [
+            'seo_title' => $productRow['seo_title'],
+            'seo_keywords' => $productRow['seo_keywords'],
+            'seo_description' => $productRow['seo_description'],
+        ];
+        $this->assertArraySubset($seo, $got, true, "$type product seo");
 
         $stockValue = 0;
         if ($product->is_in_stock()) {
@@ -328,7 +344,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         $this->addImageToProduct($simpleProduct);
         $variableProduct = $this->createVariableProduct($taxRate21);
         $this->addImageToProduct($variableProduct);
-        $noImageProduct = $this->createSimpleProduct($taxRate9);
+        $noImageProduct = $this->createSimpleProduct('no image product', $taxRate9);
 
         return [$simpleProduct, $variableProduct, $noImageProduct, $taxRate21, $taxRate9];
     }

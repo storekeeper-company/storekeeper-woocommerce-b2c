@@ -252,14 +252,14 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
     /**
      * @throws Exception
      */
-    protected function createSimpleProduct($taxRateObject = null, $status = 'publish')
+    protected function createSimpleProduct(string $name, $taxRateObject = null, $status = 'publish')
     {
         $product = new WC_Product_Simple();
         $taxRateObject ? $product->set_tax_class($taxRateObject->tax_rate_class) : null;
         $unique = sanitize_title(uniqid('', true));
         $product->set_props(
             [
-                'name' => "Simple product $unique",
+                'name' => $name,
                 'regular_price' => 15,
                 'price' => 10,
                 'sku' => "simple-product-$unique",

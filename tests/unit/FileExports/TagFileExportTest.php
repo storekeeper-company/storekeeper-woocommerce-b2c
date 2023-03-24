@@ -52,7 +52,7 @@ class TagFileExportTest extends AbstractFileExportTest
             'Dummy Tag Without Product'
         );
 
-        $product = $this->createSimpleProduct();
+        $product = $this->createSimpleProduct('simple product');
         $product->set_tag_ids([
             $tagWithProduct->term_id,
         ]);

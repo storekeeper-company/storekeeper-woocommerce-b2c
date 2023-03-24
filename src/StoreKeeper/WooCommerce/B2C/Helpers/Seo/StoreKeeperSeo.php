@@ -27,7 +27,7 @@ class StoreKeeperSeo
         return Seo::STOREKEEPER_HANDLER === StoreKeeperOptions::getSeoHandler();
     }
 
-    public static function getProductSeo(\WC_Product $product, string $context = 'view'): array
+    public static function getProductSeo(\WC_Product $product, string $context = 'edit'): array
     {
         $values = [];
         foreach (self::ALL_META_KEYS as $key => $meta) {
@@ -46,26 +46,9 @@ class StoreKeeperSeo
         ?string $description,
         ?string $keywords
     ): bool {
-        $values = [
-            self::META_TITLE => $title ?? '',
-            self::META_DESCRIPTION => $description ?? '',
-            self::META_KEYWORDS => $keywords ?? '',
-        ];
+        $values = self::getValues($title, $description, $keywords);
 
-        $changed = false;
-        foreach ($values as $key => $value) {
-            $old = $product->get_meta($key, true, 'edit');
-            if ($old !== $value) {
-                $product->add_meta_data($key, $value, true);
-                $changed = true;
-            }
-        }
-
-        if ($changed) {
-            $product->save_meta_data();
-        }
-
-        return $changed;
+        return self::setProductSeoArray($product, $values);
     }
 
     public static function getCategorySeo(\WP_Term $term): array
@@ -87,12 +70,31 @@ class StoreKeeperSeo
         ?string $description,
         ?string $keywords
     ): bool {
-        $values = [
-            self::META_TITLE => $title ?? '',
-            self::META_DESCRIPTION => $description ?? '',
-            self::META_KEYWORDS => $keywords ?? '',
-        ];
+        $values = self::getValues($title, $description, $keywords);
 
+        return self::setCategorySeoArray($term, $values);
+    }
+
+    protected static function setProductSeoArray(\WC_Product $product, array $values): bool
+    {
+        $changed = false;
+        foreach ($values as $key => $value) {
+            $old = $product->get_meta($key, true, 'edit');
+            if ($old !== $value) {
+                $product->add_meta_data($key, $value, true);
+                $changed = true;
+            }
+        }
+
+        if ($changed) {
+            $product->save_meta_data();
+        }
+
+        return $changed;
+    }
+
+    protected static function setCategorySeoArray(\WP_Term $term, array $values): bool
+    {
         $changed = false;
         foreach ($values as $key => $value) {
             $old = get_term_meta($term->term_id, $key, true);
@@ -105,5 +107,16 @@ class StoreKeeperSeo
         }
 
         return $changed;
+    }
+
+    protected static function getValues(?string $title, ?string $description, ?string $keywords): array
+    {
+        $values = [
+            self::META_TITLE => $title ?? '',
+            self::META_DESCRIPTION => $description ?? '',
+            self::META_KEYWORDS => $keywords ?? '',
+        ];
+
+        return $values;
     }
 }
