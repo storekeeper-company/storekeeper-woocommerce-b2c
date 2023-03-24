@@ -13,9 +13,9 @@ class StoreKeeperSeoTest extends AbstractTest
 
         $seo = StoreKeeperSeo::getProductSeo($product);
         $emptyExpect = [
-            StoreKeeperSeo::META_TITLE => '',
-            StoreKeeperSeo::META_DESCRIPTION => '',
-            StoreKeeperSeo::META_KEYWORDS => '',
+            StoreKeeperSeo::SEO_TITLE => '',
+            StoreKeeperSeo::SEO_DESCRIPTION => '',
+            StoreKeeperSeo::SEO_KEYWORDS => '',
         ];
         $this->assertEquals(
             $emptyExpect,
@@ -27,9 +27,9 @@ class StoreKeeperSeoTest extends AbstractTest
         $description = uniqid('description');
         $keywords = uniqid('keywords');
         $expect = [
-            StoreKeeperSeo::META_TITLE => $title,
-            StoreKeeperSeo::META_DESCRIPTION => $description,
-            StoreKeeperSeo::META_KEYWORDS => $keywords,
+            StoreKeeperSeo::SEO_TITLE => $title,
+            StoreKeeperSeo::SEO_DESCRIPTION => $description,
+            StoreKeeperSeo::SEO_KEYWORDS => $keywords,
         ];
         $product = new \WC_Product($product->get_id());
         StoreKeeperSeo::setProductSeo($product, $title, $description, $keywords);
@@ -53,9 +53,9 @@ class StoreKeeperSeoTest extends AbstractTest
 
         $seo = StoreKeeperSeo::getCategorySeo($category);
         $emptyExpect = [
-            StoreKeeperSeo::META_TITLE => '',
-            StoreKeeperSeo::META_DESCRIPTION => '',
-            StoreKeeperSeo::META_KEYWORDS => '',
+            StoreKeeperSeo::SEO_TITLE => '',
+            StoreKeeperSeo::SEO_DESCRIPTION => '',
+            StoreKeeperSeo::SEO_KEYWORDS => '',
         ];
         $this->assertEquals(
             $emptyExpect,
@@ -67,9 +67,9 @@ class StoreKeeperSeoTest extends AbstractTest
         $description = uniqid('description');
         $keywords = uniqid('keywords');
         $expect = [
-            StoreKeeperSeo::META_TITLE => $title,
-            StoreKeeperSeo::META_DESCRIPTION => $description,
-            StoreKeeperSeo::META_KEYWORDS => $keywords,
+            StoreKeeperSeo::SEO_TITLE => $title,
+            StoreKeeperSeo::SEO_DESCRIPTION => $description,
+            StoreKeeperSeo::SEO_KEYWORDS => $keywords,
         ];
         $category = get_term($category->term_id);
         StoreKeeperSeo::setCategorySeo($category, $title, $description, $keywords);

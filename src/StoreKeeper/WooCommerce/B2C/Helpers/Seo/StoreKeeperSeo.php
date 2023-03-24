@@ -11,13 +11,16 @@ class StoreKeeperSeo
     public const META_PREFIX = 'skseo_';
     const META_TITLE = self::META_PREFIX.'title';
     const META_DESCRIPTION = self::META_PREFIX.'desc';
-    const META_KEYWORDS = self::META_PREFIX.'focuskw';
+    const META_KEYWORDS = self::META_PREFIX.'kw';
 
     const ALL_META_KEYS = [
-        self::META_TITLE,
-        self::META_DESCRIPTION,
-        self::META_KEYWORDS,
+        self::SEO_TITLE => self::META_TITLE,
+        self::SEO_DESCRIPTION => self::META_DESCRIPTION,
+        self::SEO_KEYWORDS => self::META_KEYWORDS,
     ];
+    const SEO_TITLE = 'seo_title';
+    const SEO_DESCRIPTION = 'seo_description';
+    const SEO_KEYWORDS = 'seo_keywords';
 
     public static function isSelectedHandler(): bool
     {
@@ -27,8 +30,8 @@ class StoreKeeperSeo
     public static function getProductSeo(\WC_Product $product, string $context = 'view'): array
     {
         $values = [];
-        foreach (self::ALL_META_KEYS as $key) {
-            $values[$key] = $product->get_meta($key, true, $context);
+        foreach (self::ALL_META_KEYS as $key => $meta) {
+            $values[$key] = $product->get_meta($meta, true, $context);
             if (empty($values[$key])) {
                 $values[$key] = '';
             }
@@ -68,8 +71,8 @@ class StoreKeeperSeo
     public static function getCategorySeo(\WP_Term $term): array
     {
         $values = [];
-        foreach (self::ALL_META_KEYS as $key) {
-            $values[$key] = get_term_meta($term->term_id, $key, true);
+        foreach (self::ALL_META_KEYS as $key => $meta) {
+            $values[$key] = get_term_meta($term->term_id, $meta, true);
             if (empty($values[$key])) {
                 $values[$key] = '';
             }

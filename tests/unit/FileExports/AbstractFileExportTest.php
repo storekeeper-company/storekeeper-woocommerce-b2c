@@ -6,6 +6,7 @@ use Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractTest;
@@ -391,8 +392,14 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
 
     protected function createCategory(array $data)
     {
-        $term = wp_insert_term('Dummy Category', 'product_cat', $data);
+        $term = wp_insert_term($data['name'], 'product_cat', $data);
+        $term = get_term($term['term_id']);
+        StoreKeeperSeo::setCategorySeo($term,
+            $data['seo_title'] ?? null,
+            $data['seo_description'] ?? null,
+            $data['seo_keywords'] ?? null,
+        );
 
-        return get_term($term['term_id']);
+        return $term;
     }
 }

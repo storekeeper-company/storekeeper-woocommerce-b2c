@@ -140,13 +140,6 @@ class StoreKeeperOptions extends AbstractOptions
         return self::get(self::SEO_HANDLER, Seo::STOREKEEPER_HANDLER);
     }
 
-    public static function getExplorerUrl()
-    {
-        list($full, $schema, $api, $hostname) = self::getExplodedApiUrl();
-
-        return $schema.'explorer-'.$hostname;
-    }
-
     private static function getExplodedApiUrl(): array
     {
         $regex = '/([http|https]*:\/\/)(.*)-(.*)/';
