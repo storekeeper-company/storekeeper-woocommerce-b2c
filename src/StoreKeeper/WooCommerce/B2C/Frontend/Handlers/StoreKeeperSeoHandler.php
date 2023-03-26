@@ -57,6 +57,7 @@ class StoreKeeperSeoHandler implements WithHooksInterface
         if (!is_null($product)) {
             $seo = StoreKeeperSeo::getProductSeo($product);
             $this->renderHeadMetaSeo($seo);
+            $this->renderProductSocialMeta($seo, $product);
         } elseif (is_product_category()) {
             $term = get_queried_object();
             if ($term instanceof \WP_Term) {
@@ -168,6 +169,54 @@ class StoreKeeperSeoHandler implements WithHooksInterface
         echo <<<HTML
   <meta name="description" content="$description">
   <meta name="keywords" content="$kw">
+HTML;
+    }
+
+    protected function renderProductSocialMeta(array $seo, \WC_Product $product): void
+    {
+        $title = $seo[StoreKeeperSeo::SEO_TITLE];
+        if (empty($title)) {
+            $title = $product->get_title();
+        }
+        $title = esc_attr($title);
+
+        $description = $seo[StoreKeeperSeo::SEO_DESCRIPTION];
+        if (empty($description)) {
+            $description = $product->get_short_description();
+        }
+        if (empty($description)) {
+            $description = $product->get_description();
+        }
+        if (empty($description)) {
+            $description = '';
+        }
+        $description = esc_attr(strip_tags(do_shortcode($description)));
+        $image_src = wp_get_attachment_image_src(
+            get_post_thumbnail_id($product->get_id()), 'single-post-thumbnail'
+        );
+        if (!empty($image_src)) {
+            $image_src = $image_src[0];
+        }
+        $image = esc_attr($image_src);
+        $url = esc_attr(wp_get_canonical_url());
+        $price = $product->get_sale_price('edit');
+        if ($product instanceof \WC_Product_Variable) {
+            $price = $product->get_variation_price('min', false);
+        }
+        $currency = get_woocommerce_currency();
+        echo <<<HTML
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="$title">
+  <meta property="og:url" content="$url">
+  <meta property="og:description" content="$description">
+  <meta property="og:image" content="$image">
+  <meta property="product:price.amount" content="$price">
+  <meta property="product:price.currency" content="$currency">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="$url">
+  <meta name="twitter:title" content="$title">
+  <meta name="twitter:description" content="$description">
+  <meta name="twitter:image" content="$image_src">
 HTML;
     }
 }
