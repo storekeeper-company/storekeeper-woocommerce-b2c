@@ -4,8 +4,9 @@ namespace StoreKeeper\WooCommerce\B2C\Frontend;
 
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CartHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CategorySummaryHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\MarkdownHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\StoreKeeperSeoHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\FormShortCode;
@@ -42,7 +43,6 @@ class FrontendCore
 
         $this->registerShortCodes();
         $this->registerHandlers();
-        $this->loadWooCommerceTemplate();
         $this->registerStyle();
         $this->registerRedirects();
         if ('yes' === StoreKeeperOptions::get(StoreKeeperOptions::VALIDATE_CUSTOMER_ADDRESS, 'yes')) {
@@ -54,6 +54,12 @@ class FrontendCore
     {
         $seo = new StoreKeeperSeoHandler();
         $seo->registerHooks();
+
+        $categorySummray = new CategorySummaryHandler();
+        $categorySummray->registerHooks();
+
+        $markdown = new MarkdownHandler();
+        $markdown->registerHooks();
 
         $this->loader->run();
     }
@@ -89,18 +95,6 @@ class FrontendCore
         $this->loader->add_filter('init', $subscribeHandler, 'register');
     }
 
-    private function loadWooCommerceTemplate()
-    {
-        $this->loader->add_action('after_setup_theme', $this, 'includeTemplateFunctions', 10);
-        // Register actions that use global functions.
-        add_action('woocommerce_after_shop_loop', 'woocommerce_taxonomy_archive_summary', 100);
-        add_action('woocommerce_no_products_found', 'woocommerce_taxonomy_archive_summary', 100);
-
-        // Add the markdown parsers
-        add_filter('the_content', 'woocommerce_markdown_description');
-        add_filter('woocommerce_short_description', 'woocommerce_markdown_short_description');
-    }
-
     private function registerStyle()
     {
         add_action(
@@ -116,10 +110,5 @@ class FrontendCore
                 );
             }
         );
-    }
-
-    public static function includeTemplateFunctions()
-    {
-        include_once __DIR__.'/Templates/wc-template-functions.php';
     }
 }

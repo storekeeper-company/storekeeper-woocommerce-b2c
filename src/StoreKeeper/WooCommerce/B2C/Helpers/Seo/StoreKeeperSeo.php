@@ -124,6 +124,7 @@ class StoreKeeperSeo
         if (empty($values[$key])) {
             $values[$key] = '';
         }
+
         return $values;
     }
 }

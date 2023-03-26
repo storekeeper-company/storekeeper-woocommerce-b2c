@@ -31,7 +31,6 @@ class BackofficeCore
         $this->settings();
         $this->adminNotices();
         $this->metaBoxes();
-
     }
 
     private function settings()

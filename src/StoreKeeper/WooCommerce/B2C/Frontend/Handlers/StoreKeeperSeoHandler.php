@@ -13,37 +13,36 @@ class StoreKeeperSeoHandler implements WithHooksInterface
     {
         if (StoreKeeperSeo::isSelectedHandler()) {
             add_filter('woocommerce_structured_data_product', [$this, 'setProductStructuredData'], 10, 2);
-            add_action('wp_head', [$this,'addMetaTags']);
-            add_action('document_title_parts', [$this,'setTitle'], 10);
+            add_action('wp_head', [$this, 'addMetaTags']);
+            add_action('document_title_parts', [$this, 'setTitle'], 10);
         }
     }
 
-    protected function getCurrentProduct(): ?\WC_Product{
-
-        if( is_singular('product') ) {
-            global $post, $product;
+    protected function getCurrentProduct(): ?\WC_Product
+    {
+        if (is_product()) {
+            $product = wc_get_product();
             if ($product instanceof \WC_Product) {
-                $singleProduct = $product;
-            } else {
-                $singleProduct = new \WC_Product($post->ID);
+                return $product;
             }
-            return $singleProduct;
         }
+
         return null;
     }
-    public function setTitle($title){
+
+    public function setTitle($title)
+    {
         $product = $this->getCurrentProduct();
-        if( !is_null($product) ){
+        if (!is_null($product)) {
             $seo = StoreKeeperSeo::getProductSeo($product);
-            if( !empty($seo[StoreKeeperSeo::SEO_TITLE])){
+            if (!empty($seo[StoreKeeperSeo::SEO_TITLE])) {
                 $title['title'] = $seo[StoreKeeperSeo::SEO_TITLE];
             }
-
-        } else if( is_product_category() ){
+        } elseif (is_product_category()) {
             $term = get_queried_object();
-            if( $term instanceof \WP_Term){
+            if ($term instanceof \WP_Term) {
                 $seo = StoreKeeperSeo::getCategorySeo($term);
-                if( !empty($seo[StoreKeeperSeo::SEO_TITLE])){
+                if (!empty($seo[StoreKeeperSeo::SEO_TITLE])) {
                     $title['title'] = $seo[StoreKeeperSeo::SEO_TITLE];
                 }
             }
@@ -51,14 +50,16 @@ class StoreKeeperSeoHandler implements WithHooksInterface
 
         return $title;
     }
-    public function addMetaTags(){
+
+    public function addMetaTags()
+    {
         $product = $this->getCurrentProduct();
-        if( !is_null($product) ){
+        if (!is_null($product)) {
             $seo = StoreKeeperSeo::getProductSeo($product);
             $this->renderHeadMetaSeo($seo);
-        } else if( is_product_category() ){
+        } elseif (is_product_category()) {
             $term = get_queried_object();
-            if( $term instanceof \WP_Term){
+            if ($term instanceof \WP_Term) {
                 $seo = StoreKeeperSeo::getCategorySeo($term);
                 $this->renderHeadMetaSeo($seo);
             }
