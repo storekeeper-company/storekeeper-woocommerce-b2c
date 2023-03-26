@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCategories;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
 use StoreKeeper\WooCommerce\B2C\TestLib\MediaHelper;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
@@ -83,17 +84,18 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
             $original = new Dot($category_data);
 
             // Get the WooCommerce category by the StoreKeeper ID. This also checks whether the ID is set correctly
-            $wc_category = $this->getCategoryByStoreKeeperID($original->get('id'));
+            $sk_id = $original->get('id');
+            $wc_category = $this->getCategoryByStoreKeeperID($sk_id);
             $this->assertNotFalse(
                 $wc_category,
-                'No WooCommerce category is set with StoreKeeper id '.$original->get('id')
+                'No WooCommerce category is set with StoreKeeper id '. $sk_id
             );
 
             // Get the WooCommerce category meta data using the term_id of the retrieved category
             $wc_category_meta = get_term_meta($wc_category->term_id);
             $this->assertNotEmpty(
                 $wc_category_meta,
-                'No WooCommerce term metadata could be retrieved for the created term'
+                'No WooCommerce term metadata could be retrieved for the created term id='.$sk_id
             );
             $wc_category_meta = new Dot($wc_category_meta);
 
@@ -102,7 +104,7 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
             $this->assertEquals(
                 $expected_title,
                 $wc_category->name,
-                'WooCommerce title doesn\'t match the expected title'
+                'WooCommerce title doesn\'t match the expected title id='.$sk_id
             );
             unset($expected_title);
 
@@ -111,7 +113,7 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
             $this->assertEquals(
                 $expected_slug,
                 $wc_category->slug,
-                'WooCommerce slug doesn\'t match the expected slug'
+                'WooCommerce slug doesn\'t match the expected slug id='.$sk_id
             );
             unset($expected_slug);
 
@@ -123,9 +125,17 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
             $this->assertEquals(
                 $expected_summary,
                 $wc_category_meta->get('category_summary')[0],
-                'WooCommerce summary doesn\'t match the expected summary'
+                'WooCommerce summary doesn\'t match the expected summary id='.$sk_id
             );
             unset($expected_summary);
+
+            $got_seo = StoreKeeperSeo::getCategorySeo($wc_category);
+            $expected_seo = [
+                StoreKeeperSeo::SEO_TITLE => $original->get('seo_title') ?? '',
+                StoreKeeperSeo::SEO_DESCRIPTION => $original->get('seo_description') ?? '',
+                StoreKeeperSeo::SEO_KEYWORDS => $original->get('seo_keywords') ?? '',
+            ];
+            $this->assertArraySubset($expected_seo,$got_seo, 'Seo id='.$sk_id);
 
             // Description
             $expected_description = $original->get('description');
@@ -135,7 +145,7 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
             $this->assertEquals(
                 $expected_description,
                 $wc_category_meta->get('category_description')[0],
-                'WooCommerce description doesn\'t match the expected description'
+                'WooCommerce description doesn\'t match the expected description id='.$sk_id
             );
             unset($expected_description);
 

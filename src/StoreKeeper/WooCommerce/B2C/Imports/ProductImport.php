@@ -9,6 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\CannotFetchShopProductException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\RankMathSeo;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -1127,6 +1128,8 @@ SQL;
         if (RankMathSeo::shouldAddSeo($seoTitle, $seoDescription, $seoKeywords)) {
             RankMathSeo::addSeoToWoocommerceProduct($product, $seoTitle, $seoDescription, $seoKeywords);
         }
+
+        StoreKeeperSeo::setProductSeo($product, $seoTitle, $seoDescription, $seoKeywords);
     }
 
     /**

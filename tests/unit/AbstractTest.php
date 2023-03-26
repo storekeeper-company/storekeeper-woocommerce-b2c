@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest;
 
 use Adbar\Dot;
 use DateTime;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -14,6 +15,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShopInfo;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Debug\HookDumpFile;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Imports\CouponCodeImport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
@@ -36,6 +38,8 @@ use WP_UnitTestCase;
 
 abstract class AbstractTest extends WP_UnitTestCase
 {
+    use ArraySubsetAsserts;
+
     const UPLOADS_DIRECTORY = '/app/src/wp-content/uploads/';
 
     // Markdown related constants
@@ -490,6 +494,15 @@ abstract class AbstractTest extends WP_UnitTestCase
                 "[sku=$sku] WooCommerce product slug doesn't match the expected product slug"
             );
         }
+
+        $got_seo = StoreKeeperSeo::getProductSeo($wc_product);
+        $expected_seo = [
+            StoreKeeperSeo::SEO_TITLE => $original_product->get('flat_product.seo_title') ?? '',
+            StoreKeeperSeo::SEO_DESCRIPTION => $original_product->get('flat_product.seo_description') ?? '',
+            StoreKeeperSeo::SEO_KEYWORDS => $original_product->get('flat_product.seo_keywords') ?? '',
+        ];
+        $this->assertArraySubset($expected_seo,$got_seo, 'Seo sku='.$sku);
+
 
         // Product description
         $expected_description = $original_product->get('flat_product.body');
