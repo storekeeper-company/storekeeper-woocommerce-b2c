@@ -32,9 +32,7 @@ class StoreKeeperSeo
         $values = [];
         foreach (self::ALL_META_KEYS as $key => $meta) {
             $values[$key] = $product->get_meta($meta, true, $context);
-            if (empty($values[$key])) {
-                $values[$key] = '';
-            }
+            $values = self::cleanSeoValue($values, $key);
         }
 
         return $values;
@@ -56,19 +54,7 @@ class StoreKeeperSeo
         $values = [];
         foreach (self::ALL_META_KEYS as $key => $meta) {
             $values[$key] = get_term_meta($term->term_id, $meta, true);
-            if (empty($values[$key])) {
-                $values[$key] = '';
-            }
-        }
-
-        return $values;
-    }
-
-    public static function getEmptySeo(): array
-    {
-        $values = [];
-        foreach (self::ALL_META_KEYS as $key => $meta) {
-            $values[$key] = '';
+            $values = self::cleanSeoValue($values, $key);
         }
 
         return $values;
@@ -127,6 +113,17 @@ class StoreKeeperSeo
             self::META_KEYWORDS => $keywords ?? '',
         ];
 
+        return $values;
+    }
+
+    protected static function cleanSeoValue(array $values, string $key): array
+    {
+        if (is_string($values[$key])) {
+            $values[$key] = trim($values[$key]);
+        }
+        if (empty($values[$key])) {
+            $values[$key] = '';
+        }
         return $values;
     }
 }

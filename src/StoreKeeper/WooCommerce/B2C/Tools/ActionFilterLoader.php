@@ -43,6 +43,7 @@ class ActionFilterLoader
      * @param int    $accepted_args Optional. The number of arguments that should be passed to the $callback. Default is 1.
      *
      * @since    0.0.1
+     * @deprecated use \StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface instead
      */
     public function add_action($hook, $component, $callback, $priority = 10, $accepted_args = 1)
     {
@@ -59,6 +60,7 @@ class ActionFilterLoader
      * @param int    $accepted_args Optional. The number of arguments that should be passed to the $callback. Default is 1
      *
      * @since    0.0.1
+     * @deprecated use \StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface instead
      */
     public function add_filter($hook, $component, $callback, $priority = 10, $accepted_args = 1)
     {

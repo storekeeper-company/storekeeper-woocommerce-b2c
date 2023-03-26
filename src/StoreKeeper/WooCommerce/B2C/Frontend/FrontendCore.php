@@ -6,6 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CartHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\StoreKeeperSeoHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\FormShortCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -31,9 +32,6 @@ class FrontendCore
     {
         $this->loader = new ActionFilterLoader();
 
-        $seo = new Seo();
-        $this->loader->add_filter('woocommerce_structured_data_product', $seo, 'prepareSeo', 10, 2);
-
         $orderHookHandler = new OrderHookHandler();
         $this->loader->add_action('woocommerce_order_details_after_order_table', $orderHookHandler, 'addOrderStatusLink');
         $this->loader->add_filter(OrderHookHandler::STOREKEEPER_ORDER_TRACK_HOOK, $orderHookHandler, 'createOrderTrackingMessage', 10, 2);
@@ -54,6 +52,9 @@ class FrontendCore
 
     public function run()
     {
+        $seo = new StoreKeeperSeoHandler();
+        $seo->registerHooks();
+
         $this->loader->run();
     }
 

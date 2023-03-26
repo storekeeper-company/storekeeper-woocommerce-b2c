@@ -3,11 +3,12 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
+use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
-class StoreKeeperSeoEditPages
+class StoreKeeperSeoPages implements WithHooksInterface
 {
-    public function registerHooks()
+    public function registerHooks(): void
     {
         if (StoreKeeperSeo::isSelectedHandler()) {
             add_filter('woocommerce_product_data_tabs', [$this, 'addSeoProductTab']);
@@ -70,6 +71,7 @@ class StoreKeeperSeoEditPages
                 $attributes
         );
     }
+
     public function saveCategorySeo($term_id)
     {
         $term = get_term($term_id);
@@ -81,8 +83,8 @@ class StoreKeeperSeoEditPages
 
             StoreKeeperSeo::setCategorySeo($term, $title, $keywords, $description);
         }
-
     }
+
     public function renderProductTab(): void
     {
         global $post;
@@ -210,8 +212,9 @@ class StoreKeeperSeoEditPages
     {
         $custom_attributes = '';
         foreach ($attributes as $attribute => $attrValue) {
-            $custom_attributes .= ' ' . esc_attr($attribute) . '="' . esc_attr($attrValue) . '"';
+            $custom_attributes .= ' '.esc_attr($attribute).'="'.esc_attr($attrValue).'"';
         }
+
         return $custom_attributes;
     }
 }

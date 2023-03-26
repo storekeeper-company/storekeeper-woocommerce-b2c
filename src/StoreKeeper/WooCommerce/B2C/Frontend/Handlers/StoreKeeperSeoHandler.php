@@ -1,22 +1,73 @@
 <?php
 
-namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
+namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
+use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 
-class StorekeeperHandler implements SeoHandlerInterface
+class StoreKeeperSeoHandler implements WithHooksInterface
 {
-    public function handle($markdown, $product)
+    public function registerHooks(): void
     {
-        $this->addExtraSeoData($markdown, $product);
+        if (StoreKeeperSeo::isSelectedHandler()) {
+            add_filter('woocommerce_structured_data_product', [$this, 'setProductStructuredData'], 10, 2);
+            add_action('wp_head', [$this,'addMetaTags']);
+            add_action('document_title_parts', [$this,'setTitle'], 10);
+        }
     }
 
-    protected function addExtraSeoData($markdown, $product)
+    protected function getCurrentProduct(): ?\WC_Product{
+
+        if( is_singular('product') ) {
+            global $post, $product;
+            if ($product instanceof \WC_Product) {
+                $singleProduct = $product;
+            } else {
+                $singleProduct = new \WC_Product($post->ID);
+            }
+            return $singleProduct;
+        }
+        return null;
+    }
+    public function setTitle($title){
+        $product = $this->getCurrentProduct();
+        if( !is_null($product) ){
+            $seo = StoreKeeperSeo::getProductSeo($product);
+            if( !empty($seo[StoreKeeperSeo::SEO_TITLE])){
+                $title['title'] = $seo[StoreKeeperSeo::SEO_TITLE];
+            }
+
+        } else if( is_product_category() ){
+            $term = get_queried_object();
+            if( $term instanceof \WP_Term){
+                $seo = StoreKeeperSeo::getCategorySeo($term);
+                if( !empty($seo[StoreKeeperSeo::SEO_TITLE])){
+                    $title['title'] = $seo[StoreKeeperSeo::SEO_TITLE];
+                }
+            }
+        }
+
+        return $title;
+    }
+    public function addMetaTags(){
+        $product = $this->getCurrentProduct();
+        if( !is_null($product) ){
+            $seo = StoreKeeperSeo::getProductSeo($product);
+            $this->renderHeadMetaSeo($seo);
+        } else if( is_product_category() ){
+            $term = get_queried_object();
+            if( $term instanceof \WP_Term){
+                $seo = StoreKeeperSeo::getCategorySeo($term);
+                $this->renderHeadMetaSeo($seo);
+            }
+        }
+    }
+
+    public function setProductStructuredData($markdown, $product)
     {
-        // one of
-        /* @var $product \WC_Product_Variable */
-        /* @var $product \WC_Product_Simple */
+        /* @var $product \WC_Product */
         $this->applyBrand($markdown, $product);
         $this->applyBarcode($markdown, $product);
 
@@ -107,5 +158,15 @@ class StorekeeperHandler implements SeoHandlerInterface
                 $markdown['brand'] = $brand;
             }
         }
+    }
+
+    protected function renderHeadMetaSeo(array $seo): void
+    {
+        $kw = esc_attr($seo[StoreKeeperSeo::SEO_KEYWORDS]);
+        $description = esc_attr($seo[StoreKeeperSeo::SEO_DESCRIPTION]);
+        echo <<<HTML
+  <meta name="description" content="$description">
+  <meta name="keywords" content="$kw">
+HTML;
     }
 }
