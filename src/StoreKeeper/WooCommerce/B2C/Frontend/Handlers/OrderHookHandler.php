@@ -4,14 +4,13 @@ namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
+use StoreKeeper\WooCommerce\B2C\Frontend\Filters\OrderTrackingMessage;
 use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
 
 class OrderHookHandler
 {
-    public const STOREKEEPER_ORDER_TRACK_HOOK = 'storekeeper_order_tracking_message';
-
     public function addOrderStatusLink(\WC_Order $order): void
     {
         $storekeeperId = $order->get_meta('storekeeper_id', true);
@@ -31,10 +30,8 @@ class OrderHookHandler
                 sprintf(__('To check your parcel status, go to <a href="%s">Track & Trace page</a>.', I18N::DOMAIN), $orderPageStatusUrl),
                 HtmlEscape::ALLOWED_ANCHOR
             );
-            $orderTrackingHtml = apply_filters(self::STOREKEEPER_ORDER_TRACK_HOOK, $message, $orderPageStatusUrl);
-            echo <<<HTML
-        $orderTrackingHtml
-HTML;
+            $orderTrackingHtml = apply_filters(OrderTrackingMessage::getTag(), $message, $orderPageStatusUrl);
+            echo $orderTrackingHtml;
         }
     }
 

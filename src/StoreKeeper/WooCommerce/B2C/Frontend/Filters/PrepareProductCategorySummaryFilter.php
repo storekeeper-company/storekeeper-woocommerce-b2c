@@ -9,7 +9,7 @@ class PrepareProductCategorySummaryFilter extends AbstractWpFilter
 {
     static function getTag(): string
     {
-        return self::PREFIX.'prepare_product_category_summary';
+        return self::FILTER_PREFIX.'prepare_product_category_summary';
     }
     static function getDescription(): string
     {
