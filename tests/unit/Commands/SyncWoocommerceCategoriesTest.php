@@ -88,7 +88,7 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
             $wc_category = $this->getCategoryByStoreKeeperID($sk_id);
             $this->assertNotFalse(
                 $wc_category,
-                'No WooCommerce category is set with StoreKeeper id '. $sk_id
+                'No WooCommerce category is set with StoreKeeper id '.$sk_id
             );
 
             // Get the WooCommerce category meta data using the term_id of the retrieved category
@@ -135,7 +135,7 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
                 StoreKeeperSeo::SEO_DESCRIPTION => $original->get('seo_description') ?? '',
                 StoreKeeperSeo::SEO_KEYWORDS => $original->get('seo_keywords') ?? '',
             ];
-            $this->assertArraySubset($expected_seo,$got_seo, 'Seo id='.$sk_id);
+            $this->assertArraySubset($expected_seo, $got_seo, 'Seo id='.$sk_id);
 
             // Description
             $expected_description = $original->get('description');

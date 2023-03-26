@@ -64,6 +64,16 @@ class StoreKeeperSeo
         return $values;
     }
 
+    public static function getEmptySeo(): array
+    {
+        $values = [];
+        foreach (self::ALL_META_KEYS as $key => $meta) {
+            $values[$key] = '';
+        }
+
+        return $values;
+    }
+
     public static function setCategorySeo(
         \WP_Term $term,
         ?string $title,

@@ -501,8 +501,7 @@ abstract class AbstractTest extends WP_UnitTestCase
             StoreKeeperSeo::SEO_DESCRIPTION => $original_product->get('flat_product.seo_description') ?? '',
             StoreKeeperSeo::SEO_KEYWORDS => $original_product->get('flat_product.seo_keywords') ?? '',
         ];
-        $this->assertArraySubset($expected_seo,$got_seo, 'Seo sku='.$sku);
-
+        $this->assertArraySubset($expected_seo, $got_seo, 'Seo sku='.$sku);
 
         // Product description
         $expected_description = $original_product->get('flat_product.body');

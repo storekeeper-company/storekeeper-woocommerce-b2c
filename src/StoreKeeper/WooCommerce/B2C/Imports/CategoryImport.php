@@ -361,7 +361,6 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         }
 
         StoreKeeperSeo::setCategorySeo($term, $seoTitle, $seoDescription, $seoKeywords);
-
     }
 
     private function enableAllowHtmlInDescriptions()
