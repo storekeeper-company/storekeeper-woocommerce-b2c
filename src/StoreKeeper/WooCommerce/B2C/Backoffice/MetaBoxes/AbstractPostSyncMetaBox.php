@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 
 use WP_Post;
 
-abstract class AbstractMetaBox
+abstract class AbstractPostSyncMetaBox
 {
     abstract public function register(): void;
 
