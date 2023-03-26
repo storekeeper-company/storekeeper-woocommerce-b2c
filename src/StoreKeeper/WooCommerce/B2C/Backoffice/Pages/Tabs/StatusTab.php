@@ -52,9 +52,9 @@ class StatusTab extends AbstractTab
     public function render(): void
     {
         $this->renderServerStatus();
-        $this->renderTableRelationData();
-        $this->renderDatabaseStatus();
         $this->renderAvailableWpHooks();
+        $this->renderDatabaseStatus();
+        $this->renderTableRelationData();
         $this->renderStoreKeeperOptions();
     }
     private function renderAvailableWpHooks()
