@@ -57,6 +57,7 @@ class StatusTab extends AbstractTab
         $this->renderTableRelationData();
         $this->renderStoreKeeperOptions();
     }
+
     private function renderAvailableWpHooks()
     {
         $table = new TableRenderer();
@@ -65,12 +66,12 @@ class StatusTab extends AbstractTab
         $table->addColumn('', 'description');
 
         $data = [];
-        foreach (Core::HOOKS as $class){
-            if( is_a($class, WpFilterInterface::class, true)){
+        foreach (Core::HOOKS as $class) {
+            if (is_a($class, WpFilterInterface::class, true)) {
                 $data[] = [
                     'title' => $class::getTag(),
                     'type' => 'filter',
-                    'description' => $class::getDescription()
+                    'description' => $class::getDescription(),
                 ];
             }
         }
@@ -78,6 +79,7 @@ class StatusTab extends AbstractTab
 
         $table->render();
     }
+
     private function renderStoreKeeperOptions()
     {
         $table = new TableRenderer();

@@ -120,7 +120,7 @@ class Core
 
     const HOOKS = [
         PrepareProductCategorySummaryFilter::class,
-        OrderTrackingMessage::class
+        OrderTrackingMessage::class,
     ];
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
