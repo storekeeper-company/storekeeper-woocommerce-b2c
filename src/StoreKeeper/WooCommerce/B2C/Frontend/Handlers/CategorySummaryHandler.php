@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
+use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFilter;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 
 class CategorySummaryHandler implements WithHooksInterface
@@ -19,7 +20,7 @@ class CategorySummaryHandler implements WithHooksInterface
 
             if ($term instanceof \WP_Term) {
                 $summary = get_term_meta($term->term_id, 'category_summary', true);
-                $summary = apply_filters('storekeeper_prepare_product_category_summary', $summary, $term);
+                $summary = apply_filters(PrepareProductCategorySummaryFilter::getTag(), $summary, $term);
 
                 if (!empty($summary)) {
                     echo '<div class="term-bottom-description">'.do_shortcode($summary).'</div>'; // WPCS: XSS ok.

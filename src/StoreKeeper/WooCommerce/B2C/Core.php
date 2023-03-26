@@ -52,10 +52,11 @@ use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
+use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFilter;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
-use StoreKeeper\WooCommerce\B2C\Hooks\AddressFormattingHook;
-use StoreKeeper\WooCommerce\B2C\Hooks\CustomerHook;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -116,6 +117,9 @@ class Core
         TaskPurgeOld::class,
     ];
 
+    const HOOKS = [
+        PrepareProductCategorySummaryFilter::class,
+    ];
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
      * the plugin.
@@ -281,7 +285,7 @@ class Core
 
     private function registerAddressFormatting(): void
     {
-        $addressFormatting = new AddressFormattingHook();
+        $addressFormatting = new AddressFormattingHandler();
 
         // Address display and formatting
         $this->loader->add_filter('woocommerce_localisation_address_formats', $addressFormatting, 'customAddressFormats', 11);
@@ -376,7 +380,7 @@ HTML;
 
     private function setCustomerHooks()
     {
-        $customerHook = new CustomerHook();
+        $customerHook = new CustomerLoginRegisterHandler();
         $this->loader->add_action('wp_login', $customerHook, 'loginBackendSync', null, 2);
         $this->loader->add_action('user_register', $customerHook, 'registerBackendSync', null, 2);
     }

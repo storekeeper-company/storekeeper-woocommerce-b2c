@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
+use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 

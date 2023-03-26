@@ -1,10 +1,10 @@
 <?php
 
-namespace StoreKeeper\WooCommerce\B2C\Hooks;
+namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use StoreKeeper\WooCommerce\B2C\Objects\GOCustomer;
 
-class CustomerHook
+class CustomerLoginRegisterHandler
 {
     const CONTEXT = 'edit';
 
