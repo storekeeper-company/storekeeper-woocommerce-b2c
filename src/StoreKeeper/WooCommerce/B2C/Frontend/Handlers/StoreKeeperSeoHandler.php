@@ -142,7 +142,7 @@ class StoreKeeperSeoHandler implements WithHooksInterface
                 'dateModified' => get_the_modified_date('c'),
             ];
             $imageSrc = $this->getPostIdFirstImage($post->ID);
-            if (!empty($article)) {
+            if (!empty($imageSrc)) {
                 $article['image'][] = $imageSrc;
             }
 
