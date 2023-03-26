@@ -13,7 +13,7 @@ class StoreKeeperSeoHandler implements WithHooksInterface
     {
         if (StoreKeeperSeo::isSelectedHandler()) {
             add_filter('woocommerce_structured_data_product', [$this, 'setProductStructuredData'], 10, 2);
-            add_action('wp_head', [$this, 'addMetaTags']);
+            add_action('wp_head', [$this, 'addMetaTags'], 20);
             add_action('document_title_parts', [$this, 'setTitle'], 10);
         }
     }
@@ -62,6 +62,7 @@ class StoreKeeperSeoHandler implements WithHooksInterface
             $post = get_queried_object();
             if ($post instanceof \WP_Post) {
                 $this->renderPostSocialMeta($post);
+                $this->renderPostStructuredData($post);
             } else {
                 $this->renderSocialMetaFallback();
             }
@@ -115,6 +116,47 @@ class StoreKeeperSeoHandler implements WithHooksInterface
         }
 
         return $markdown;
+    }
+
+    public function renderPostStructuredData(\WP_Post $post)
+    {
+        $data = [];
+        $data[] = [
+            '@type' => 'WebSite',
+            'name' => get_bloginfo('name'),
+            'url' => home_url(),
+            'potentialAction' => [
+                '@type' => 'SearchAction',
+                'target' => home_url('?s={search_term_string}&post_type='.$post->post_type),
+                'query-input' => 'required name=search_term_string',
+            ],
+        ];
+
+        $isPost = 'post' === $post->post_type;
+        if ($isPost) {
+            $article = [
+                '@type' => 'Article',
+                '@context' => 'https://schema.org',
+                'headline' => get_the_title($post),
+                'datePublished' => get_the_date('c'),
+                'dateModified' => get_the_modified_date('c'),
+            ];
+            $imageSrc = $this->getPostIdFirstImage($post->ID);
+            if (!empty($article)) {
+                $article['image'][] = $imageSrc;
+            }
+
+            list($authorName, $authorUrl) = $this->getPostAuthor($post);
+            $article['author'][] = [
+                '@type' => 'Person',
+                'name' => $authorName,
+                'url' => $authorUrl,
+            ];
+
+            $data[] = $article;
+        }
+
+        echo '<script type="application/ld+json">'.wc_esc_json(wp_json_encode($data), true).'</script>';
     }
 
     /**
@@ -214,12 +256,8 @@ HTML;
             $description = '';
         }
         $description = esc_attr(strip_tags(do_shortcode($description)));
-        $image_src = wp_get_attachment_image_src(
-            get_post_thumbnail_id($product->get_id()), 'single-post-thumbnail'
-        );
-        if (!empty($image_src)) {
-            $image_src = $image_src[0];
-        }
+        $post_id = $product->get_id();
+        $image_src = $this->getPostIdFirstImage($post_id);
         $image_src = esc_attr($image_src);
         $url = esc_attr(wp_get_canonical_url());
         $price = $product->get_sale_price('edit');
@@ -245,12 +283,7 @@ HTML;
         $description = $post->post_excerpt;
         $description = esc_attr(strip_tags(do_shortcode($description)));
 
-        $image_src = wp_get_attachment_image_src(
-            get_post_thumbnail_id($post->ID), 'single-post-thumbnail'
-        );
-        if (!empty($image_src)) {
-            $image_src = $image_src[0];
-        }
+        $image_src = $this->getPostIdFirstImage($post->ID);
         $image_src = esc_attr($image_src);
         $url = esc_attr(wp_get_canonical_url());
 
@@ -348,5 +381,28 @@ HTML;
         echo <<<HTML
 <meta name="description" content="$description">
 HTML;
+    }
+
+    protected function getPostIdFirstImage(int $post_id): ?string
+    {
+        $image_src = wp_get_attachment_image_src(
+            get_post_thumbnail_id($post_id), 'single-post-thumbnail'
+        );
+        if (!empty($image_src)) {
+            return $image_src[0];
+        }
+
+        return null;
+    }
+
+    protected function getPostAuthor(\WP_Post $post): array
+    {
+        $authorName = get_the_author_meta('display_name', $post->post_author);
+        $authorUrl = get_the_author_meta('user_url', $post->post_author);
+        if (empty($authorUrl)) {
+            $authorUrl = get_author_posts_url($post->post_author);
+        }
+
+        return [$authorName, $authorUrl];
     }
 }
