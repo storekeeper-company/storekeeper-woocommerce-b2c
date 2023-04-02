@@ -170,7 +170,7 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
             ],
             home_url('/')
         );
-        $url .= '&trx={{trx}}';
+        $url .= '&trx={{trx}}'; // append instead of add_query_arg, so it's not encoded into %7B%7Btrx%7D%7D
 
         return $url;
     }

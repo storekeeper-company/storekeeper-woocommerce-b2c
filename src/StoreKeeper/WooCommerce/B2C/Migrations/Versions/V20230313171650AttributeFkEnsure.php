@@ -3,10 +3,11 @@
 namespace StoreKeeper\WooCommerce\B2C\Migrations\Versions;
 
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
 use StoreKeeper\WooCommerce\B2C\Models\AbstractModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 
-class V20230313171650AttributeFkEnsure extends \StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration
+class V20230313171650AttributeFkEnsure extends AbstractMigration
 {
     public function up(DatabaseConnection $connection): ?string
     {

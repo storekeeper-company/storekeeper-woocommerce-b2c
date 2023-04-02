@@ -956,7 +956,7 @@ class OrderExport extends AbstractExport
         $paymentGateway = wc_get_payment_gateway_by_order($WpObject);
         if ($paymentGateway) {
             $paymentGatewayTitle = $paymentGateway->get_method_title();
-            $comment = $paymentGatewayTitle.' ('.__('Wordpress plugin').')';
+            $comment = $paymentGatewayTitle.' ('.__('Wordpress plugin', I18N::DOMAIN).')';
         } else {
             $comment = ucwords(str_replace('pay_gateway_', '', $WpObject->get_payment_method()));
         }
