@@ -10,7 +10,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 class TaskModel extends AbstractModel implements IModelPurge
 {
     const TABLE_NAME = 'storekeeper_tasks';
-    const TABLE_VERSION = '1.1.1';
 
     public static function getFieldsWithRequired(): array
     {
@@ -30,55 +29,6 @@ class TaskModel extends AbstractModel implements IModelPurge
             self::FIELD_DATE_CREATED => false,
             self::FIELD_DATE_UPDATED => false,
         ];
-    }
-
-    public static function createTable(): bool
-    {
-        $name = self::getTableName();
-
-        $tableQuery = <<<SQL
-    CREATE TABLE `$name` (
-        `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-        `title` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `status` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `times_ran` INT(10) DEFAULT 0,
-        `name` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `type` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `type_group` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `storekeeper_id` INT(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-        `meta_data` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `execution_duration` TEXT COLLATE utf8mb4_unicode_ci,
-        `date_last_processed` TIMESTAMP NULL,
-        `error_output` LONGTEXT COLLATE utf8mb4_unicode_ci NULL,
-        `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
-        `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
-        PRIMARY KEY (`id`),
-        INDEX (type_group(100))
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQL;
-
-        return static::querySql($tableQuery);
-    }
-
-    public static function alterTable(): void
-    {
-        global $wpdb;
-
-        $fields = array_keys(static::getFieldsWithRequired());
-        $tableColumns = $wpdb->get_results("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '".static::getTableName()."'", ARRAY_A);
-        $tableColumns = array_column($tableColumns, 'column_name');
-
-        $difference = array_diff($fields, $tableColumns);
-
-        /* @since 5.3.2 */
-        if (in_array('execution_duration', $difference, true)) {
-            $wpdb->query('ALTER TABLE '.static::getTableName().' ADD execution_duration TEXT COLLATE utf8mb4_unicode_ci');
-        }
-
-        /* @since 8.0.0 */
-        if (in_array('date_last_processed', $difference, true)) {
-            $wpdb->query('ALTER TABLE '.static::getTableName().' ADD date_last_processed TIMESTAMP NULL');
-        }
     }
 
     public static function newTask(
@@ -221,7 +171,9 @@ SQL;
 
     public static function update($id, array $data): void
     {
-        $data['meta_data'] = serialize($data['meta_data'] ?? []);
+        if (array_key_exists('meta_data', $data) && is_array($data['meta_data'])) {
+            $data['meta_data'] = serialize($data['meta_data'] ?? []);
+        }
         parent::update($id, $data);
     }
 

@@ -5,8 +5,8 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Exports;
 use Adbar\Dot;
 use Exception;
 use Mockery\MockInterface;
-use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
+use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\StoreKeeperBaseGateway;
@@ -57,9 +57,9 @@ class OrderPaymentTest extends AbstractOrderExportTest
 
         // Payment constants
         $sk_cancelled_payment_id = rand();
-        $sk_cancelled_method_id = rand();
-        $sk_paid_payment_id = rand();
-        $sk_paid_method_id = rand();
+        $sk_cancelled_method_id = $sk_cancelled_payment_id + 1;
+        $sk_paid_payment_id = $sk_cancelled_payment_id + 2;
+        $sk_paid_method_id = $sk_cancelled_payment_id + 3;
 
         // other constants
         $sk_order_id = rand();
@@ -216,34 +216,20 @@ class OrderPaymentTest extends AbstractOrderExportTest
                 }
             );
 
-        // Order created task
-        $OrderHandler->create($wc_order_id);
-
         /*
-         * Create cancelled payment
+         * cancelled payment on order.
          */
-
-        // Create cancelled payment
-        $this->createPaymentForMethodId($sk_cancelled_method_id, $wc_order);
-
-        // Payment cancelled created task
         $OrderHandler->create($wc_order_id);
 
-        // Sync cancelled payment
+        $this->createPaymentForMethodId($sk_cancelled_method_id, $wc_order, 'Create cancelled payment');
+        $OrderHandler->create($wc_order_id);
+
         $paymentGateway = new PaymentGateway();
         $paymentGateway->checkPayment($wc_order->get_id());
 
-        // Check cancelled check task
         $OrderHandler->create($wc_order_id);
+        $this->processAllTasks();
 
-        /*
-         * Process cancelled payment on order
-         */
-        $this->runner->execute(ProcessAllTasks::getCommandName());
-
-        /**
-         * Assert cancelled payment on order.
-         */
         $wc_order = wc_get_order($wc_order->get_id()); // Refresh wc_order
 
         $this->assertFalse(
@@ -257,26 +243,15 @@ class OrderPaymentTest extends AbstractOrderExportTest
         );
 
         /*
-         * Create paid payment
+         * paid payment on order.
          */
-
-        // Create cancelled payment
-        $this->createPaymentForMethodId($sk_paid_method_id, $wc_order);
-
-        // Payment cancelled created task
+        $this->createPaymentForMethodId($sk_paid_method_id, $wc_order, 'Create paid payment');
         $OrderHandler->create($wc_order_id);
-
-        // Sync cancelled payment
         $paymentGateway = new PaymentGateway();
         $paymentGateway->checkPayment($wc_order->get_id());
-
-        // Check cancelled check task
         $OrderHandler->create($wc_order_id);
 
-        /*
-         * Process paid payment on order
-         */
-        $this->runner->execute(ProcessAllTasks::getCommandName());
+        $this->processAllTasks();
 
         /**
          * Assert paid payment on order.
@@ -285,7 +260,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
 
         $this->assertTrue(
             $wc_order->is_paid(),
-            'Order is unpaid paid'
+            'Order is paid'
         );
         $this->assertEquals(
             StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING,
@@ -297,6 +272,30 @@ class OrderPaymentTest extends AbstractOrderExportTest
             $updateStatusCount,
             'Order status changed too often'
         );
+        $orderPayments = PaymentModel::findOrderPayments($wc_order->get_id());
+        $this->assertEquals(
+            2,
+            count($orderPayments),
+            'Both orders ware saved'
+        );
+        $this->assertTrue(
+            PaymentModel::isAllPaymentInSync($wc_order_id),
+            'All is synched'
+        );
+
+        $expect = [
+            'canceled' => false,
+            'paid' => true,
+        ];
+        $got = [];
+        foreach ($orderPayments as $orderPayment) {
+            if ($orderPayment['payment_id'] == $sk_cancelled_payment_id) {
+                $got['canceled'] = $orderPayment['is_paid'];
+            } elseif ($orderPayment['payment_id'] == $sk_paid_payment_id) {
+                $got['paid'] = $orderPayment['is_paid'];
+            }
+        }
+        $this->assertEquals($expect, $got, 'Paid statuses are correct');
     }
 
     public function testOrderStoreKeeperPayment()
@@ -529,7 +528,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
         );
 
         // Export tasks
-        $this->runner->execute(ProcessAllTasks::getCommandName());
+        $this->processAllTasks();
 
         $this->assertEquals(
             $sk_order_id,
@@ -542,7 +541,11 @@ class OrderPaymentTest extends AbstractOrderExportTest
             'Order status should only be updated once during this flow'
         );
         $this->assertTrue(
-            PaymentGateway::isPaymentSynced($new_order_id),
+            PaymentModel::orderHasPayment($new_order_id),
+            'Order has payment'
+        );
+        $this->assertTrue(
+            PaymentModel::isAllPaymentInSync($new_order_id),
             'Check if the payment was synced'
         );
     }
@@ -690,7 +693,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
         );
 
         // Export tasks
-        $this->runner->execute(ProcessAllTasks::getCommandName());
+        $this->processAllTasks();
 
         $this->assertEquals(
             $sk_order_id,
@@ -784,7 +787,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
     /**
      * @param bool $order_paid
      */
-    public function createPaymentForMethodId(int $sk_provider_method_id, \WC_Order $order): void
+    public function createPaymentForMethodId(int $sk_provider_method_id, \WC_Order $order, string $message): void
     {
         $gateway = new StoreKeeperBaseGateway(
             "sk_pay_id_{$sk_provider_method_id}",
@@ -793,9 +796,14 @@ class OrderPaymentTest extends AbstractOrderExportTest
             ''
         );
         $data = $gateway->process_payment($order->get_id());
+        $error = $gateway->getLastError();
 
+        if (!empty($error)) {
+            throw $error;
+        }
         // assert payment
-        $this->assertEquals('success', $data['result']);
+        $this->assertEquals('success', $data['result'], $message.': payment created succesfully');
+        $this->assertNotEmpty($data['redirect'], $message.': redirect url was crated');
     }
 
     public function assertErrorReportTask()

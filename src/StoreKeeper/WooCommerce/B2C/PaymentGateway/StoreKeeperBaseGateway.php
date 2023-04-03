@@ -6,6 +6,7 @@ use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WC_Order_Item_Product;
@@ -18,6 +19,11 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
     const ORDER_STATUS_PROCESSING = 'processing'; //  Payment received (paid) and stock has been reduced;
     const ORDER_STATUS_ON_HOLD = 'on-hold'; //  waiting payment – stock is reduced, but you need to confirm payment.
     private $provider_method_id;
+
+    /**
+     * @var \Throwable|null
+     */
+    private $lastError = null;
 
     public function __construct(string $id, string $title, int $provider_method_id, string $icon_url)
     {
@@ -59,9 +65,24 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         } catch (\Throwable $exception) {
             $logger->error($exception->getMessage(), $logs);
             LoggerFactory::createErrorTask('process-payment', $exception);
+
+            $this->lastError = $exception;
         }
 
         return [];
+    }
+
+    public function getLastError(): ?\Throwable
+    {
+        return $this->lastError;
+    }
+
+    /**
+     * @param \Throwable|null $lastError
+     */
+    public function clearLastError(): void
+    {
+        $this->lastError = null;
     }
 
     private function getPaymentUrl(\WC_Order $order)
@@ -70,7 +91,6 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         $shop_module = $api->getModule('ShopModule');
 
         $relation_data_id = null;
-        $relation_data_snapshot_id = null;
         try {
             $relation_data_id = CustomerFinder::ensureCustomerFromOrder($order);
         } catch (GeneralException $exception) {
@@ -113,7 +133,7 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         // Create payment
         $payment = $shop_module->newWebShopPaymentWithReturn(
             [
-                'redirect_url' => PaymentGateway::getReturnUrl($order->get_id()),
+                'redirect_url' => self::getRedirectUrl($order->get_id()),
                 'provider_method_id' => $this->provider_method_id,
                 'amount' => $order->get_total(),
                 'title' => __('Order number', I18N::DOMAIN).': '.$order->get_order_number(),
@@ -125,28 +145,34 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         );
 
         //we insert the order id with payment id here so on the detail page later on we can check
-        //whether or not the order is paid
-        if (PaymentGateway::hasPayment($order->get_id())) {
-            $update = PaymentGateway::updatePayment($order->get_id(), $payment['id'], $order->get_total());
-        } else {
-            $update = PaymentGateway::addPayment($order->get_id(), $payment['id'], $order->get_total());
-        }
-
-        if (!$update) {
-            throw new \Exception('Not able to add or update payment');
-        }
+        PaymentModel::addPayment($order->get_id(), $payment['id'], $order->get_total(), false, $payment['trx']);
 
         // Make a note about the current payment after creation
         $payment_eid = in_array('eid', $payment) ? $payment['eid'] : '-';
         $payment_trx = $payment['trx'];
-        $status_text = __("The order's payment was created\n eid: %s\n trx: %s", I18N::DOMAIN);
-        $order->add_order_note(sprintf($status_text, $payment_eid, $payment_trx));
+        $status_text = __("Stating payment %s\n eid: %s, trx: %s", I18N::DOMAIN);
+        $order->add_order_note(sprintf($status_text, $this->method_title, $payment_eid, $payment_trx));
 
         // Mark order as pending AKA waiting for payment.
         $order->set_status(self::ORDER_STATUS_PENDING);
         $order->save();
 
         return $payment['payment_url'];
+    }
+
+    protected static function getRedirectUrl($order_id): string
+    {
+        $url = add_query_arg(
+            [
+                'wc-api' => 'backoffice_pay_gateway_return',
+                'utm_nooverride' => '1',
+                'wc-order-id' => $order_id,
+            ],
+            home_url('/')
+        );
+        $url .= '&trx={{trx}}'; // append instead of add_query_arg, so it's not encoded into %7B%7Btrx%7D%7D
+
+        return $url;
     }
 
     /**

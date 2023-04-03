@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 
 use Psr\Log\Test\TestLogger;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
+use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Core;
 
 trait CommandRunnerTrait
@@ -28,5 +29,13 @@ trait CommandRunnerTrait
     {
         $this->runner = null;
         $this->logger = null;
+    }
+
+    public function processAllTasks()
+    {
+        $this->runner->execute(
+            ProcessAllTasks::getCommandName(), [],
+            [ProcessAllTasks::ARG_FAIL_ON_ERROR => true]
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\PaymentGateway;
 
 use Monolog\Logger;
 use StoreKeeper\ApiWrapper\Exception\AuthException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\PaymentException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
@@ -34,18 +35,9 @@ class PaymentGateway
         return true;
     }
 
-    public static function getReturnUrl($order_id)
-    {
-        return add_query_arg(
-            [
-                'wc-api' => 'backoffice_pay_gateway_return',
-                'utm_nooverride' => '1',
-                'wc-order-id' => $order_id,
-            ],
-            home_url('/')
-        );
-    }
-
+    /**
+     * @hook $this->loader->add_filter('init', $PaymentGateway, 'registerCheckoutFlash');
+     */
     public static function registerCheckoutFlash()
     {
         if (isset($_REQUEST[PaymentGateway::FLASH_QUERY_ARG]) && self::FLASH_STATUS_CANCELLED == $_REQUEST[PaymentGateway::FLASH_QUERY_ARG]) {
@@ -77,124 +69,6 @@ class PaymentGateway
         $message = __('There was an error during processing of the payment: %s', I18N::DOMAIN);
         $message = sprintf($message, sanitize_text_field($_REQUEST['payment_error']));
         wc_print_notice($message, 'error');
-    }
-
-    /**
-     * @param $order_id
-     *
-     * @return bool|null Returns null when the order is not found
-     */
-    public static function isPaymentSynced($order_id)
-    {
-        global $wpdb;
-
-        $is_synced = null;
-        $table_name = PaymentModel::getTableName();
-
-        $sql = <<<SQL
-SELECT is_synced
-FROM `$table_name`
-WHERE order_id = '$order_id'
-LIMIT 1
-SQL;
-
-        // Getting the results and getting the first one.
-        $results = $wpdb->get_results($sql, ARRAY_A);
-        if (!empty($results)) {
-            $is_synced = (bool) array_shift($results)['is_synced'];
-        }
-
-        return $is_synced;
-    }
-
-    /**
-     * @param $order_id
-     *
-     * @return bool
-     */
-    public static function hasPayment($order_id)
-    {
-        return (bool) self::getPaymentId($order_id);
-    }
-
-    /**
-     * @param $order_id
-     *
-     * @return bool whenever the payment update was success or not
-     */
-    public static function markPaymentAsSynced($order_id)
-    {
-        global $wpdb;
-
-        return false !== $wpdb->update(
-                PaymentModel::getTableName(), // table
-                ['is_synced' => true], // data
-                ['order_id' => $order_id], // where
-                ['%d'], // data format
-                ['%d'] // where format
-            );
-    }
-
-    /**
-     * @param $order_id
-     * @param $payment_id
-     * @param $amount
-     *
-     * @return bool whenever the payment update was success or not
-     */
-    public static function updatePayment($order_id, $payment_id, $amount)
-    {
-        global $wpdb;
-
-        return false !== $wpdb->update(
-            // table
-                PaymentModel::getTableName(),
-                // data
-                [
-                    'payment_id' => $payment_id,
-                    'is_synced' => false, // Update un sets the payment sync status.
-                    'amount' => $amount,
-                ],
-                // where
-                ['order_id' => $order_id],
-                // data format
-                [
-                    '%d',
-                    '%d',
-                    '%s',
-                ],
-                    // where format
-                ['%d']
-            );
-    }
-
-    /**
-     * @param $order_id
-     * @param $payment_id
-     * @param $amount
-     *
-     * @return bool
-     */
-    public static function addPayment($order_id, $payment_id, $amount)
-    {
-        global $wpdb;
-
-        return false !== $wpdb->insert(
-            // table
-                PaymentModel::getTableName(),
-                // data
-                [
-                    'order_id' => $order_id,
-                    'payment_id' => $payment_id,
-                    'amount' => $amount,
-                ],
-                // format
-                [
-                    '%d',
-                    '%d',
-                    '%s',
-                ]
-            );
     }
 
     /**
@@ -255,6 +129,9 @@ SQL;
             );
     }
 
+    /**
+     * @hook $this->loader->add_filter('woocommerce_api_backoffice_pay_gateway_return', $PaymentGateway, 'onReturn');
+     */
     public function onReturn()
     {
         $log_context = [
@@ -265,7 +142,12 @@ SQL;
         try {
             // Getting the WC order
             $order = new \WC_Order(sanitize_key($_GET['wc-order-id']));
-            $payment_id = self::getPaymentId($order->get_id());
+            $trx = sanitize_key($_GET['trx']);
+            if (empty($trx)) {
+                $statusText = __('Invalid return url, contact shop owner to check the payment', I18N::DOMAIN);
+                throw new PaymentException($statusText);
+            }
+            $payment_id = PaymentModel::getPaymentIdByTrx($trx);
 
             $log_context += [
                 'order_id' => $order->get_id(),
@@ -281,12 +163,13 @@ SQL;
                 PaymentGateway::FLASH_QUERY_ARG => $payment_status,
             ];
             // Make a note with the received order payment status
-            $statusText = __('The order\'s payment status received: %s', I18N::DOMAIN);
-            $order->add_order_note(sprintf($statusText, $payment_status));
+            $statusText = __("The order\'s payment status received: %s\ntrx=%s", I18N::DOMAIN);
+            $order->add_order_note(sprintf($statusText, $payment_status, $trx));
 
-            if (in_array($payment_status, self::PAYMENT_PAID_STATUSES, true)) {
+            if ($this->isPaymentStatusPaid($payment_status)) {
                 $checkOutLogger->debug('Payment paid', $log_context);
                 $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING);
+                PaymentModel::markPaymentIdAsPaid($payment_id);
             } elseif (in_array($payment_status, self::PAYMENT_PENDING_STATUSES, true)) {
                 $checkOutLogger->debug('Payment pending', $log_context);
                 $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PENDING);
@@ -314,6 +197,14 @@ SQL;
         wp_redirect($url);
     }
 
+    /**
+     * @param $args
+     *
+     * @return void
+     *
+     * @throws \Exception
+     * @hook $this->loader->add_action('woocommerce_create_refund', $PaymentGateway, 'createWooCommerceRefund', 10, 2);
+     */
     public function createWooCommerceRefund(\WC_Order_Refund $refund, $args)
     {
         $orderId = $args['order_id'];
@@ -346,6 +237,14 @@ SQL;
         }
     }
 
+    /**
+     * @param $orderId
+     * @param $refundId
+     *
+     * @throws \Exception
+     * @hook $this->loader->add_action('woocommerce_order_refunded', $PaymentGateway, 'createStoreKeeperRefundPayment', 10, 2);
+     * @hook $this->loader->add_action('woocommerce_order_partially_refunded', $PaymentGateway, 'createStoreKeeperRefundPayment', 10, 2);
+     */
     public function createStoreKeeperRefundPayment($orderId, $refundId): void
     {
         $refund = wc_get_order($refundId);
@@ -478,57 +377,11 @@ SQL;
         return $payment_id;
     }
 
-    public static function getPaymentId($order_id)
-    {
-        global $wpdb;
-
-        // Pay NL
-        $payment_id = null;
-        $table_name = PaymentModel::getTableName();
-
-        $sql = <<<SQL
-SELECT payment_id
-FROM `$table_name`
-WHERE order_id = '$order_id'
-LIMIT 1
-SQL;
-
-        // Getting the results and getting the first one.
-        $results = $wpdb->get_results($sql, ARRAY_A);
-        if (!empty($results)) {
-            $payment_id = array_shift($results)['payment_id'];
-        }
-
-        return $payment_id;
-    }
-
-    public static function getPaymentAmount($order_id)
-    {
-        global $wpdb;
-
-        $amount = null;
-        $table_name = PaymentModel::getTableName();
-
-        $sql = <<<SQL
-SELECT amount
-FROM `$table_name`
-WHERE order_id = '$order_id'
-LIMIT 1
-SQL;
-
-        // Getting the results and getting the first one.
-        $results = $wpdb->get_results($sql, ARRAY_A);
-        if (!empty($results)) {
-            $amount = array_shift($results)['amount'];
-        }
-
-        return $amount;
-    }
-
     /**
      * Get backend payment id by woocommerce order id.
      *
      * @param $order_id
+     * @hook $this->loader->add_action('woocommerce_thankyou', $PaymentGateway, 'checkPayment');
      *
      * @throws \Exception
      */
@@ -539,21 +392,34 @@ SQL;
         // Check if the order was not marked as completed yet.
         if (StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING !== $order->get_status()) {
             //old orders may not have order_id and payment_id linked or orders that didn't use the Payment Gateway
-            $payment_id = self::getPaymentId($order_id);
-            if ($payment_id) {
+            $payments = PaymentModel::findOrderPayments($order_id);
+            if ($payments) {
                 $api = StoreKeeperApi::getApiByAuthName();
                 $shop_module = $api->getModule('ShopModule');
-                $payment = $shop_module->syncWebShopPaymentWithReturn($payment_id);
+                foreach ($payments as $payment) {
+                    $is_paid = !empty($payment['is_paid']);
+                    $payment_id = $payment['payment_id'];
+                    if (!$is_paid) {
+                        $payment = $shop_module->syncWebShopPaymentWithReturn($payment_id);
+                        $is_paid = $this->isPaymentStatusPaid($payment['status']);
+                    }
 
-                if (in_array($payment['status'], ['paid', 'authorized'], true)) {
-                    //payment in backend is marked as paid
-                    $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING);
-                    $order->save();
+                    if ($is_paid) {
+                        //payment in backend is marked as paid
+                        PaymentModel::markPaymentIdAsPaid($payment_id);
+                        $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING);
+                        $order->save();
+                    }
                 }
             }
         }
     }
 
+    /**
+     * @hook $this->loader->add_filter('woocommerce_payment_gateways', $PaymentGateway, 'addGatewayClasses');
+     *
+     * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException
+     */
     public function addGatewayClasses($default_gateway_classes)
     {
         try {
@@ -642,5 +508,10 @@ SQL;
         $checkOutLogger = LoggerFactory::create('checkout');
 
         return $checkOutLogger;
+    }
+
+    protected function isPaymentStatusPaid($payment_status): bool
+    {
+        return in_array($payment_status, self::PAYMENT_PAID_STATUSES, true);
     }
 }

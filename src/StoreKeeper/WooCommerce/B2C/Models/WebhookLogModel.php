@@ -24,28 +24,6 @@ class WebhookLogModel extends AbstractModel implements IModelPurge
         ];
     }
 
-    public static function createTable(): bool
-    {
-        $name = static::getTableName();
-
-        $query = <<<SQL
-    CREATE TABLE `$name` (
-        `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-        `action` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `body` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `headers` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `method` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `response_code` INT(3) NOT NULL,
-        `route` LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-        `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
-        `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
-        PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQL;
-
-        return static::querySql($query);
-    }
-
     public static function purge(): int
     {
         $affectedRows = 0;
@@ -104,10 +82,5 @@ SQL;
         AbstractModel::ensureAffectedRows($affectedRows);
 
         return (int) $affectedRows;
-    }
-
-    public static function alterTable(): void
-    {
-        // No implementation yet.
     }
 }

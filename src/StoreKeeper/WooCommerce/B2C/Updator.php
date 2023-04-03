@@ -4,14 +4,11 @@ namespace StoreKeeper\WooCommerce\B2C;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
-use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
-use StoreKeeper\WooCommerce\B2C\Models\AttributeModel\MigrateFromOldData;
+use StoreKeeper\WooCommerce\B2C\Migrations\MigrationManager;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class Updator
 {
-    const ZERO_VERSION = '0.0.0';
-
     public function updateAction()
     {
         try {
@@ -59,55 +56,16 @@ class Updator
         }
     }
 
-    public function update(bool $forceUpdate = false)
+    public function update()
     {
         $currentVersion = STOREKEEPER_WOOCOMMERCE_B2C_VERSION;
         $databaseVersion = StoreKeeperOptions::get(StoreKeeperOptions::INSTALLED_VERSION, '0.0.0');
-        if ($forceUpdate || version_compare($currentVersion, $databaseVersion, '>')) {
-            $this->handleUpdate($databaseVersion);
-        }
-    }
-
-    private function handleUpdate(string $databaseVersion)
-    {
-        if ($this->isUpgrade($databaseVersion)) {
-            $this->upgradeDatabase($databaseVersion);
-        }
-
-        $activator = new Activator();
-        $activator->run();
-    }
-
-    private function isUpgrade(string $databaseVersion): bool
-    {
-        return self::ZERO_VERSION !== $databaseVersion;
-    }
-
-    private function upgradeDatabase(string $databaseVersion): void
-    {
-        if (version_compare($databaseVersion, '7.2.1', '<')) {
-            // default mode was added
-            $isSet = StoreKeeperOptions::get(StoreKeeperOptions::SYNC_MODE, false);
-            if (!$isSet) {
-                // previously it was full sync
-                StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, StoreKeeperOptions::SYNC_MODE_FULL_SYNC);
-            }
-        }
-        if (version_compare($databaseVersion, '7.4.0', '<')) {
-            AttributeModel::ensureTable();
-
-            if (0 === AttributeModel::count()) {
-                // no rows, lets copy
-                $migrate = new MigrateFromOldData();
-                $migrate->run();
-            }
-        }
-
-        if (version_compare($databaseVersion, '7.4.6', '<')) {
-            $currentPaymentGatewayOption = StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
-            if (is_null($currentPaymentGatewayOption)) {
-                StoreKeeperOptions::set(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'no');
-            }
+        if (version_compare($currentVersion, $databaseVersion, '>')) {
+            $activator = new Activator();
+            $activator->run();
+        } else {
+            $manager = new MigrationManager();
+            $manager->migrateAll();
         }
     }
 

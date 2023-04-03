@@ -9,7 +9,9 @@ use Aura\SqlQuery\Common\UpdateInterface;
 use Aura\SqlQuery\QueryInterface;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Exceptions\SqlException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\TableOperationSqlException;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModel;
 use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
@@ -23,18 +25,8 @@ abstract class AbstractModel implements IModel
 {
     public const FIELD_DATE_CREATED = 'date_created';
     public const FIELD_DATE_UPDATED = 'date_updated';
-    public const TABLE_VERSION = '1.0.0';
     public const MAX_FOREIGN_KEY_LENGTH = 63;
-
-    public static function getTableVersion(): string
-    {
-        return get_option(static::TABLE_NAME.'_version');
-    }
-
-    private static function setTableVersion()
-    {
-        update_option(static::TABLE_NAME.'_version', static::TABLE_VERSION);
-    }
+    const PRIMARY_KEY = 'id';
 
     const TABLE_NAME = 'storekeeper_abstract';
 
@@ -56,45 +48,22 @@ abstract class AbstractModel implements IModel
         global $wpdb;
 
         if (false === $wpdb->query($sql)) {
-            throw new Exception($wpdb->last_error);
+            throw new SqlException($wpdb->last_error, $sql);
         }
 
         return true;
-    }
-
-    public static function ensureTable(): bool
-    {
-        if (!static::hasTable()) {
-            if (static::createTable()) {
-                static::setTableVersion();
-
-                return true;
-            }
-
-            return false;
-        } elseif (static::isTableOutdated()) {
-            static::alterTable();
-            static::setTableVersion();
-        }
-
-        return true;
-    }
-
-    protected static function isTableOutdated(): bool
-    {
-        return version_compare(static::TABLE_VERSION, static::getTableVersion(), '>');
     }
 
     public static function validateData(array $data, $isUpdate = false): void
     {
         if ($isUpdate) {
-            if (empty($data['id'])) {
+            if (empty($data[static::PRIMARY_KEY])) {
                 $stringData = json_encode($data);
                 throw new Exception('Update: Object is missing ID: '.$stringData);
             }
             foreach (static::getFieldsWithRequired() as $key => $required) {
                 if (
-                    'id' !== $key
+                    static::PRIMARY_KEY !== $key
                     && $required
                     && array_key_exists($key, $data)
                     && is_null($data[$key])
@@ -105,7 +74,7 @@ abstract class AbstractModel implements IModel
         } else {
             foreach (static::getFieldsWithRequired() as $key => $required) {
                 if (
-                    'id' !== $key
+                    static::PRIMARY_KEY !== $key
                     && $required
                     && !isset($data[$key])
                 ) {
@@ -115,26 +84,14 @@ abstract class AbstractModel implements IModel
         }
     }
 
-    public static function prepareData(array $data): array
+    public static function prepareInsertData(array $data): array
     {
-        $preparedData = [];
-
-        foreach (static::getFieldsWithRequired() as $key => $required) {
-            if (!empty($data[$key])) {
-                if ('id' !== $key) {
-                    $preparedData[$key] = $data[$key];
-                }
-            }
-        }
-
-        return $preparedData;
+        return self::prepareData($data, false);
     }
 
-    protected static function updateDateField(array $data): array
+    public static function prepareUpdateData(array $data): array
     {
-        $data[self::FIELD_DATE_UPDATED] = DatabaseConnection::formatToDatabaseDate();
-
-        return $data;
+        return self::prepareData($data, false);
     }
 
     public static function hasTable(): bool
@@ -216,12 +173,23 @@ WHERE
             $data[self::FIELD_DATE_UPDATED] = DatabaseConnection::formatToDatabaseDate();
         }
 
-        $insert = static::getInsertHelper()
-            ->cols(static::prepareData($data));
-
+        $insert = static::getInsertHelper();
+        $data = static::prepareInsertData($data);
+        $cols = [];
+        foreach ($data as $k => $v) {
+            if (is_bool($v)) {
+                $insert->set($k, $v ? 1 : 0);
+            } else {
+                $cols[$k] = $v;
+            }
+        }
+        $insert->cols($cols);
         $query = static::prepareQuery($insert);
 
         $affectedRows = $wpdb->query($query);
+        if (false === $affectedRows) {
+            throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__, $query);
+        }
 
         static::ensureAffectedRows($affectedRows, true);
 
@@ -230,15 +198,19 @@ WHERE
 
     public static function read($id): ?array
     {
-        global $wpdb;
-
         $select = static::getSelectHelper()
             ->cols(['*'])
-            ->where('id = :id')
+            ->where(static::PRIMARY_KEY.' = :id')
             ->bindValue('id', $id);
 
         $query = static::prepareQuery($select);
 
+        return self::fetchSingleRowForQuery($query);
+    }
+
+    protected static function fetchSingleRowForQuery(string $query): ?array
+    {
+        global $wpdb;
         $row = $wpdb->get_row(
             $query,
             ARRAY_A
@@ -260,14 +232,16 @@ WHERE
 
     public static function get($id): ?array
     {
-        return static::read($id);
+        $data = static::read($id);
+
+        return $data;
     }
 
     public static function update($id, array $data): void
     {
         global $wpdb;
 
-        $data['id'] = $id;
+        $data[static::PRIMARY_KEY] = $id;
         static::validateData($data, true);
 
         $fields = static::getFieldsWithRequired();
@@ -276,13 +250,17 @@ WHERE
         }
 
         $update = static::getUpdateHelper()
-            ->cols(static::prepareData($data))
-            ->where('id = :id')
+            ->cols(static::prepareUpdateData($data))
+            ->where(static::PRIMARY_KEY.' = :id')
             ->bindValue('id', $id);
 
         $query = static::prepareQuery($update);
 
         $affectedRows = $wpdb->query($query);
+
+        if (false === $affectedRows) {
+            throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__, $query);
+        }
 
         static::ensureAffectedRows($affectedRows, true);
     }
@@ -292,7 +270,7 @@ WHERE
         if (empty($existingRow)) {
             $id = static::create($updates);
         } else {
-            $id = $existingRow['id'];
+            $id = $existingRow[static::PRIMARY_KEY];
             $hasChange = false;
             foreach ($updates as $k => $v) {
                 if ($v != $existingRow[$k]) {
@@ -317,9 +295,13 @@ WHERE
         $affectedRows = $wpdb->delete(
             static::getTableName(),
             [
-                'id' => $id,
+                static::PRIMARY_KEY => $id,
             ]
         );
+
+        if (false === $affectedRows) {
+            throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__);
+        }
 
         static::ensureAffectedRows($affectedRows, true);
     }
@@ -329,14 +311,20 @@ WHERE
         global $wpdb;
 
         $select = static::getSelectHelper()
-            ->cols(['count(id)'])
+            ->cols(['count('.static::PRIMARY_KEY.')'])
             ->bindValues($whereValues);
 
         foreach ($whereClauses as $whereClause) {
             $select->where($whereClause);
         }
 
-        return $wpdb->get_var(static::prepareQuery($select));
+        $query = static::prepareQuery($select);
+        $result = $wpdb->get_var($query);
+        if (null === $result) {
+            throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__, $query);
+        }
+
+        return $result;
     }
 
     public static function ensureAffectedRows($affectedRows, bool $checkRowAmount = false)
@@ -351,11 +339,11 @@ WHERE
     }
 
     public static function findBy(
-        $whereClauses = [],
-        $whereValues = [],
-        $orderBy = null,
-        $orderDirection = null,
-        $limit = null
+        array $whereClauses = [],
+        array $whereValues = [],
+        ?string $orderBy = null,
+        ?string $orderDirection = null,
+        ?int $limit = null
     ) {
         global $wpdb;
         $select = static::getSelectHelper()
@@ -380,7 +368,7 @@ WHERE
 
         $query = static::prepareQuery($select);
 
-        return $wpdb->get_results($query);
+        return $wpdb->get_results($query, ARRAY_A);
     }
 
     public static function getSelectHelper($alias = ''): SelectInterface
@@ -422,10 +410,6 @@ WHERE
             ->prepare($query);
     }
 
-    public static function alterTable(): void
-    {
-    }
-
     public static function purge(): int
     {
         return 0;
@@ -448,5 +432,20 @@ WHERE
         }
 
         return $foreignKeyName;
+    }
+
+    protected static function prepareData(array $data, bool $includePk): array
+    {
+        $preparedData = [];
+
+        foreach (static::getFieldsWithRequired() as $key => $required) {
+            if (array_key_exists($key, $data)) {
+                if ($includePk || static::PRIMARY_KEY !== $key) {
+                    $preparedData[$key] = $data[$key];
+                }
+            }
+        }
+
+        return $preparedData;
     }
 }

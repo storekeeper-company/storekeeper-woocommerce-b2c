@@ -7,8 +7,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 
 class AttributeModel extends AbstractModel implements IModelPurge
 {
+    const FK_ATTRIBUTE_ID = 'attribute_id_fk';
     const TABLE_NAME = 'storekeeper_attributes';
-    const TABLE_VERSION = '1.0.0';
 
     public static function getFieldsWithRequired(): array
     {
@@ -21,33 +21,6 @@ class AttributeModel extends AbstractModel implements IModelPurge
             self::FIELD_DATE_CREATED => false,
             self::FIELD_DATE_UPDATED => false,
         ];
-    }
-
-    public static function createTable(): bool
-    {
-        $name = self::getTableName();
-        $wp = self::getWpPrefix();
-
-        $attributeForeignKey = static::getValidForeignFieldKey('attribute_id_fk', $name);
-
-        $tableQuery = <<<SQL
-    CREATE TABLE `$name` (
-        `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-        `attribute_id` BIGINT(20) UNSIGNED NULL UNIQUE,
-        `common_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
-        `storekeeper_id` BIGINT(20) NOT NULL UNIQUE,
-        `storekeeper_alias` VARCHAR(1500) COLLATE utf8mb4_unicode_ci,
-        `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
-        `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
-        PRIMARY KEY (`id`),
-        CONSTRAINT `{$attributeForeignKey}` 
-            FOREIGN KEY (`attribute_id`) 
-            REFERENCES  `{$wp}woocommerce_attribute_taxonomies` (`attribute_id`)
-            ON DELETE CASCADE ON UPDATE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQL;
-
-        return static::querySql($tableQuery);
     }
 
     public static function setAttributeTaxonomy(\stdClass $taxonomy, int $storekeper_id,
