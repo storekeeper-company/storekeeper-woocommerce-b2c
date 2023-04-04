@@ -65,8 +65,12 @@ class FrontendCore
         $this->loader->add_filter('woocommerce_default_address_fields', $addressFormHandler, 'alterAddressForm', 11);
         $this->loader->add_filter('woocommerce_get_country_locale', $addressFormHandler, 'customLocale', 11);
         $this->loader->add_filter('woocommerce_country_locale_field_selectors', $addressFormHandler, 'customSelectors', 11);
+        $this->loader->add_filter('woocommerce_billing_fields', $addressFormHandler, 'setHouseNumberValueFromSession', 11);
+        $this->loader->add_filter('woocommerce_shipping_fields', $addressFormHandler, 'setHouseNumberValueFromSession', 11);
+
         $this->loader->add_action('woocommerce_before_edit_account_address_form', $addressFormHandler, 'enqueueScriptsAndStyles');
         $this->loader->add_action('woocommerce_checkout_create_order', $addressFormHandler, 'saveCustomFields');
+        $this->loader->add_action('woocommerce_checkout_process', $addressFormHandler, 'saveCustomFieldsToSession');
         $this->loader->add_action('woocommerce_before_checkout_form', $addressFormHandler, 'addCheckoutScripts', 11);
     }
 

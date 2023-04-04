@@ -133,12 +133,17 @@ class DatabaseConnection
             $dateTimeClone->setTimezone(new \DateTimeZone('UTC'));
         }
 
-        return $dateTimeClone->format(DateTimeHelper::MYSQL_DATE_FORMAT);
+        return $dateTimeClone->format(DateTimeHelper::MYSQL_DATETIME_FORMAT);
     }
 
     public static function formatFromDatabaseDate(string $date): \DateTime
     {
-        $formattedDate = \DateTime::createFromFormat(DateTimeHelper::MYSQL_DATE_FORMAT, $date, new \DateTimeZone('UTC'));
+        $formattedDate = \DateTime::createFromFormat(DateTimeHelper::MYSQL_DATETIME_FORMAT, $date, new \DateTimeZone('UTC'));
+
+        if (!$formattedDate) {
+            // If date has no time
+            $formattedDate = \DateTime::createFromFormat(DateTimeHelper::MYSQL_DATE_FORMAT, $date, new \DateTimeZone('UTC'));
+        }
 
         if (!$formattedDate) {
             // Fallback in case the date is not in mysql format

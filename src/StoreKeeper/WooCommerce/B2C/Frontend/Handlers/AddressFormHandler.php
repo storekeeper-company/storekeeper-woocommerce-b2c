@@ -96,6 +96,29 @@ class AddressFormHandler
     }
 
     /**
+     * Retrieves value of custom fields from session to be displayed as default value on form.
+     *
+     * @hook $this->loader->add_filter('woocommerce_billing_fields', $addressFormHandler, 'setHouseNumberValueFromSession', 11);
+     * @hook $this->loader->add_filter('woocommerce_shipping_fields', $addressFormHandler, 'setHouseNumberValueFromSession', 11);
+     */
+    public function setHouseNumberValueFromSession(array $addressFields): array
+    {
+        $billingHouseNumberKey = self::BILLING_HOUSE_NUMBER_KEY;
+        $shippingHouseNumberKey = self::SHIPPING_HOUSE_NUMBER_KEY;
+        $billingHouseNumberSession = WC()->session->get($billingHouseNumberKey);
+        $shippingHouseNumberSession = WC()->session->get($shippingHouseNumberKey);
+        if (isset($addressFields[$billingHouseNumberKey])) {
+            $addressFields[self::BILLING_HOUSE_NUMBER_KEY]['default'] = $billingHouseNumberSession ?? null;
+        }
+
+        if (isset($addressFields[$shippingHouseNumberKey])) {
+            $addressFields[self::SHIPPING_HOUSE_NUMBER_KEY]['default'] = $shippingHouseNumberSession;
+        }
+
+        return $addressFields;
+    }
+
+    /**
      * Save house number to order metadata be retrieved for displaying.
      */
     public function saveCustomFields(\WC_Order $order): void
@@ -104,16 +127,53 @@ class AddressFormHandler
         $shippingHouseNumberKey = self::SHIPPING_HOUSE_NUMBER_KEY;
         $billingHouseNumber = sanitize_text_field($_POST[$billingHouseNumberKey]);
         $shippingHouseNumber = sanitize_text_field($_POST[$shippingHouseNumberKey]);
-        if ($order->has_billing_address()) {
-            if ($billingHouseNumber) {
-                $order->update_meta_data($billingHouseNumberKey, $billingHouseNumber);
-            }
+        if ($billingHouseNumber && $order->has_billing_address()) {
+            $order->update_meta_data($billingHouseNumberKey, $billingHouseNumber);
         }
         if ($order->has_shipping_address()) {
             if (isset($shippingHouseNumber) & !empty($shippingHouseNumber)) {
                 $order->update_meta_data($shippingHouseNumberKey, $shippingHouseNumber);
             } else {
                 $order->update_meta_data($shippingHouseNumberKey, $billingHouseNumber);
+            }
+        }
+    }
+
+    /**
+     * Saves the custom fields to the session for it to be kept and used during form rendering.
+     *
+     * @hook $this->loader->add_action('woocommerce_checkout_process', $addressFormHandler, 'saveCustomFieldsToSession');
+     */
+    public function saveCustomFieldsToSession(): void
+    {
+        $billingHouseNumberKey = self::BILLING_HOUSE_NUMBER_KEY;
+        $shippingHouseNumberKey = self::SHIPPING_HOUSE_NUMBER_KEY;
+
+        if (isset($_POST[$billingHouseNumberKey])) {
+            WC()->session->set($billingHouseNumberKey, sanitize_text_field($_POST[$billingHouseNumberKey]));
+        }
+
+        if (isset($_POST['ship_to_different_address']) && '1' === $_POST['ship_to_different_address']) {
+            WC()->session->set($shippingHouseNumberKey, sanitize_text_field($_POST[$shippingHouseNumberKey]));
+        } elseif (!isset($_POST['ship_to_different_address'])) {
+            // Some themes send the shipping fields even though
+            // the ship_to_different_address is not checked/enabled
+            $isShippingSubmitted = false;
+            $fields = $_POST;
+            foreach ($fields as $key => $field) {
+                if (str_starts_with(strtolower($key), 'shipping_')) {
+                    $isShippingSubmitted = true;
+                    break;
+                }
+            }
+
+            if (
+                isset($_POST[self::SHIPPING_HOUSE_NUMBER_KEY], $_POST[self::BILLING_HOUSE_NUMBER_KEY]) &&
+                $isShippingSubmitted &&
+                empty(sanitize_text_field($_POST[self::SHIPPING_HOUSE_NUMBER_KEY])) &&
+                !empty(sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]))
+            ) {
+                WC()->session->set($shippingHouseNumberKey, sanitize_text_field($_POST[$billingHouseNumberKey]));
             }
         }
     }

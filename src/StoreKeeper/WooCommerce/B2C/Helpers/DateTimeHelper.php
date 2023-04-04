@@ -9,7 +9,8 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class DateTimeHelper
 {
-    const MYSQL_DATE_FORMAT = 'Y-m-d H:i:s';
+    const MYSQL_DATETIME_FORMAT = 'Y-m-d H:i:s';
+    const MYSQL_DATE_FORMAT = 'Y-m-d';
     const WORDPRESS_DATE_FORMAT_OPTION = 'date_format';
     const WORDPRESS_TIME_FORMAT_OPTION = 'time_format';
 
