@@ -518,7 +518,7 @@ class OrderExportTest extends AbstractOrderExportTest
         StoreKeeperApi::$mockAdapter->withModule(
             'ShopModule',
             function (MockInterface $module) use ($skCustomerId, $skOrderId, $newOrderWithNlCountry, $newOrderWithNlCountryId, &$sentOrders, $expectedStreetNumber, $expectedFlatNumber) {
-                $module->allows('newOrder')
+                $module->expects('newOrder')
                     ->andReturnUsing(
                         function ($got) use ($newOrderWithNlCountryId, $skCustomerId, $newOrderWithNlCountry, $skOrderId, &$sentOrders) {
                             [$order] = $got;
@@ -533,13 +533,13 @@ class OrderExportTest extends AbstractOrderExportTest
                         }
                     );
 
-                $module->allows('findShopCustomerBySubuserEmail')
+                $module->expects('findShopCustomerBySubuserEmail')
                     ->andReturnUsing(
                         function () {
                             return null; // Returning null here will cause method to call newShopCustomer instead
                         }
                     );
-                $module->allows('getOrder')
+                $module->expects('getOrder')
                     ->andReturnUsing(
                         function ($got) use (&$sentOrders, $skOrderId) {
                             $this->assertEquals($skOrderId, $got[0]);
@@ -548,7 +548,7 @@ class OrderExportTest extends AbstractOrderExportTest
                         }
                     );
 
-                $module->allows('newShopCustomer')
+                $module->expects('newShopCustomer')
                     ->andReturnUsing(function ($got) use ($expectedStreetNumber, $expectedFlatNumber, $skCustomerId) {
                         $data = $got[0];
                         $shippingAddress = $data['relation']['contact_address'];
@@ -566,7 +566,7 @@ class OrderExportTest extends AbstractOrderExportTest
                 /*
                  * Unrelated-calls for this test
                  */
-                $module->allows('updateOrder')->andReturnUsing(
+                $module->expects('updateOrder')->andReturnUsing(
                     function () {
                         return null;
                     }
@@ -831,7 +831,7 @@ class OrderExportTest extends AbstractOrderExportTest
         StoreKeeperApi::$mockAdapter->withModule(
             'ShopModule',
             function (MockInterface $module) use ($sk_customer_id, $sk_order_id, $new_order, $new_order_id, &$sent_order) {
-                $module->allows('newOrder')
+                $module->expects('newOrder')
                     ->andReturnUsing(
                         function ($got) use ($new_order_id, $sk_customer_id, $new_order, $sk_order_id, &$sent_order) {
                             [$order] = $got;
@@ -846,7 +846,7 @@ class OrderExportTest extends AbstractOrderExportTest
                         }
                     );
 
-                $module->allows('findShopCustomerBySubuserEmail')
+                $module->expects('findShopCustomerBySubuserEmail')
                     ->andReturnUsing(
                         function ($got) use ($sk_customer_id, $new_order) {
                             $this->assertEquals($new_order['billing_email'], $got[0]['email']);
@@ -857,7 +857,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             ];
                         }
                     );
-                $module->allows('getOrder')
+                $module->expects('getOrder')
                     ->andReturnUsing(
                         function ($got) use (&$sent_order, $sk_order_id) {
                             $this->assertEquals($sk_order_id, $got[0]);
@@ -869,7 +869,7 @@ class OrderExportTest extends AbstractOrderExportTest
                 /*
                  * Unrelated-calls for this test
                  */
-                $module->allows('updateOrder')->andReturnUsing(
+                $module->expects('updateOrder')->andReturnUsing(
                     function () {
                         return null;
                     }
