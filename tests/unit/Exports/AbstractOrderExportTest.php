@@ -36,7 +36,7 @@ abstract class AbstractOrderExportTest extends AbstractExportTest
         return $order->save();
     }
 
-    protected function getOrderProps(bool $isNlCountry = false): array
+    protected function getOrderProps(bool $isNlCountry = false, string $houseNumber = ''): array
     {
         $faker = $this->faker;
         $vals = [
@@ -48,13 +48,13 @@ abstract class AbstractOrderExportTest extends AbstractExportTest
         foreach ($vals as $k => $val) {
             $order[$k] = $val;
         }
-        $order += $this->getAddress('billing_', $isNlCountry);
-        $order += $this->getAddress('shipping_', $isNlCountry);
+        $order += $this->getAddress('billing_', $isNlCountry, $houseNumber);
+        $order += $this->getAddress('shipping_', $isNlCountry, $houseNumber);
 
         return $order;
     }
 
-    protected function getAddress($prefix, bool $isNlCountry = false): array
+    protected function getAddress($prefix, bool $isNlCountry = false, string $houseNumber = ''): array
     {
         $faker = $this->faker;
         $vals = [
@@ -69,7 +69,10 @@ abstract class AbstractOrderExportTest extends AbstractExportTest
             'state' => $faker->state,
         ];
 
-        $houseNumber = $faker->randomNumber();
+        if (empty($houseNumber)) {
+            $houseNumber = $faker->randomNumber();
+        }
+
         if ($isNlCountry) {
             $vals['address_house_number'] = $houseNumber;
         }

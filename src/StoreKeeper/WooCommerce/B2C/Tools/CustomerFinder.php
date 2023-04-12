@@ -3,6 +3,8 @@
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 
 class CustomerFinder
 {
@@ -43,7 +45,7 @@ class CustomerFinder
         ];
 
         // Create customer in backend
-        $storekeeper_api = StoreKeeperApi::getApiByAuthName(StoreKeeperApi::SYNC_AUTH_DATA);
+        $storekeeper_api = StoreKeeperApi::getApiByAuthName();
         $relation_data_id = $storekeeper_api->getModule('ShopModule')->newShopCustomer($call_data);
 
         // Update user meta
@@ -101,7 +103,7 @@ class CustomerFinder
             $street2 = trim($order->get_billing_address_2(self::EDIT_CONTEXT));
         }
 
-        return [
+        $billingAddress = [
             'state' => $order->get_billing_state(self::EDIT_CONTEXT),
             'city' => $order->get_billing_city(self::EDIT_CONTEXT),
             'zipcode' => $order->get_billing_postcode(self::EDIT_CONTEXT),
@@ -109,6 +111,22 @@ class CustomerFinder
             'country_iso2' => $order->get_billing_country(self::EDIT_CONTEXT),
             'name' => self::extractBillingNameFromOrder($order),
         ];
+
+        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_billing_country(self::EDIT_CONTEXT)) {
+            $houseNumber = $order->get_meta('billing_address_house_number');
+            if (!empty($houseNumber)) {
+                $splitStreet = OrderExport::splitStreetNumber($houseNumber);
+                $streetNumber = $splitStreet['streetnumber'];
+                $billingAddress['streetnumber'] = $streetNumber;
+                $billingAddress['flatnumber'] = '';
+
+                if (!empty($splitStreet['flatnumber'])) {
+                    $billingAddress['flatnumber'] = $splitStreet['flatnumber'];
+                }
+            }
+        }
+
+        return $billingAddress;
     }
 
     private static function extractShippingAddressFromOrder(\WC_Order $order, bool $bothAddresses = true): ?array
@@ -120,7 +138,7 @@ class CustomerFinder
                 $street2 = trim($order->get_shipping_address_2(self::EDIT_CONTEXT));
             }
 
-            return [
+            $shippingAddress = [
                 'state' => $order->get_shipping_state(self::EDIT_CONTEXT),
                 'city' => $order->get_shipping_city(self::EDIT_CONTEXT),
                 'zipcode' => $order->get_shipping_postcode(self::EDIT_CONTEXT),
@@ -128,6 +146,22 @@ class CustomerFinder
                 'country_iso2' => $order->get_shipping_country(self::EDIT_CONTEXT),
                 'name' => self::extractShippingNameFromOrder($order),
             ];
+
+            if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_shipping_country(self::EDIT_CONTEXT)) {
+                $houseNumber = $order->get_meta('shipping_address_house_number');
+                if (!empty($houseNumber)) {
+                    $splitStreet = OrderExport::splitStreetNumber($houseNumber);
+                    $streetNumber = $splitStreet['streetnumber'];
+                    $shippingAddress['streetnumber'] = $streetNumber;
+                    $shippingAddress['flatnumber'] = '';
+
+                    if (!empty($splitStreet['flatnumber'])) {
+                        $shippingAddress['flatnumber'] = $splitStreet['flatnumber'];
+                    }
+                }
+            }
+
+            return $shippingAddress;
         }
 
         return null;

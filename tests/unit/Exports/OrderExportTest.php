@@ -100,7 +100,9 @@ class OrderExportTest extends AbstractOrderExportTest
         ];
 
         if ('NL' === $wc_order->get_billing_country()) {
-            $expect_billing['address_billing']['streetnumber'] = $new_order['billing_address_house_number'];
+            $splitStreet = OrderExport::splitStreetNumber($new_order['billing_address_house_number']);
+            $expect_billing['address_billing']['streetnumber'] = $splitStreet['streetnumber'];
+            $expect_billing['address_billing']['flatnumber'] = $splitStreet['flatnumber'];
         }
         if (!empty($new_order['billing_company'])) {
             $expect_billing['business_data'] = [
@@ -136,7 +138,9 @@ class OrderExportTest extends AbstractOrderExportTest
             ];
 
             if ('NL' === $wc_order->get_shipping_country()) {
-                $expect_shipping['contact_address']['streetnumber'] = $new_order['shipping_address_house_number'];
+                $splitStreet = OrderExport::splitStreetNumber($new_order['shipping_address_house_number']);
+                $expect_shipping['contact_address']['streetnumber'] = $splitStreet['streetnumber'];
+                $expect_shipping['contact_address']['flatnumber'] = $splitStreet['flatnumber'];
             }
         }
 
@@ -464,21 +468,120 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->processNewOrder($new_order_id, $new_order);
     }
 
-    public function testOrderCreateWithNlCountry()
+    public function dataProviderOrderCreateWithNlCountry()
+    {
+        $tests = [];
+
+        $tests['with street number and flat number'] = [
+            'houseNumber' => '146A02B',
+            'expectedStreetNumber' => '146',
+            'expectedFlatNumber' => 'A02B',
+        ];
+
+        $tests['with street number only'] = [
+            'houseNumber' => '1011',
+            'expectedStreetNumber' => '1011',
+            'expectedFlatNumber' => '',
+        ];
+
+        return $tests;
+    }
+
+    /**
+     * @dataProvider dataProviderOrderCreateWithNlCountry
+     */
+    public function testOrderCreateWithNlCountry(string $houseNumber, string $expectedStreetNumber, string $expectedFlatNumber)
     {
         $this->initApiConnection();
 
-        $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER_CREATE, true);
+        $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER_CREATE);
 
         $this->emptyEnvironment();
 
-        $newOrderWithNlCountry = $this->getOrderProps(true);
+        $newOrderWithNlCountry = $this->getOrderProps(true, $houseNumber);
         $newOrderWithNlCountryId = $this->createWooCommerceOrder($newOrderWithNlCountry);
         $woocommerceOrder = new \WC_Order($newOrderWithNlCountryId);
         $woocommerceOrder->update_meta_data('billing_address_house_number', $newOrderWithNlCountry['billing_address_house_number']);
         $woocommerceOrder->update_meta_data('shipping_address_house_number', $newOrderWithNlCountry['shipping_address_house_number']);
         $woocommerceOrder->save();
-        $this->processNewOrder($newOrderWithNlCountryId, $newOrderWithNlCountry);
+
+        // this is normally created when the woocommerce_checkout_order_processed hook is fired
+        // StoreKeeper\WooCommerce\B2C\Core::setOrderHooks
+        $orderHandler = new OrderHandler();
+        $task = $orderHandler->create($newOrderWithNlCountryId);
+
+        // set the checker for expected result
+        $skOrderId = mt_rand();
+        $skCustomerId = mt_rand();
+
+        $sentOrders = [];
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($skCustomerId, $skOrderId, $newOrderWithNlCountry, $newOrderWithNlCountryId, &$sentOrders, $expectedStreetNumber, $expectedFlatNumber) {
+                $module->expects('newOrder')
+                    ->andReturnUsing(
+                        function ($got) use ($newOrderWithNlCountryId, $skCustomerId, $newOrderWithNlCountry, $skOrderId, &$sentOrders) {
+                            [$order] = $got;
+
+                            $this->assertNewOrder($newOrderWithNlCountryId, $skCustomerId, $newOrderWithNlCountry, $order);
+
+                            $sentOrders = $order;
+                            $sentOrders['id'] = $skOrderId;
+                            $sentOrders = $this->calculateNewOrder($sentOrders);
+
+                            return $skOrderId;
+                        }
+                    );
+
+                $module->expects('findShopCustomerBySubuserEmail')
+                    ->andReturnUsing(
+                        function () {
+                            return null; // Returning null here will cause method to call newShopCustomer instead
+                        }
+                    );
+                $module->expects('getOrder')
+                    ->andReturnUsing(
+                        function ($got) use (&$sentOrders, $skOrderId) {
+                            $this->assertEquals($skOrderId, $got[0]);
+
+                            return $sentOrders;
+                        }
+                    );
+
+                $module->expects('newShopCustomer')
+                    ->andReturnUsing(function ($got) use ($expectedStreetNumber, $expectedFlatNumber, $skCustomerId) {
+                        $data = $got[0];
+                        $shippingAddress = $data['relation']['contact_address'];
+                        $billingAddress = $data['relation']['address_billing'];
+
+                        $this->assertEquals($expectedStreetNumber, $shippingAddress['streetnumber'], 'Expected shipping address street number does not match');
+                        $this->assertEquals($expectedFlatNumber, $shippingAddress['flatnumber'], 'Expected shipping address flat number does not match');
+
+                        $this->assertEquals($expectedStreetNumber, $billingAddress['streetnumber'], 'Expected billing address street number does not match');
+                        $this->assertEquals($expectedFlatNumber, $billingAddress['flatnumber'], 'Expected billing address flat number does not match');
+
+                        return $skCustomerId;
+                    });
+
+                /*
+                 * Unrelated-calls for this test
+                 */
+                $module->expects('updateOrder')->andReturnUsing(
+                    function () {
+                        return null;
+                    }
+                );
+            }
+        );
+
+        // run the sync
+        $this->processTask($task);
+
+        $this->assertEquals(
+            $skOrderId,
+            get_post_meta($newOrderWithNlCountryId, 'storekeeper_id', true),
+            'storekeeper_id is assigned on wordpress order'
+        );
     }
 
     public function testOrderCreateWithEmballage()
@@ -721,14 +824,14 @@ class OrderExportTest extends AbstractOrderExportTest
         $task = $OrderHandler->create($new_order_id);
 
         // set the checker for expected result
-        $sk_order_id = rand();
-        $sk_customer_id = rand();
+        $sk_order_id = mt_rand();
+        $sk_customer_id = mt_rand();
 
         $sent_order = [];
         StoreKeeperApi::$mockAdapter->withModule(
             'ShopModule',
             function (MockInterface $module) use ($sk_customer_id, $sk_order_id, $new_order, $new_order_id, &$sent_order) {
-                $module->shouldReceive('newOrder')
+                $module->expects('newOrder')
                     ->andReturnUsing(
                         function ($got) use ($new_order_id, $sk_customer_id, $new_order, $sk_order_id, &$sent_order) {
                             [$order] = $got;
@@ -743,7 +846,7 @@ class OrderExportTest extends AbstractOrderExportTest
                         }
                     );
 
-                $module->shouldReceive('findShopCustomerBySubuserEmail')
+                $module->expects('findShopCustomerBySubuserEmail')
                     ->andReturnUsing(
                         function ($got) use ($sk_customer_id, $new_order) {
                             $this->assertEquals($new_order['billing_email'], $got[0]['email']);
@@ -754,7 +857,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             ];
                         }
                     );
-                $module->shouldReceive('getOrder')
+                $module->expects('getOrder')
                     ->andReturnUsing(
                         function ($got) use (&$sent_order, $sk_order_id) {
                             $this->assertEquals($sk_order_id, $got[0]);
@@ -766,7 +869,7 @@ class OrderExportTest extends AbstractOrderExportTest
                 /*
                  * Unrelated-calls for this test
                  */
-                $module->shouldReceive('updateOrder')->andReturnUsing(
+                $module->expects('updateOrder')->andReturnUsing(
                     function () {
                         return null;
                     }
