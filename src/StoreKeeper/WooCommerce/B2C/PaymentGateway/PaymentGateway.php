@@ -222,7 +222,8 @@ class PaymentGateway
 
                 $order = $shopModule->getOrder($storeKeeperOrderId, null);
 
-                $isRefundCreationAllowed = $this->checkRefundCreationAllowed($order, (float) $refund->get_amount(), $orderId, $storeKeeperOrderId);
+                $isRefundCreationAllowed = $this->checkRefundCreationAllowed($order, (float) $refund->get_amount());
+                LoggerFactory::create('refund')->error('Order has refund on BackOffice already and refund is more than the expected amount', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
             }
         }
 
@@ -346,7 +347,7 @@ SQL;
      * @param $orderId
      * @param $refundId
      */
-    public static function refundExists($orderId, $refundId): ?int
+    public static function refundExists($orderId, $refundId): bool
     {
         global $wpdb;
 
@@ -357,7 +358,6 @@ SELECT sk_refund_id, is_synced
 FROM `$table_name`
 WHERE wc_order_id = '$orderId'
 AND wc_refund_id = '$refundId'
-LIMIT 1
 SQL;
 
         // Getting the results and getting the first one.
@@ -367,12 +367,18 @@ SQL;
             return false;
         }
 
-        $refund = array_shift($results);
-        $storeKeeperRefundId = $refund['sk_refund_id'];
-        $isSynchronized = $refund['is_synced'];
+        $refundExist = false;
+        foreach ($results as $refund) {
+            $storeKeeperRefundId = $refund['sk_refund_id'];
+            $isSynchronized = $refund['is_synced'];
 
-        // If no refund ID yet but already marked as synchronized, otherwise true
-        return !(is_null($storeKeeperRefundId) && $isSynchronized);
+            if ((!is_null($storeKeeperRefundId) && $isSynchronized) || !$isSynchronized) {
+                $refundExist = true;
+                break;
+            }
+        }
+
+        return $refundExist;
     }
 
     /**
@@ -465,7 +471,7 @@ SQL;
         return array_merge($default_gateway_classes, $gateway_classes);
     }
 
-    protected function checkRefundCreationAllowed(array $order, float $refundAmount, $orderId, $storeKeeperOrderId): bool
+    protected function checkRefundCreationAllowed(array $order, float $refundAmount): bool
     {
         if ($this->storekeeperOrderHasRefundWithReturnPayment($order)) {
             $paidValue = $order['paid_value_wt'];
@@ -478,8 +484,6 @@ SQL;
             }
 
             if ($maxRefundValue <= 0 || abs($refundAmount - $maxRefundValue) < $floatEpsilon) {
-                LoggerFactory::create('refund')->error('Order has refund on BackOffice already and refund is more than the expected amount', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
-
                 return false;
             }
         }

@@ -108,8 +108,8 @@ class UpdateOrderTest extends AbstractTest
 
         $data['backoffice order with partial refund'] = [
             'paidValueWt' => 50.00,
-            'paidBackValueWt' => 25.00,
-            'refundedPriceWt' => 25.00,
+            'paidBackValueWt' => 35.00,
+            'refundedPriceWt' => 35.00,
             'firstExpectedRefundCount' => 0,
             'secondExpectedRefundCount' => 1,
         ];
