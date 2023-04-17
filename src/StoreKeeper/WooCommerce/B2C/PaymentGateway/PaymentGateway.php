@@ -222,12 +222,8 @@ class PaymentGateway
 
                 $order = $shopModule->getOrder($storeKeeperOrderId, null);
 
-                $hasRefund = $this->storekeeperOrderHasRefundWithReturnPayment($order);
-
-                if ($hasRefund) {
-                    $isRefundCreationAllowed = false;
-                    LoggerFactory::create('refund')->error('Order has refund on BackOffice already', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
-                }
+                $isRefundCreationAllowed = $this->checkRefundCreationAllowed($order, (float) $refund->get_amount());
+                LoggerFactory::create('refund')->error('Order has refund on BackOffice already and refund is more than the expected amount', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
             }
         }
 
@@ -350,31 +346,39 @@ SQL;
     /**
      * @param $orderId
      * @param $refundId
-     *
-     * @return bool
      */
-    public static function refundExists($orderId, $refundId): ?bool
+    public static function refundExists($orderId, $refundId): bool
     {
         global $wpdb;
 
-        $payment_id = null;
         $table_name = RefundModel::getTableName();
 
         $sql = <<<SQL
-SELECT sk_refund_id
+SELECT sk_refund_id, is_synced
 FROM `$table_name`
 WHERE wc_order_id = '$orderId'
 AND wc_refund_id = '$refundId'
-LIMIT 1
 SQL;
 
         // Getting the results and getting the first one.
         $results = $wpdb->get_results($sql, ARRAY_A);
-        if (!empty($results)) {
-            $payment_id = array_shift($results)['sk_refund_id'];
+
+        if (empty($results)) {
+            return false;
         }
 
-        return $payment_id;
+        $refundExist = false;
+        foreach ($results as $refund) {
+            $storeKeeperRefundId = $refund['sk_refund_id'];
+            $isSynchronized = $refund['is_synced'];
+
+            if ((!is_null($storeKeeperRefundId) && $isSynchronized) || !$isSynchronized) {
+                $refundExist = true;
+                break;
+            }
+        }
+
+        return $refundExist;
     }
 
     /**
@@ -465,6 +469,26 @@ SQL;
         }
 
         return array_merge($default_gateway_classes, $gateway_classes);
+    }
+
+    protected function checkRefundCreationAllowed(array $order, float $refundAmount): bool
+    {
+        if ($this->storekeeperOrderHasRefundWithReturnPayment($order)) {
+            $paidValue = $order['paid_value_wt'];
+            $refundedValue = $order['paid_back_value_wt'];
+            $maxRefundValue = $paidValue - $refundedValue;
+            $floatEpsilon = 0.00001;
+            // Epsilon is only defined for PHP 7.2 and above
+            if (defined('PHP_FLOAT_EPSILON')) {
+                $floatEpsilon = PHP_FLOAT_EPSILON;
+            }
+
+            if ($maxRefundValue <= 0 || abs($refundAmount - $maxRefundValue) < $floatEpsilon) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     protected function storekeeperOrderHasRefundWithReturnPayment(array $order): bool

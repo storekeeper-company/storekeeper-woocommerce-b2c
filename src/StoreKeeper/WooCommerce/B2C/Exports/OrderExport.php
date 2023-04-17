@@ -747,7 +747,10 @@ class OrderExport extends AbstractExport
             }
         } else {
             // no sk payment yes at this point
-            if ($WpObject->is_paid()) {
+
+            $wooCommerceStatus = $WpObject->get_status();
+            // Either the order is in paid statuses, or refunded but has payment
+            if ($WpObject->is_paid() || (self::STATUS_REFUNDED === $wooCommerceStatus && $WpObject->get_date_paid())) {
                 /*
                  * WP order is paid and has not PaymentGateway payment.
                  * Example: the order was paid using the PayNL plugin
@@ -767,7 +770,7 @@ class OrderExport extends AbstractExport
 
                     $this->debug('The order is paid: Marked the order as paid. Payment_id='.$paymentId);
                 } else {
-                    $this->debug('Did not mark the order as paid since it is not paid yet according to WooCommerce');
+                    $this->debug('Did not mark the order as paid as it is already paid in backoffice');
                 }
             } else {
                 $this->debug('Did not mark the order as paid since it was not needed');
@@ -780,7 +783,6 @@ class OrderExport extends AbstractExport
      */
     protected function processRefunds($woocommerceOrderId, $storekeeperId): void
     {
-        $shopModule = $this->storekeeper_api->getModule('ShopModule');
         // Attach refunds to order
         if (PaymentGateway::hasUnsyncedRefunds($woocommerceOrderId)) {
             $refundPayments = PaymentGateway::getUnsyncedRefundsPaymentIds($woocommerceOrderId);
