@@ -477,7 +477,7 @@ SQL;
                 $floatEpsilon = PHP_FLOAT_EPSILON;
             }
 
-            if (abs($refundAmount - $maxRefundValue) < $floatEpsilon) {
+            if ($maxRefundValue <= 0 || abs($refundAmount - $maxRefundValue) < $floatEpsilon) {
                 LoggerFactory::create('refund')->error('Order has refund on BackOffice already and refund is more than the expected amount', ['order_id' => $orderId, 'storekeeper_id' => $storeKeeperOrderId]);
 
                 return false;

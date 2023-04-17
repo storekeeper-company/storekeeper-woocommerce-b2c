@@ -91,17 +91,27 @@ class UpdateOrderTest extends AbstractTest
         $data = [];
 
         $data['backoffice order without refund'] = [
-          'paidBackValueWt' => 0,
-          'refundedPriceWt' => 50.00,
-          'firstExpectedRefundCount' => 0,
-          'secondExpectedRefundCount' => 1,
+            'paidValueWt' => 50.00,
+            'paidBackValueWt' => 0,
+            'refundedPriceWt' => 50.00,
+            'firstExpectedRefundCount' => 0,
+            'secondExpectedRefundCount' => 1,
         ];
 
         $data['backoffice order with refund'] = [
+            'paidValueWt' => 50.00,
             'paidBackValueWt' => 50.00,
             'refundedPriceWt' => 50.00,
             'firstExpectedRefundCount' => 0,
             'secondExpectedRefundCount' => 0,
+        ];
+
+        $data['backoffice order with partial refund'] = [
+            'paidValueWt' => 50.00,
+            'paidBackValueWt' => 25.00,
+            'refundedPriceWt' => 25.00,
+            'firstExpectedRefundCount' => 0,
+            'secondExpectedRefundCount' => 1,
         ];
 
         return $data;
@@ -110,16 +120,17 @@ class UpdateOrderTest extends AbstractTest
     /**
      * @dataProvider dataProviderOrderRefund
      */
-    public function testOrderRefund($paidBackValueWt, $refundedPriceWt, $firstExpectedRefundCount, $secondExpectedRefundCount)
+    public function testOrderRefund($paidValueWt, $paidBackValueWt, $refundedPriceWt, $firstExpectedRefundCount, $secondExpectedRefundCount)
     {
         $this->initApiConnection();
 
         StoreKeeperApi::$mockAdapter->withModule(
             'ShopModule',
-            function (MockInterface $module) use ($paidBackValueWt, $refundedPriceWt) {
+            function (MockInterface $module) use ($paidValueWt, $paidBackValueWt, $refundedPriceWt) {
                 $module->allows('getOrder')->andReturnUsing(
-                    function ($got) use ($paidBackValueWt, $refundedPriceWt) {
+                    function ($got) use ($paidValueWt, $paidBackValueWt, $refundedPriceWt) {
                         return [
+                            'paid_value_wt' => $paidValueWt,
                             'paid_back_value_wt' => $paidBackValueWt,
                             'refunded_price_wt' => $refundedPriceWt,
                         ];
