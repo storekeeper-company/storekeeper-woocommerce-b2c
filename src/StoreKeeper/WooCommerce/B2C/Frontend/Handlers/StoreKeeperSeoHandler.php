@@ -170,43 +170,39 @@ class StoreKeeperSeoHandler implements WithHooksInterface
         if (!empty($barcode_name)) {
             $barcode = $product->get_attribute($barcode_name);
             if (!empty($barcode)) {
-                $matched = false;
-                if (preg_match('/^[\d\-\s]{8,}$/', $barcode)) {
-                    // only numbers (space and minus)
-                    $barcode = preg_replace('/[-\s]/', '', $barcode);
-                    if (8 === strlen($barcode)) {
-                        $markdown['gtin8'] = $barcode;
-                        $matched = true;
-                    } else {
-                        if (12 === strlen($barcode)) {
-                            $markdown['gtin12'] = $barcode;
-                            $matched = true;
-                        } else {
-                            if (14 === strlen($barcode)) {
-                                $markdown['gtin14'] = $barcode;
-                                $matched = true;
-                            } else {
-                                if (13 === strlen($barcode)) {
-                                    // check prefixes for ISBN
-                                    // see: https://en.wikipedia.org/wiki/International_Standard_Book_Number#Overview
-                                    $first3 = substr($barcode, 0, 3);
-                                    if ('978' === $first3 || '979' === $first3) {
-                                        $markdown['isbn'] = $barcode;
-                                        $matched = true;
-                                    } else {
-                                        $markdown['gtin13'] = $barcode;
-                                        $matched = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (!$matched) {
-                    $markdown['mpn'] = $barcode;
+                $field = self::getBarcodeType($barcode);
+                $markdown[$field] = $barcode;
+            }
+        }
+    }
+
+    public static function getBarcodeType(string $barcode): string
+    {
+        if (preg_match('/^[\d\-\s]{8,}$/', $barcode)) {
+            // only numbers (space and minus)
+            $barcode = preg_replace('/[-\s]/', '', $barcode);
+            if (8 === strlen($barcode)) {
+                return 'gtin8';
+            }
+            if (12 === strlen($barcode)) {
+                return 'gtin12';
+            }
+            if (14 === strlen($barcode)) {
+                return 'gtin14';
+            }
+            if (13 === strlen($barcode)) {
+                // check prefixes for ISBN
+                // see: https://en.wikipedia.org/wiki/International_Standard_Book_Number#Overview
+                $first3 = substr($barcode, 0, 3);
+                if ('978' === $first3 || '979' === $first3) {
+                    return 'isbn';
+                } else {
+                    return 'gtin13';
                 }
             }
         }
+
+        return 'mpn';
     }
 
     /**

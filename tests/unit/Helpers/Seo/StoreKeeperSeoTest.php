@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Helpers\Seo;
 
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\StoreKeeperSeoHandler;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractTest;
 
@@ -84,5 +85,27 @@ class StoreKeeperSeoTest extends AbstractTest
         $category = get_term($category->term_id);
         $seo = StoreKeeperSeo::getCategorySeo($category);
         $this->assertEquals($emptyExpect, $seo, 'Empty again');
+    }
+
+    public function providerGetBarcodeType()
+    {
+        return [
+            ['gtin8', '40170725'],
+            ['gtin12', '123601057072'],
+            ['gtin14', '40700719670720'],
+            ['isbn', '9781234567897'],
+            ['isbn', '9791234567896'],
+            ['gtin13', '4070071967072'],
+            ['mpn', 'SK-102'],
+        ];
+    }
+
+    /**
+     * @dataProvider  providerGetBarcodeType
+     */
+    public function testGetBarcodeType($expect, $barcode)
+    {
+        $got = StoreKeeperSeoHandler::getBarcodeType($barcode);
+        $this->assertEquals($expect, $got);
     }
 }

@@ -77,6 +77,7 @@ class StoreKeeperSeoPages implements WithHooksInterface
         $term = get_term($term_id);
         $storekeeper_id = get_term_meta($term->term_id, 'storekeeper_id', true);
         if (empty($storekeeper_id)) {
+            //  if storekeeper_id is set than it should be managed in storekeeper, not in WooCommerce
             $title = wc_clean($_POST[StoreKeeperSeo::SEO_TITLE]);
             $keywords = wc_clean($_POST[StoreKeeperSeo::SEO_KEYWORDS]);
             $description = wc_clean($_POST[StoreKeeperSeo::SEO_DESCRIPTION]);
@@ -95,7 +96,7 @@ class StoreKeeperSeoPages implements WithHooksInterface
         }
         $storekeeper_id = $product->get_meta('storekeeper_id', true, 'edit');
 
-        $seo = \StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo::getProductSeo($product);
+        $seo = StoreKeeperSeo::getProductSeo($product);
         $attributes = [];
         $description = '';
         if (!empty($storekeeper_id)) {
