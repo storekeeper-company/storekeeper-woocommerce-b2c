@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\RankMathSeo;
+use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use WP_Term;
@@ -90,18 +91,15 @@ class CategoryFileExport extends AbstractCSVFileExport
 
     private function exportSEO(array $lineData, WP_Term $category): array
     {
-        $lineData['seo_title'] = $category->name;
-        $lineData['seo_description'] = $category->description;
-
         if (YoastSeo::isSelectedHandler()) {
             $lineData['seo_title'] = YoastSeo::getCategoryTitle($category->term_id);
             $lineData['seo_description'] = YoastSeo::getCategoryDescription($category->term_id);
-        }
-
-        if (RankMathSeo::isSelectedHandler()) {
+        } elseif (RankMathSeo::isSelectedHandler()) {
             $lineData['seo_title'] = RankMathSeo::getCategoryTitle($category->term_id);
             $lineData['seo_keywords'] = RankMathSeo::getCategoryKeywords($category->term_id);
             $lineData['seo_description'] = RankMathSeo::getCategoryDescription($category->term_id);
+        } elseif (StoreKeeperSeo::isSelectedHandler()) {
+            $lineData += StoreKeeperSeo::getCategorySeo($category);
         }
 
         return $lineData;

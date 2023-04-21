@@ -15,19 +15,25 @@ class CategoryFileExportTest extends AbstractFileExportTest
 
     public function testCategoryExportTest()
     {
-        $parentCategory = $this->createCategory(
-            [
-                'name' => 'Parent Category',
-                'description' => 'Parent description',
-            ]
-        );
-        $childCategory = $this->createCategory(
-            [
-                'name' => 'Child Category',
-                'description' => 'Child description',
+        $expectedParentCategory = [
+            'name' => 'Parent Category',
+            'description' => 'Parent description',
+            'seo_title' => uniqid('title'),
+            'seo_keywords' => uniqid('keywords'),
+            'seo_description' => uniqid('description'),
+        ];
+        $parentCategory = $this->createCategory($expectedParentCategory);
+
+        $expectedChildCategory = [
+            'name' => 'Child Category',
+            'description' => 'Child description',
+            'seo_title' => uniqid('title'),
+            'seo_keywords' => uniqid('keywords'),
+            'seo_description' => uniqid('description'),
+        ];
+        $childCategory = $this->createCategory($expectedChildCategory + [
                 'parent' => $parentCategory->term_id,
-            ]
-        );
+            ]);
 
         $instance = $this->getNewFileExportInstance();
         $path = $instance->runExport(Language::getSiteLanguageIso2());
@@ -37,8 +43,8 @@ class CategoryFileExportTest extends AbstractFileExportTest
         $mappedParentRow = $this->getMappedDataRow($spreadSheet, 2);
         $mappedChildRow = $this->getMappedDataRow($spreadSheet, 3);
 
-        $this->assertCategory($parentCategory, $mappedParentRow, 'Parent');
-        $this->assertCategory($childCategory, $mappedChildRow, 'Child');
+        $this->assertCategory($expectedParentCategory, $parentCategory, $mappedParentRow, 'Parent');
+        $this->assertCategory($expectedChildCategory, $childCategory, $mappedChildRow, 'Child');
 
         $this->assertEquals(
             $parentCategory->slug,
@@ -47,36 +53,26 @@ class CategoryFileExportTest extends AbstractFileExportTest
         );
     }
 
-    private function assertCategory(WP_Term $category, array $mappedFirstRow, string $type): void
+    private function assertCategory(array $expected, WP_Term $category, array $mappedFirstRow, string $type): void
     {
-        $this->assertEquals(
-            $category->name,
-            $mappedFirstRow['title'],
-            "$type Category title is incorrectly exported"
-        );
+        $expected += [
+            'lang' => $mappedFirstRow['translatable.lang'],
+            'published' => 'yes',
+        ];
 
-        $this->assertEquals(
-            Language::getSiteLanguageIso2(),
-            $mappedFirstRow['translatable.lang'],
-            "$type Category language is incorrectly exported"
-        );
+        $got = [
+            'name' => $mappedFirstRow['title'],
+            'lang' => Language::getSiteLanguageIso2(),
+            'slug' => $category->slug,
+            'description' => $mappedFirstRow['description'],
+            'published' => $mappedFirstRow['published'],
+            'seo_title' => $mappedFirstRow['seo_title'],
+            'seo_keywords' => $mappedFirstRow['seo_keywords'],
+            'seo_description' => $mappedFirstRow['seo_description'],
+        ];
 
-        $this->assertEquals(
-            $category->slug,
-            $mappedFirstRow['slug'],
-            "$type Category slug is incorrectly exported"
-        );
-
-        $this->assertEquals(
-            $category->description,
-            $mappedFirstRow['description'],
-            "$type Category description is incorrectly exported"
-        );
-
-        $this->assertEquals(
-            'yes',
-            $mappedFirstRow['published'],
-            "$type Category published is incorrectly exported"
+        $this->assertArraySubset(
+            $expected, $got, true, 'Category '.$type
         );
     }
 }

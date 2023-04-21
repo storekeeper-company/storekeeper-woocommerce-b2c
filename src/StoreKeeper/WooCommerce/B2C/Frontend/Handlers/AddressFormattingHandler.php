@@ -1,10 +1,10 @@
 <?php
 
-namespace StoreKeeper\WooCommerce\B2C\Hooks;
+namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use Exception;
 
-class AddressFormattingHook
+class AddressFormattingHandler
 {
     /**
      * Add the house number to NL country's address displaying format.

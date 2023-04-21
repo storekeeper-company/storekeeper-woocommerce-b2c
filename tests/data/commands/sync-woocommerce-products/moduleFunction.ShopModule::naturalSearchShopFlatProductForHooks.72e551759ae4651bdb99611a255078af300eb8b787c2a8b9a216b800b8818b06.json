@@ -189,6 +189,9 @@
                     "all_langs": [
                         "nl"
                     ],
+                    "seo_title": "SEO titel product id 16",
+                    "seo_keywords": "SEO,zoekwoorden product id 16",
+                    "seo_description": "SEO omschrijving product id 16",
                     "product": {
                         "id": 16,
                         "date_created": "2020-02-10 10:53:01+01:00",
@@ -347,6 +350,9 @@
                     "all_langs": [
                         "nl"
                     ],
+                    "seo_title": "SEO titel product id 21",
+                    "seo_keywords": "SEO,zoekwoorden product id 21",
+                    "seo_description": "SEO omschrijving product id 21",
                     "product": {
                         "id": 21,
                         "date_created": "2020-02-20 14:39:20+01:00",

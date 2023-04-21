@@ -101,7 +101,7 @@ class AllFileExportTest extends AbstractFileExportTest
     {
         WC_Helper_Product::create_attribute();
         list($taxRate21) = $this->createTaxRates();
-        $this->createSimpleProduct($taxRate21);
+        $this->createSimpleProduct('Simple product', $taxRate21);
         $this->createVariableProduct($taxRate21);
         $parentCategory = $this->createCategory(
             [

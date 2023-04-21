@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\StoreKeeperSeoPages;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 
 class BackofficeCore
@@ -46,6 +47,9 @@ class BackofficeCore
 
     public function run()
     {
+        $Seo = new StoreKeeperSeoPages();
+        $Seo->registerHooks();
+
         $this->loader->run();
     }
 

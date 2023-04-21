@@ -1,0 +1,5 @@
+#woocommerce-product-data ul.wc-tabs li.storekeeper_seo_options a::before,
+.woocommerce ul.wc-tabs li.storekeeper_seo_options a::before {
+    font-family: Dashicons;
+    content: "\f311";
+}

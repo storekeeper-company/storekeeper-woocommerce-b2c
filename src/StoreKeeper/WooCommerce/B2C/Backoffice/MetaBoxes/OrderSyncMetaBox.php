@@ -8,7 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
-class OrderSyncMetaBox extends AbstractMetaBox
+class OrderSyncMetaBox extends AbstractPostSyncMetaBox
 {
     const ACTION_NAME = 'sk_sync_order';
 

@@ -10,7 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
-class ProductSyncMetaBox extends AbstractMetaBox
+class ProductSyncMetaBox extends AbstractPostSyncMetaBox
 {
     const ACTION_NAME = 'sk_sync_product';
     const POST_TYPE = 'product';

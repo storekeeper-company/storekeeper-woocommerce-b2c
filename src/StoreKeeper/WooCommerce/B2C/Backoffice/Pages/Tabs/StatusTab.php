@@ -9,6 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Helpers\ServerStatusChecker;
+use StoreKeeper\WooCommerce\B2C\Hooks\WpFilterInterface;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\AbstractModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
@@ -51,9 +52,32 @@ class StatusTab extends AbstractTab
     public function render(): void
     {
         $this->renderServerStatus();
-        $this->renderTableRelationData();
+        $this->renderAvailableWpHooks();
         $this->renderDatabaseStatus();
+        $this->renderTableRelationData();
         $this->renderStoreKeeperOptions();
+    }
+
+    private function renderAvailableWpHooks()
+    {
+        $table = new TableRenderer();
+        $table->addColumn(__('Registered wordpress hooks', I18N::DOMAIN), 'title');
+        $table->addColumn('', 'type');
+        $table->addColumn('', 'description');
+
+        $data = [];
+        foreach (Core::HOOKS as $class) {
+            if (is_a($class, WpFilterInterface::class, true)) {
+                $data[] = [
+                    'title' => $class::getTag(),
+                    'type' => 'filter',
+                    'description' => $class::getDescription(),
+                ];
+            }
+        }
+        $table->setData($data);
+
+        $table->render();
     }
 
     private function renderStoreKeeperOptions()
