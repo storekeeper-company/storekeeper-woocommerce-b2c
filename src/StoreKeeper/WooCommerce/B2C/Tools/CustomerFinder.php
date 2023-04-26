@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
+use StoreKeeper\WooCommerce\B2C\Exceptions\EmailIsAdminUserException;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 
 class CustomerFinder
@@ -59,6 +60,8 @@ class CustomerFinder
      * @param $email
      *
      * @return bool|int
+     *
+     * @throws EmailIsAdminUserException
      */
     public static function findCustomerRelationDataIdByEmail($email)
     {
@@ -71,6 +74,11 @@ class CustomerFinder
                 );
                 $id = (int) $customer['id'];
             } catch (GeneralException $exception) {
+                // Email exists but as admin
+                if ('ShopModule::EmailIsAdminUser' === $exception->getApiExceptionClass()) {
+                    throw new EmailIsAdminUserException($exception->getMessage());
+                }
+
                 // Customer not found in the backend.
             }
         }
@@ -80,6 +88,8 @@ class CustomerFinder
 
     /**
      * @return bool|int
+     *
+     * @throws EmailIsAdminUserException
      */
     public static function ensureCustomerFromOrder(\WC_Order $order)
     {
