@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Objects;
 
+use StoreKeeper\WooCommerce\B2C\Exceptions\EmailIsAdminUserException;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class GOCustomer extends \WC_Customer
@@ -86,21 +87,28 @@ class GOCustomer extends \WC_Customer
 
     /**
      * @return bool
+     *
+     * @throws EmailIsAdminUserException
      */
     public function is_customer_email_known()
     {
-        $exists = null;
         $email = $this->get_email(self::CONTEXT_EDIT);
         if (!empty($email)) {
             try {
                 $this->go_api->getModule('ShopModule')->findShopCustomerBySubuserEmail(['email' => $email]);
-                $exists = true;
+
+                return true;
             } catch (\Throwable $exception) {
-                $exists = false;
+                // Email exists but as admin
+                if ('ShopModule::EmailIsAdminUser' === $exception->getApiExceptionClass()) {
+                    throw new EmailIsAdminUserException($exception->getMessage());
+                }
+
+                // Customer not found in the backend.
             }
         }
 
-        return $exists;
+        return false;
     }
 
     public static function isRoleValid(string $role): bool
