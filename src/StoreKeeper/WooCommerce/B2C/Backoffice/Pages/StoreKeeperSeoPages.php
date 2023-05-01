@@ -201,9 +201,7 @@ class StoreKeeperSeoPages implements WithHooksInterface
         <tr class="form-field">
             <th scope="row" valign="top"><label for="$field">$label</label></th>
             <td>
-            <textarea rows="3" name="$field" id="$field" $custom_attributes>
-                $value
-            </textarea>
+            <textarea rows="3" name="$field" id="$field" $custom_attributes>$value</textarea>
             </td>
         </tr>
         HTML;
