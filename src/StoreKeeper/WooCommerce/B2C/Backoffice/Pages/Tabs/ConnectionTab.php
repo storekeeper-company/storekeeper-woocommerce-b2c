@@ -15,6 +15,7 @@ use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
+use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
 
@@ -237,6 +238,7 @@ class ConnectionTab extends AbstractTab
                 ],
                 rest_url(EndpointLoader::getFullNamespace().'/'.InfoEndpoint::ROUTE)
             )),
+            '_locale' => Language::getSiteLanguageIso2(),
         ], self::PLUGIN_INITIALIZE_URL);
 
         wp_redirect($pluginInitUrl);
