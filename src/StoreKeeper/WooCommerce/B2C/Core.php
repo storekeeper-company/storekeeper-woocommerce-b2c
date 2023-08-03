@@ -232,7 +232,7 @@ class Core
 
     public static function isDataDump(): bool
     {
-        return self::isDebug() && !self::isTest();
+        return STOREKEEPER_WOOCOMMERCE_API_DUMP && !self::isTest();
     }
 
     public static function isTest(): bool
@@ -249,7 +249,7 @@ class Core
     {
         $tmp = Core::getTmpBaseDir();
         if (is_null($tmp)) {
-            throw new \Exception('Cannot find writable directory, for dumping api calls. Disable WP_DEBUG or STOREKEEPER_WOOCOMMERCE_B2C_DEBUG to prevent dumping api calls.');
+            throw new \RuntimeException('Cannot find writable directory, for dumping api calls. Set define(\'STOREKEEPER_WOOCOMMERCE_API_DUMP\', false); to in your wp-config.php prevent dumping api calls.');
         }
 
         return $tmp.'/dumps/';

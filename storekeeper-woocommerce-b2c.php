@@ -36,6 +36,17 @@ if (!defined('STOREKEEPER_WOOCOMMERCE_INTEGRATIONS_USE_FLAG')) {
     define('STOREKEEPER_WOOCOMMERCE_INTEGRATIONS_USE_FLAG', true);
 }
 
+if (!defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG')) {
+    define('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG', false);
+}
+if (!defined('STOREKEEPER_WOOCOMMERCE_API_DUMP')) {
+    // enabling this will save all api requests to a directory
+    // NOTE: if the tmp directory is not writable it will throw exception on each call
+    define('STOREKEEPER_WOOCOMMERCE_API_DUMP', false);
+}
+if (!defined('STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL')) {
+    define('STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL', 'WARNING');
+}
 include_once __DIR__.'/autoload.php';
 
 if (phpversion() < STOREKEEPER_WOOCOMMERCE_B2C_PHP_VERSION) {

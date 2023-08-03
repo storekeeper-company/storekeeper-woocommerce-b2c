@@ -141,6 +141,7 @@ class ServerStatusChecker
             'value' => Core::getTmpBaseDir(),
             'function::value' => function ($value, $item) {
                 self::renderCheck($value, $item);
+                echo $value;
             },
         ];
 

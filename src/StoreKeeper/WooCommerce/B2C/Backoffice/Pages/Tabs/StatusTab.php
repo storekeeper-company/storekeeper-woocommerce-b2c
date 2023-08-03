@@ -56,6 +56,7 @@ class StatusTab extends AbstractTab
         $this->renderDatabaseStatus();
         $this->renderTableRelationData();
         $this->renderStoreKeeperOptions();
+        $this->renderSetConstants();
     }
 
     private function renderAvailableWpHooks()
@@ -86,6 +87,15 @@ class StatusTab extends AbstractTab
         $table->addColumn(__('StoreKeeper options', I18N::DOMAIN), 'title');
         $table->addColumn('', 'value');
         $table->setData($this->getStoreKeeperOptionData());
+        $table->render();
+    }
+
+    private function renderSetConstants()
+    {
+        $table = new TableRenderer();
+        $table->addColumn(__('Wp-config settings', I18N::DOMAIN), 'title');
+        $table->addColumn('', 'value');
+        $table->setData($this->getConstantsData());
         $table->render();
     }
 
@@ -131,6 +141,30 @@ class StatusTab extends AbstractTab
             $data,
             $this->getOptionClassData(FeaturedAttributeExportOptions::class, 'getAttributeExportOptionConstant')
         );
+
+        return $data;
+    }
+
+    private function getConstantsData()
+    {
+        $constants = [
+            'WP_DEBUG' => WP_DEBUG,
+            'STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL' => STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL,
+            'STOREKEEPER_WOOCOMMERCE_B2C_VERSION' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
+            'STOREKEEPER_WOOCOMMERCE_FILE' => STOREKEEPER_WOOCOMMERCE_FILE,
+            'STOREKEEPER_WOOCOMMERCE_INTEGRATIONS' => STOREKEEPER_WOOCOMMERCE_INTEGRATIONS,
+            'STOREKEEPER_WOOCOMMERCE_INTEGRATIONS_USE_FLAG' => STOREKEEPER_WOOCOMMERCE_INTEGRATIONS_USE_FLAG,
+            'STOREKEEPER_WOOCOMMERCE_B2C_DEBUG' => STOREKEEPER_WOOCOMMERCE_B2C_DEBUG,
+            'STOREKEEPER_WOOCOMMERCE_API_DUMP' => STOREKEEPER_WOOCOMMERCE_API_DUMP,
+        ];
+
+        $data = [];
+        foreach ($constants as $constant => $value) {
+            $data[] = [
+                'title' => $constant,
+                'value' => json_encode($value),
+            ];
+        }
 
         return $data;
     }
