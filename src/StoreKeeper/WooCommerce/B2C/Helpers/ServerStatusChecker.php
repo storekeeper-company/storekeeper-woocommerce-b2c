@@ -42,20 +42,6 @@ class ServerStatusChecker
             ];
         }
 
-        if (is_null(Core::getTmpBaseDir())) {
-            $serverIssues[] = [
-                'name' => __('Writable tmp directory', I18N::DOMAIN),
-                'level' => 'error',
-                'error' => sprintf(
-                    __(
-                        'Allowing of at least one of the following directories to be writable is required: %s',
-                        I18N::DOMAIN
-                    ),
-                    implode(', ', Core::getPossibleTmpDirs())
-                ),
-            ];
-        }
-
         if (!wc_product_sku_enabled()) {
             $serverIssues[] = [
                 'name' => __('WooCommerce SKU feature enabled', I18N::DOMAIN),
