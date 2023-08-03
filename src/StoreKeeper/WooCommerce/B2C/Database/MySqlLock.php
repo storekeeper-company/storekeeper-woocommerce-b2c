@@ -24,7 +24,8 @@ class MySqlLock implements LockInterface
     public function __construct(string $lock, int $timeout = 15)
     {
         if (\strlen($lock) > 64) {
-            throw new \InvalidArgumentException('The maximum length of the lock name is 64 characters.');
+            $lock = hash('sha256', $lock);
+            $lock = 'sha256_'.substr($lock, 0, -8);
         }
 
         $this->lock = $lock;
