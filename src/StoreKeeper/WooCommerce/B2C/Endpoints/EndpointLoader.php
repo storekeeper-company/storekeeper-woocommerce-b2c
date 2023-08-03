@@ -55,7 +55,7 @@ class EndpointLoader
             $namespace,
             TaskProcessorEndpoint::ROUTE,
             [
-                'methods' => 'GET',
+                'methods' => 'GET, POST',
                 'callback' => [$taskProcessor, 'handleRequestSilently'],
                 'permission_callback' => '__return_true',
             ]
