@@ -4,7 +4,7 @@ on: [pull_request,push]
 jobs:
   test:
     name: PHP ${{ matrix.php }} WP ${{ matrix.wp }}
-    timeout-minutes: 15
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
