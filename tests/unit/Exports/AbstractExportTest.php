@@ -16,7 +16,7 @@ abstract class AbstractExportTest extends AbstractTest
      */
     protected $faker;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->setUpRunner();
@@ -24,7 +24,7 @@ abstract class AbstractExportTest extends AbstractTest
         $this->faker = Factory::create();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         $this->tearDownRunner();

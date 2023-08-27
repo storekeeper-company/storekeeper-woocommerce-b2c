@@ -4,19 +4,16 @@ services:
   web:
     build:
       dockerfile: Dockerfile
-      target: dev-local
-      context: .
+      context: docker
       args:
         PHP_VERSION: $PHP_VERSION
+        THECODINGMACHINE_VERSION: $THECODINGMACHINE_VERSION
         WORDPRESS_VERSION: $WORDPRESS_VERSION
-        WORDPRESS_DOCKER_PHP_VERSION: $WORDPRESS_DOCKER_PHP_VERSION
         WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
         STOREFRONT_VERSION: $STOREFRONT_VERSION
-        XDEBUG_VERSION: $XDEBUG_VERSION
-        USER_ID: ${USER_ID:-1000}
-        GROUP_ID: ${GROUP_ID:-1000}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - 8888:80
     restart: unless-stopped
@@ -29,11 +26,7 @@ services:
       WORDPRESS_ADMIN_PASSWORD: examplepass
       PHP_IDE_CONFIG: serverName=docker
     volumes:
-      - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
-      - wp-content:/app/src/wp-content
-      - ./tmp/sk-log:/tmp/sk-log:rw
-      - ./tmp/sk-tmp:/tmp/storekeeper-for-woocommerce:rw
-      - .:/app/src/wp-content/plugins/storekeeper-for-woocommerce:rw
+      - .:/var/www/html/storekeeper-for-woocommerce:rw
 
   db:
     image: mysql:5.7
@@ -45,6 +38,50 @@ services:
       MYSQL_ROOT_PASSWORD: somerootpassword
     volumes:
       - db:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  test:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: test
+      args:
+        PHP_VERSION: $PHP_VERSION
+        THECODINGMACHINE_VERSION: $THECODINGMACHINE_VERSION
+        BUILD_THECODINGMACHINE_VERSION: $BUILD_THECODINGMACHINE_VERSION
+        WORDPRESS_VERSION: $WORDPRESS_VERSION
+        WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
+    environment:
+      WORDPRESS_DB_HOST: db-test
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+      WORDPRESS_ADMIN_USER: admin
+      WORDPRESS_ADMIN_PASSWORD: examplepass
+      PHP_IDE_CONFIG: serverName=docker
+    volumes:
+      - ./mount/:/usr/src/app/mount/:rw
+    depends_on:
+      db-test:
+        condition: service_healthy
+
+  db-test:
+    image: mysql:5.7
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_ROOT_PASSWORD: somerootpassword
+    volumes:
+      - db-test:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -61,6 +98,5 @@ services:
 
 volumes:
   db:
-  wp-content:
-  sk-log:
-  sk-tmp:
+  db-test:
+  test-run:

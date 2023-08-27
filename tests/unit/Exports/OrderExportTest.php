@@ -15,7 +15,7 @@ use WC_Helper_Order;
 
 class OrderExportTest extends AbstractOrderExportTest
 {
-    use ArraySubsetAsserts;
+ //   use ArraySubsetAsserts; // todo
     const DATA_DUMP_FOLDER_CREATE = 'exports/orderExports/newOrder';
 
     const GET_CONTEXT = 'edit';

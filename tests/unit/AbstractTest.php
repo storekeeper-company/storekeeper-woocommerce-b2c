@@ -27,6 +27,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
+use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use WC_Coupon;
 use WC_Email_Customer_Processing_Order;
 use WC_Email_New_Order;
@@ -38,7 +39,7 @@ use WP_UnitTestCase;
 
 abstract class AbstractTest extends WP_UnitTestCase
 {
-    use ArraySubsetAsserts;
+//    use ArraySubsetAsserts; // todo
 
     const UPLOADS_DIRECTORY = '/app/src/wp-content/uploads/';
 
@@ -72,10 +73,31 @@ abstract class AbstractTest extends WP_UnitTestCase
     protected $api_url;
     protected $db;
 
-    public function setUp()
+    public static function setUpBeforeClass():void {
+        // Define the plugin slug and path
+        $plugin_paths = [
+            'woocommerce/woocommerce.php',
+            'storekeeper-for-woocommerce/storekeeper-woocommerce-b2c.php',
+        ];
+
+        foreach ($plugin_paths as $plugin_path){
+            if (!in_array($plugin_path, apply_filters('active_plugins', get_option('active_plugins')))) {
+                $result = activate_plugin($plugin_path);
+
+                WordpressExceptionThrower::throwExceptionOnWpError($result, false, "For $plugin_path");
+            }
+        }
+
+        include __DIR__.'/../lib/WcHelper/include.php';
+
+        parent::setUpBeforeClass();
+    }
+
+    public function setUp(): void
     {
+
         parent::setUp();
-        do_action('activate_woocommerce');
+
         StoreKeeperApi::$mockAdapter = new MockAdapter();
         $this->reader = DumpFileHelper::getReader();
 
@@ -84,7 +106,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         $this->disableWooCommerceEmails();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 

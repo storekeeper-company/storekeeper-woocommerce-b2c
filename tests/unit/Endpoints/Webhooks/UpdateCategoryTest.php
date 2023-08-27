@@ -16,7 +16,7 @@ class UpdateCategoryTest extends AbstractTest
 {
     use CommandRunnerTrait;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->setUpRunner();
@@ -24,7 +24,7 @@ class UpdateCategoryTest extends AbstractTest
         $this->mockMediaFromDirectory(self::UPDATE_DATADUMP_DIRECTORY.'/media');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         $this->tearDownRunner();

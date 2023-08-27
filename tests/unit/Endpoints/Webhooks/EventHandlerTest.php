@@ -12,13 +12,13 @@ class EventHandlerTest extends AbstractTest
 {
     use CommandRunnerTrait;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->setUpRunner();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         $this->tearDownRunner();

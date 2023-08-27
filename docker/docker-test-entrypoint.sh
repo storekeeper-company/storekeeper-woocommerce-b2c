@@ -1,27 +1,13 @@
 #!/bin/bash
-set -euox pipefail
+set -euo pipefail
 
-if [ ! -z "$WORPRESS_URL" ]
-then
-  echo "Installing WP"
+echo "Env settings: "
+env | grep VERSION
+echo -n "Installed Wordpress version: "
+wp core version --path=$WORPRESS_ROOT || exit 2
 
-  cd /app/src/
-  wp core install --url=$WORPRESS_URL --title=$WORPRESS_TITLE --admin_user=$WORDPRESS_ADMIN_USER --admin_password=$WORDPRESS_ADMIN_PASSWORD --admin_email=$WORDPRESS_ADMIN_EMAIL --skip-email
+echo "Making a copy for easier debugging."
+rsync -r --delete --exclude storekeeper-for-woocommerce $WORPRESS_DEV_DIR mount/ || exit 3
 
-  # set config
-  wp config set WP_DEBUG true
-
-  # install plugins
-  chown www-data:www-data /app/src/wp-content /app/src/wp-content/plugins
-  if [[ ! -d wp-content/plugins/woocommerce ]]
-  then
-      wp plugin install /app/plugins/woocommerce.zip
-  fi
-  wp plugin activate woocommerce
-  wp plugin activate storekeeper-for-woocommerce
-
-else
-  echo "Not install wordpress because variables are not set"
-fi
-
-exec "$@"
+cd $STOREKEEPER_PLUGIN_DIR/tests/
+exec $WORPRESS_DEV_DIR/vendor/bin/phpunit  --bootstrap $STOREKEEPER_PLUGIN_DIR/tests/bootstrap.php .

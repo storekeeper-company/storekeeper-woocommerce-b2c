@@ -21,13 +21,16 @@ class WordpressExceptionThrower
      *
      * @throws WordpressException
      */
-    public static function throwExceptionOnWpError($maybe_wp_error, $check_for_false = false)
+    public static function throwExceptionOnWpError($maybe_wp_error, $check_for_false = false, $message = '')
     {
+        if(!empty($message)){
+            $message = $message.': ';
+        }
         if (is_wp_error($maybe_wp_error)) {
-            throw new WordpressException($maybe_wp_error->get_error_message());
+            throw new WordpressException($message.$maybe_wp_error->get_error_message());
         } else {
             if ($check_for_false && false === $maybe_wp_error) {
-                throw new WordpressException(__('Function returned false', I18N::DOMAIN));
+                throw new WordpressException($message.__('Function returned false', I18N::DOMAIN));
             }
         }
 
