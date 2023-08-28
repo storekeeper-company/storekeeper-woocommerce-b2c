@@ -1,31 +1,36 @@
 version: '3.7'
 
 services:
-  web:
+  dev:
     build:
       dockerfile: Dockerfile
-      context: docker
+      context: .
+      target: dev
       args:
         PHP_VERSION: $PHP_VERSION
         THECODINGMACHINE_VERSION: $THECODINGMACHINE_VERSION
+        BUILD_THECODINGMACHINE_VERSION: $BUILD_THECODINGMACHINE_VERSION
         WORDPRESS_VERSION: $WORDPRESS_VERSION
+        WORDPRESS_DEV_VERSION: $WORDPRESS_DEV_VERSION
         WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
-    depends_on:
-      db:
-        condition: service_healthy
     ports:
       - 8888:80
     restart: unless-stopped
     environment:
-      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_HOST: db-test
       WORDPRESS_DB_USER: exampleuser
       WORDPRESS_DB_PASSWORD: examplepass
       WORDPRESS_DB_NAME: exampledb
       WORDPRESS_ADMIN_USER: admin
       WORDPRESS_ADMIN_PASSWORD: examplepass
+      COPY_TO_MOUNT: 1
       PHP_IDE_CONFIG: serverName=docker
     volumes:
-      - .:/var/www/html/storekeeper-for-woocommerce:rw
+      - ./mount/:/var/www/html/mount/:rw
+      - .:/var/www/html/wordpress-develop/src/wp-content/plugins/storekeeper-for-woocommerce:rw
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:5.7
@@ -53,6 +58,7 @@ services:
         BUILD_THECODINGMACHINE_VERSION: $BUILD_THECODINGMACHINE_VERSION
         WORDPRESS_VERSION: $WORDPRESS_VERSION
         WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
+        WORDPRESS_DEV_VERSION: $WORDPRESS_DEV_VERSION
     environment:
       WORDPRESS_DB_HOST: db-test
       WORDPRESS_DB_USER: exampleuser
@@ -88,10 +94,9 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: unless-stopped
-    depends_on:
-      - db
     links:
       - db:db
+      - db-test:db-test
     ports:
       - 8881:80
     environment:

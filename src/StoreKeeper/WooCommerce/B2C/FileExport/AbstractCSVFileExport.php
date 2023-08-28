@@ -94,7 +94,7 @@ abstract class AbstractCSVFileExport extends AbstractFileExport implements IFile
     private function parseFields(array $fields): array
     {
         return array_map(
-            function ($field){
+            function ($field) {
                 return self::parseFieldValue($field);
             }, $fields
         );

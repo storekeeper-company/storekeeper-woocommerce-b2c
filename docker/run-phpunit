@@ -11,10 +11,11 @@ wp core version --path=$WORPRESS_ROOT || exit 2
 
 if [ "$COPY_TO_MOUNT" == "1" ]; then
   echo "Making a copy of wordpress in the ./mount easier debugging."
-  rsync -rclD --delete --exclude storekeeper-for-woocommerce $WORPRESS_DEV_DIR mount/ || exit 3
+  rsync -rclD --delete --exclude storekeeper-for-woocommerce $WORPRESS_DEV_DIR mount/wordpress-develop-tests || exit 3
 else
-  echo "COPY_TO_MOUNT is not set to 1. No copy"
+  echo "COPY_TO_MOUNT is not set to 1 (=$COPY_TO_MOUNT). No copy"
 fi
+
 cd $STOREKEEPER_PLUGIN_DIR/tests
-exec $WORPRESS_DEV_DIR/vendor/bin/phpunit .
+exec $WORPRESS_DEV_DIR/vendor/bin/phpunit "$@"
 

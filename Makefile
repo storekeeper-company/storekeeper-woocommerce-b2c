@@ -8,6 +8,17 @@ TMP_DIR:=$(shell mktemp -d -t skforwc-mk-XXXX)
 format:
 	./vendor/bin/php-cs-fixer fix --config=./.php-cs-fixer.dist.php
 
+
+## ---- dev build ----------------------------------------
+dev-clean:
+	docker compose down --volumes web db
+
+dev-build:
+	docker compose build dev
+
+dev-bash:
+	docker compose run --rm  dev bash
+
 ## ---- Unit testing ----------------------------------------
 test-clean:
 	docker compose down --volumes db-test test
@@ -16,13 +27,12 @@ test-build:
 	docker compose build test
 
 test-only:
-	docker compose run --rm test .
+	docker compose run --rm test run-phpunit
 
-test: test-build
-	docker compose run --rm test .
+test: test-build test-only
 
 test-bash: test-build
-	docker compose run --rm --entrypoint=/bin/bash test
+	docker compose run --rm test bash
 
 ## ---- Translations ----------------------------------------
 extract-translations:

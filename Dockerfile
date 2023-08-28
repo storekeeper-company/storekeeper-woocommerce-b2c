@@ -7,14 +7,20 @@ ARG THECODINGMACHINE_VERSION
 FROM wordpress:cli-php${PHP_VERSION} as wordpress-cli
 
 FROM thecodingmachine/php:${PHP_VERSION}-${THECODINGMACHINE_VERSION}-slim-cli as base-cli
+FROM thecodingmachine/php:${PHP_VERSION}-${THECODINGMACHINE_VERSION}-apache-node14 as base-apache
 FROM thecodingmachine/php:${BUILD_THECODINGMACHINE_VERSION} as base-build
 
 FROM base-cli as wordpress-dev
-ARG WORDPRESS_VERSION
+ARG WORDPRESS_DEV_VERSION
 RUN git clone  --depth 1 \
-    --branch=$WORDPRESS_VERSION \
+    --branch=$WORDPRESS_DEV_VERSION \
     https://github.com/WordPress/wordpress-develop.git wordpress-develop
 RUN cd wordpress-develop &&  composer install && composer require dms/phpunit-arraysubset-asserts --dev
+
+FROM base-cli as wordpress-prod
+ARG WORDPRESS_VERSION
+COPY --from=wordpress-cli /usr/local/bin/wp /usr/local/bin/wp
+RUN wp core download --path=wordpress --version=$WORDPRESS_VERSION
 
 FROM base-cli as woocommerce
 ARG WOOCOMMERCE_VERSION
@@ -56,12 +62,12 @@ COPY --chown=docker:docker . $SK_PLUGIN_DIR
 COPY --chown=docker:docker --from=build-dev /usr/src/app/vendor $SK_PLUGIN_DIR/vendor
 COPY --chown=docker:docker docker/wp-test-config.php $WORPRESS_DEV_DIR/wp-tests-config.php
 COPY --chown=docker:docker docker/wp-test-config.php $WORPRESS_DEV_DIR/src/wp-config.php
+COPY docker/run-phpunit /usr/local/bin/run-phpunit
 
 RUN mkdir mount
 ARG WORDPRESS_VERSION
 
-ENV APP_ENV=test \
-    WORPRESS_ROOT=$WORPRESS_DIR \
+ENV WORPRESS_ROOT=$WORPRESS_DIR \
     WORPRESS_DEV_DIR=$WORPRESS_DEV_DIR \
     WORPRESS_DEV_TEST_DIR=$WORPRESS_DEV_DIR/tests \
     WORDPRESS_VERSION=$WORDPRESS_VERSION \
@@ -73,4 +79,37 @@ ENV APP_ENV=test \
     STOREKEEPER_PLUGIN_DIR=$SK_PLUGIN_DIR \
     STOREKEEPER_WOOCOMMERCE_B2C_DEBUG=1
 
-ENTRYPOINT $STOREKEEPER_PLUGIN_DIR/docker/docker-test-entrypoint.sh
+FROM base-apache as dev
+
+USER root
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends \
+		rsync \
+	&& \
+	rm -rf /var/lib/apt/lists/*
+
+USER docker
+
+ARG CONTAINER_CWD=/var/www/html
+ARG WORPRESS_DIR=/var/www/html/wordpress
+ARG PLUGIN_DIR=/var/www/html/wordpress/wp-content/plugins
+ARG SK_PLUGIN_DIR=/var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce
+
+COPY --from=wordpress-cli /usr/local/bin/wp /usr/local/bin/wp
+COPY --chown=docker:docker --from=wordpress-prod /usr/src/app/wordpress $WORPRESS_DIR
+COPY --chown=docker:docker --from=woocommerce /usr/src/app/woocommerce $PLUGIN_DIR/woocommerce
+
+RUN mkdir mount
+ARG WORDPRESS_VERSION
+
+ENV PHP_EXTENSION_BCMATH=1 \
+    PHP_EXTENSION_INTL=1 \
+    PHP_EXTENSION_IMAGICK=1 \
+    PHP_EXTENSION_GD=1 \
+    PHP_EXTENSION_XDEBUG=1 \
+    WORPRESS_ROOT=$WORPRESS_DIR \
+    WORDPRESS_VERSION=$WORDPRESS_VERSION \
+    STOREKEEPER_PLUGIN_DIR=$SK_PLUGIN_DIR \
+    STOREKEEPER_WOOCOMMERCE_B2C_DEBUG=1 \
+    APACHE_DOCUMENT_ROOT=wordpress/
+
