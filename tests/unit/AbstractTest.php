@@ -12,7 +12,6 @@ use StoreKeeper\ApiWrapperDev\DumpFile;
 use StoreKeeper\ApiWrapperDev\DumpFile\Reader;
 use StoreKeeper\ApiWrapperDev\Wrapper\MockAdapter;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShopInfo;
-use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Debug\HookDumpFile;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\StoreKeeperSeo;
@@ -39,9 +38,7 @@ use WP_UnitTestCase;
 
 abstract class AbstractTest extends WP_UnitTestCase
 {
-//    use ArraySubsetAsserts; // todo
-
-    const UPLOADS_DIRECTORY = '/app/src/wp-content/uploads/';
+    use ArraySubsetAsserts;
 
     // Markdown related constants
     const MARKDOWN_PREFIX = '[sk_markdown]';
@@ -64,6 +61,7 @@ abstract class AbstractTest extends WP_UnitTestCase
     const SK_TYPE_SIMPLE = 'simple';
     const SK_TYPE_CONFIGURABLE = 'configurable';
     const SK_TYPE_ASSIGNED = 'configurable_assign';
+    const WOOCOMMERCE_PLUGIN_PATH = 'woocommerce/woocommerce.php';
 
     /**
      * @var Reader
@@ -71,37 +69,37 @@ abstract class AbstractTest extends WP_UnitTestCase
     protected $reader;
 
     protected $api_url;
-    protected $db;
 
-    public static function setUpBeforeClass():void {
+    public static function setUpBeforeClass(): void
+    {
         // Define the plugin slug and path
         $plugin_paths = [
-            'woocommerce/woocommerce.php',
+            self::WOOCOMMERCE_PLUGIN_PATH,
             'storekeeper-for-woocommerce/storekeeper-woocommerce-b2c.php',
         ];
 
-        foreach ($plugin_paths as $plugin_path){
+        foreach ($plugin_paths as $plugin_path) {
             if (!in_array($plugin_path, apply_filters('active_plugins', get_option('active_plugins')))) {
                 $result = activate_plugin($plugin_path);
-
                 WordpressExceptionThrower::throwExceptionOnWpError($result, false, "For $plugin_path");
             }
         }
 
-        include __DIR__.'/../lib/WcHelper/include.php';
+        include_once __DIR__.'/../lib/WcHelper/include.php';
 
         parent::setUpBeforeClass();
     }
 
     public function setUp(): void
     {
-
         parent::setUp();
+
+        $wc = \WooCommerce::instance();
+        $wc->init();
+        $wc->include_template_functions();
 
         StoreKeeperApi::$mockAdapter = new MockAdapter();
         $this->reader = DumpFileHelper::getReader();
-
-        $this->db = new DatabaseConnection();
 
         $this->disableWooCommerceEmails();
     }

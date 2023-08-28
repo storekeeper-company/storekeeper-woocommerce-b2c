@@ -23,7 +23,7 @@ class WordpressExceptionThrower
      */
     public static function throwExceptionOnWpError($maybe_wp_error, $check_for_false = false, $message = '')
     {
-        if(!empty($message)){
+        if (!empty($message)) {
             $message = $message.': ';
         }
         if (is_wp_error($maybe_wp_error)) {

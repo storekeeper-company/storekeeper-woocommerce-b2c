@@ -14,11 +14,11 @@ test-clean:
 
 test:
 	docker compose build test
-	docker compose run  --rm -it  test run-unit-tests
+	docker compose run --rm test .
 
 test-bash:
 	docker compose build test
-	docker compose run --rm -it --entrypoint=/bin/bash test
+	docker compose run --rm --entrypoint=/bin/bash test
 
 ## ---- Translations ----------------------------------------
 extract-translations:

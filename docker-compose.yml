@@ -10,7 +10,6 @@ services:
         THECODINGMACHINE_VERSION: $THECODINGMACHINE_VERSION
         WORDPRESS_VERSION: $WORDPRESS_VERSION
         WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
-        STOREFRONT_VERSION: $STOREFRONT_VERSION
     depends_on:
       db:
         condition: service_healthy
@@ -62,6 +61,8 @@ services:
       WORDPRESS_ADMIN_USER: admin
       WORDPRESS_ADMIN_PASSWORD: examplepass
       PHP_IDE_CONFIG: serverName=docker
+    stdin_open: true
+    tty: true
     volumes:
       - ./mount/:/usr/src/app/mount/:rw
     depends_on:

@@ -20,8 +20,6 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
     const MARKDOWN_PREFIX = '[sk_markdown]';
     const MARKDOWN_SUFFIX = '[/sk_markdown]';
 
-    const UPLOADS_DIRECTORY = '/app/src/wp-content/uploads/';
-
     public function testRun()
     {
         /*
@@ -37,29 +35,13 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
         $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_FILE);
         $original_categories_data = $file->getReturn()['data'];
 
-        $default_category_args = [
-            'orderby' => 'name',
-            'order' => 'asc',
-            'hide_empty' => false,
-        ];
+        $product_categories = $this->getProductCategories();
 
-        // Test whether there are no categories before import
-        $product_categories = get_terms('product_cat', $default_category_args);
-        try {
-            if (is_wp_error($product_categories)) {
-                $product_categories = [];
-            }
-        } catch (\Throwable $throwable) {
-            $product_categories = [];
-        }
-
-        if (!is_wp_error($product_categories)) {
-            $this->assertCount(
-                0,
-                $product_categories,
-                'Test was not ran in an empty environment'
-            );
-        }
+        $this->assertCount(
+            0,
+            $product_categories,
+            'Test was not ran in an empty environment'
+        );
 
         /*
          * Act
@@ -73,7 +55,8 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
          */
 
         // Retrieve all synchronised categories
-        $product_categories = get_terms('product_cat', $default_category_args);
+        $product_categories = $this->getProductCategories();
+
         $this->assertEquals(
             count($original_categories_data),
             count($product_categories),
@@ -165,7 +148,8 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
 
             // Thumbnail image
             $expected_image_file = basename(parse_url($original->get('image_url'))['path']);
-            $wc_image_file = basename(wp_get_attachment_url($wc_category_meta->get('thumbnail_id')[0]));
+            $thumbnail_id = $wc_category_meta->get('thumbnail_id');
+            $wc_image_file = $thumbnail_id ? basename(wp_get_attachment_url($thumbnail_id[0])) : '';
             $this->assertEquals(
                 $expected_image_file,
                 $wc_image_file,
@@ -179,11 +163,15 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
                 $expected_image_file_md5 = md5_file(
                     MediaHelper::getMediaPath($original->get('image_url'))
                 );
-                $wc_image_file_md5 = md5_file(
-                    self::UPLOADS_DIRECTORY.wp_get_attachment_metadata(
-                        $wc_category_meta->get('thumbnail_id')[0]
-                    )['file']
-                );
+                if ($thumbnail_id) {
+                    $filePath = wp_get_upload_dir()['basedir'].'/';
+                    $filePath .= wp_get_attachment_metadata(
+                        $thumbnail_id[0]
+                    )['file'];
+                    $wc_image_file_md5 = md5_file($filePath);
+                } else {
+                    $wc_image_file_md5 = null;
+                }
                 $this->assertEquals(
                     $expected_image_file_md5,
                     $wc_image_file_md5,
@@ -235,5 +223,20 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
         }
 
         return false;
+    }
+
+    protected function getProductCategories(): array
+    {
+        $default_category_args = [
+            'orderby' => 'name',
+            'order' => 'asc',
+            'hide_empty' => false,
+        ];
+        $product_categories = WordpressExceptionThrower::throwExceptionOnWpError(get_terms('product_cat', $default_category_args));
+        $product_categories = array_filter($product_categories, function (\WP_Term $term) {
+            return 'uncategorized' !== $term->slug;
+        });
+
+        return $product_categories;
     }
 }

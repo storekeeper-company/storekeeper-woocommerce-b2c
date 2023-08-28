@@ -14,7 +14,7 @@ ARG WORDPRESS_VERSION
 RUN git clone  --depth 1 \
     --branch=$WORDPRESS_VERSION \
     https://github.com/WordPress/wordpress-develop.git wordpress-develop
-RUN cd wordpress-develop &&  composer install
+RUN cd wordpress-develop &&  composer install && composer require dms/phpunit-arraysubset-asserts --dev
 
 FROM base-cli as woocommerce
 ARG WOOCOMMERCE_VERSION

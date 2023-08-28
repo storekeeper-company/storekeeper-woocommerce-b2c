@@ -74,7 +74,7 @@ class SyncWoocommerceCrossSellProductsTest extends AbstractTest
                     foreach ($wc_cross_sell_ids as $wc_cross_sell_id) {
                         $wc_cross_sell_product = new \WC_Product($wc_cross_sell_id);
                         $storekeeper_id = get_post_meta($wc_cross_sell_product->get_id(), 'storekeeper_id');
-                        array_push($sk_cross_sell_ids, $storekeeper_id[0]);
+                        array_push($sk_cross_sell_ids, (int) $storekeeper_id[0]);
                     }
                     $this->assertContains(
                         $expected_cross_sell_id,

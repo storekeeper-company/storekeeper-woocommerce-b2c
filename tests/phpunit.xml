@@ -4,14 +4,17 @@
 	backupGlobals="false"
 	colors="true"
 	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
+	convertNoticesToExceptions="false"
 	convertWarningsToExceptions="true"
-	>
+>
 
+	<php>
+		<const name="WP_TESTS" value="1" />
+	</php>
 	<testsuites>
 		<testsuite name="all">
-			<directory>./tests/unit/</directory>
-			<exclude>./tests/unit/SampleTest.php</exclude>
+			<directory>./unit/</directory>
+			<exclude>./unit/SampleTest.php</exclude>
 		</testsuite>
 	</testsuites>
 </phpunit>

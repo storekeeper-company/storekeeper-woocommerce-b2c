@@ -94,13 +94,14 @@ class SyncWoocommerceProductPage extends AbstractSyncCommand
     public function recheckType($some_false_variable, $product_id)
     {
         $id = get_post_meta($product_id, 'storekeeper_id', true);
-        $data = ShopProductCache::get($id);
-
-        if ($data) {
-            return $data;
-        }
 
         if ($id) {
+            $data = ShopProductCache::get($id);
+
+            if ($data) {
+                return $data;
+            }
+
             $storekeeper_api = StoreKeeperApi::getApiByAuthName();
             $ShopModule = $storekeeper_api->getModule('ShopModule');
             $response = $ShopModule->naturalSearchShopFlatProductForHooks(
