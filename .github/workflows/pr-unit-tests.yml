@@ -26,8 +26,8 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php }}
 
-      - name: Run tests
-        run: make test-only (php ${{ matrix.php }})
+      - name: Run tests (php ${{ matrix.php }})
+        run: make test-only
         env:
           COPY_TO_MOUNT: 0
           PHP_VERSION: ${{ matrix.php }}
