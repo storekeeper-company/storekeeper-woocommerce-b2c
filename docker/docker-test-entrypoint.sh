@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-trap "echo 'Ctrl+C pressed. Exiting.'; exit 1" SIGINT
+echo -n "PHP: "
+php -v
 
 echo "Env settings: "
 env | grep VERSION

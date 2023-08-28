@@ -21,11 +21,13 @@ jobs:
         # Ignore the failure of a step and avoid terminating the job.
         continue-on-error: true
 
-      - name: Build docker image
+      - name: Build docker image (php ${{ matrix.php }})
         run: make test-build
+        env:
+          PHP_VERSION: ${{ matrix.php }}
 
       - name: Run tests
-        run: make test-only
+        run: make test-only (php ${{ matrix.php }})
         env:
           COPY_TO_MOUNT: 0
           PHP_VERSION: ${{ matrix.php }}

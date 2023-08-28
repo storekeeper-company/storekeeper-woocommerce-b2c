@@ -20,7 +20,7 @@ FROM base-cli as woocommerce
 ARG WOOCOMMERCE_VERSION
 RUN curl -L https://github.com/woocommerce/woocommerce/releases/download/$WOOCOMMERCE_VERSION/woocommerce.zip \
       -o woocommerce.zip
-RUN unzip woocommerce.zip
+RUN unzip -q woocommerce.zip
 
 FROM base-build as build
 COPY composer.json .
