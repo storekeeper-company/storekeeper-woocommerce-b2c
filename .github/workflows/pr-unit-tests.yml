@@ -3,14 +3,13 @@ name: Run unit tests on PR
 on: [pull_request,push]
 jobs:
   test:
-    name: PHP ${{ matrix.php }} WP ${{ matrix.wp }}
+    name: PHP ${{ matrix.php }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: [ '7.4' ]
-        wp: [ "latest" ]
+        php: [ '7.4', '8.0', '8.1', '8.1' ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -24,3 +23,6 @@ jobs:
 
       - name: Run tests
         run: make test
+        env:
+          COPY_TO_MOUNT: 0
+          PHP_VERSION: ${{ matrix.php }}
