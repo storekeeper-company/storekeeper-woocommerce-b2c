@@ -30,7 +30,7 @@
     }
   },
   "require": {
-    "php": "^7.3",
+    "php": "^7.4|^8.0|^8.1|^8.2",
 
     "ext-json": "*",
     "ext-mysqli": "*",
@@ -47,9 +47,9 @@
   },
   "config": {
     "platform": {
-      "php": "7.3",
-      "ext-mysqli": "7.3",
-      "ext-filter": "7.3"
+      "php": "7.4",
+      "ext-mysqli": "7.4",
+      "ext-filter": "7.4"
     }
   },
   "require-dev": {

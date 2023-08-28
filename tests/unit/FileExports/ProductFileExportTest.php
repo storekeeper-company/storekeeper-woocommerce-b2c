@@ -80,8 +80,11 @@ class ProductFileExportTest extends AbstractFileExportTest
             $mappedRows[$variableProduct->get_sku()],
             'Variable', null, $variableSeo
         );
-        /* @var WC_Product_Variation $variationProduct */
-        foreach ($variableProduct->get_available_variations() as $index => $variationProductData) {
+        // using @ because it's broken in woocomerce funtions
+        // they say it's resolved https://github.com/woocommerce/woocommerce/issues/32985
+        $WC_Product_Variations = @$variableProduct->get_available_variations();
+        foreach ($WC_Product_Variations as $index => $variationProductData) {
+            /* @var WC_Product_Variation $variationProduct */
             $variationProduct = new WC_Product_Variation($variationProductData['variation_id']);
 
             $this->assertArrayHasKey(

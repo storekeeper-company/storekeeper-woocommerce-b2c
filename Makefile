@@ -2,7 +2,7 @@
 LOKALISE_PROJECT_ID=73695952636a8c7112e274.93369648
 TMP_DIR:=$(shell mktemp -d -t skforwc-mk-XXXX)
 
-.PHONY: format test
+.PHONY: format test test-build test-clean test-only test-bash
 
 ## ---- Codesniffer format ----------------------------------------
 format:
@@ -12,12 +12,16 @@ format:
 test-clean:
 	docker compose down --volumes db-test test
 
-test:
+test-build:
 	docker compose build test
+
+test-only:
 	docker compose run --rm test .
 
-test-bash:
-	docker compose build test
+test: test-build
+	docker compose run --rm test .
+
+test-bash: test-build
 	docker compose run --rm --entrypoint=/bin/bash test
 
 ## ---- Translations ----------------------------------------
