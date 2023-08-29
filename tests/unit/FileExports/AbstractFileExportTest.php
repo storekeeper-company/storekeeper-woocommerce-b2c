@@ -40,7 +40,7 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
         }
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         $this->cleanFiles();

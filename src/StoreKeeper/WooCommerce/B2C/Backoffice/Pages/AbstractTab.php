@@ -25,7 +25,7 @@ abstract class AbstractTab extends AbstractPageLike
         return add_query_arg('action', $action);
     }
 
-    final private function executeAction(string $action)
+    private function executeAction(string $action)
     {
         if (array_key_exists($action, $this->actions)) {
             call_user_func_array($this->actions[$action], []);

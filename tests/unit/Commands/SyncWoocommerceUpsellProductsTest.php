@@ -74,7 +74,7 @@ class SyncWoocommerceUpsellProductsTest extends AbstractTest
                     foreach ($wc_upsell_ids as $wc_upsell_id) {
                         $wc_upsell_product = new \WC_Product($wc_upsell_id);
                         $storekeeper_id = get_post_meta($wc_upsell_product->get_id(), 'storekeeper_id');
-                        array_push($sk_upsell_ids, $storekeeper_id[0]);
+                        array_push($sk_upsell_ids, (int) $storekeeper_id[0]);
                     }
                     $this->assertContains(
                         $expected_upsell_id,

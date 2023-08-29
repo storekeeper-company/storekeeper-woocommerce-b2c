@@ -3,7 +3,7 @@ set -euo pipefail
 
 TRANSLATION_FILE_BASE_NAME=storekeeper-for-woocommerce-
 
-cd "$WP_SK_PLUGIN_DIR/i18n"
+cd "$STOREKEEPER_PLUGIN_DIR/i18n"
 if test -f "${TRANSLATION_FILE_BASE_NAME}en_US.po"; then
     msgfmt "${TRANSLATION_FILE_BASE_NAME}en_US.po" -o "${TRANSLATION_FILE_BASE_NAME}en_US.mo"
 fi

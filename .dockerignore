@@ -1,0 +1,7 @@
+tmp
+vendor
+.github
+.git
+.php-cs-fixer.cache
+.php_cs.cache
+mount

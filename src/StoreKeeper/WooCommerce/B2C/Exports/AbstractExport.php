@@ -26,6 +26,7 @@ abstract class AbstractExport
      * @var int
      */
     protected $storekeeper_id = null;
+    protected bool $debug;
 
     /**
      * AbstractExport constructor.

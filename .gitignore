@@ -23,3 +23,4 @@ public/styles/theme/twentyseventeen/parts/*css
 *.tar.gz
 
 /tmp/
+/mount/

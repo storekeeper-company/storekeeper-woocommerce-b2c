@@ -16,7 +16,7 @@ class UpdateCategoryTest extends AbstractTest
 {
     use CommandRunnerTrait;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->setUpRunner();
@@ -24,7 +24,7 @@ class UpdateCategoryTest extends AbstractTest
         $this->mockMediaFromDirectory(self::UPDATE_DATADUMP_DIRECTORY.'/media');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         $this->tearDownRunner();
@@ -41,8 +41,6 @@ class UpdateCategoryTest extends AbstractTest
 
     const MARKDOWN_PREFIX = '[sk_markdown]';
     const MARKDOWN_SUFFIX = '[/sk_markdown]';
-
-    const UPLOADS_DIRECTORY = '/app/src/wp-content/uploads/';
 
     /**
      * Test if creating a category works.
@@ -195,11 +193,16 @@ class UpdateCategoryTest extends AbstractTest
                     $updated_category->get('image_url')
                 )
             );
-            $wc_image_file_md5 = md5_file(
-                self::UPLOADS_DIRECTORY.wp_get_attachment_metadata(
-                    $wc_category_meta->get('thumbnail_id')[0]
-                )['file']
-            );
+            $thumbnail_id = $wc_category_meta->get('thumbnail_id');
+            if ($thumbnail_id) {
+                $filePath = wp_get_upload_dir()['basedir'].'/';
+                $filePath .= wp_get_attachment_metadata(
+                    $thumbnail_id[0]
+                )['file'];
+                $wc_image_file_md5 = md5_file($filePath);
+            } else {
+                $wc_image_file_md5 = null;
+            }
             $this->assertEquals(
                 $expected_image_file_md5,
                 $wc_image_file_md5,

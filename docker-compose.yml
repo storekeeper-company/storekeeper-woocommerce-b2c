@@ -1,39 +1,39 @@
 version: '3.7'
 
 services:
-  web:
+  dev:
     build:
       dockerfile: Dockerfile
-      target: dev-local
       context: .
+      target: dev
       args:
         PHP_VERSION: $PHP_VERSION
-        WORDPRESS_VERSION: $WORDPRESS_VERSION
-        WORDPRESS_DOCKER_PHP_VERSION: $WORDPRESS_DOCKER_PHP_VERSION
-        WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
-        STOREFRONT_VERSION: $STOREFRONT_VERSION
-        XDEBUG_VERSION: $XDEBUG_VERSION
-        USER_ID: ${USER_ID:-1000}
-        GROUP_ID: ${GROUP_ID:-1000}
-    depends_on:
-      - db
+        THECODINGMACHINE_VERSION: $THECODINGMACHINE_VERSION
+        BUILD_THECODINGMACHINE_VERSION: $BUILD_THECODINGMACHINE_VERSION
+        WORDPRESS_DEV_VERSION: $WORDPRESS_DEV_VERSION
     ports:
       - 8888:80
     restart: unless-stopped
     environment:
+      WORDPRESS_VERSION: $WORDPRESS_VERSION
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: exampleuser
       WORDPRESS_DB_PASSWORD: examplepass
       WORDPRESS_DB_NAME: exampledb
+      WORPRESS_URL: localhost:8888
+      WORPRESS_TITLE: 'MyDevWp'
+      WORDPRESS_ADMIN_EMAIL: 'admin@example.com'
       WORDPRESS_ADMIN_USER: admin
       WORDPRESS_ADMIN_PASSWORD: examplepass
-      PHP_IDE_CONFIG: serverName=docker
+      WORDPRESS_LOCALE: nl_NL
+      WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
+      PHP_IDE_CONFIG: serverName=docker-dev
     volumes:
-      - ./docker/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
-      - wp-content:/app/src/wp-content
-      - ./tmp/sk-log:/tmp/sk-log:rw
-      - ./tmp/sk-tmp:/tmp/storekeeper-for-woocommerce:rw
-      - .:/app/src/wp-content/plugins/storekeeper-for-woocommerce:rw
+      - ./mount/wordpress:/var/www/html/wordpress:rw
+      - .:/var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce:rw
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:5.7
@@ -45,14 +45,61 @@ services:
       MYSQL_ROOT_PASSWORD: somerootpassword
     volumes:
       - db:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  test:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: test
+      args:
+        PHP_VERSION: $PHP_VERSION
+        THECODINGMACHINE_VERSION: $THECODINGMACHINE_VERSION
+        BUILD_THECODINGMACHINE_VERSION: $BUILD_THECODINGMACHINE_VERSION
+        WORDPRESS_VERSION: $WORDPRESS_VERSION
+        WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
+        WORDPRESS_DEV_VERSION: $WORDPRESS_DEV_VERSION
+    environment:
+      WORDPRESS_DB_HOST: db-test
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+      WORDPRESS_ADMIN_USER: admin
+      WORDPRESS_ADMIN_PASSWORD: examplepass
+      COPY_TO_MOUNT: $COPY_TO_MOUNT
+      PHP_IDE_CONFIG: serverName=docker-test
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./mount/wordpress-develop-tests:/var/www/html/mount/wordpress-develop-tests:rw
+    depends_on:
+      db-test:
+        condition: service_healthy
+
+  db-test:
+    image: mysql:5.7
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_ROOT_PASSWORD: somerootpassword
+    volumes:
+      - db-test:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: unless-stopped
-    depends_on:
-      - db
     links:
       - db:db
+      - db-test:db-test
     ports:
       - 8881:80
     environment:
@@ -61,6 +108,5 @@ services:
 
 volumes:
   db:
-  wp-content:
-  sk-log:
-  sk-tmp:
+  db-test:
+  test-run:

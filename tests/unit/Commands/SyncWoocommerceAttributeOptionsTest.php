@@ -120,13 +120,19 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
 
     public function fetchAllStoreKeeperAttributeOptions()
     {
-        $prefix = CommonAttributeOptionName::PREFIX;
-        $sql = <<<SQL
-            SELECT * 
-            FROM `wp_terms`
-            WHERE `slug` LIKE '$prefix%'
-SQL;
+        global $wpdb;
+        $partial = CommonAttributeOptionName::PREFIX;
 
-        return $this->db->querySql($sql)->fetch_all();
+        $slug_like = $wpdb->esc_like($partial).'%';
+
+        $term_ids = $wpdb->get_col($wpdb->prepare("
+        SELECT t.term_id
+        FROM {$wpdb->terms} AS t
+        WHERE t.slug LIKE %s 
+    ",
+            $slug_like,
+        ));
+
+        return $term_ids;
     }
 }

@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Exports;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Mockery\MockInterface;
+use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
@@ -536,7 +537,7 @@ class OrderExportTest extends AbstractOrderExportTest
                 $module->expects('findShopCustomerBySubuserEmail')
                     ->andReturnUsing(
                         function () {
-                            return null; // Returning null here will cause method to call newShopCustomer instead
+                            throw new GeneralException('Not found', 0);
                         }
                     );
                 $module->expects('getOrder')

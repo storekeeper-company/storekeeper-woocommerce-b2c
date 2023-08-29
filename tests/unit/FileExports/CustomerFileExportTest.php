@@ -5,7 +5,6 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\FileExport\AbstractCSVFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\CustomerFileExport;
-use StoreKeeper\WooCommerce\B2C\Objects\GOCustomer;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WP_User;
@@ -20,13 +19,13 @@ class CustomerFileExportTest extends AbstractFileExportTest
     public function dataProviderUserCreateByRoles()
     {
         $tests = [];
-        foreach (GOCustomer::VALID_ROLES as $role) {
+        foreach (['customer', 'subscriber'] as $role) {
             $tests[$role] = [
                 $role,
                 true,
             ];
         }
-        foreach (GOCustomer::INVALID_ROLES as $role) {
+        foreach (['administrator', 'editor', 'author', 'contributor'] as $role) {
             $tests[$role] = [
                 $role,
                 false,

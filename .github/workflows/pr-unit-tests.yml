@@ -1,54 +1,26 @@
 # based on https://github.com/woocommerce/woocommerce/blob/trunk/.github/workflows/pr-unit-tests.yml
 name: Run unit tests on PR
-on: [pull_request,push]
+on: [push]
 jobs:
   test:
-    name: PHP ${{ matrix.php }} WP ${{ matrix.wp }}
+    name: PHP ${{ matrix.php }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: [ '7.3' ]
-        wp: [ "latest" ]
+        php: [ '7.4', '8.0', '8.1', '8.2' ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Pull the latest image to build, and avoid caching pull-only images.
-      # (docker pull is faster than caching in most cases.)
-      - run: make test-pull
+      - name: Build docker image (php ${{ matrix.php }})
+        run: make test-build
+        env:
+          PHP_VERSION: ${{ matrix.php }}
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          tools: composer
-          extensions: mysql, json, mysqli, bcmath, zip, openssl
-          coverage: none
-
-      - name: Tool versions
-        run: |
-          php --version
-          composer --version
-
-      - name: Get cached composer directories
-        uses: actions/cache@v2
-        with:
-          path: |
-            ./packages
-            ./vendor
-          key: ${{ runner.os }}-${{ hashFiles('./composer.lock') }}
-
-      - name: Install packages
-        run: composer install
-
-      # In this step, this action saves a list of existing images,
-      # the cache is created without them in the post run.
-      # It also restores the cache if it exists.
-      - uses: jpribyl/action-docker-layer-caching@v0.1.1
-        # Ignore the failure of a step and avoid terminating the job.
-        continue-on-error: true
-
-      - name: Run tests
-        run: make test
+      - name: Run tests (php ${{ matrix.php }})
+        run: make test-only
+        env:
+          COPY_TO_MOUNT: 0
+          PHP_VERSION: ${{ matrix.php }}

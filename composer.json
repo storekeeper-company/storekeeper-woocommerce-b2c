@@ -30,7 +30,8 @@
     }
   },
   "require": {
-    "php": "^7.3",
+    "php": "^7.4|^8.0|^8.1|^8.2",
+
     "ext-json": "*",
     "ext-mysqli": "*",
     "symfony/process": "^5",
@@ -46,21 +47,18 @@
   },
   "config": {
     "platform": {
-      "php": "7.3",
-      "ext-mysqli": "7.3",
-      "ext-filter": "7.3"
+      "php": "7.4",
+      "ext-mysqli": "7.4",
+      "ext-filter": "7.4"
     }
   },
   "require-dev": {
     "wp-cli/wp-cli": "^2.5",
     "mockery/mockery": "^1.3",
-    "phpunit/phpunit": "^7.0",
     "symfony/dotenv": "^5",
     "fzaninotto/faker": "^1.9",
     "phpoffice/phpspreadsheet": "^1.15",
     "friendsofphp/php-cs-fixer": "^2.18",
-    "yoast/phpunit-polyfills": "^1.0",
-    "mikey179/vfsstream": "^1.6",
-    "dms/phpunit-arraysubset-asserts": "^0.4.0"
+    "mikey179/vfsstream": "^1.6"
   }
 }

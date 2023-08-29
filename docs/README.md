@@ -2,32 +2,18 @@
 
 ## Docker development
 
-Start services
+Install full local development by building the docker image and running installation script
 
 ```bash
-docker-compose up -d --build
+make dev-bash
+docker@b32031196454:/var/www/html$ $STOREKEEPER_INSTALL 
 ```
 
-Connect
+You can see all the WordPress files in the `mount/wordpress` directory.
 
-```bash
-docker-compose exec web bash
-```
-
-Setup the backend proxy. Add to ssh config:
-
-```
-Host b1.code4.pizza
-    RemoteForward 8888 localhost:8888
-```
-After starting the ssh connection you can use the hooks.
-
-Gotcha: only one developer can use it at the same time.
-
-## Debugging
+## Extra logging
 
 Debug is active if `WP_DEBUG` or `STOREKEEPER_WOOCOMMERCE_B2C_DEBUG` is true-ish
-
 
 For different log error put in your `wp-config.php` 
 
@@ -53,31 +39,31 @@ make push-translations
 
 > Suggested sequence is to first run `make extract-translations` to get the latest strings, then run `make push-translations` to update Lokalise, and finally run `make pull-translations` to download the translated texts.
 
+
+## Unit tests
+
+First time make sure you run unit tests with `make` it will make
+sure all the rigths we correct on the mount on the `mount/` if not run like
+this it result in `root` rights.
+```bash
+make test
+```
+
 ## PhpStorm setup
 
-Define a new configuration template:
-![phpunit configuration template](./phpunit-config.png)
+Setup for developemnt:
 
-Setup path mapping
-![Setup path mapping](./phpunit-path-mapping.png)
+![interpeter-dev.png](interpeter-dev.png)
+![mapping-docker-dev.png](mapping-docker-dev.png)
 
-Add extra includes
-![Add extra includes](./extra-includes.png)
+Setup for unit testing:
 
-Setup mappings
-![Mappings](./extra-includes-mappings.png)
-
-Setup mappings for local xdebug from on http://localhost:8888 using browser
-![Mappings](./server-mapping.png)
-
-Configure interpreter
-![php interpreter](./interpreter-config.png)
-
-Configure server to script debug
-![server configuration](./docker-server-config.png)
-
-WP cli debug
-![WP cli config run](./wp-cli-config.png)
+![interpeter-test.png](interpeter-test.png)
+![test-framework.png](test-framework.png)
+![docker-test-mapping.png](docker-test-mapping.png)
+![web-test-mappings.png](web-test-mappings.png)
+![external-tool-build.png](external-tool-build.png)
+![example-test.png](example-test.png)
 
 ## Setting up the webhook to local docker
 
@@ -89,19 +75,19 @@ Then change the `WordPress Address (URL)` and `Site Address (URL)` to the url gi
 
 You can now connect using the wp command (where url is the url given back by ngrok)
 ```bash
-docker-compose exec web wp sk connect-backend https://extranal_url/
+docker-compose exec dev wp sk connect-backend https://external_url/
 ```
 
 If you want to share the show externally set it's urls to the cloudflare zero conf tunnel url
 ```bash
-docker-compose exec web  bash
-root@8942cbe3780d:/app/src# wp search-replace http://localhost:8888 https://extranal_url/ --all-tables
+docker-compose exec dev bash
+root@8942cbe3780d:~/wordpress# wp search-replace http://localhost:8888 https://external_url/ --all-tables
 ```
 
 After this you can set it back to default.
 ```bash
-docker-compose exec web wp option set home http://localhost:8888/
-docker-compose exec web wp option set siteurl http://localhost:8888/
+docker-compose exec dev wp option set home http://localhost:8888/
+docker-compose exec dev wp option set siteurl http://localhost:8888/
 ```
 
 ## Using api/webhook dumps

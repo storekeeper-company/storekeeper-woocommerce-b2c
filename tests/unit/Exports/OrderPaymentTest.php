@@ -36,7 +36,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
      */
     private $api;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         StoreKeeperOptions::set(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes');

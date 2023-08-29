@@ -57,7 +57,7 @@ class NotGettexted
         return '';
     }
 
-    public function list_php_files($dir)
+    public static function list_php_files($dir)
     {
         $files = [];
         $items = scandir($dir);
