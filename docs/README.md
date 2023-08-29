@@ -55,7 +55,6 @@ Setup for developemnt:
 
 ![interpeter-dev.png](interpeter-dev.png)
 ![mapping-docker-dev.png](mapping-docker-dev.png)
-![external-tool-build.png](external-tool-build.png)
 
 Setup for unit testing:
 
@@ -63,6 +62,7 @@ Setup for unit testing:
 ![test-framework.png](test-framework.png)
 ![docker-test-mapping.png](docker-test-mapping.png)
 ![web-test-mappings.png](web-test-mappings.png)
+![external-tool-build.png](external-tool-build.png)
 ![example-test.png](example-test.png)
 
 ## Setting up the webhook to local docker
