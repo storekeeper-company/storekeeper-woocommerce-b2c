@@ -10,8 +10,13 @@ format:
 
 ## ---- dev build ----------------------------------------
 
+
 dev-prepare-mount:
 	mkdir -p mount/wordpress/wp-content/plugins
+
+build-bash:
+	docker compose run --rm build bash
+
 
 dev-clean:
 	docker compose down --volumes dev db

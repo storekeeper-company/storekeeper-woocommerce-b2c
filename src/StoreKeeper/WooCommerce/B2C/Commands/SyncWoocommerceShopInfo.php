@@ -44,7 +44,7 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
 
             $city = $shopData->get('relation_data.contact_address.city');
             $postal = $shopData->get('relation_data.contact_address.zipcode');
-            $country_iso2 = strtoupper($shopData->get('relation_data.contact_address.country_iso2'));
+            $country_iso2 = $shopData->get('relation_data.contact_address.country_iso2');
             $currency_iso3 = strtoupper($this->getCurrencyIso3());
 
             $email_name = $shopData->get('relation_data.business_data.name');
@@ -54,7 +54,10 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
             update_option('woocommerce_store_address', $addressContact);
             update_option('woocommerce_store_city', $city);
             update_option('woocommerce_store_postcode', $postal);
-            update_option('woocommerce_default_country', "$country_iso2:*");
+            if( !empty($country_iso2)){
+                $country_iso2 = strtoupper($country_iso2);
+                update_option('woocommerce_default_country', "$country_iso2:*");
+            }
             update_option('woocommerce_currency', $currency_iso3);
 
             // Email

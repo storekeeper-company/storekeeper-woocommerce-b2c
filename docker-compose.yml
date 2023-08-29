@@ -35,6 +35,19 @@ services:
       db:
         condition: service_healthy
 
+  build:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: base-build
+      args:
+        PHP_VERSION: $PHP_VERSION
+        THECODINGMACHINE_VERSION: $THECODINGMACHINE_VERSION
+        BUILD_THECODINGMACHINE_VERSION: $BUILD_THECODINGMACHINE_VERSION
+        WORDPRESS_DEV_VERSION: $WORDPRESS_DEV_VERSION
+    volumes:
+      - .:/usr/src/app:rw
+
   db:
     image: mysql:5.7
     restart: unless-stopped
