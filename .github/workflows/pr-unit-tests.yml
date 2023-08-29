@@ -1,6 +1,6 @@
 # based on https://github.com/woocommerce/woocommerce/blob/trunk/.github/workflows/pr-unit-tests.yml
 name: Run unit tests on PR
-on: [pull_request,push]
+on: [push]
 jobs:
   test:
     name: PHP ${{ matrix.php }}
@@ -13,13 +13,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      # In this step, this action saves a list of existing images,
-      # the cache is created without them in the post run.
-      # It also restores the cache if it exists.
-      - uses: jpribyl/action-docker-layer-caching@v0.1.1
-        # Ignore the failure of a step and avoid terminating the job.
-        continue-on-error: true
 
       - name: Build docker image (php ${{ matrix.php }})
         run: make test-build
