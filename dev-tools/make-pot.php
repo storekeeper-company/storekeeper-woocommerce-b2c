@@ -10,7 +10,17 @@ if ('cli' == php_sapi_name()) {
     $outputFile = '/tmp/storekeeper-woocommerce-b2c.pot';
 
     $makepot = new MakePOT();
-    $makepot->wp_plugin(realpath($base_dir.'/../'), $outputFile);
+    $makepot->wp_plugin(
+        realpath($base_dir.'/../'),
+        $outputFile,
+        null,
+        [
+            'excludes' => [
+                'mount/.*',
+                'dev-tools/.*',
+            ],
+        ]
+    );
     rename($outputFile, $base_dir.'/../i18n/storekeeper-woocommerce-b2c.pot');
 } else {
     throw new \Exception('This script can only be run from command line');

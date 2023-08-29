@@ -10,36 +10,42 @@ format:
 
 
 ## ---- dev build ----------------------------------------
-dev-clean:
-	docker compose down --volumes web db
 
-dev-build:
+dev-prepare-mount:
+	mkdir -p mount/wordpress/wp-content/plugins
+
+dev-clean:
+	docker compose down --volumes dev db
+
+dev-build: dev-prepare-mount
 	docker compose build dev
 
-dev-bash:
-	docker compose run --rm  dev bash
+dev-bash: dev-build
+	docker compose run --rm dev bash
 
 ## ---- Unit testing ----------------------------------------
+test-prepare-mount:
+	mkdir -p mount/wordpress-develop-tests
+
 test-clean:
 	docker compose down --volumes db-test test
 
 test-build:
 	docker compose build test
 
-test-only:
+test-only: test-prepare-mount
 	docker compose run --rm test run-phpunit
 
 test: test-build test-only
 
-test-bash: test-build
+test-bash: test-build test-prepare-mount
 	docker compose run --rm test bash
 
 ## ---- Translations ----------------------------------------
-extract-translations:
-	docker-compose up --build -d web
-	docker-compose exec -T web bash /bin/extract-translations
+extract-translations: dev-prepare-mount
+	docker-compose run --rm dev php /var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce/dev-tools/make-pot.php
 
-pull-translations:
+pull-translations: dev-prepare-mount
 	dev-tools/lokalise2 --token=${LOKALISE_TOKEN} --project-id=${LOKALISE_PROJECT_ID} \
 		file download \
 		--format=po \
