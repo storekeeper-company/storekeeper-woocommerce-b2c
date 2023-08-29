@@ -5,42 +5,118 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-03-14 08:37\n"
+"PO-Revision-Date: 2023-08-29 15:33\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: de_DE\n"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:109
-msgid "256M is a size sample you can put and then do a full sync."
-msgstr "Du kannst zum Beispiel 256M einstellen und dann eine vollständige Synchronisierung durchführen. "
+#: storekeeper-woocommerce-b2c.php:35
+msgid "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
+msgstr "%s: Ihre PHP-Version ist niedriger als das erforderliche Minimum %s, daher wird die Aktivierung dieses Plugins nicht fortgesetzt."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
-msgid "After identifying the value defined on memory and still the error persist."
-msgstr "Nachdem ich den Konfigurationswert für den Speicher ermittelt habe, bleibt der Fehler weiterhin bestehen."
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:288
+msgid "Activeer product"
+msgstr "Aktiveres Produkt"
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:50
-msgid "Allowing of at least one of the following directories to be writable is required: %s"
-msgstr "Mindestens eines der folgenden Verzeichnisse muss beschreibbar sein: %s"
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Filters/OrderTrackingMessage.php:16
+msgid "Allows to change the Track&Trace html on the order page before it's shown on the customer order page."
+msgstr "Ermöglicht es, den Track&Trace-HTML-Code auf der Bestellseite zu ändern, bevor er auf der Bestellseite des Kunden angezeigt wird."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:100
-msgid "But before trying some of these you can check what is the defined memory_limit of your site. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting."
-msgstr "Bevor du einige dieser Optionen ausprobierst, kannst du prüfen, wie hoch das definierte memory_limit deiner Website ist. Das kannst du überprüfen, indem du auf Extras > Site Health > Info > Server klickst. Hier kannst du die aktuellen Einstellungen deines Hostings überprüfen."
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Filters/PrepareProductCategorySummaryFilter.php:17
+msgid "Allows to change the product category summary, which is shown below the products in the category archive page."
+msgstr "Ermöglicht das Ändern der Zusammenfassung der Produktkategorie, die unter den Produkten auf der Kategorie-Archivseite angezeigt wird."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:252
+msgid "Attribute import"
+msgstr "Attribute importieren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:84
+msgid "Backoffice connection"
+msgstr "BackOffice-Verbindung"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:68
+msgid "Barcode"
+msgstr "Barcode"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:110
+msgid "Below are actions you can do to increase PHP memory limit:"
+msgstr "Im Folgenden finden Sie Maßnahmen, mit denen Sie das PHP-Speicherlimit erhöhen können:"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:66
+msgid "Brand"
+msgstr "Marke"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:255
+msgid "Category import"
+msgstr "Kategorie Import"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:85
 msgid "Clean products only."
 msgstr "Entfernen Sie alle Produkte."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:87
+msgid "Connect to StoreKeeper"
+msgstr "Verbindung zum StoreKeeper"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:118
 msgid "Contact your hosting provider."
 msgstr "Wende dich an deinen Hosting-Anbieter."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:104
+msgid "Copy the \"Backoffice API Key\" from the text area."
+msgstr "Kopieren Sie den \"BackOffice API Key\" aus dem Textbereich."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:270
+msgid "Coupon code import"
+msgstr "Gutscheincode-Import"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
+msgid "Current memory limit configured: %s"
+msgstr "Aktuell konfigurierte Speichergrenze: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
 msgid "Deactiveer product"
 msgstr "Produkt deaktivieren"
 
+#: src/StoreKeeper/WooCommerce/B2C/Options/StoreKeeperOptions.php:98
+msgid "Default (%s)"
+msgstr "Standard (%s)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:279
+msgid "Delete category"
+msgstr "Kategorie löschen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:297
+msgid "Delete coupon code"
+msgstr "Gutscheincode löschen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:294
+msgid "Delete order"
+msgstr "Bestellung löschen"
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:282
 msgid "Delete product"
 msgstr "Produkt löschen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:291
+msgid "Delete tag"
+msgstr "Tag löschen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:362
+msgid "Done processing %s items of %s"
+msgstr "Verarbeitung von %s Elementen von %s abgeschlossen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1494
+msgid "Done processing %s items of %s (%s new / %s updated)"
+msgstr "Abgeschlossene Verarbeitung von %s-Elementen von %s (%s neu / %s aktualisiert)"
+
+#: vendor/wp-cli/wp-cli/php/utils-wp.php:233
+msgid "Drag widgets here to remove them from the sidebar but keep their settings."
+msgstr "Ziehen Sie Widgets hierher, um sie aus der Seitenleiste zu entfernen, aber ihre Einstellungen beizubehalten."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:88
+msgid "Duration in seconds"
+msgstr "Dauer in Sekunden"
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
 msgid "Emballage fee"
@@ -58,38 +134,218 @@ msgstr "Die Aktivierung der PHP-Erweiterung %s ist erforderlich"
 msgid "Execute %s."
 msgstr "Ausführen von %s."
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:76
+msgid "Failed to set sku"
+msgstr "SKU kann nicht eingestellt werden"
+
 #: src/StoreKeeper/WooCommerce/B2C/Updator.php:117
 msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
 msgstr "Fehler beim Aktualisieren des Plug-ins 'StoreKeeper for WooCommerce' auf Version %s."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:112
-msgid "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
-msgstr "Gehe in den Ordner public_html deines Webshops (z.B. /webshop/public_html/)"
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:240
+msgid "Foreign key constraint exists"
+msgstr "Fremdschlüssel-Beschränkung vorhanden"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:243
+msgid "Foreign key constraint is missing"
+msgstr "Fremdschlüsseleinschränkung fehlt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:249
+msgid "Full import"
+msgstr "Vollständiger Import"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:30
+msgid "Function returned false"
+msgstr "Funktion: False"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:149
+msgid "Go to the public_html folder of your webshop: %s"
+msgstr "Gehen Sie in den public_html Ordner Ihres Webshops: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:119
 msgid "If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit."
 msgstr "Wenn du dich nicht wohl dabei fühlst, die oben genannten Methoden auszuprobieren, oder wenn es bei dir nicht funktioniert hat. Dann sprich mit deinem Hosting-Anbieter über die Erhöhung deines Speicherlimits."
 
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:80
+msgid "In box quantity"
+msgstr "Menge im Karton"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:82
+msgid "In out quantity"
+msgstr "In-Out-Menge"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:78
+msgid "In package quantity"
+msgstr "In Packungsmenge"
+
+#: vendor/wp-cli/wp-cli/php/utils-wp.php:230
+msgid "Inactive Widgets"
+msgstr "Inaktive Widgets"
+
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:147
+msgid "Invalid return url, contact shop owner to check the payment"
+msgstr "Ungültige Rücksende-URL, wenden Sie sich an den Shop-Besitzer, um die Zahlung zu überprüfen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/ProcessAllTasks.php:62
+msgid "It will stop on first failing task"
+msgstr "Es stoppt bei der ersten fehlgeschlagenen Aufgabe"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:125
+msgid "Keywords"
+msgstr "Schlüsselwörter"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:105
+msgid "Log into your admin environment"
+msgstr "Melden Sie sich in Ihrer Admin-Umgebung an"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/SsoHelper.php:223
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/SsoHelper.php:230
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/SsoHelper.php:236
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/SsoHelper.php:243
+msgid "Login expired, please try again"
+msgstr "Login abgelaufen, bitte versuchen Sie es erneut"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:309
+msgid "Menu item delete"
+msgstr "Menüpunkt löschen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:306
+msgid "Menu item import"
+msgstr "Import von Menüpunkten"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:76
+msgid "Minimal order quantity"
+msgstr "Minimale Bestellmenge"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:106
+msgid "Navigate to settings > technical settings and click on the \"webhook\" tab."
+msgstr "Navigieren Sie zu \"Einstellungen > Technische Einstellungen\" und klicken Sie auf den Reiter \"Webhook\"."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:74
+msgid "Needs description on kassa"
+msgstr "Erforderliche Beschreibung am POS"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:72
+msgid "Needs weight on kassa"
+msgstr "Erfordert Gewichtung am POS"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:233
+msgid "Order"
+msgstr "Auftrag"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:273
+msgid "Order export"
+msgstr "Auftragsexport"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:276
+msgid "Order import"
+msgstr "Import von Aufträgen"
+
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:117
+msgid "Order number"
+msgstr "Bestellnummer"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:241
+msgid "Other"
+msgstr "Andere"
+
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:35
 msgid "PHP version %s found, plugin requires at least version %s"
 msgstr "PHP-Version %s gefunden, Plugin benötigt mindestens Version %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:237
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:303
+msgid "Parent product recalculation"
+msgstr "Neuberechnung des übergeordneten Produkts"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:107
+msgid "Paste your api key into the field that says \"Api key\" and click connect."
+msgstr "Fügen Sie Ihren API-Schlüssel in das Feld \"API-Schlüssel\" ein und klicken Sie auf \"Verbinden\"."
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/PluginConflictChecker.php:107
 msgid "Plugin version %s is not compatible with the plugin"
 msgstr "Plugin-Version %s ist nicht kompatibel mit dem Plugin"
 
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:70
+msgid "Printable shortname"
+msgstr "Kurzbezeichnung für Belege"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:101
+msgid "Processing tasks does not execute correctly"
+msgstr "Verarbeitungsaufgaben werden nicht korrekt ausgeführt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:86
+msgid "Product already has sku set"
+msgstr "Produkt hat bereits eine SKU festgelegt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:51
+msgid "Product has empty sku"
+msgstr "Produkt hat leere SKU"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:258
+msgid "Product import"
+msgstr "Produktimport"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:44
+msgid "Product not found"
+msgstr "Produkt nicht gefunden"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:264
+msgid "Product stock update"
+msgstr "Aktualisierung der Produktbestände"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:261
+msgid "Product update"
+msgstr "Produkt-Update"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:334
 msgid "Rank Math SEO handler"
 msgstr "Verwendung von Rank Math SEO"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:231
+msgid "Redirect"
+msgstr "Umleitung"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:315
+msgid "Redirect delete"
+msgstr "Umleitung löschen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:312
+msgid "Redirect import"
+msgstr "Import umleiten"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:65
+msgid "Registered wordpress hooks"
+msgstr "Registrierte WordPress-Hooks"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:239
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
+msgid "Report error"
+msgstr "Fehler melden"
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:63
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:149
 msgid "SKU feature for WooCommerce has been disabled."
 msgstr "Die SKU-Funktion für WooCommerce wurde deaktiviert."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
-msgid "SKU feature for for WooCommerce has been disabled."
-msgstr "SKU in WooCommerce - Aktiviert (Aktiviert = erforderlich für vollständige Synchronisierung!)"
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:86
+msgid "Season"
+msgstr "Saison"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:43
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:69
+msgid "Seo description"
+msgstr "SEO-Beschreibung"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:42
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:62
+msgid "Seo keywords"
+msgstr "SEO-Schlüsselwörter"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:41
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:56
+msgid "Seo title"
+msgstr "SEO-Titel"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:144
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:176
@@ -97,6 +353,22 @@ msgstr "SKU in WooCommerce - Aktiviert (Aktiviert = erforderlich für vollständ
 #: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportTag.php:27
 msgid "Skip empty tags (tags with no products attached)"
 msgstr "Leere Tags überspringen (Tags ohne angehängte Produkte)"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:71
+msgid "Sku was set for product"
+msgstr "SKU wurde für Produkt festgelegt"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exceptions/TableOperationSqlException.php:18
+msgid "Sql on %s::%s operation: %s"
+msgstr "SQL für %s::%s-Operation: %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:153
+msgid "Stating payment %s\n eid: %s, trx: %s"
+msgstr "Angabe der Zahlung %s\n eid: %s, trx: %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:32
+msgid "StoreKeeper Seo"
+msgstr "StoreKeeper SEO"
 
 #. Plugin Name of the plugin/theme
 msgid "StoreKeeper for WooCommerce"
@@ -106,9 +378,66 @@ msgstr "StoreKeeper für WooCommerce"
 msgid "Storekeeper"
 msgstr "StoreKeeper"
 
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:97
+msgid "Successfully processing tasks"
+msgstr "Aufgaben erfolgreich bearbeiten"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:142
+msgid "Suggested memory limit is 1G and then do a full sync."
+msgstr "Das empfohlene Speicherlimit beträgt 1 GB, und führen Sie dann eine vollständige Synchronisierung durch."
+
+#: src/StoreKeeper/WooCommerce/B2C/Updator.php:23
+msgid "Table \"%s\" need to be using InnoDB ENGINE. <a href=\"%s\">Go to status page</a> to fix this dependency."
+msgstr "Die Tabelle \"%s\" muss die InnoDB-Engine verwenden. <a href=\"%s\">Gehen Sie zur Statusseite</a>, um diese Abhängigkeit zu beheben."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:89
+msgid "Table foreign keys and InnoDB"
+msgstr "Tabellenfremdschlüssel und InnoDB"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:269
+msgid "Table is using InnoDB engine"
+msgstr "Die Tabelle verwendet die InnoDB-Engine"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:267
+msgid "Tag import"
+msgstr "Tag-Import"
+
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:166
+msgid "The order\\'s payment status received: %s\ntrx=%s"
+msgstr "Zahlungsstatus der Bestellung erhalten: %s\ntrx=%s"
+
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:54
+msgid "The payment has been canceled, please try again"
+msgstr "Die Zahlung wurde abgebrochen. Bitte versuchen Sie es erneut"
+
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:59
+msgid "There was an error during processing of the payment: %s"
+msgstr "Es ist ein Fehler bei der Verarbeitung der Zahlung aufgetreten: %s"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:109
+msgid "This is managed product, you can only edit this seo information in StoreKeeper Backoffice."
+msgstr "Dieses Produkt wird in StoreKeeper verwaltet, Sie können diese SEO-Informationen nur im StoreKeeper Backoffice bearbeiten."
+
 #. Description of the plugin/theme
 msgid "This plugin provides sync possibilities with the StoreKeeper Backoffice."
 msgstr "Dieses Plugin bietet Synchronisationsmöglichkeiten mit dem StoreKeeper Backoffice."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:115
+msgid "Title"
+msgstr "Titel"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:235
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:300
+msgid "Trigger variation save actions"
+msgstr "Auslösen von Aktionen zum Speichern von Variationen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:84
+msgid "Unit weight in grams"
+msgstr "Gewichtseinheit in Gramm"
+
+#: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:99
+msgid "Waiting for tasks to process"
+msgstr "Warten auf die Verarbeitung von Aufgaben"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:164
 msgid "WooCommerce SKU feature enabled"
@@ -124,21 +453,62 @@ msgstr "Die WooCommerce-Funktion zur Lagerverwaltung wurde aktiviert."
 msgid "WooCommerce stock management feature has been disabled."
 msgstr "Die Lagerverwaltungsfunktion von WooCommerce wurde deaktiviert."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:96
+msgid "Wp-config settings"
+msgstr "WP-Config Einstellungen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:138
+msgid "You can increase the memory by adding %s on the wp-config."
+msgstr "Sie können den Speicher durch Hinzufügen von %s in der wp-config erhöhen."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:111
 msgid "You can try executing this command via ssh."
 msgstr "Du kannst versuchen, diesen Befehl über SSH (WP-CLI) auszuführen."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:106
-msgid "You try can increasing the memory by adding %s on the wp-config."
-msgstr "Du kannst versuchen, den verfügbaren Speicher durch Hinzufügen von %s in der wp-config zu erhöhen."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:101
+msgid "Your allowed memory size has been exhausted."
+msgstr "Die zulässige Speichergröße ist erschöpft."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:99
-msgid "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
-msgstr "Deine erlaubte Speichergröße ist erschöpft. Hier sind einige Lösungen, die das Problem lösen können."
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:72
+msgid "Your order is awaiting payment. Once we receive it, we'll process your purchase."
+msgstr "Ihre Bestellung wartet auf Zahlung. Sobald wir es erhalten haben, werden wir Ihren Kauf bearbeiten."
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/CouponCodeImport.php:305
+msgid "coupon codes"
+msgstr "Gutscheincodes"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/FeaturedAttributeImport.php:51
+msgid "featured attributes"
+msgstr "Gekennzeichnete Attribute"
 
 #. Author URI of the plugin/theme
 msgid "https://www.storekeeper.nl/"
 msgstr "https://www.storekeeper.nl/"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/MenuItemImport.php:435
+#, fuzzy
+msgid "menu items"
+msgstr "Menüpunkte"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/OrderImport.php:215
+msgid "orders"
+msgstr "Aufträge"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/AttributeImport.php:82
+msgid "product attributes"
+msgstr "Produkteigenschaften"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/CategoryImport.php:388
+msgid "product categories"
+msgstr "Produktkategorien"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductStockImport.php:47
+msgid "products stock"
+msgstr "Produkte Bestand"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/RedirectImport.php:90
+msgid "redirect"
+msgstr "umleiten"
 
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"

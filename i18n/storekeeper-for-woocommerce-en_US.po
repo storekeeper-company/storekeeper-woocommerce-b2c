@@ -18,11 +18,11 @@ msgstr " (Last called %s ago)"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:121
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:75
 msgid " (new: %s p/h, processing rate: %s p/h)"
-msgstr " (new: %s p/h, processing rate: %s p/h)"
+msgstr "(new: %s p/h, processing rate: %s p/h)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/ScheduledProcessor.php:13
 msgid " This is used for cron and has cron checks so you should execute wp sk process-all-tasks instead."
-msgstr " This is used for cron and has cron checks so you should execute wp sk process-all-tasks instead."
+msgstr "This is used for Cron and has Cron checks so you should execute \"wp sk process-all-tasks\" instead."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:72
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:107
@@ -62,17 +62,13 @@ msgstr "%s: You need to have WooCommerce installed for this add-on to work"
 msgid "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
 msgstr "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:109
-msgid "256M is a size sample you can put and then do a full sync."
-msgstr "You can set 256M for example and then do a full sync. "
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:133
 msgid "Action"
 msgstr "Action"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:384
 msgid "Activate StoreKeeper payments"
-msgstr "Activate StoreKeeper payments"
+msgstr "Activate StoreKeeper Payments"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:288
 msgid "Activeer product"
@@ -87,10 +83,6 @@ msgstr "Add %s to crontab."
 msgid "Advanced configuration"
 msgstr "Advanced configuration"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:104
-msgid "After identifying the value defined on memory and still the error persist."
-msgstr "After identifying the config value for memory the error still persist."
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:251
 msgid "After you complete the full \"One Time Export\" procedure, be aware that from this moment on the management of your webshop goes through the StoreKeeper BackOffice."
 msgstr "After you complete the full \"One Time Export\" procedure, be aware that from this moment on the management of your webshop goes through the StoreKeeper BackOffice."
@@ -101,19 +93,20 @@ msgstr "All"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:62
 msgid "All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the Force sync button"
-msgstr "All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the Force sync button"
+msgstr "All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the \"Force sync\" button"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:82
 msgid "All skus was generated successfully"
-msgstr "All skus was generated successfully"
+msgstr "All SKU's were generated successfully"
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:50
-msgid "Allowing of at least one of the following directories to be writable is required: %s"
-msgstr "Allowing of at least one of the following directories to be writable is required: %s"
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Filters/OrderTrackingMessage.php:16
+msgid "Allows to change the Track&Trace html on the order page before it's shown on the customer order page."
+msgstr "Allows to change the Track&Trace HTML on the order page before it's shown on the customer order page."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:86
-msgid "Alternatively, you can get the API key via command line."
-msgstr "Alternatively, you can get the API key via command line."
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Filters/PrepareProductCategorySummaryFilter.php:17
+#, fuzzy
+msgid "Allows to change the product category summary, which is shown below the products in the category archive page."
+msgstr "Allows to change the product category summary, which is shown below the products in the category archive page."
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:32
 msgid "An error occurred!"
@@ -166,16 +159,20 @@ msgstr "Backoffice %s role"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:75
 msgid "Backoffice API key"
-msgstr "Backoffice API key"
+msgstr "BackOffice API key"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:43
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:40
 msgid "Backoffice ID"
 msgstr "Backoffice ID"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:84
+msgid "Backoffice connection"
+msgstr "BackOffice connection"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:24
 msgid "Backoffice roles"
-msgstr "Backoffice roles"
+msgstr "BackOffice roles"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:68
 msgid "Barcode"
@@ -192,10 +189,6 @@ msgstr "Below are actions you can do to increase PHP memory limit:"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:66
 msgid "Brand"
 msgstr "Brand"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:100
-msgid "But before trying some of these you can check what is the defined memory_limit of your site. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting."
-msgstr "Before trying some of these options you can check what the defined memory_limit of your site is. You can check this by Clicking Tools > Site Health > Info > Server. Here you can check the current settings of your hosting."
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:63
 msgid "Categories"
@@ -219,7 +212,7 @@ msgstr "Changing this settings allows to use various EAN, barcode plugins. After
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:162
 msgid "Check if `curl` and `cron` is installed in the website's server."
-msgstr "Check if `curl` and `cron` is installed in the website's server."
+msgstr "Check if `curl` and `cron` is installed in the server hosting your website/webshop."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:88
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:182
@@ -250,6 +243,10 @@ msgstr "Configure StoreKeeper synchronization plugin"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:44
 msgid "Conflicts"
 msgstr "Conflicts"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:87
+msgid "Connect to StoreKeeper"
+msgstr "Connect to StoreKeeper"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:18
 msgid "Connection"
@@ -283,9 +280,9 @@ msgstr "Contact your server provider to upgrade your PHP version to at least %s"
 msgid "Contact your system administrator if the problem persists."
 msgstr "Contact your system administrator if the problem persists."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:84
-msgid "Copy the \"Backoffice API key\" from the text area above."
-msgstr "Copy the \"Backoffice API key\" from the text area above."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:104
+msgid "Copy the \"Backoffice API Key\" from the text area."
+msgstr "Copy the \"BackOffice API Key\" from the text area."
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:227
 msgid "Coupon code"
@@ -468,11 +465,11 @@ msgstr "Done synchronizing shop information"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:129
 msgid "Download export (csv)"
-msgstr "Download export (csv)"
+msgstr "Download export (CSV)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:164
 msgid "Download export (zip)"
-msgstr "Download export (zip)"
+msgstr "Download export (ZIP)"
 
 #: vendor/wp-cli/wp-cli/php/utils-wp.php:233
 msgid "Drag widgets here to remove them from the sidebar but keep their settings."
@@ -624,7 +621,7 @@ msgstr "Failed to render the tab"
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:76
 msgid "Failed to set sku"
-msgstr "Failed to set sku"
+msgstr "Failed to set SKU"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:103
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:123
@@ -661,7 +658,7 @@ msgstr "Fix if there are known issues with the sync."
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceProducts.php:31
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProducts.php:35
 msgid "Flag to prevent spawning of child processes. Having this might cause timeouts during execution."
-msgstr "Flag to prevent spawning of child processes. Having this might cause timeouts during execution."
+msgstr "[TECH] Flag to prevent spawning of child processes. Having this might cause timeouts during execution."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:58
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:55
@@ -678,7 +675,7 @@ msgstr "Foreign key constraint is missing"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:19
 msgid "Frontend settings"
-msgstr "Frontend settings"
+msgstr "Webshop frontend settings"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:249
 msgid "Full import"
@@ -691,7 +688,7 @@ msgstr "Full sync"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:30
 msgid "Function returned false"
-msgstr "Function returned false"
+msgstr "Function returned: False"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/ConnectBackend.php:17
 msgid "Generate Storekeeper Backoffice API key."
@@ -699,7 +696,7 @@ msgstr "Generate Storekeeper Backoffice API key."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:277
 msgid "Generate all missing sku from title"
-msgstr "Generate all missing sku from title"
+msgstr "Generate all missing SKU codes from the product titles"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/FileExports/FileExportCustomer.php:19
 msgid "Generate and export CSV files for customers which will be used to import to Storekeeper Backoffice."
@@ -739,11 +736,7 @@ msgstr "German"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:138
 msgid "Go to backoffice import form"
-msgstr "Go to backoffice import form"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:112
-msgid "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
-msgstr "Go to the public_html folder of your webshop (e.g. /webshop/public_html/)"
+msgstr "Go to BackOffice import page"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:149
 msgid "Go to the public_html folder of your webshop: %s"
@@ -819,13 +812,26 @@ msgstr "Instructions"
 msgid "Invalid postcode or house number"
 msgstr "Invalid postcode or house number"
 
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:147
+msgid "Invalid return url, contact shop owner to check the payment"
+msgstr "Invalid return URL, contact shop owner to check the payment"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:240
 msgid "It seems that its been %s ago since the process tasks cron has been running, Contact your system administrator to solve this problem."
 msgstr "It seems that its been %s ago since the process tasks cron has been running, Contact your system administrator to solve this problem."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:404
 msgid "It will import the category descriptions as html, otherwise plain text. It requires a theme support for rendering it correctly."
-msgstr "It will import the category descriptions as html, otherwise plain text. It requires a theme support for rendering it correctly."
+msgstr "It will import the category descriptions as HTML, otherwise plain text. It requires a theme support for rendering it correctly."
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/ProcessAllTasks.php:62
+msgid "It will stop on first failing task"
+msgstr "It will stop on the first failing task"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:125
+#, fuzzy
+msgid "Keywords"
+msgstr "Keywords"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:63
 msgid "Last cron execution status"
@@ -856,9 +862,9 @@ msgstr "Last task processed"
 msgid "Last webhook received"
 msgstr "Last webhook received"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:94
-msgid "Log into your backoffice admin environment."
-msgstr "Log into your backoffice admin environment."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:105
+msgid "Log into your admin environment"
+msgstr "Log into your Admin environment"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/ToolsPage.php:21
 msgid "Log purger"
@@ -926,13 +932,17 @@ msgstr "Minimal order quantity"
 msgid "Name"
 msgstr "Name"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:106
+msgid "Navigate to settings > technical settings and click on the \"webhook\" tab."
+msgstr "Navigate to \"Settings > Technical Settings\" and click on the \"Webhook\" tab."
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:74
 msgid "Needs description on kassa"
-msgstr "Needs description on kassa"
+msgstr "Needs description on POS"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:72
 msgid "Needs weight on kassa"
-msgstr "Needs weight on kassa"
+msgstr "Requires weighting on POS"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:192
 msgid "Never"
@@ -990,14 +1000,6 @@ msgstr "Nothing will be synced"
 msgid "Notify when backorderable"
 msgstr "Notify when backorderable"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:96
-msgid "On settings page, click \"Connect sync\" under \"Actions\" section."
-msgstr "On settings page, click \"Connect sync\" under \"Actions\" section."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:95
-msgid "On your sidebar, under \"Sales channels\", open your webshop and click \"Settings\"."
-msgstr "On your sidebar, under \"Sales channels\", open your webshop and click \"Settings\"."
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:98
 msgid "Once done, you should reload this page and you will be fully connected."
 msgstr "Once done, you should reload this page and you will be fully connected."
@@ -1018,7 +1020,7 @@ msgstr "Open command line and navigate to website directory"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:51
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:48
 msgid "Open in backoffice"
-msgstr "Open in backoffice"
+msgstr "Open in BackOffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:233
 msgid "Order"
@@ -1058,7 +1060,7 @@ msgstr "Orders & customers synced"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:278
 msgid "Orders and customers are being exported, order status and product stock with matching skus are being imports"
-msgstr "Orders and customers are being exported, order status and product stock with matching skus are being imports"
+msgstr "Orders and customers are being exported, order status and product stock with matching SKUs are being imports"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:241
 msgid "Other"
@@ -1066,7 +1068,7 @@ msgstr "Other"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:146
 msgid "Other backoffice roles"
-msgstr "Other backoffice roles"
+msgstr "Other BackOffice roles"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/AbstractPage.php:75
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:166
@@ -1087,9 +1089,9 @@ msgstr "PHP version %s or up"
 msgid "Parent product recalculation"
 msgstr "Parent product recalculation"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:97
-msgid "Paste your API key into the field that says \"Api key\" and click connect."
-msgstr "Paste your API key into the field that says \"Api key\" and click connect."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:107
+msgid "Paste your api key into the field that says \"Api key\" and click connect."
+msgstr "Paste your API Key into the field that says \"API Key\" and click connect."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/DashboardTab.php:38
 msgid "Payments active"
@@ -1147,7 +1149,7 @@ msgstr "Preparing export"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:70
 msgid "Printable shortname"
-msgstr "Printable shortname"
+msgstr "Short name for receipts"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/ProcessSingleTask.php:19
 msgid "Process a single task at any given status by providing task ID."
@@ -1179,7 +1181,7 @@ msgstr "Product"
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:86
 msgid "Product already has sku set"
-msgstr "Product already has sku set"
+msgstr "Product already has SKU set"
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:73
 msgid "Product blueprints"
@@ -1191,7 +1193,7 @@ msgstr "Product categories level (%s)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:51
 msgid "Product has empty sku"
-msgstr "Product has empty sku"
+msgstr "Product has empty SKU"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:258
 msgid "Product import"
@@ -1329,6 +1331,10 @@ msgstr "Redirect import"
 msgid "Refund via Wordpress plugin (Refund #%s)"
 msgstr "Refund via Wordpress plugin (Refund #%s)"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:65
+msgid "Registered wordpress hooks"
+msgstr "Registered WordPress hooks"
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:239
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
 msgid "Report error"
@@ -1352,11 +1358,11 @@ msgstr "Request route"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:45
 msgid "Requires the --email parameters to be set. This field is required if you want to fix the \"products active in backend not active in woocommerce\" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts."
-msgstr "Requires the --email parameters to be set. This field is required if you want to fix the \"products active in backend not active in woocommerce\" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts."
+msgstr "[TECHMODE] Requires the --email parameters to be set. This field is required if you want to fix the \"products active in backend not active in woocommerce\" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts."
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:39
 msgid "Requires the --password parameters to be set. This field is required if you want to fix the \"products active in backend not active in woocommerce\" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts."
-msgstr "Requires the --password parameters to be set. This field is required if you want to fix the \"products active in backend not active in woocommerce\" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts."
+msgstr "[TECHNICIAN MODE] Requires the --password parameters to be set. This field is required if you want to fix the \"products active in backend not active in woocommerce\" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:36
 msgid "Response code"
@@ -1399,10 +1405,6 @@ msgstr "Retrieve webhook log."
 msgid "Retry"
 msgstr "Retry"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:91
-msgid "Run %s and copy the generated API key."
-msgstr "Run %s and copy the generated API key."
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:185
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:189
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:190
@@ -1426,10 +1428,6 @@ msgstr "SEO handler"
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:149
 msgid "SKU feature for WooCommerce has been disabled."
 msgstr "SKU feature for WooCommerce has been disabled."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:165
-msgid "SKU feature for for WooCommerce has been disabled."
-msgstr "SKU in WooCommerce - Enabled (Enabled = Required for Full Sync!)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceFullSync.php:19
 msgid "SYNCHRONIZATION SEQUENCE"
@@ -1477,6 +1475,21 @@ msgstr "Select log type"
 msgid "Select which cron runner will be used. Please use only if knowledgeable."
 msgstr "Select which cron runner will be used. Please use only if knowledgeable."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:43
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:69
+msgid "Seo description"
+msgstr "SEO description"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:42
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:62
+msgid "Seo keywords"
+msgstr "SEO keywords"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:41
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:56
+msgid "Seo title"
+msgstr "SEO title"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:68
 msgid "Server status"
 msgstr "Server status"
@@ -1491,11 +1504,11 @@ msgstr "Set how many tasks will be processed. Setting limit to 0 means all tasks
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:35
 msgid "Setting sku for product variation \"%s\" of product: "
-msgstr "Setting sku for product variation \"%s\" of product: "
+msgstr "Setting SKU for product variation \"%s\" of product:"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:45
 msgid "Setting sku for product: "
-msgstr "Setting sku for product: "
+msgstr "Setting SKU for product:"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:72
 msgid "Settings"
@@ -1554,11 +1567,11 @@ msgstr "Skips the confirmation whether or not you are sure to continue."
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ProductSkuGenerator.php:71
 msgid "Sku was set for product"
-msgstr "Sku was set for product"
+msgstr "SKU was set for product"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:64
 msgid "Sku:"
-msgstr "Sku:"
+msgstr "SKU:"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:118
 msgid "Some synchronizations can take up to 24 hours to complete, leave the page open until its done."
@@ -1574,7 +1587,7 @@ msgstr "Something went wrong while syncing product"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptions.php:28
 msgid "Specify total amount of attribute options from Storekeeper Backoffice. By default, counts the total amount of attribute options by checking the Storekeeper Backoffice"
-msgstr "Specify total amount of attribute options from Storekeeper Backoffice. By default, counts the total amount of attribute options by checking the Storekeeper Backoffice"
+msgstr "Specify total amount of attribute options from Storekeeper BackOffice. By default, counts the total amount of attribute options by checking the Storekeeper BackOffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProducts.php:29
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProducts.php:29
@@ -1584,6 +1597,10 @@ msgstr "Specify total amount of cross-sell products from Storekeeper Backoffice.
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceProducts.php:25
 msgid "Specify total amount of products from Storekeeper Backoffice. By default, counts the total amount of products by checking the Storekeeper Backoffice"
 msgstr "Specify total amount of products from Storekeeper Backoffice. By default, counts the total amount of products by checking the Storekeeper Backoffice"
+
+#: src/StoreKeeper/WooCommerce/B2C/Exceptions/TableOperationSqlException.php:18
+msgid "Sql on %s::%s operation: %s"
+msgstr "SQL on %s::%s operation: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:231
 msgid "Stack Trace"
@@ -1641,6 +1658,11 @@ msgstr "Starting tags synchronization..."
 msgid "Starting upsell products synchronization..."
 msgstr "Starting upsell products synchronization..."
 
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:153
+#, fuzzy
+msgid "Stating payment %s\n eid: %s, trx: %s"
+msgstr "Stating payment %s\n eid: %s, trx: %s"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:187
 msgid "Statistics"
 msgstr "Statistics"
@@ -1664,6 +1686,10 @@ msgstr "Stop exporting"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:34
 msgid "StoreKeeper"
 msgstr "StoreKeeper"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:32
+msgid "StoreKeeper Seo"
+msgstr "StoreKeeper SEO"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/AbstractPage.php:128
 msgid "StoreKeeper Sync Plugin"
@@ -1731,7 +1757,7 @@ msgstr "Sync all categories."
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCouponCodes.php:17
 msgid "Sync all coupon codes from Storekeeper Backoffice"
-msgstr "Sync all coupon codes from Storekeeper Backoffice"
+msgstr "Sync all coupon codes from Storekeeper BackOffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCouponCodes.php:12
 msgid "Sync all coupon codes."
@@ -1765,7 +1791,7 @@ msgstr "Sync all product attribute options."
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributes.php:17
 msgid "Sync all product attributes from Storekeeper Backoffice"
-msgstr "Sync all product attributes from Storekeeper Backoffice"
+msgstr "Sync all product attributes from Storekeeper BackOffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributes.php:12
 msgid "Sync all product attributes."
@@ -1781,7 +1807,7 @@ msgstr "Sync all products."
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCategories.php:17
 msgid "Sync all tags from Storekeeper Backoffice"
-msgstr "Sync all tags from Storekeeper Backoffice"
+msgstr "Sync all tags from Storekeeper BackOffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCategories.php:12
 msgid "Sync all tags."
@@ -1856,7 +1882,7 @@ msgstr "Synchronize from StoreKeeper"
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:96
 #: src/StoreKeeper/WooCommerce/B2C/Imports/AbstractImport.php:254
 msgid "Syncing %s from Storekeeper backoffice"
-msgstr "Syncing %s from Storekeeper backoffice"
+msgstr "Syncing %s from Storekeeper BackOffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/AbstractCommand.php:149
 msgid "Syncing from Storekeeper backoffice"
@@ -1864,7 +1890,7 @@ msgstr "Syncing from Storekeeper backoffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Updator.php:23
 msgid "Table \"%s\" need to be using InnoDB ENGINE. <a href=\"%s\">Go to status page</a> to fix this dependency."
-msgstr "Table \"%s\" need to be using InnoDB ENGINE. <a href=\"%s\">Go to status page</a> to fix this dependency."
+msgstr "Table \"%s\" need to be using InnoDB Engine. <a href=\"%s\">Go to status page</a> to fix this dependency."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:89
 msgid "Table foreign keys and InnoDB"
@@ -1873,10 +1899,6 @@ msgstr "Table foreign keys and InnoDB"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:269
 msgid "Table is using InnoDB engine"
 msgstr "Table is using InnoDB engine"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:86
-msgid "Tables are using InnoDB engine"
-msgstr "Tables are using InnoDB engine"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:225
 msgid "Tag"
@@ -1942,7 +1964,7 @@ msgstr "The StoreKeeper synchronization plugin extension is not connected, thus 
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/ConnectBackend.php:35
 msgid "The base URL of your website."
-msgstr "The base URL of your website."
+msgstr "The base URL of your website/webshop."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:248
 msgid "The correct order of importing is the same as export below, so first customers,tags,categories ect."
@@ -1956,13 +1978,10 @@ msgstr "The following required extensions are missing from your server: %s"
 msgid "The language to which the entities will be exported."
 msgstr "The language to which the entities will be exported."
 
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:257
-msgid "The order's payment status received: %s"
-msgstr "The order's payment status received: %s"
-
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:140
-msgid "The order's payment was created\n eid: %s\n trx: %s"
-msgstr "The order's payment was created\n eid: %s\n trx: %s"
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:166
+#, fuzzy
+msgid "The order\\'s payment status received: %s\ntrx=%s"
+msgstr "The order\\'s payment status received: %s\ntrx=%s"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:54
 msgid "The payment has been canceled, please try again"
@@ -1982,11 +2001,11 @@ msgstr "The type of tasks to be marked."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:262
 msgid "There are %s product(s) without sku."
-msgstr "There are %s product(s) without sku."
+msgstr "There are %s product(s) without SKU."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:268
 msgid "There are %s variations(s) without sku."
-msgstr "There are %s variations(s) without sku."
+msgstr "There are %s variations(s) without SKU."
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:59
 msgid "There was an error during processing of the payment: %s"
@@ -2002,7 +2021,7 @@ msgstr "This %s is synced from the backoffice, thus any changes won't be synced 
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:160
 msgid "This can take up to 24 hours depending of your data, please do not close the tab."
-msgstr "This can take up to 24 hours depending of your data, please do not close the tab."
+msgstr "This can take up to 24 hours depending of your data, please do not close the tab!"
 
 #: src/StoreKeeper/WooCommerce/B2C/Exports/AbstractExport.php:138
 msgid "This channel was disconnected in StoreKeeper Backoffice, please reconnect it manually."
@@ -2016,6 +2035,10 @@ msgstr "This command checks if there are any issues with the sync. When it retur
 msgid "This command fixes any known issues with the sync possible. Not all issues can be fixed using this command."
 msgstr "This command fixes any known issues with the sync possible. Not all issues can be fixed using this command."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:109
+msgid "This is managed product, you can only edit this seo information in StoreKeeper Backoffice."
+msgstr "This product is managed in StoreKeeper, you can only edit this SEO information in StoreKeeper Backoffice."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:147
 msgid "This order is marked as completed, any changes might not be synced to the backoffice"
 msgstr "This order is marked as completed, any changes might not be synced to the backoffice"
@@ -2027,6 +2050,11 @@ msgstr "This plugin provides sync possibilities with the StoreKeeper Backoffice.
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:129
 msgid "Times ran"
 msgstr "Times ran"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:115
+#, fuzzy
+msgid "Title"
+msgstr "Title"
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/OrderHookHandler.php:30
 msgid "To check your parcel status, go to <a href=\"%s\">Track & Trace page</a>."
@@ -2169,6 +2197,10 @@ msgstr "Wordpress error message: "
 msgid "Wordpress plugin"
 msgstr "Wordpress plugin"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:96
+msgid "Wp-config settings"
+msgstr "WP-Config settings"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:151
 msgid "Writable tmp directory"
 msgstr "Writable tmp directory"
@@ -2205,10 +2237,6 @@ msgstr "You can try executing this command via SSH (WP-CLI)."
 msgid "You should generate all the export files and then go to the \"%1$s\" of this account."
 msgstr "You should generate all the export files and then go to the \"%1$s\" of this account."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:106
-msgid "You try can increasing the memory by adding %s on the wp-config."
-msgstr "You try can increasing the available memory by adding %s in the wp-config."
-
 #: src/StoreKeeper/WooCommerce/B2C/Core.php:304
 msgid "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
 msgstr "Your WooCommerce version (%s) is lower then the minimum required %s which could cause unexpected behaviour"
@@ -2217,17 +2245,17 @@ msgstr "Your WooCommerce version (%s) is lower then the minimum required %s whic
 msgid "Your allowed memory size has been exhausted."
 msgstr "Your allowed memory size has been exhausted."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:99
-msgid "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
-msgstr "Your allowed memory size has been exhausted. Here are some solution that may solve the issue."
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:50
 msgid "Your download will start in a few seconds. If not, you can download the file manually using the link below"
 msgstr "Your download will start in a few seconds. If not, you can download the file manually using the link below"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:49
 msgid "Your file has been generated"
-msgstr "Your file has been generated"
+msgstr "The file has been generated"
+
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:72
+msgid "Your order is awaiting payment. Once we receive it, we'll process your purchase."
+msgstr "Your order is awaiting payment. Once we receive it, we'll process your purchase."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:124
 msgid "attribute"
@@ -2288,7 +2316,7 @@ msgstr "https://www.storekeeper.nl/"
 
 #: src/StoreKeeper/WooCommerce/B2C/Imports/MenuItemImport.php:435
 msgid "menu items"
-msgstr "menu items"
+msgstr "Menu Items"
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:31
 msgid "minutes"
@@ -2304,7 +2332,7 @@ msgstr "or alternatively, you can export per file."
 
 #: src/StoreKeeper/WooCommerce/B2C/Imports/OrderImport.php:215
 msgid "orders"
-msgstr "orders"
+msgstr "Orders"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:89
 msgid "product"

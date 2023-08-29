@@ -64,6 +64,8 @@ else
   echo "storekeeper-for-woocommerce is already active"
 fi
 
+cd $WORPRESS_ROOT
+
 REPORT_FILE=versions-`date "+%Y-%m-%d"`.txt
 echo "== Wordpress" > $REPORT_FILE \
   && wp core version >> $REPORT_FILE \
