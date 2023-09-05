@@ -99,14 +99,14 @@ class FullProductImportWithSelectiveIds extends ProductImport
 
     // During fullsync we dont set the upsell ids.
     // Because with a full sync we executeInWpCli `wp sk sync-woocommerce-upsell-products` to sync them
-    protected function setUpsellIds(&$newProduct, $product)
+    protected function setUpsellIds(& $newProduct, $product)
     {
         return [];
     }
 
     // During fullsync we dont set the cross sell ids.
     // Because with a full sync we executeInWpCli `wp sk sync-woocommerce-cross-products` to sync them
-    protected function setCrossSellIds(&$newProduct, $product)
+    protected function setCrossSellIds(& $newProduct, $product)
     {
         return [];
     }

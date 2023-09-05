@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -486,6 +487,8 @@ class TaskHandler
             case self::REDIRECT_DELETE:
                 $import = new RedirectDeleteTask();
                 break;
+            case self::REPORT_ERROR:
+                return; // nothing to handle
             default:
                 throw new Exception("$type not found");
         }
@@ -556,6 +559,8 @@ class TaskHandler
                 true,
                 false
             );
+        } catch (LockException $e) {
+            throw $e; // do not report the task eror
         } catch (Throwable $e) {
             // If the task failed, report it
             $this->reportFailedTask($task_id, $e);

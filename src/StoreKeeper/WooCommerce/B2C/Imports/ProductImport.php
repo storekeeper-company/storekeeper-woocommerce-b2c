@@ -269,7 +269,7 @@ SQL;
      *
      * @throws WordpressException
      */
-    protected function setCategories(&$newProduct, $product)
+    protected function setCategories(& $newProduct, $product)
     {
         $categoryIds = [];
 
@@ -299,7 +299,7 @@ SQL;
      *
      * @throws WordpressException
      */
-    protected function setTags(&$newProduct, $product)
+    protected function setTags(& $newProduct, $product)
     {
         $tagIds = [];
 
@@ -395,7 +395,7 @@ SQL;
         return null;
     }
 
-    protected function setGalleryImages(&$newProduct, $product, $mainImageId = null): void
+    protected function setGalleryImages(& $newProduct, $product, $mainImageId = null): void
     {
         $attachmentIds = [];
         $oldAttachmentIds = $newProduct->get_gallery_image_ids();
@@ -453,7 +453,7 @@ SQL;
      * @throws WordpressException
      * @throws WC_Data_Exception
      */
-    protected function setUpsellIds(&$newProduct, $product)
+    protected function setUpsellIds(& $newProduct, $product)
     {
         $this->debug('[upsell] Processing');
         $shop_product_id = $product->get('id');
@@ -557,7 +557,7 @@ SQL;
      *
      * @return array
      */
-    protected function setCrossSellIds(&$newProduct, $product)
+    protected function setCrossSellIds(& $newProduct, $product)
     {
         $this->debug('[cross sell] Processing');
         $shop_product_id = $product->get('id');
@@ -1570,7 +1570,7 @@ SQL;
     }
 
     private function applyStockToProps(
-        array &$props,
+        array & $props,
         WC_Product_Variation $variationProduct,
         Dot $assignedProductData
     ) {
@@ -1614,7 +1614,7 @@ SQL;
     /**
      * @throws WordpressException
      */
-    private function getVariationId(Dot $associatedShopProduct, array &$assigned_debug_log): ?int
+    private function getVariationId(Dot $associatedShopProduct, array & $assigned_debug_log): ?int
     {
         $variation = $this->getProductVariation($associatedShopProduct->get('shop_product_id'));
         if (is_null($variation) && $associatedShopProduct->has('shop_product.product.sku')) {

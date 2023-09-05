@@ -54,7 +54,7 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
             update_option('woocommerce_store_address', $addressContact);
             update_option('woocommerce_store_city', $city);
             update_option('woocommerce_store_postcode', $postal);
-            if( !empty($country_iso2)){
+            if (!empty($country_iso2)) {
                 $country_iso2 = strtoupper($country_iso2);
                 update_option('woocommerce_default_country', "$country_iso2:*");
             }

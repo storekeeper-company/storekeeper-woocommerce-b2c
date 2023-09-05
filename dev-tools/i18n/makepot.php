@@ -476,7 +476,7 @@ class MakePOT
         return $first_lines;
     }
 
-    public function get_addon_header($header, &$source)
+    public function get_addon_header($header, & $source)
     {
         /*
          * A few things this needs to handle:

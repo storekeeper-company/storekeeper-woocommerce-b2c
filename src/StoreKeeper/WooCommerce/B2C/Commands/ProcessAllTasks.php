@@ -6,6 +6,7 @@ use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
@@ -75,9 +76,9 @@ class ProcessAllTasks extends AbstractCommand
             $this->logger->notice('Processing will stop on first failing task');
         }
         $task_ids = [];
+        $this->setUpDb();
         try {
             $this->lock();
-            $this->setUpDb();
 
             $limit = $this->getTaskLimitFromArguments($assoc_arguments);
             $task_ids = $this->getTaskIds($limit);
@@ -460,6 +461,8 @@ class ProcessAllTasks extends AbstractCommand
                 );
 
                 $this->reportTaskSuccess($task_id, $log_context);
+            } catch (LockException $e) {
+                throw $e; // do not report the task eror
             } catch (Throwable $e) {
                 $this->reportTaskError($task_id, $e, $log_context);
 

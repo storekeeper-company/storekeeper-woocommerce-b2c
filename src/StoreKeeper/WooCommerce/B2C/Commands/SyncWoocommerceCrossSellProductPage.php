@@ -128,7 +128,7 @@ class SyncWoocommerceCrossSellProductPage extends AbstractSyncCommand
      *
      * @throws WordpressException
      */
-    private function setProductCrossSell(&$product)
+    private function setProductCrossSell(& $product)
     {
         $shop_product_id = get_post_meta($product->get_id(), 'storekeeper_id', true);
 

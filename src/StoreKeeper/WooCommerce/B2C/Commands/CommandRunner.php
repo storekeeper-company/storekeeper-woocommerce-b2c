@@ -11,6 +11,7 @@ use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\InvalidRunnerException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
@@ -22,6 +23,7 @@ class CommandRunner
     use LoggerAwareTrait;
 
     const BASE_CLASS = AbstractCommand::class;
+    const LOCK_EXIT = 1;
     /**
      * @var string[]
      */
@@ -109,6 +111,12 @@ class CommandRunner
         $time_start = microtime(true);
         try {
             $result = $command->execute($arguments, $assoc_arguments);
+        } catch (LockException $e) {
+            $result = self::LOCK_EXIT;
+            $this->logger->notice('There is another process holding the lock (cannot run)', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+            ]);
         } finally {
             $time = round((microtime(true) - $time_start) * 1000);
             $this->logVmStats(

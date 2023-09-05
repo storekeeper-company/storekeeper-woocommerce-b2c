@@ -39,12 +39,15 @@ class LoggerFactory
     {
         $level = Core::isDebug() ? Logger::DEBUG : Logger::WARNING;
 
-        $custom = $_ENV['STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL'] ?? null;
+        $custom = $_ENV['STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL']
+            ?? getenv('STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL');
 
         if (empty($custom) && defined('STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL')) {
             $custom = STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL ?? null;
         }
+
         if (!empty($custom)) {
+            $custom = strtoupper($custom);
             $levels = Logger::getLevels();
             if (array_key_exists($custom, $levels)) {
                 $level = $levels[$custom];

@@ -79,12 +79,14 @@ class MySqlLock implements LockInterface
 
     public function unlock(): void
     {
-        $database = $this->getDatabase()->getConnection();
-        $statement = $database->prepare('DO RELEASE_LOCK(?)');
-        $statement->bind_param('s', $this->lock);
-        $statement->execute();
+        if ($this->isLocked) {
+            $database = $this->getDatabase()->getConnection();
+            $statement = $database->prepare('DO RELEASE_LOCK(?)');
+            $statement->bind_param('s', $this->lock);
+            $statement->execute();
 
-        $this->isLocked = false;
+            $this->isLocked = false;
+        }
     }
 
     public function __destruct()

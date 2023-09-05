@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 
 class WebCommandRunner extends CommandRunner
@@ -13,8 +14,17 @@ class WebCommandRunner extends CommandRunner
         /* @var $command AbstractCommand */
         $command = new $class();
         $command->setRunner($this);
+        try {
+            $result = (int) $command->execute($arguments, $assoc_arguments);
+        } catch (LockException $e) {
+            $result = self::LOCK_EXIT;
+            $this->logger->notice('There is another process holding the lock (cannot run)', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+            ]);
+        }
 
-        return (int) $command->execute($arguments, $assoc_arguments);
+        return (int) $result;
     }
 
     public function executeAsSubProcess(
