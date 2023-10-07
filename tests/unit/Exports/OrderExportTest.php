@@ -669,6 +669,85 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->processTask($task);
     }
 
+    public function testCustomerEmailIsAdmin()
+    {
+        $this->initApiConnection();
+        $this->emptyEnvironment();
+
+        $existingAdminEmail = 'admin@storekeeper.nl';
+        $order = WC_Helper_Order::create_order();
+        $order->set_billing_email($existingAdminEmail);
+        $order->save();
+
+        $sent_order = [];
+        StoreKeeperApi::$mockAdapter
+            ->withModule(
+                'ShopModule',
+                function (MockInterface $module) use (&$sent_order, $existingAdminEmail) {
+                    $module->allows('findShopCustomerBySubuserEmail')->andReturnUsing(
+                        function ($payload) use ($existingAdminEmail) {
+                            [$emailPayload] = $payload;
+                            $email = $emailPayload['email'];
+
+                            if ($email === $existingAdminEmail) {
+                                throw GeneralException::buildFromBody([
+                                    'class' => 'ShopModule::EmailIsAdminUser'
+                                ]);
+                            }
+
+                            // Throwing this error basically means email was not found
+                            throw GeneralException::buildFromBody([
+                                'error' => 'Wrong DataBasicSubuser',
+                            ]);
+                        }
+                    );
+
+                    $module->allows('newShopCustomer')->andReturnUsing(
+                        function ($payload) use ($existingAdminEmail) {
+                            [$relationPayload] = $payload;
+                            $subuser = $relationPayload['relation']['subuser'];
+
+                            $this->assertNotEquals($existingAdminEmail, $subuser['login'], 'Subuser login should not be the admin email');
+                            $this->assertNotEquals($existingAdminEmail, $subuser['email'], 'Subuser email should not be the admin email');
+
+                            return mt_rand();
+                        }
+                    );
+
+                    $module->allows('naturalSearchShopFlatProductForHooks')->andReturn([
+                        'data' => [],
+                        'total' => 0,
+                        'count' => 0,
+                    ]);
+
+                    $module->allows('newOrder')->andReturnUsing(
+                        function ($payload) use (&$sent_order) {
+                            [$order] = $payload;
+
+                            $sent_order = $order;
+                            $sent_order['id'] = rand();
+                            $sent_order = $this->calculateNewOrder($sent_order);
+
+                            return $sent_order['id'];
+                        }
+                    );
+
+                    $module->allows('getOrder')->andReturnUsing(
+                        function () use (&$sent_order) {
+                            return $sent_order;
+                        }
+                    );
+
+                    $module->allows('updateOrder')->andReturnNull();
+                }
+            );
+
+        $OrderHandler = new OrderHandler();
+        $task = $OrderHandler->create($order->get_id());
+
+        $this->processTask($task);
+    }
+
     /**
      * In some cases when the theme is broken the order gets a Variable product instead of variance
      * So far it only happen when the order has single variance.

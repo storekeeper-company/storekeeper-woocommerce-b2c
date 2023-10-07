@@ -21,7 +21,7 @@ class CustomerFinder
         return (bool) self::findCustomerRelationDataIdByEmail($email);
     }
 
-    public static function createCustomerFromWcOrder(\WC_Order $order)
+    public static function createCustomerFromWcOrder(string $emailAddress, \WC_Order $order)
     {
         // Get correct addressed
         $billingAddress = self::extractBillingAddressFromOrder($order, false);
@@ -39,8 +39,8 @@ class CustomerFinder
                 'contact_address' => $shippingAddress,
                 'address_billing' => $billingAddress,
                 'subuser' => [
-                    'login' => $order->get_billing_email(self::EDIT_CONTEXT),
-                    'email' => $order->get_billing_email(self::EDIT_CONTEXT),
+                    'login' => $emailAddress,
+                    'email' => $emailAddress,
                 ],
             ],
         ];
@@ -95,14 +95,23 @@ class CustomerFinder
     {
         $email = $order->get_billing_email('edit');
 
-        // Check if the customer already exists
-        $relationDataId = self::findCustomerRelationDataIdByEmail($email);
+        try {
+            // Check if the customer already exists
+            $relationDataId = self::findCustomerRelationDataIdByEmail($email);
+        } catch (EmailIsAdminUserException $exception) {
+            $storeUrlParts = wp_parse_url(home_url());
+            $storeBaseUrl = $storeUrlParts['host'];
+            $email = 'nomail+' . crc32($email) . '@' . $storeBaseUrl;
+
+            $relationDataId = self::findCustomerRelationDataIdByEmail($email);
+        }
+
         if ($relationDataId) {
             return $relationDataId;
         }
 
         // Else we are going to create the customer;
-        return self::createCustomerFromWcOrder($order);
+        return self::createCustomerFromWcOrder($email, $order);
     }
 
     public static function extractBillingAddressFromOrder(\WC_Order $order, bool $bothAddresses = true): ?array
