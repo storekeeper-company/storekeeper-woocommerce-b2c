@@ -1,4 +1,4 @@
-=== StoreKeeper for Woocommerce ===
+=== StoreKeeper for WooCommerce ===
 Tags: woocommerce,e-commerce, woo,sales,store
 Requires at least: 5.0
 Tested up to: 6.3.0

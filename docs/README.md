@@ -1,28 +1,128 @@
-# StoreKeeper WooCommerce B2C
+[![Contributors][contributors-shield]][contributors-url]
+[![Issues][issues-shield]][issues-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-## Docker development
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/storekeeper-company/storekeeper-woocommerce-b2c">
+    <img src="logo-blue.png" alt="Logo" width="80" height="80">
+  </a>
 
-Install full local development by building the docker image and running installation script
+<h3 align="center">StoreKeeper WooCommerce B2C</h3>
 
+  <p align="center">
+    This plugin provides sync possibilities with the StoreKeeper Backoffice. Allows synchronization of the WooCommerce product catalog, customers, orders and handles payments using StoreKeeper payment platform.
+    <br />
+    <a href="https://wordpress.org/plugins/storekeeper-for-woocommerce/"><strong>View on wordpress.org »</strong></a>
+    <br />
+    
+  </p>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisite</a></li>
+        <li><a href="#development-using-docker">Development using docker</a></li>
+        <li><a href="#unit-tests">Unit tests</a></li>
+        <li><a href="#logging">Logging</a></li>
+        <li><a href="#translations">Translations</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#development-with-phpstorm">Development with PhpStorm</a>
+      <ul>
+        <li><a href="#settings-for-development">Settings for development</a></li>
+        <li><a href="#settings-for-unit-test">Settings for unit test</a></li>
+        <li><a href="#image-configuration-references">Image configuration references</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#advanced-development-guide">Advanced development guide</a>
+      <ul>
+        <li><a href="#setting-up-the-webhook-to-local-docker">Setting up the webhook to local docker</a></li>
+        <li><a href="#using-api-or-web-hook-dumps">Using API or web hook dumps</a></li>
+        <li><a href="#adding-sql-migrations">Adding SQL migrations</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#development-notes">Development notes</a>
+      <ul>
+        <li><a href="#hooks">Hooks</a></li>
+        <li><a href="#tagging-a-new-release">Tagging a new release</a></li>
+      </ul>
+    </li>
+  </ol>
+</details>
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+> This guide is favorable when you are working with Linux operating system, specifically Ubuntu.
+> 
+Having this project setup for development is pretty much straightforward, especially using docker.
+
+### Prerequisites
+
+These are the prerequisites to run the project on development environment.
+* php
+  ```sh
+  sudo apt install php
+  ```
+* [composer](https://getcomposer.org/download/)
+* [docker](https://docs.docker.com/engine/install/ubuntu/)
+* [docker compose](https://docs.docker.com/compose/install/)
+### Development using docker
+
+Running steps below should serve your development environment.
+
+1. Build docker development image.
+   ```sh
+   make dev-bash
+   ```
+   > Running command above will build docker image and open a bash inside docker container.
+3. Run installation script inside docker container.
+   ```sh
+   $STOREKEEPER_INSTALL
+   # e.g docker@b32031196454:/var/www/html$ $STOREKEEPER_INSTALL
+   ```
+   > WordPress files will be mounted inside `mount/wordpress` directory of the project.
+4. Exit docker container or open a new terminal.
+5. Start all containers.
+   ```sh
+   docker compose up -d
+   ```
+6. Open browser and visit http://localhost:8888/. You're all set!
+
+### Unit tests
+
+Before doing anything related to unit testing. Run all unit tests with `make` command.
 ```bash
-make dev-bash
-docker@b32031196454:/var/www/html$ $STOREKEEPER_INSTALL 
+make test
 ```
 
-You can see all the WordPress files in the `mount/wordpress` directory.
+> ⚠️ This will make sure all the permissions are correct inside the `mount/` directory.
+> Otherwise, it will result to `root` ownership.
 
-## Extra logging
+> In case running `make test` throws a `Permission denied` error, try deleting the `mount/wordpress-develop-tests` folder before running it again.
 
-Debug is active if `WP_DEBUG` or `STOREKEEPER_WOOCOMMERCE_B2C_DEBUG` is true-ish
+### Logging
 
-For different log error put in your `wp-config.php` 
+Debug mode is active if `WP_DEBUG` or `STOREKEEPER_WOOCOMMERCE_B2C_DEBUG` value is true-ish.
+
+For different log error, add this line in `wp-config.php`.
 
 ```
 define('STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL', 'DEBUG');
 ```
 
-## Translations
-Extract strings to be translated from the plugin, mostly all strings that are enclosed in `__("text to translate")` function and compile in in a `.pot` file.
+### Translations
+Extract strings to be translated from the plugin, mostly all strings that are enclosed in `__("text to translate")` function and compile it in a `.pot` file.
 ```bash
 make extract-translations
 ```
@@ -39,49 +139,124 @@ make push-translations
 
 > Suggested sequence is to first run `make extract-translations` to get the latest strings, then run `make push-translations` to update Lokalise, and finally run `make pull-translations` to download the translated texts.
 
+## Development with PhpStorm
 
-## Unit tests
+### Settings for development
+1. Configure CLI interpreters
+   1. Go to *Settings > PHP*. On that page, click the Browse (...) button next to the CLI Interpreter list.
+   2. On the page that opens, add a new entry. Select `From Docker, Vagrant, VM, WSL, Remote...` after clicking the `+` button and another popup will open.
+   3. Choose `Docker Compose`.
+   4. For the `Server` dropdown, select `Docker`.
+   5. In `Configuration files` field, set `./docker-compose.yml`.
+   6. For `Service` dropdown, select `dev`. Then click OK.
+   7. An entry will be added, for this guide it will be named `dev`. Click Apply and OK.
+   > See this <a href="#cli-interpreter-for-development">image</a> for reference.
+2. Configure docker development server and mapping.
+   1. Go to *Settings > PHP > Servers*.
+   2. Add a new entry. For this guide we name it `docker-dev`.
+   3. Put `localhost` in the `Host` field and `8888` in the `Port` field.
+   4. Check the `Use path mappings`.
+   5. Map your project root directory `e.g /path/to/project/storekeeper-woocommerce-b2c` to `/var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce`.
+   6. Map your `wordpress` directory inside mount folder `e.g /path/to/project/storekeeper-woocommerce-b2c/mount/wordpress` to `/var/www/html/wordpress`.
+   7. Click Apply and OK.
+   > See this <a href="#development-server-and-mapping">image</a> for reference.
 
-First time make sure you run unit tests with `make` it will make
-sure all the rigths we correct on the mount on the `mount/` if not run like
-this it result in `root` rights.
-```bash
-make test
-```
+### Settings for unit test
+1. Configure CLI interpreters
+   1. Go to *Settings > PHP*. On that page, click the Browse (...) button next to the CLI Interpreter list.
+   2. On the page that opens, add a new entry. Select `From Docker, Vagrant, VM, WSL, Remote...` after clicking the `+` button and another popup will open.
+   3. Choose `Docker Compose`.
+   4. For the `Server` dropdown, select `Docker`.
+   5. In `Configuration files` field, set `./docker-compose.yml`.
+   6. For `Service` dropdown, select `test`. Then click OK.
+   7. An entry will be added, for this guide it will be named `test`. Click Apply and OK.
+   > See this <a href="#cli-interpreter-for-unit-test">image</a> for reference.
+2. Configure Test Frameworks
+   1. Go to *Settings > PHP > Test Frameworks*.
+   2. Add an entry, select `PHPUnit Local` as configuration type.
+   3. On the configuration page. Choose `Use Composer autoloader`.
+   4. For `Path to script`, select the `autoload.php` inside mounted `wordpress-develop-tests` directory `e.g /path/to/project/storekeeper-woocommerce-b2c/mount/wordpress-develop-tests/wordpress-develop/vendor/autoload.php`.
+   5. For `Test Runner > Default configuration file`, select the `phpunit.xml` in the project `tests` directory `e.g /path/to/project/storekeeper-woocommerce-b2c/tests/phpunit.xml`.
+   > See this <a href="#test-frameworks">image</a> for reference.
+3. Configure docker test server and mapping.
+   1. Go to *Settings > PHP > Servers*.
+   2. Add a new entry. For this guide we name it `docker-test`.
+   3. Put `localhost` in the `Host` field and `8888` in the `Port` field.
+   4. Check the `Use path mappings`.
+   5. Map your project root directory `e.g /path/to/project/storekeeper-woocommerce-b2c` to `/var/www/html/wordpress-develop/wp-content/plugins/storekeeper-for-woocommerce`.
+   6. Map your `wordpress-develop` directory inside mount folder `e.g /path/to/project/storekeeper-woocommerce-b2c/mount/wordpress-develop-tests` to `/var/www/html/wordpress-develop`.
+   7. Click Apply and OK.
+   > See this <a href="#test-server-and-mapping">image</a> for reference.
+4. Configure project path mappings.
+   1. Go to *Settings > PHP*.
+   2. Select `test` CLI Interpreter that we created.
+   3. `Path mappings` field will show up. Click the `folder` icon on the right side. A popup will show.
+   4. Add entry. In `Local Path` column, add the project root directory `e.g /path/to/project/storekeeper-woocommerce-b2c` and map it in `Remote Path` to `/var/www/html/wordpress-develop/src/wp-content/plugins/storekeeper-for-woocommerce`.
+   5. Add another entry. In `Local Path` column, add the `wordpress-develop` inside the `mount/wordpress-develop-tests` directory `e.g /path/to/project/storekeeper-woocommerce-b2c/mount/wordpress-develop-tests/wordpress-develop` and map it in `Remote Path` to `/var/www/html/wordpress-develop`.
+   6. Click OK on the popup. Click Apply and OK on the PHP configuration page.
+   > See this <a href="#project-path-mappings-for-test">image</a> for reference.
+5. Add an External tool.
+   1. Go to *Settings > Tools > External Tools*.
+   2. Add an entry. For this guide we name it `docker compose build test`.
+   3. Under `Tool Settings`. Set `docker` in `Program` field.
+   4. Set `compose build test` in `Arguments` field.
+   5. Set project root directory `e.g /path/to/project/storekeeper-woocommerce-b2c` in `Working directory` field.
+   > See this <a href="#external-tool-for-building-test-container">image</a> for reference.
+6. Edit configuration templates for PHPUnit.
+   1. Go to `Run > Edit Configurations`.
+   2. A popup will show. Click `Edit configuration templates...` at the bottom left.
+   3. Select `PHPUnit` in the list.
+   4. On the configuration page, check `Use alternative configuration file` then select the `phpunit.xml` inside tests folder `e.g. path/to/project/storekeeper-woocommerce-b2c/tests/phpunit.xml`.
+   4. Under `Command Line`. Select the `test` CLI Interpreter we created in `Interpreter` dropdown. 
+   5. Set project root folder `e.g. path/to/project/storekeeper-woocommerce-b2c` in `Custom working directory` field.
+   6. Under `Before launch`, add an entry. Choose `Run External tool` then select the `docker compose build test` external tool that we created. Click Apply and OK.
+   > See this <a href="#run-configuration-template">image</a> for reference.
 
-## PhpStorm setup
+### Image configuration references
 
-Setup for developemnt:
+#### CLI Interpreter for development
+![CLI Interpreter - Development][interpreter-dev]
 
-![interpeter-dev.png](interpeter-dev.png)
-![mapping-docker-dev.png](mapping-docker-dev.png)
+#### Development server and mapping
+![Development server and mapping][mapping-docker-dev]
 
-Setup for unit testing:
+#### CLI Interpreter for Unit test
+![CLI Interpreter - Unit test][interpreter-test]
 
-![interpeter-test.png](interpeter-test.png)
-![test-framework.png](test-framework.png)
-![docker-test-mapping.png](docker-test-mapping.png)
-![web-test-mappings.png](web-test-mappings.png)
-![external-tool-build.png](external-tool-build.png)
-![example-test.png](example-test.png)
+#### Test Frameworks
+![Test Frameworks - Unit test][test-frameworks]
 
-## Setting up the webhook to local docker
+#### Test server and mapping
+![Test server and mapping][mapping-docker-test]
 
+#### Project path mappings for test
+![Project path mappings for test][web-test-mappings]
 
-Services like cloudflare zero conf tunnel can be used  can be used.
+#### External tool for building test container
+![External tool][external-tool-build]
+
+#### Run configuration template
+![Run configuration template][run-configuration-template]
+
+## Advanced development guide
+
+### Setting up the webhook to local docker
+Services like cloudflare zero conf tunnel can be used.
 https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/
 
-Then change the `WordPress Address (URL)` and `Site Address (URL)` to the url given out by service.
+Then change the `WordPress Address (URL)` and `Site Address (URL)` to the URL given out by the service.
 
-You can now connect using the wp command (where url is the url given back by ngrok)
+You can now connect using the wp command.
 ```bash
 docker-compose exec dev wp sk connect-backend https://external_url/
+# The `external_url` is the URL provided by cloudflare
 ```
 
-If you want to share the show externally set it's urls to the cloudflare zero conf tunnel url
+If you want to share the site externally, set its urls to the cloudflare zero conf tunnel url.
 ```bash
 docker-compose exec dev bash
 root@8942cbe3780d:~/wordpress# wp search-replace http://localhost:8888 https://external_url/ --all-tables
+# The `external_url` is the URL provided by cloudflare
 ```
 
 After this you can set it back to default.
@@ -90,17 +265,19 @@ docker-compose exec dev wp option set home http://localhost:8888/
 docker-compose exec dev wp option set siteurl http://localhost:8888/
 ```
 
-## Using api/webhook dumps
+### Using API or web hook dumps
 
-Each time the api call or a webhook is being fired 
-it will create new json file inside `./tmp/sk-tmp/dumps`. 
-Those files can be used in unit tests in `tests/data`
+Each time an API call or a webhook is being fired.
+It will create a new json file inside `./tmp/sk-tmp/dumps`. 
+Those files can be used for unit tests in `tests/data`
 
-### Place dump files in project
+#### Place dump files in project
 
-The dump files should be unified based on their parameters and moved to the correct location in the synchronisation plug-in project. The commands below are an example on how to to this for the sync-woocommerce-products dump files.
+The dump files should be unified based on their parameters and moved to the correct location in the synchronisation plugin project.
 
-Unify the dump files based on the parameters used in the calls
+The commands below are examples on how to apply this for the `sync-woocommerce-products` dump files.
+
+Unify the dump files based on the parameters used in the calls.
 
 `php tests/rewrite-data-based-on-tests.php tests/data/dumps`
 
@@ -112,47 +289,39 @@ Copy the files to the correct directory
 
 `mv tests/data/dumps/* tests/data/commands/sync-woocommerce-products`
 
-Remove unneeded dump files. All dump files that begin with the date/time of creation can be removed from the tests/data dumpfile directory.
+Remove unnecessary dump files. All dump files that begin with the date/time of creation can be removed from the tests/data dumpfile directory.
 
-### Use dump files in tests
+#### Use dump files in tests
 
 The best way to see how to use the data dump files in any unit test is to go to an existing unit test and see how it's done there. Below I've place the three most important functions.
 
-Use data dump for api calls made by the unit test
+Use data dump for api calls made by the unit test.
 
 `$this->mockApiCallsFromDirectory( DATADUMP_DIRECTORY, true );`
 
-Read content of command datadump to use in the unit test
+Read content of command data dump to use in the unit test.
 
 ```php
 $file = $this->getDataDump( PATH_TO_DATADUMP_SOURCE_FILE );
 $data = $file->getReturn()['data'];
 ```
-Read content of hook data dump to use in the unit test
+Read content of hook data dump to use in the unit test.
 ```php
 $file = $this->getHookDataDump( PATH_TO_DATADUMP_SOURCE_FILE );
 ```
 
-## Adding sql migrations
+### Adding SQL migrations
 
-Add new class in `src/StoreKeeper/WooCommerce/B2C/Migrations/Versions` than include this class as last in 
+Add new class in `src/StoreKeeper/WooCommerce/B2C/Migrations/Versions` then include this class as last in 
 `StoreKeeper\WooCommerce\B2C\Migrations\AllVersions::VERSION`.
 
 Version migration will run if plugin is updated or activated.
 
 You can find the new version in `wp_storekeeper_migration_versions` table after update/activate.
 
-When adding  migration versions keep in mind that [mysql has autocommit](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html) 
-on some changes. Make sure you place those in separate versions so the migrations remain atomic. 
+When adding  migration versions keep in mind that [MySQL has autocommit](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html) 
+on some changes. Make sure you place those in separate versions so the migrations remain atomic.
 
-## Make a new tagged release
-
-Tagging a commit will trigger a release build on github.
-
-```bash
-git tag 5.2.0
-git push origin 5.2.0
-```
 ## Development notes
 
 ### Hooks
@@ -160,3 +329,31 @@ git push origin 5.2.0
    1. Type - `Filter`
    2. Parameters - `$message`,`$url`
    3. Triggering class - `StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler`
+
+### Tagging a new release
+
+Tagging a commit will trigger a release build on GitHub.
+
+```bash
+git tag 5.2.0
+git push origin 5.2.0
+```
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/storekeeper-company/storekeeper-woocommerce-b2c.svg?style=for-the-badge
+[contributors-url]: https://github.com/storekeeper-company/storekeeper-woocommerce-b2c/graphs/contributors
+[issues-shield]: https://img.shields.io/github/issues/storekeeper-company/storekeeper-woocommerce-b2c.svg?style=for-the-badge
+[issues-url]: https://github.com/storekeeper-company/storekeeper-woocommerce-b2c/issues
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://nl.linkedin.com/company/storekeeper
+
+[logo]: logo-blue.png
+[interpreter-test]: interpreter-test.png
+[test-frameworks]: test-framework.png
+[web-test-mappings]: web-test-mappings.png
+[mapping-docker-test]: mapping-docker-test.png
+[external-tool-build]: external-tool-build.png
+[run-configuration-template]: run-configuration-template.png
+[interpreter-dev]: interpreter-dev.png
+[mapping-docker-dev]: mapping-docker-dev.png
