@@ -7,16 +7,13 @@ LOKALISE_PROJECT_ID=73695952636a8c7112e274.93369648
 format:
 	./vendor/bin/php-cs-fixer fix --config=./.php-cs-fixer.dist.php
 
-
-## ---- dev build ----------------------------------------
-
+## ---- Development build ----------------------------------------
 
 dev-prepare-mount:
 	mkdir -p mount/wordpress/wp-content/plugins
 
 build-bash:
-	docker compose run --rm build bash
-
+	docker compose -f docker-compose.build.yml run --rm build bash
 
 dev-clean:
 	docker compose down --volumes dev db
