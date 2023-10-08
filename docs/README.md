@@ -139,6 +139,7 @@ make push-translations
 
 > Suggested sequence is to first run `make extract-translations` to get the latest strings, then run `make push-translations` to update Lokalise, and finally run `make pull-translations` to download the translated texts.
 
+<!-- DEVELOPMENT WITH PHPSTORM -->
 ## Development with PhpStorm
 
 ### Settings for development
@@ -238,6 +239,7 @@ make push-translations
 #### Run configuration template
 ![Run configuration template][run-configuration-template]
 
+<!-- ADVANCED DEVELOPMENT GUIDE -->
 ## Advanced development guide
 
 ### Setting up the webhook to local docker
@@ -322,6 +324,8 @@ You can find the new version in `wp_storekeeper_migration_versions` table after 
 When adding  migration versions keep in mind that [MySQL has autocommit](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html) 
 on some changes. Make sure you place those in separate versions so the migrations remain atomic.
 
+
+<!-- DEVELOPMENT NOTES -->
 ## Development notes
 
 ### Hooks
