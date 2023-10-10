@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NoLoggerException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -45,7 +46,7 @@ class SyncWoocommerceProducts extends AbstractSyncCommand
     {
         $wpLogDirectory = LoggerFactory::getWpLogDirectory();
 
-        if (is_null($wpLogDirectory)) {
+        if (is_null($wpLogDirectory) && !Core::isTest()) {
             throw new NoLoggerException();
         }
 
