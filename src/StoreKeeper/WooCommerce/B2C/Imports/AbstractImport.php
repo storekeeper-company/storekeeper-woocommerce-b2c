@@ -205,8 +205,9 @@ abstract class AbstractImport
 
         $this->debug('Started a run!');
 
-        $runStartTime = date('redis');
+        $runStartTime = date('Ymdhis');
         $productImportErrorLogger = null;
+        $productImportErrorLoggerName = "product-import-error-{$runStartTime}";
 
         $moduleName = $this->getModule();
         $module = $this->storekeeper_api->getModule($moduleName);
@@ -324,7 +325,7 @@ abstract class AbstractImport
                         );
 
                         if (is_null($productImportErrorLogger)) {
-                            $productImportErrorLogger = LoggerFactory::create("product-import-error-{$runStartTime}");
+                            $productImportErrorLogger = LoggerFactory::create($productImportErrorLoggerName);
                         }
 
                         $productImportErrorLogger->error('Failed to import product', [
@@ -367,6 +368,12 @@ abstract class AbstractImport
                 $done_importing = true;
                 $this->debug("Done importing $fetched_total items.");
             }
+        }
+
+        if ($this->failedItemCount > 0) {
+            $logDirectory = LoggerFactory::getWpLogDirectory();
+            $this->logger->debug("Error log file: {$logDirectory}/{$productImportErrorLoggerName}.log");
+            WpCliHelper::attemptLineOutput("\nError log file: {$logDirectory}/{$productImportErrorLoggerName}.log\n");
         }
 
         $this->debug('started after run', $fetched_total);

@@ -301,7 +301,6 @@ abstract class AbstractProductImport extends AbstractImport
             $ShopModule->setShopProductObjectSyncStatusForHook($data);
 
             throw new ProductImportException($shopProductId, $throwable->getMessage(), $throwable->getCode(), $throwable);
-//            throw $throwable;
         }
     }
 
