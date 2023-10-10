@@ -28,6 +28,7 @@ services:
       WORDPRESS_LOCALE: nl_NL
       WOOCOMMERCE_VERSION: $WOOCOMMERCE_VERSION
       PHP_IDE_CONFIG: serverName=docker-dev
+      PHP_INI_UPLOAD_MAX_FILESIZE: 1G
     volumes:
       - ./mount/wordpress:/var/www/html/wordpress:rw
       - .:/var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce:rw
