@@ -63,7 +63,6 @@ abstract class AbstractImport
      */
     protected $lock;
 
-
     public function setIsProgressBarShown(bool $isProgressBarShown): void
     {
         $this->isProgressBarShown = $isProgressBarShown;
@@ -139,7 +138,6 @@ abstract class AbstractImport
     {
         return $this->failedItemCount;
     }
-
 
     public function total_still_left($offset)
     {
@@ -330,7 +328,7 @@ abstract class AbstractImport
 
                         $productImportErrorLogger->error('Failed to import product', [
                             'shop_product_id' => $exception->getShopProductId(),
-                            'error' => $errorMessage
+                            'error' => $errorMessage,
                         ]);
 
                         ++$this->failedItemCount;

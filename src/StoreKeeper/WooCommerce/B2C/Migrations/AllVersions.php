@@ -18,6 +18,7 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230319110710DropPkPayment
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230319110720PaymentsAddPkey;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230319114000PaymentsAddTrx;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20230319124000PaymentsAddIsPaid;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20231010192200CreateWebshopManagerRole;
 
 class AllVersions implements VersionsInterface
 {
@@ -38,6 +39,7 @@ class AllVersions implements VersionsInterface
         V20230319110720PaymentsAddPkey::class,
         V20230319114000PaymentsAddTrx::class,
         V20230319124000PaymentsAddIsPaid::class,
+        V20231010192200CreateWebshopManagerRole::class,
     ];
 
     public function getVersionId(string $class): int
