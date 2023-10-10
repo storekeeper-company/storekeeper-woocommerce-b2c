@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Exceptions\ProductImportException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
@@ -240,6 +241,9 @@ abstract class AbstractProductImport extends AbstractImport
         return trim($shop_product_path, '.');
     }
 
+    /**
+     * @throws ProductImportException
+     */
     protected function processItem($dotObject, array $options = [])
     {
         $ShopModule = $this->storekeeper_api->getModule('ShopModule');
@@ -296,7 +300,7 @@ abstract class AbstractProductImport extends AbstractImport
 
             $ShopModule->setShopProductObjectSyncStatusForHook($data);
 
-            throw $throwable;
+            throw new ProductImportException($shopProductId, $throwable->getMessage(), $throwable->getCode(), $throwable);
         }
     }
 

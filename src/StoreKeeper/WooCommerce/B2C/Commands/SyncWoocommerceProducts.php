@@ -2,6 +2,9 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
+use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exceptions\NoLoggerException;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 class SyncWoocommerceProducts extends AbstractSyncCommand
@@ -41,6 +44,12 @@ class SyncWoocommerceProducts extends AbstractSyncCommand
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
+        $wpLogDirectory = LoggerFactory::getWpLogDirectory();
+
+        if (is_null($wpLogDirectory) && !Core::isTest()) {
+            throw new NoLoggerException();
+        }
+
         if ($this->prepareExecute()) {
             // Try to get the total amount from the assoc arguments, if they are not there calculate the total amount.
             $total_amount = key_exists('total-amount', $assoc_arguments) ?

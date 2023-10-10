@@ -10,6 +10,8 @@ use StoreKeeper\ApiWrapper\ApiWrapper;
 use StoreKeeper\WooCommerce\B2C\Database\ImportProcessLock;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockTimeoutException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\ProductImportException;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\LockInterface;
@@ -52,12 +54,15 @@ abstract class AbstractImport
 
     protected $processedItemCount = 0;
 
+    protected int $failedItemCount = 0;
+
     protected $isProgressBarShown = true;
 
     /**
      * @var LockInterface
      */
     protected $lock;
+
 
     public function setIsProgressBarShown(bool $isProgressBarShown): void
     {
@@ -130,6 +135,12 @@ abstract class AbstractImport
         ];
     }
 
+    public function getFailedItemCount(): int
+    {
+        return $this->failedItemCount;
+    }
+
+
     public function total_still_left($offset)
     {
         $module = $this->storekeeper_api->getModule($this->getModule());
@@ -193,6 +204,10 @@ abstract class AbstractImport
         }
 
         $this->debug('Started a run!');
+
+        $runStartTime = date('Ymdhis');
+        $productImportErrorLogger = null;
+        $productImportErrorLoggerName = "product-import-error-{$runStartTime}";
 
         $moduleName = $this->getModule();
         $module = $this->storekeeper_api->getModule($moduleName);
@@ -296,6 +311,31 @@ abstract class AbstractImport
 
                         ++$this->processedItemCount;
                         $this->debug("Processed {$count}/{$response['count']} items");
+                    } catch (ProductImportException $exception) {
+                        $errorMessage = $exception->getMessage();
+
+                        $data = [
+                            'item' => $item,
+                            'exception' => $exception,
+                        ];
+
+                        $this->logger->error(
+                            "A product failed to import with exception: {$errorMessage}",
+                            $data
+                        );
+
+                        if (is_null($productImportErrorLogger)) {
+                            $productImportErrorLogger = LoggerFactory::create($productImportErrorLoggerName);
+                        }
+
+                        $productImportErrorLogger->error('Failed to import product', [
+                            'shop_product_id' => $exception->getShopProductId(),
+                            'error' => $errorMessage
+                        ]);
+
+                        ++$this->failedItemCount;
+                        ++$this->processedItemCount;
+                        $this->debug("Processed {$count}/{$response['count']} items");
                     } catch (\Throwable $exception) {
                         $errorMessage = $exception->getMessage();
                         $data = [
@@ -328,6 +368,12 @@ abstract class AbstractImport
                 $done_importing = true;
                 $this->debug("Done importing $fetched_total items.");
             }
+        }
+
+        if ($this->failedItemCount > 0) {
+            $logDirectory = LoggerFactory::getWpLogDirectory();
+            $this->logger->debug("Error log file: {$logDirectory}/{$productImportErrorLoggerName}.log");
+            WpCliHelper::attemptLineOutput("\nError log file: {$logDirectory}/{$productImportErrorLoggerName}.log\n");
         }
 
         $this->debug('started after run', $fetched_total);
