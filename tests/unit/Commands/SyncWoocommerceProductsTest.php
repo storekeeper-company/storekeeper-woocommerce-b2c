@@ -20,6 +20,9 @@ class SyncWoocommerceProductsTest extends AbstractTest
 {
     // Datadump related constants
     const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products';
+
+    const WITH_ERRORS_DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products/with-errors';
+
     const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.72e551759ae4651bdb99611a255078af300eb8b787c2a8b9a216b800b8818b06.json';
     const DATADUMP_PRODUCT_21_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.613db2c03f849.json';
     const DATADUMP_IMAGE_PRODUCT_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.62c2cdd392106.json';
@@ -433,6 +436,29 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
             $this->assertProduct($original, $wc_assigned_product);
         }
+    }
+
+    public function testImportErrorLogging()
+    {
+        $imageCdnPrefix = 'testPrefix';
+        // Initialize the test
+        $this->initApiConnection();
+        $this->prepareVFSForCDNImageTest($imageCdnPrefix);
+        $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
+
+        // We don't need CDN for this test
+        StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
+
+        $this->mockApiCallsFromDirectory(self::WITH_ERRORS_DATADUMP_DIRECTORY);
+        $this->mockApiCallsFromCommonDirectory();
+        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
+        $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
+
+        // Run the product import command
+        $this->runner->execute(SyncWoocommerceProducts::getCommandName());
+
+        // Process all the tasks that get spawned by the product import command
+        $this->runner->execute(ProcessAllTasks::getCommandName());
     }
 
     protected function assertDownloadedImage(array $originalProductData): void

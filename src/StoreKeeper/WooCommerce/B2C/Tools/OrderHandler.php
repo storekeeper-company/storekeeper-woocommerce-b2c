@@ -15,6 +15,8 @@ class OrderHandler
     /**
      * @param $order_id
      *
+     * @hook $this->loader->add_action('woocommerce_checkout_order_processed', $orderHandler, 'create', self::HIGH_PRIORITY);
+     *
      * @throws \Exception
      */
     public function create($order_id): ?array
