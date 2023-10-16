@@ -179,6 +179,8 @@ class InfoHandler
             'meta_key' => OrderHandler::TO_BE_SYNCHRONIZED_META_KEY,
             'meta_value' => 'yes',
             'meta_compare' => '=',
+            'orderby' => 'date_created',
+            'order' => 'ASC',
         ]);
         $orderQuery->set('status', array_keys($orderStatuses));
         $unsynchronizedOrders = $orderQuery->get_orders();
