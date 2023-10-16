@@ -6,6 +6,7 @@ use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Mockery\MockInterface;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
+use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoHandler;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
@@ -608,6 +609,107 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->processNewOrder($newOrderId, $newOrder);
     }
 
+    public function testCancelledOrder()
+    {
+        $this->initApiConnection();
+        $this->emptyEnvironment();
+
+        $orderHandler = new OrderHandler();
+
+        $syncedCancelledOrder = WC_Helper_Order::create_order();
+        $syncedCancelledOrder->update_status(OrderExport::STATUS_CANCELLED);
+        $syncedCancelledOrder->save();
+        $orderHandler->addMetadata($syncedCancelledOrder->get_id(), $syncedCancelledOrder);
+
+        $newToCancelledOrder = WC_Helper_Order::create_order();
+        $newToCancelledOrder->save();
+        $orderHandler->addMetadata($newToCancelledOrder->get_id(), $newToCancelledOrder);
+
+        $unsyncedCancelledOrder = WC_Helper_Order::create_order();
+        $unsyncedCancelledOrder->update_status(OrderExport::STATUS_CANCELLED);
+        $unsyncedCancelledOrder->save();
+        $orderHandler->addMetadata($unsyncedCancelledOrder->get_id(), $unsyncedCancelledOrder);
+
+        $unsyncedCancelledOrderTaskIds = TaskModel::getTasksByStoreKeeperId($unsyncedCancelledOrder->get_id());
+        // Simulate marking tasks as success
+        foreach ($unsyncedCancelledOrderTaskIds as $taskId) {
+            TaskModel::update($taskId, ['status' => TaskHandler::STATUS_SUCCESS]);
+        }
+
+        $sentOrder = [];
+        StoreKeeperApi::$mockAdapter
+            ->withModule(
+                'ShopModule',
+                function (MockInterface $module) use (&$sentOrder, $syncedCancelledOrder) {
+                    $module->allows('findShopCustomerBySubuserEmail')->andReturnUsing(
+                        function () {
+                            return ['id' => mt_rand()];
+                        }
+                    );
+
+                    $module->allows('naturalSearchShopFlatProductForHooks')->andReturnUsing(
+                        function () {
+                            return [
+                                'data' => [],
+                                'total' => 0,
+                                'count' => 0,
+                            ];
+                        }
+                    );
+
+                    $module->allows('newOrder')->andReturnUsing(
+                        function ($params) use (&$sentOrder, $syncedCancelledOrder) {
+                            [$order] = $params;
+
+                            $sentOrder = $order;
+                            $sentOrder['id'] = rand();
+                            $sentOrder = $this->calculateNewOrder($sentOrder);
+
+                            if ($order['shop_order_number'] === $syncedCancelledOrder->get_id()) {
+                                $sentOrder['status'] = OrderExport::STATUS_CANCELLED;
+                            }
+
+                            return $sentOrder['id'];
+                        }
+                    );
+
+                    $module->allows('getOrder')->andReturnUsing(
+                        function () use (&$sentOrder) {
+                            return $sentOrder;
+                        }
+                    );
+
+                    $module->allows('updateOrder')->andReturnUsing(
+                        function () {
+                            return null;
+                        }
+                    );
+
+                    $module->allows('updateOrderStatus')->andReturnUsing(
+                        function ($got) {
+                            return null;
+                        }
+                    );
+                }
+            );
+
+        $syncedCancelledOrderTask = $orderHandler->create($syncedCancelledOrder->get_id());
+        $this->processTask($syncedCancelledOrderTask);
+
+        $newToCancelledOrderCreateTask = $orderHandler->create($newToCancelledOrder->get_id());
+        $this->processTask($newToCancelledOrderCreateTask);
+
+        $newToCancelledOrder->set_status(OrderExport::STATUS_CANCELLED);
+        $newToCancelledOrder->save();
+        $newToCancelledOrderUpdateTask = $orderHandler->updateWithIgnore($newToCancelledOrder->get_id());
+        $this->processTask($newToCancelledOrderUpdateTask);
+
+        $infoHandler = new InfoHandler();
+        $webShopInfo = $infoHandler->run();
+
+        $this->assertCount(0, $webShopInfo['extra']['system_status']['order']['ids_not_synchronized'], 'There should be no unsynchronized orders');
+    }
+
     public function testWooCommerceOnlyProduct()
     {
         $this->initApiConnection();
@@ -690,15 +792,11 @@ class OrderExportTest extends AbstractOrderExportTest
                             $email = $emailPayload['email'];
 
                             if ($email === $existingAdminEmail) {
-                                throw GeneralException::buildFromBody([
-                                    'class' => 'ShopModule::EmailIsAdminUser'
-                                ]);
+                                throw GeneralException::buildFromBody(['class' => 'ShopModule::EmailIsAdminUser']);
                             }
 
                             // Throwing this error basically means email was not found
-                            throw GeneralException::buildFromBody([
-                                'error' => 'Wrong DataBasicSubuser',
-                            ]);
+                            throw GeneralException::buildFromBody(['error' => 'Wrong DataBasicSubuser']);
                         }
                     );
 

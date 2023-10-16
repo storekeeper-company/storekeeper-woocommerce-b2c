@@ -47,29 +47,25 @@ class OrderHandler
      * this function most probably exists to not call update the order is imported from backend
      * It should removed as soon as unit test are there, cos it's F#@$%^&NG cancer.
      **/
-    public function updateWithIgnore($order_id): void
+    public function updateWithIgnore($order_id): ?array
     {
         global $storekeeper_ignore_order_id;
 
-        if (!$this->isSyncAllowed($order_id)) {
-            return;
+        if ($storekeeper_ignore_order_id !== $order_id && $this->isSyncAllowed($order_id)) {
+            return TaskHandler::scheduleTask(
+                TaskHandler::ORDERS_EXPORT,
+                $order_id,
+                [
+                    'woocommerce_id' => $order_id,
+                ],
+                // Force update is needed to make sure everything is being synced,
+                // We had an issue where an order was created when the sync started,
+                // and the paid status was never synced over
+                true
+            );
         }
 
-        if ($storekeeper_ignore_order_id === $order_id) {
-            return;
-        }
-
-        TaskHandler::scheduleTask(
-            TaskHandler::ORDERS_EXPORT,
-            $order_id,
-            [
-                'woocommerce_id' => $order_id,
-            ],
-            // Force update is needed to make sure everything is being synced,
-            // We had an issue where an order was created when the sync started,
-            // and the paid status was never synced over
-            true
-        );
+        return null;
     }
 
     /* @deprecated  */

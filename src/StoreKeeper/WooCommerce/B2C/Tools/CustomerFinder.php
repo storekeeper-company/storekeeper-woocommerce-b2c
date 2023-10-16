@@ -101,7 +101,7 @@ class CustomerFinder
         } catch (EmailIsAdminUserException $exception) {
             $storeUrlParts = wp_parse_url(home_url());
             $storeBaseUrl = $storeUrlParts['host'];
-            $email = 'nomail+' . crc32($email) . '@' . $storeBaseUrl;
+            $email = 'nomail+'.crc32($email).'@'.$storeBaseUrl;
 
             $relationDataId = self::findCustomerRelationDataIdByEmail($email);
         }

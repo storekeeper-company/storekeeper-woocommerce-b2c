@@ -100,7 +100,7 @@ class NotGettexted
         );
     }
 
-    public function walk_tokens(& $tokens, $string_action, $other_action, $register_action = null)
+    public function walk_tokens(&$tokens, $string_action, $other_action, $register_action = null)
     {
         $current_comment_id = '';
         $current_string = '';

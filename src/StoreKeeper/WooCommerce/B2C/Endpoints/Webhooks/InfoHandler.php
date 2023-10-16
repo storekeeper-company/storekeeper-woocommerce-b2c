@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks;
 use DateTime;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\PluginConflictChecker;
 use StoreKeeper\WooCommerce\B2C\Helpers\ServerStatusChecker;
@@ -56,7 +57,7 @@ class InfoHandler
     {
         $data = self::gatherInformation();
 
-        array_walk_recursive($data, static function (& $v) {
+        array_walk_recursive($data, static function (&$v) {
             if ($v instanceof \DateTimeInterface) {
                 $v = $v->format(DATE_RFC2822);
             }
@@ -171,15 +172,21 @@ class InfoHandler
         $orderSystemStatus['last_synchronized_date'] = TaskModel::getLatestSuccessfulSynchronizedDateForType(TaskHandler::ORDERS_EXPORT);
 
         $orderSystemStatus['ids_with_failed_tasks'] = TaskModel::getFailedOrderIds();
-        $unsynchronizedOrders = wc_get_orders([
+
+        $orderStatuses = wc_get_order_statuses();
+        unset($orderStatuses['wc-cancelled']);
+        $orderQuery = new \WC_Order_Query([
             'meta_key' => OrderHandler::TO_BE_SYNCHRONIZED_META_KEY,
             'meta_value' => 'yes',
             'meta_compare' => '=',
-            'orderby' => 'date_created',
-            'order' => 'ASC',
         ]);
-
+        $orderQuery->set('status', array_keys($orderStatuses));
+        $unsynchronizedOrders = $orderQuery->get_orders();
         $unsynchronizedOrderIds = [];
+
+        $unsynchronizedOrders = array_filter($unsynchronizedOrders, static function (WC_Order $order) {
+            return OrderExport::STATUS_CANCELLED !== $order->get_status();
+        });
 
         $oldestUnsynchronizedOrderDateTime = null;
         if (!empty($unsynchronizedOrders)) {

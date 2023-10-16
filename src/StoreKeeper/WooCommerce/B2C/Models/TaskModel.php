@@ -86,6 +86,32 @@ class TaskModel extends AbstractModel implements IModelPurge
         return DatabaseConnection::formatFromDatabaseDateIfNotEmpty(reset($task));
     }
 
+    public static function getTasksByStoreKeeperId(int $storeKeeperId, string $status = TaskHandler::STATUS_NEW): ?array
+    {
+        global $wpdb;
+
+        $select = static::getSelectHelper()
+            ->cols(['id'])
+            ->where('storekeeper_id = :storekeeper_id')
+            ->where('status = :status')
+            ->bindValue('storekeeper_id', $storeKeeperId)
+            ->bindValue('status', $status);
+
+        $query = static::prepareQuery($select);
+
+        $results = $wpdb->get_results($query, ARRAY_N);
+        if (empty($results)) {
+            return null;
+        }
+
+        return array_map(
+            function ($value) {
+                return (int) current($value);
+            },
+            $results
+        );
+    }
+
     public static function getLatestSuccessfulSynchronizedDateForType($type): ?\DateTime
     {
         global $wpdb;
