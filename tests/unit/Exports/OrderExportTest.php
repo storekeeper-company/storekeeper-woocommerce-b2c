@@ -614,21 +614,19 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->initApiConnection();
         $this->emptyEnvironment();
 
+        $newOrderTimesCalled = 0;
         $orderHandler = new OrderHandler();
 
         $syncedCancelledOrder = WC_Helper_Order::create_order();
         $syncedCancelledOrder->update_status(OrderExport::STATUS_CANCELLED);
         $syncedCancelledOrder->save();
-        $orderHandler->addMetadata($syncedCancelledOrder->get_id(), $syncedCancelledOrder);
 
         $newToCancelledOrder = WC_Helper_Order::create_order();
         $newToCancelledOrder->save();
-        $orderHandler->addMetadata($newToCancelledOrder->get_id(), $newToCancelledOrder);
 
         $unsyncedCancelledOrder = WC_Helper_Order::create_order();
         $unsyncedCancelledOrder->update_status(OrderExport::STATUS_CANCELLED);
         $unsyncedCancelledOrder->save();
-        $orderHandler->addMetadata($unsyncedCancelledOrder->get_id(), $unsyncedCancelledOrder);
 
         $unsyncedCancelledOrderTaskIds = TaskModel::getTasksByStoreKeeperId($unsyncedCancelledOrder->get_id());
         // Simulate marking tasks as success
@@ -640,7 +638,7 @@ class OrderExportTest extends AbstractOrderExportTest
         StoreKeeperApi::$mockAdapter
             ->withModule(
                 'ShopModule',
-                function (MockInterface $module) use (&$sentOrder, $syncedCancelledOrder) {
+                function (MockInterface $module) use (&$sentOrder, $syncedCancelledOrder, $unsyncedCancelledOrder, &$newOrderTimesCalled) {
                     $module->allows('findShopCustomerBySubuserEmail')->andReturnUsing(
                         function () {
                             return ['id' => mt_rand()];
@@ -658,16 +656,22 @@ class OrderExportTest extends AbstractOrderExportTest
                     );
 
                     $module->allows('newOrder')->andReturnUsing(
-                        function ($params) use (&$sentOrder, $syncedCancelledOrder) {
+                        function ($params) use (&$sentOrder, $syncedCancelledOrder, $unsyncedCancelledOrder, &$newOrderTimesCalled) {
                             [$order] = $params;
 
                             $sentOrder = $order;
                             $sentOrder['id'] = rand();
                             $sentOrder = $this->calculateNewOrder($sentOrder);
 
+                            if ($order['shop_order_number'] === $unsyncedCancelledOrder) {
+                                throw new \Exception('Should not be synchronized');
+                            }
+
                             if ($order['shop_order_number'] === $syncedCancelledOrder->get_id()) {
                                 $sentOrder['status'] = OrderExport::STATUS_CANCELLED;
                             }
+
+                            ++$newOrderTimesCalled;
 
                             return $sentOrder['id'];
                         }
@@ -707,6 +711,7 @@ class OrderExportTest extends AbstractOrderExportTest
         $infoHandler = new InfoHandler();
         $webShopInfo = $infoHandler->run();
 
+        $this->assertEquals(2, $newOrderTimesCalled, 'ShopModule::newOrder should only be called twice');
         $this->assertCount(0, $webShopInfo['extra']['system_status']['order']['ids_not_synchronized'], 'There should be no unsynchronized orders');
     }
 

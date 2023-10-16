@@ -181,6 +181,7 @@ class InfoHandler
             'meta_compare' => '=',
             'orderby' => 'date_created',
             'order' => 'ASC',
+            '',
         ]);
         $orderQuery->set('status', array_keys($orderStatuses));
         $unsynchronizedOrders = $orderQuery->get_orders();
