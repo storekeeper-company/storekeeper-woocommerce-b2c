@@ -352,7 +352,7 @@ HTML;
         $orderHandler = new OrderHandler();
         // Creation
         $this->loader->add_action('woocommerce_checkout_order_processed', $orderHandler, 'create', self::HIGH_PRIORITY);
-        $this->loader->add_action('woocommerce_new_order', $orderHandler, 'addMetadata', self::HIGH_PRIORITY, 2);
+        $this->loader->add_action('woocommerce_new_order', $orderHandler, 'addToBeSynchronizedMetadata', self::HIGH_PRIORITY, 2);
         // Update events
         $this->loader->add_action(
             'woocommerce_payment_complete',
