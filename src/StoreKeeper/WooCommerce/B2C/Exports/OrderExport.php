@@ -400,7 +400,7 @@ class OrderExport extends AbstractExport
         return $hasDifference;
     }
 
-    private function removeSkippedItemsByName(& $databaseOrderItems, & $backofficeOrderItems): void
+    private function removeSkippedItemsByName(&$databaseOrderItems, &$backofficeOrderItems): void
     {
         $skippedOrderItemNames = [];
         foreach ($databaseOrderItems as $index => $databaseOrderItem) {

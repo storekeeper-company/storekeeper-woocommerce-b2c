@@ -164,7 +164,7 @@ class StoreKeeperSeoHandler implements WithHooksInterface
      * @param $product
      * @param array $featured_attrs
      */
-    protected function applyBarcode(& $markdown, $product)
+    protected function applyBarcode(&$markdown, $product)
     {
         $barcode_name = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BARCODE);
         if (!empty($barcode_name)) {
@@ -210,7 +210,7 @@ class StoreKeeperSeoHandler implements WithHooksInterface
      * @param $product
      * @param array $featured_attrs
      */
-    protected function applyBrand(& $markdown, $product)
+    protected function applyBrand(&$markdown, $product)
     {
         $brand_name = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BRAND);
         if (!empty($brand_name)) {

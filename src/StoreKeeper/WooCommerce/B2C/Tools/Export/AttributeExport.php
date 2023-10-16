@@ -138,7 +138,7 @@ class AttributeExport
         return self::getAttributeKey($attribute->get_name(), $type);
     }
 
-    public static function getAttributeKey(string $attributeName, string $type, ?bool & $isFeatured = null): string
+    public static function getAttributeKey(string $attributeName, string $type, ?bool &$isFeatured = null): string
     {
         $attributeKey = CommonAttributeName::getName($attributeName, $type);
         $featuredName = self::getFeaturedAlias($attributeKey);

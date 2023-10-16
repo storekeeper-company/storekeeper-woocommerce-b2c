@@ -130,7 +130,7 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand
      *
      * @throws WordpressException
      */
-    private function setProductUpsell(& $product)
+    private function setProductUpsell(&$product)
     {
         $shop_product_id = get_post_meta($product->get_id(), 'storekeeper_id', true);
 

@@ -690,15 +690,11 @@ class OrderExportTest extends AbstractOrderExportTest
                             $email = $emailPayload['email'];
 
                             if ($email === $existingAdminEmail) {
-                                throw GeneralException::buildFromBody([
-                                    'class' => 'ShopModule::EmailIsAdminUser'
-                                ]);
+                                throw GeneralException::buildFromBody(['class' => 'ShopModule::EmailIsAdminUser']);
                             }
 
                             // Throwing this error basically means email was not found
-                            throw GeneralException::buildFromBody([
-                                'error' => 'Wrong DataBasicSubuser',
-                            ]);
+                            throw GeneralException::buildFromBody(['error' => 'Wrong DataBasicSubuser']);
                         }
                     );
 

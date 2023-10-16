@@ -56,7 +56,7 @@ class InfoHandler
     {
         $data = self::gatherInformation();
 
-        array_walk_recursive($data, static function (& $v) {
+        array_walk_recursive($data, static function (&$v) {
             if ($v instanceof \DateTimeInterface) {
                 $v = $v->format(DATE_RFC2822);
             }
