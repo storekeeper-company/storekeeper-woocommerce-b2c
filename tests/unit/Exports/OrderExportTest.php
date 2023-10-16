@@ -658,14 +658,13 @@ class OrderExportTest extends AbstractOrderExportTest
                     $module->allows('newOrder')->andReturnUsing(
                         function ($params) use (&$sentOrder, $syncedCancelledOrder, $unsyncedCancelledOrder, &$newOrderTimesCalled) {
                             [$order] = $params;
+                            if ($order['shop_order_number'] === $unsyncedCancelledOrder) {
+                                throw new \Exception('Should not be synchronized');
+                            }
 
                             $sentOrder = $order;
                             $sentOrder['id'] = rand();
                             $sentOrder = $this->calculateNewOrder($sentOrder);
-
-                            if ($order['shop_order_number'] === $unsyncedCancelledOrder) {
-                                throw new \Exception('Should not be synchronized');
-                            }
 
                             if ($order['shop_order_number'] === $syncedCancelledOrder->get_id()) {
                                 $sentOrder['status'] = OrderExport::STATUS_CANCELLED;
