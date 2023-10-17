@@ -77,6 +77,7 @@ These are the prerequisites to run the project on development environment.
 * [composer](https://getcomposer.org/download/)
 * [docker](https://docs.docker.com/engine/install/ubuntu/)
 * [docker compose](https://docs.docker.com/compose/install/)
+* [lokalise cli v2](https://github.com/lokalise/lokalise-cli-2-go)
 ### Development using docker
 
 Running steps below should serve your development environment.
@@ -122,6 +123,13 @@ define('STOREKEEPER_WOOCOMMERCE_B2C_LOG_LEVEL', 'DEBUG');
 ```
 
 ### Translations
+Before you can pull and push to lokalise, you need to add `LOKALISE_TOKEN` to your environment variables.
+```bash
+export LOKALISE_TOKEN=xxxTokenFromLokalisexxx
+```
+
+Then below are the commands for translations:
+
 Extract strings to be translated from the plugin, mostly all strings that are enclosed in `__("text to translate")` function and compile it in a `.pot` file.
 ```bash
 make extract-translations

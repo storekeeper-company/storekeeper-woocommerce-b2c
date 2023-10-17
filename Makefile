@@ -44,20 +44,20 @@ test-bash: test-build test-prepare-mount
 
 ## ---- Translations ----------------------------------------
 extract-translations: dev-prepare-mount
-	docker-compose run --rm dev php /var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce/dev-tools/make-pot.php
+	docker compose run --rm dev php /var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce/dev-tools/make-pot.php
 
 pull-translations: dev-prepare-mount
-	cd ./i18n/ && lokalise2 --token=${LOKALISE_TOKEN} --project-id=${LOKALISE_PROJECT_ID} \
+	cd ./i18n/ && ../dev-tools/i18n/lokalise2 --token=${LOKALISE_TOKEN} --project-id=${LOKALISE_PROJECT_ID} \
 		file download \
 		--format=po \
 		--export-empty-as=skip \
 		--bundle-structure "storekeeper-for-woocommerce-%LANG_ISO%.po" \
 		--original-filenames=false &&\
-	docker-compose run --rm dev bash /var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce/docker/translate-to-machine-object.sh
+	docker compose run --rm dev bash /var/www/html/wordpress/wp-content/plugins/storekeeper-for-woocommerce/docker/translate-to-machine-object.sh
 	echo "OK"
 
 push-translations:
-	cd ./i18n/ && lokalise2 --token=${LOKALISE_TOKEN} --project-id=${LOKALISE_PROJECT_ID} \
+	cd ./i18n/ && ../dev-tools/i18n/lokalise2 --token=${LOKALISE_TOKEN} --project-id=${LOKALISE_PROJECT_ID} \
 		file upload \
 		--cleanup-mode \
 		--file storekeeper-woocommerce-b2c.pot \

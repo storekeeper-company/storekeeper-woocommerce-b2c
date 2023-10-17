@@ -110,6 +110,7 @@ class TaskLogsTab extends AbstractLogsTab
                 [
                     'title' => __('Message', I18N::DOMAIN),
                     'key' => 'title',
+                    'bodyFunction' => [$this, 'renderMessage'],
                 ],
                 [
                     'title' => __('Date', I18N::DOMAIN),
@@ -222,6 +223,25 @@ class TaskLogsTab extends AbstractLogsTab
         echo '</div>';
     }
 
+    public function renderMessage(string $value, array $task)
+    {
+        echo $value;
+
+        if (TaskHandler::STATUS_FAILED === $task['status']) {
+            if ($errorOutput = unserialize($task['meta_data'])) {
+                $exceptionMessageMaxLength = 80;
+                $exceptionMessage = esc_html($errorOutput['exception-message']);
+                if (strlen($exceptionMessage) > $exceptionMessageMaxLength) {
+                    $exceptionMessage = trim(substr($exceptionMessage, 0, $exceptionMessageMaxLength - 3)).'...';
+                }
+                echo <<<HTML
+                </br>
+                <small style="color:darkred">$exceptionMessage</small>
+HTML;
+            }
+        }
+    }
+
     public function renderTaskStatus($value, $task)
     {
         if (TaskHandler::STATUS_FAILED === $task['status']) {
@@ -269,9 +289,15 @@ class TaskLogsTab extends AbstractLogsTab
             $whereValues['type_group'] = $taskType;
         }
 
-        $taskId = $this->getRequestTaskId();
-        if ($taskId) {
-            $whereClauses[] = "id = $taskId";
+        $searchString = $this->getSearchString();
+        if ($searchString) {
+            if (is_numeric($searchString)) {
+                $whereClauses[] = '(id = :id OR title LIKE :title)';
+                $whereValues['id'] = $searchString;
+            } else {
+                $whereClauses[] = 'title LIKE :title';
+            }
+            $whereValues['title'] = "%$searchString%";
         }
 
         return [$whereClauses, $whereValues];
@@ -281,20 +307,41 @@ class TaskLogsTab extends AbstractLogsTab
     {
         $taskTypeSelect = $this->generateTaskTypeSelect();
         $taskStatusSelect = $this->generateTaskStatusSelect();
+        $fuzzySearchInput = $this->generateFuzzySearchInput();
 
         $hiddenTypeHtml = $this->getHiddenInputs(['task-type']);
         $hiddenStatusHtml = $this->getHiddenInputs(['task-status']);
 
         $filter = esc_html__('Apply filter', I18N::DOMAIN);
         echo <<<HTML
-        <form class="actions" style="display: inline;">
+        <form class="actions" style="display: flex; align-items: start">
             $hiddenTypeHtml
             $hiddenStatusHtml
             $taskTypeSelect
             $taskStatusSelect
             <button type="submit" class="button">$filter</button>
+            
+            $fuzzySearchInput
         </form>
         HTML;
+    }
+
+    private function generateFuzzySearchInput(): string
+    {
+        $currentSearchString = $this->getSearchString();
+        $searchPlaceholderText = esc_html__('Search', I18N::DOMAIN);
+        $searchHelperText = esc_html__('Enter message or back reference/post/task ID', I18N::DOMAIN);
+        $goText = esc_html__('Go', I18N::DOMAIN);
+
+        return <<<HTML
+                    <div class="search-box">
+                        <input type="text" name="search" id="search" class="postform" value="$currentSearchString" placeholder="$searchPlaceholderText..."/>
+                        <button type="submit" class="button">$goText</button>
+                        </br>                     
+                        
+                        <small style="margin-left:2px; color: #767676;">$searchHelperText</small>
+                    </div>
+               HTML;
     }
 
     private function generateTaskTypeSelect(): string
@@ -396,13 +443,13 @@ class TaskLogsTab extends AbstractLogsTab
         return '';
     }
 
-    private function getRequestTaskId(): ?int
+    private function getSearchString(): string
     {
-        if (isset($_REQUEST['task-id'])) {
-            return (int) $_REQUEST['task-id'];
+        if (isset($_REQUEST['search'])) {
+            return sanitize_text_field($_REQUEST['search']);
         }
 
-        return null;
+        return '';
     }
 
     private function getRowAction(): ?string
