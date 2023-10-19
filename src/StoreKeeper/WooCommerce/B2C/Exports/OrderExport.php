@@ -113,12 +113,9 @@ class OrderExport extends AbstractExport
          * Customer
          */
         if (!$isUpdate) {
-            try {
-                $callData['is_anonymous'] = false;
-                $callData['relation_data_id'] = CustomerFinder::ensureCustomerFromOrder($order);
-            } catch (GeneralException $exception) {
-                $callData['is_anonymous'] = true; // sets the order to anonymous;
-            }
+            // General rule to never send anonymous order from web shop
+            $callData['is_anonymous'] = false;
+            $callData['relation_data_id'] = CustomerFinder::ensureCustomerFromOrder($order);
         }
 
         $this->debug('Added guest information', $callData);
