@@ -132,7 +132,7 @@ class LoggerFactory
     /**
      * @param $custom_metadata
      */
-    public static function generateMetadata(string $key, \Throwable $exception, array $custom_metadata): array
+    public static function generateMetadata(string $key, \Throwable $exception, array $customMetadata): array
     {
         $metadata = [
             'error-key' => $key,
@@ -143,8 +143,9 @@ class LoggerFactory
             'exception-class' => get_class($exception),
         ];
 
-        $full_metadata = array_merge($metadata, $custom_metadata);
+        $fullMetadata = array_merge($metadata, $customMetadata);
+        $fullMetadata['exception-message'] = $metadata['exception-message'];
 
-        return $full_metadata;
+        return $fullMetadata;
     }
 }
