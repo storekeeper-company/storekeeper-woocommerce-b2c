@@ -143,6 +143,10 @@ class LoggerFactory
             'exception-class' => get_class($exception),
         ];
 
+        if (method_exists($exception, 'getReference')) {
+            $exception['exception-reference'] = $exception->getReference();
+        }
+
         $fullMetadata = array_merge($metadata, $customMetadata);
         $fullMetadata['exception-message'] = $metadata['exception-message'];
 
