@@ -7,6 +7,7 @@ use Mockery\MockInterface;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoHandler;
+use StoreKeeper\WooCommerce\B2C\Exceptions\OrderDifferenceException;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
@@ -415,13 +416,18 @@ class OrderExportTest extends AbstractOrderExportTest
         $order->update_meta_data(OrderHandler::SHOP_PRODUCT_ID_MAP, $shopProductMap);
         $order->calculate_totals();
         $order->save();
-        $hasDifference = $exportTask->checkOrderDifference(
-            new \WC_Order($order->get_id()),
-            [
-            'order_items' => $expected,
-            'value_wt' => $this->computeOrderTotal($expected),
-            ]
-        );
+        $hasDifference = false;
+        try {
+            $exportTask->checkOrderDifference(
+                new \WC_Order($order->get_id()),
+                [
+                    'order_items' => $expected,
+                    'value_wt' => $this->computeOrderTotal($expected),
+                ]
+            );
+        } catch (OrderDifferenceException $exception) {
+            $hasDifference = true;
+        }
 
         $this->assertSame($result, $hasDifference, 'Difference result is not same as expected');
     }

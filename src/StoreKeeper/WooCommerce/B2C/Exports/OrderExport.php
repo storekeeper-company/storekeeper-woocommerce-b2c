@@ -7,6 +7,7 @@ use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\OrderDifferenceException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -131,7 +132,14 @@ class OrderExport extends AbstractExport
             $storekeeperId = $this->get_storekeeper_id();
             $storekeeperOrder = $ShopModule->getOrder($storekeeperId, null);
 
-            $hasDifference = $this->checkOrderDifference($order, $storekeeperOrder);
+            $hasDifference = false;
+            $differenceMessage = '';
+            try {
+                $this->checkOrderDifference($order, $storekeeperOrder);
+            } catch (OrderDifferenceException $exception) {
+                $hasDifference = true;
+                $differenceMessage = $exception->getMessage();
+            }
             // Only update order items if they have difference and order is not paid yet
             if ($hasDifference && !$storekeeperOrder['is_paid']) {
                 $callData['order_items'] = $this->getOrderItems($order);
@@ -142,7 +150,7 @@ class OrderExport extends AbstractExport
                         ['shop_order_id' => $order->get_id()],
                         $callData
                     ));
-                throw new Exception('Order is paid but has differences, synchronization fails');
+                throw new \RuntimeException("Order is paid but has differences ({$differenceMessage})");
             } else {
                 $callData['order_items__do_not_change'] = true;
                 $callData['order_items__remove'] = null;
@@ -356,11 +364,17 @@ class OrderExport extends AbstractExport
     /**
      * @param WC_Order $databaseOrder - Order items to compare from
      * @param $backofficeOrder - Order items to compare to
+     *
+     * @throws OrderDifferenceException
      */
-    public function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): bool
+    public function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): void
     {
         $databaseOrderItems = $this->getOrderItems($databaseOrder);
         $backofficeOrderItems = $backofficeOrder['order_items'];
+
+        if (count($databaseOrderItems) !== count($backofficeOrderItems)) {
+            throw new OrderDifferenceException('Order item count did not match');
+        }
 
         $allHasExtras = true;
         foreach ($backofficeOrderItems as $backofficeOrderItem) {
@@ -373,28 +387,25 @@ class OrderExport extends AbstractExport
         $this->removeSkippedItemsByName($databaseOrderItems, $backofficeOrderItems);
 
         if ($allHasExtras) {
-            $hasDifference = $this->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
+            $this->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
         } else {
-            $hasDifference = $this->checkOrderDifferenceBySet($databaseOrderItems, $backofficeOrderItems);
+            $this->checkOrderDifferenceBySet($databaseOrderItems, $backofficeOrderItems);
         }
 
         // In case order items are the same but prices have changed. e.g payment gateway fee
-        if (
-            !$hasDifference &&
-            round(((float) $databaseOrder->get_total()), 2) !== round($backofficeOrder['value_wt'], 2)
-        ) {
+        if (round(((float) $databaseOrder->get_total()), 2) !== round($backofficeOrder['value_wt'], 2)) {
+            $databaseTotal = (float) $databaseOrder->get_total();
+            $backofficeTotal = (float) round($backofficeOrder['value_wt'], 2);
             $this->debug('Order has difference in prices', [
-                'databaseTotal' => (float) $databaseOrder->get_total(),
-                'backofficeTotal' => (float) round($backofficeOrder['value_wt'], 2),
+                'databaseTotal' => $databaseTotal,
+                'backofficeTotal' => $backofficeTotal,
             ]);
 
             // The order is refunded so the value_wt is expected to have difference with database total
             if (isset($backofficeOrder['refund_price_wt']) && 0 === $backofficeOrder['refund_price_wt'] && self::STATUS_REFUNDED !== $backofficeOrder['status']) {
-                $hasDifference = true;
+                throw new OrderDifferenceException("Prices are different, WooCommerce total is {$databaseTotal} while StoreKeeper total is {$backofficeTotal}");
             }
         }
-
-        return $hasDifference;
     }
 
     private function removeSkippedItemsByName(&$databaseOrderItems, &$backofficeOrderItems): void
@@ -416,49 +427,67 @@ class OrderExport extends AbstractExport
         }
     }
 
-    private function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): bool
+    /**
+     * @throws OrderDifferenceException
+     */
+    private function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): void
     {
         $databaseOrderItemExtras = array_column($databaseOrderItems, 'extra');
         $backofficeOrderItemExtras = array_column($backofficeOrderItems, 'extra');
 
         foreach ($databaseOrderItemExtras as &$extras) {
             array_multisort($extras);
-            unset($extras);
         }
+        unset($extras);
 
         foreach ($backofficeOrderItemExtras as &$extras) {
             array_multisort($extras);
-            unset($extras);
         }
+        unset($extras);
 
         sort($databaseOrderItemExtras);
         sort($backofficeOrderItemExtras);
 
-        return $databaseOrderItemExtras !== $backofficeOrderItemExtras;
+        for ($extrasCounter = 0, $backofficeOrderItemExtraCount = count($backofficeOrderItemExtras); $extrasCounter < $backofficeOrderItemExtraCount; ++$extrasCounter) {
+            $backofficeOrderItemExtra = $backofficeOrderItemExtras[$extrasCounter];
+            $databaseOrderItemExtra = $databaseOrderItemExtras[$extrasCounter];
+            if ($databaseOrderItemExtra !== $backofficeOrderItemExtra) {
+                throw new OrderDifferenceException('Extra metadata did not match, Backoffice extras ['.implode(',', $backofficeOrderItemExtra).'] and Shop extras ['.implode(',', $databaseOrderItemExtra).']');
+            }
+        }
     }
 
-    private function checkOrderDifferenceBySet(array $databaseOrderItems, array $backofficeOrderItems): bool
+    /**
+     * @throws OrderDifferenceException
+     */
+    private function checkOrderDifferenceBySet(array $databaseOrderItems, array $backofficeOrderItems): void
     {
-        $databaseSet = [];
+        $databaseSets = [];
         foreach ($databaseOrderItems as $databaseOrderItem) {
-            $databaseSet[] = (
+            $databaseSets[] = (
                 (int) $databaseOrderItem['quantity']).'|'
                 .round($databaseOrderItem['ppu_wt'], 2).'|'
                 .$databaseOrderItem['sku'];
         }
 
-        $backofficeSet = [];
+        $backofficeSets = [];
         foreach ($backofficeOrderItems as $backofficeOrderItem) {
-            $backofficeSet[] = (
+            $backofficeSets[] = (
                 (int) $backofficeOrderItem['quantity']).'|'
                 .round($backofficeOrderItem['ppu_wt'], 2).'|'
                 .$backofficeOrderItem['sku'];
         }
 
-        sort($databaseSet);
-        sort($backofficeSet);
+        sort($databaseSets);
+        sort($backofficeSets);
 
-        return $databaseSet !== $backofficeSet;
+        for ($setCounter = 0, $backofficeSetCount = count($backofficeSets); $setCounter < $backofficeSetCount; ++$setCounter) {
+            $backofficeSet = $backofficeSets[$setCounter];
+            $databaseSet = $databaseSets[$setCounter];
+            if ($databaseSet !== $backofficeSet) {
+                throw new OrderDifferenceException("Set did not match, Backoffice set {$backofficeSet} and Shop set {$databaseSet}");
+            }
+        }
     }
 
     /**
