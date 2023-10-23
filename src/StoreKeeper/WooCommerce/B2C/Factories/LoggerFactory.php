@@ -147,9 +147,6 @@ class LoggerFactory
             $exception['exception-reference'] = $exception->getReference();
         }
 
-        $fullMetadata = array_merge($metadata, $customMetadata);
-        $fullMetadata['exception-message'] = $metadata['exception-message'];
-
-        return $fullMetadata;
+        return array_merge($customMetadata, $metadata);
     }
 }
