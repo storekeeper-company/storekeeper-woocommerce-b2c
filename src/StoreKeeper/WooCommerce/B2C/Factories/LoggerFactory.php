@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Factories;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
@@ -143,9 +144,10 @@ class LoggerFactory
             'exception-class' => get_class($exception),
         ];
 
-        $fullMetadata = array_merge($metadata, $customMetadata);
-        $fullMetadata['exception-message'] = $metadata['exception-message'];
+        if ($exception instanceof GeneralException) {
+            $exception['exception-reference'] = $exception->getReference();
+        }
 
-        return $fullMetadata;
+        return array_merge($customMetadata, $metadata);
     }
 }

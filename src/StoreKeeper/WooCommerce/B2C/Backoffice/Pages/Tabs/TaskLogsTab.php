@@ -254,11 +254,12 @@ HTML;
                 ];
                 $trace = strtr($trace, $replace_pairs);
 
-                echo '<div id="error-message-'.esc_attr($task['id']).'" style="display: none">
-                        <h3><strong style="color:darkred">'.esc_html($errorOutput['exception-class']).': '.esc_html($errorOutput['exception-message']).'</strong></h3>
-                        '.__('Stack Trace', I18N::DOMAIN).':
-                        <br>';
-
+                echo '<div id="error-message-'.esc_attr($task['id']).'" style="display: none">';
+                echo '<h3><strong style="color:darkred">'.esc_html($errorOutput['exception-class']).': '.esc_html($errorOutput['exception-message']).'</strong></h3>';
+                if (isset($errorOutput['exception-reference'])) {
+                    echo __('Error reference', I18N::DOMAIN).': '.esc_html($errorOutput['exception-reference']).':<br>';
+                }
+                echo ''.__('Stack Trace', I18N::DOMAIN).':<br>';
                 echo '<div>';
                 foreach ($replace_pairs as $from => $to) {
                     echo esc_html($to.' => '.$from).'<br/>';
