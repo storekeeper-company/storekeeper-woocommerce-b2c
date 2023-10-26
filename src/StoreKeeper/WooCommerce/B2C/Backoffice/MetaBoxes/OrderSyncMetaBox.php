@@ -89,6 +89,7 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox
 
         wp_enqueue_style('product-meta-box', plugin_dir_url(__FILE__).'../static/meta-boxes.css');
         $this->showPossibleError();
+        $this->showPossibleSuccess();
     }
 
     /**
@@ -113,12 +114,13 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox
                     'id' => $postId,
                 ]
             );
-            $exception = current($export->run());
 
-            if ($exception) {
-                $message = $exception->getMessage();
-                if ($exception instanceof GeneralException) {
-                    $message = "[{$exception->getClass()}] {$exception->getMessage()}";
+            try {
+                $export->run();
+            } catch (\Throwable $throwable) {
+                $message = $throwable->getMessage();
+                if ($throwable instanceof GeneralException) {
+                    $message = "[{$throwable->getClass()}] {$throwable->getMessage()}";
                 }
                 $error = __('Failed to sync order', I18N::DOMAIN).': '.$message;
                 wp_redirect(
@@ -128,7 +130,10 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox
             }
         }
 
-        wp_redirect(get_edit_post_link($postId, 'url'));
+        $successMessage = __('Order was synced successfully.', I18N::DOMAIN);
+        wp_redirect(
+            get_edit_post_link($postId, 'url').'&sk_sync_success='.urlencode($successMessage)
+        );
         exit();
     }
 }
