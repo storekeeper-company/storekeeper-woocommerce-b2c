@@ -940,9 +940,7 @@ class OrderExportTest extends AbstractOrderExportTest
                                 [
                                     'sku' => $variation_1->get_sku('edit'),
                                     'name' => $product->get_name('edit'),
-                                    'extra' => [
-                                        'wp_product_id' => $variation_1->get_id(),
-                                    ],
+                                    'extra' => [],
                                 ],
                                 $productLine,
                                 false,
