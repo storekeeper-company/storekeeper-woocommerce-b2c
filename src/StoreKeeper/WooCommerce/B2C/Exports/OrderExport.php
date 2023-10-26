@@ -140,7 +140,9 @@ class OrderExport extends AbstractExport
                 $hasDifference = true;
                 $differenceMessage = $exception->getMessage();
             }
-            // Only update order items if they have difference and order is not paid yet
+            // Previously, order items were never updated, but issues arise when payment gateways
+            // were changed, so they were never synched as they are part of order items.
+            // Logic below is to only update order items if they have difference and order is not paid yet
             if ($hasDifference && !$storekeeperOrder['is_paid']) {
                 $callData['order_items'] = $this->getOrderItems($order);
                 $this->debug('Updated order_items information due to difference with the backoffice order items', $callData);
@@ -614,11 +616,12 @@ class OrderExport extends AbstractExport
                 $productData = $orderItemProduct->get_data();
                 // Need to unset meta_data as it changes like '_reduced_stock' which causes order difference error
                 unset($productData['meta_data']);
+
+                // Adding the actual product ID here causes difference if order is deleted.
                 $extra = [
                     'wp_row_id' => $orderItemProduct->get_id(),
                     'wp_row_md5' => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
                     'wp_row_type' => self::ROW_PRODUCT_TYPE,
-                    'wp_product_id' => $currentProduct->get_id(),
                 ];
 
                 $data['extra'] = $extra;
