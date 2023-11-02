@@ -173,7 +173,6 @@ class Media
         $attachmentTitle = sanitize_file_name(pathinfo($fileName, PATHINFO_FILENAME));
 
         $postInfo = [
-            'guid' => $fullImageSizeUrl,
             'post_mime_type' => $fileType['type'],
             'post_title' => $attachmentTitle,
             'post_content' => '',
