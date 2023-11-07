@@ -220,6 +220,17 @@ make push-translations
    5. Set project root folder `e.g. path/to/project/storekeeper-woocommerce-b2c` in `Custom working directory` field.
    6. Under `Before launch`, add an entry. Choose `Run External tool` then select the `docker compose build test` external tool that we created. Click Apply and OK.
    > See this <a href="#run-configuration-template">image</a> for reference.
+### Debugging CLI commands
+1. Add a configuration for PHP Script
+   1. Go to `Run > Edit Configurations`.
+   2. Click the `+` sign to add a new configuration.
+   3. Select `PHP Script`.
+   4. Set a name for the configuration, for this example we use `sk process-all-tasks`.
+   5. Under `Configuration`, set the `wp.phar` from `johnpbloch/wp-cli-phar` inside the project vendor `e.g. path/to/project/storekeeper-woocommerce-b2c/vendor/johnpbloch/wp-cli-phar/wp` on `File` field.
+   6. On the `Argument` field, set desired command to be tested `e.g sk process-all-tasks`
+   7. Select `dev` CLI Interpreter that we created as the interpreter.
+   > See this <a href="#php-script-configuration">image</a> for reference.
+
 
 ### Image configuration references
 
@@ -246,6 +257,9 @@ make push-translations
 
 #### Run configuration template
 ![Run configuration template][run-configuration-template]
+
+#### PHP script configuration
+![PHP script configuration][php-script-configuration]
 
 <!-- ADVANCED DEVELOPMENT GUIDE -->
 ## Advanced development guide
@@ -369,3 +383,4 @@ git push origin 5.2.0
 [run-configuration-template]: run-configuration-template.png
 [interpreter-dev]: interpreter-dev.png
 [mapping-docker-dev]: mapping-docker-dev.png
+[php-script-configuration]: php-script-configuration.png

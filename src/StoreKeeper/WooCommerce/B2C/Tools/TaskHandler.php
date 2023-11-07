@@ -3,8 +3,10 @@
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 use Exception;
+use GuzzleHttp\Exception\ConnectException;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
+use StoreKeeper\WooCommerce\B2C\Exceptions\ConnectionTimedOutException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
@@ -561,6 +563,18 @@ class TaskHandler
             );
         } catch (LockException $e) {
             throw $e; // do not report the task eror
+        } catch (ConnectException $exception) {
+            // Reschedule the task on timeout for the first time
+            // Report as error otherwise
+            $isRescheduled = self::rescheduleTaskOnTimeout($task_id);
+            $this->logger->warning("Connection timed out during API call (id=$task_id)");
+
+            if ($isRescheduled) {
+                throw new ConnectionTimedOutException($task_id, ConnectionTimedOutException::class, $exception->getCode(), $exception);
+            }
+
+            $this->reportFailedTask($task_id, $exception);
+            throw $exception;
         } catch (Throwable $e) {
             // If the task failed, report it
             $this->reportFailedTask($task_id, $e);
@@ -569,6 +583,26 @@ class TaskHandler
             // Throw the exception so it can be picked up by process-single-task
             throw $e;
         }
+    }
+
+    public static function rescheduleTaskOnTimeout(int $task_id): bool
+    {
+        if (0 !== $task_id) {
+            $existingTask = TaskModel::get($task_id);
+
+            if ($existingTask && $existingTask['times_ran'] <= 1) {
+                if (self::STATUS_NEW === $existingTask['status']) {
+                    return true;
+                }
+
+                $existingTask['status'] = self::STATUS_NEW;
+                TaskModel::update($task_id, $existingTask);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
+use GuzzleHttp\Exception\ConnectException;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ProductImportException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
@@ -270,6 +271,9 @@ abstract class AbstractProductImport extends AbstractImport
             }
 
             return $woocommerceProductId;
+        } catch (ConnectException $exception) {
+            // Throw the guzzle timeout exception as is
+            throw $exception;
         } catch (\Throwable $throwable) {
             $data = [
                 'status' => self::SYNC_STATUS_FAILED,
