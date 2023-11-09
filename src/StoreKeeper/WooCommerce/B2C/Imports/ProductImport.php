@@ -46,6 +46,8 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     protected $newItemsCount = 0;
     protected $updatedItemsCount = 0;
 
+    protected array $toBeImportedIds = [];
+
     /**
      * @param $StoreKeeperId
      *
@@ -778,7 +780,7 @@ SQL;
 
         // Import the parent product if it does not exists.
         if (!$parentProductCheck) {
-            $parentImport = new ProductImport(
+            $parentImport = new ProductParentImport(
                 [
                     'storekeeper_id' => $parentShopProductId,
                 ]

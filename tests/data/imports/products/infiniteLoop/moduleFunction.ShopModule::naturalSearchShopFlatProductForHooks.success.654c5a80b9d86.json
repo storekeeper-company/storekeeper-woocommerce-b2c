@@ -1,0 +1,143 @@
+{
+    "success": true,
+    "call_id": "654c5a80b9d86",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "flat_product\/product\/type__in_list",
+                "multi_val": [
+                    "simple",
+                    "configurable",
+                    "configurable_assign"
+                ]
+            },
+            {
+                "name": "id__=",
+                "val": 23
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "product_price": {
+                    "id": 23,
+                    "product_id": 23,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 1,
+                    "ppu_wt": 1.21,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2023-11-09 05:03:43+01:00",
+                    "date_updated": "2023-11-09 05:03:44+01:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 23,
+                    "product_id": 23,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 1,
+                    "ppu_wt": 1.21,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2023-11-09 05:03:43+01:00",
+                    "date_updated": "2023-11-09 05:03:44+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 23,
+                    "product_id": 23,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2023-11-09 05:04:25+01:00",
+                    "title": "861n3rh4z Configurable",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 23,
+                    "slug": "861n3rh4z-configurable",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 23,
+                        "date_created": "2023-11-09 05:03:43+01:00",
+                        "date_updated": "2023-11-09 05:04:25+01:00",
+                        "relation_data_id": 3,
+                        "published": false,
+                        "configuration_id": 1,
+                        "content_id": 39,
+                        "sku": "861n3rh4z-configurable",
+                        "type": "configurable",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 23,
+                        "object_instance_id": 144,
+                        "has_addons": false,
+                        "is_system": false,
+                        "has_serial_numbers": false,
+                        "has_stock_location": true,
+                        "has_stock_unlimited": true,
+                        "location_ids": [
+                            1
+                        ],
+                        "product_stock_value": 0,
+                        "in_stock_location_ids": [
+                            1
+                        ],
+                        "content": {
+                            "slug": "861n3rh4z-configurable",
+                            "translatable_id": 85
+                        },
+                        "product_stock": {
+                            "id": 24,
+                            "product_id": 23,
+                            "value": 0,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2023-11-09 05:04:25+01:00",
+                            "location_id": 1
+                        }
+                    }
+                },
+                "id": 23,
+                "product_id": 23,
+                "product_price_id": 23,
+                "date_created": "2023-11-09 05:03:44+01:00",
+                "active": true,
+                "backorder_enabled": false,
+                "object_instance_id": 145,
+                "date_updated": "2023-11-09 05:03:44+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 23,
+                "product_emballage_price_is_dirty": false,
+                "location_ids": [],
+                "unfulfilled_location_ids": [],
+                "in_stock_location_ids": [],
+                "orderable_limited_to_location_id": 1
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 979.0,
+    "_version": "1.0",
+    "_timestamp": "2023-11-09T04:05:21+00:00"
+}
