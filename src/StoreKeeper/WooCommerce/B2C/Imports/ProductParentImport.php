@@ -11,11 +11,11 @@ class ProductParentImport extends ProductImport
     {
         $this->debug('Skipped importing upsell products on parent product', $options);
         $shopProductId = (int) $dotObject->get('id');
-        TaskHandler::scheduleTask(TaskHandler::PRODUCT_UPDATE, $shopProductId, [
+        $taskId = TaskHandler::scheduleTask(TaskHandler::PRODUCT_UPDATE, $shopProductId, [
             'scope' => ProductUpdateImport::PRODUCT_UP_SELL_SCOPE,
             'storekeeper_id' => $shopProductId,
         ]);
-        $this->debug('Scheduled a new task for product update focusing up sell products', $options);
+        $this->debug("Scheduled a new task (id=$taskId) for product update focusing up sell products", $options);
 
         return $log_data;
     }
@@ -24,11 +24,11 @@ class ProductParentImport extends ProductImport
     {
         $this->debug('Skipped importing cross sell products on parent product', $options);
         $shopProductId = (int) $dotObject->get('id');
-        TaskHandler::scheduleTask(TaskHandler::PRODUCT_UPDATE, $shopProductId, [
+        $taskId = TaskHandler::scheduleTask(TaskHandler::PRODUCT_UPDATE, $shopProductId, [
             'scope' => ProductUpdateImport::PRODUCT_CROSS_SELL_SCOPE,
             'storekeeper_id' => $shopProductId,
         ]);
-        $this->debug('Scheduled a new task for product update focusing cross sell products', $options);
+        $this->debug("Scheduled a new task (id=$taskId) for product update focusing cross sell products", $options);
 
         return $log_data;
     }

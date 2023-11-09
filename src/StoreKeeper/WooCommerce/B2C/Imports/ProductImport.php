@@ -46,8 +46,6 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     protected $newItemsCount = 0;
     protected $updatedItemsCount = 0;
 
-    protected array $toBeImportedIds = [];
-
     /**
      * @param $StoreKeeperId
      *
