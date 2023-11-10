@@ -778,7 +778,7 @@ SQL;
 
         // Import the parent product if it does not exists.
         if (!$parentProductCheck) {
-            $parentImport = new ProductImport(
+            $parentImport = new ProductParentImport(
                 [
                     'storekeeper_id' => $parentShopProductId,
                 ]

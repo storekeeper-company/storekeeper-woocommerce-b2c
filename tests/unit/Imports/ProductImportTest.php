@@ -9,6 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\AbstractTest;
 use Throwable;
+use WC_Product_Variable;
 
 class ProductImportTest extends AbstractTest
 {
@@ -20,6 +21,9 @@ class ProductImportTest extends AbstractTest
     public const CREATE_DATADUMP_DIRECTORY = 'imports/products/createProduct';
     public const CREATE_DATADUMP_SUCCESS_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.json';
     public const CREATE_DATADUMP_FAIL_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.failed.json';
+
+    public const INFINITE_LOOP_DATADUMP_SUCCESS_HOOK = 'imports/hook.events.infiniteLoop.success.json';
+    public const INFINITE_LOOP_DATADUMP_DIRECTORY = 'imports/products/infiniteLoop';
 
     public function dataProviderTestImportWithStatusReporting(): array
     {
@@ -104,6 +108,51 @@ class ProductImportTest extends AbstractTest
         );
 
         $this->assertEquals($expectedStatusCallCount, $setShopProductObjectSyncStatusForHookCallCount, 'Product sync status should be sent to Backoffice');
+    }
+
+    public function testImportNoInfiniteLoop()
+    {
+        StoreKeeperApi::$mockAdapter
+            ->withModule(
+                'ShopModule',
+                function (MockInterface $module) {
+                    $module->allows('setShopProductObjectSyncStatusForHook')
+                        ->andReturnUsing(function () {
+                            return null;
+                        });
+                });
+
+        // Issue was import does infinite loop if a simple product is assigned to configurable product
+        // and assigned as upsell product too. See https://app.clickup.com/t/861n3rh4z
+
+        $creationOptions = $this->handleHookRequest(
+            self::INFINITE_LOOP_DATADUMP_DIRECTORY,
+            self::INFINITE_LOOP_DATADUMP_SUCCESS_HOOK,
+        );
+
+        $woocommerceProducts = wc_get_products([]);
+        $this->assertCount(1, $woocommerceProducts, 'Products imported should only be 1');
+
+        /* @var WC_Product_Variable $variableProduct */
+        $variableProduct = $woocommerceProducts[0];
+        $variations = $variableProduct->get_available_variations();
+        $this->assertCount(1, $variations, 'Variable product should have 1 variation');
+
+        $variationProduct = $variations[0];
+        $this->assertEquals(
+            $creationOptions['id'],
+            get_post_meta($variationProduct['variation_id'], 'storekeeper_id', true),
+            'Post meta storekeeper_id should match the shop product ID'
+        );
+
+        $this->assertCount(0, $variableProduct->get_upsell_ids(), 'No upsell IDs should be set yet');
+
+        $this->runner->execute(ProcessAllTasks::getCommandName());
+
+        $woocommerceProducts = wc_get_products([]);
+        /* @var WC_Product_Variable $variableProduct */
+        $variableProduct = $woocommerceProducts[0];
+        $this->assertCount(1, $variableProduct->get_upsell_ids(), '1 upsell IDs should be set');
     }
 
     /**
