@@ -277,6 +277,7 @@ class ProcessAllTasks extends AbstractCommand
             ->bindValue('type1', TaskHandler::ORDERS_IMPORT)
             ->bindValue('type2', TaskHandler::ORDERS_EXPORT)
             ->bindValue('type3', TaskHandler::ORDERS_DELETE)
+            ->orderBy(['times_ran ASC', 'id ASC'])
             ->limit(100);
 
         $query = $db->prepare($select);
