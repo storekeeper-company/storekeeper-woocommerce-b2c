@@ -1,0 +1,173 @@
+{
+    "success": true,
+    "call_id": "654c5a7ee46b9",
+    "module_name": "ShopModule",
+    "function": "naturalSearchShopFlatProductForHooks",
+    "params": [
+        0,
+        "en",
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "flat_product\/product\/type__in_list",
+                "multi_val": [
+                    "simple",
+                    "configurable",
+                    "configurable_assign"
+                ]
+            },
+            {
+                "name": "id__=",
+                "val": 22
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "unfulfilled_stock_value": 0,
+                "unfulfilled_order_ids": [],
+                "product_price": {
+                    "id": 22,
+                    "product_id": 22,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 1,
+                    "ppu_wt": 1.21,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2023-11-09 05:03:02+01:00",
+                    "date_updated": "2023-11-09 05:03:03+01:00",
+                    "product_price_type_id": 1
+                },
+                "product_default_price": {
+                    "id": 22,
+                    "product_id": 22,
+                    "default": true,
+                    "currency_iso3": "EUR",
+                    "ppu": 1,
+                    "ppu_wt": 1.21,
+                    "tax": 0.21,
+                    "tax_rate_id": 55,
+                    "date_created": "2023-11-09 05:03:02+01:00",
+                    "date_updated": "2023-11-09 05:03:03+01:00",
+                    "product_price_type_id": 1
+                },
+                "flat_product": {
+                    "id": 22,
+                    "product_id": 22,
+                    "lang": "nl",
+                    "is_main_lang": true,
+                    "dirty": false,
+                    "date_generated": "2023-11-09 05:04:24+01:00",
+                    "title": "861n3rh4z Simple",
+                    "body": "",
+                    "attribute_set_name": "Default",
+                    "attribute_set_alias": "default",
+                    "document_id": 22,
+                    "slug": "861n3rh4z-simple",
+                    "all_langs": [
+                        "nl"
+                    ],
+                    "product": {
+                        "id": 22,
+                        "date_created": "2023-11-09 05:03:02+01:00",
+                        "date_updated": "2023-11-09 05:04:24+01:00",
+                        "relation_data_id": 3,
+                        "published": false,
+                        "configuration_id": 1,
+                        "content_id": 38,
+                        "sku": "861n3rh4z-simple",
+                        "type": "configurable_assign",
+                        "attribute_set_id": 1,
+                        "active": true,
+                        "product_price_id": 22,
+                        "object_instance_id": 141,
+                        "has_addons": false,
+                        "is_system": false,
+                        "has_serial_numbers": false,
+                        "has_stock_location": true,
+                        "has_stock_unlimited": true,
+                        "location_ids": [
+                            1
+                        ],
+                        "product_stock_value": 0,
+                        "in_stock_location_ids": [
+                            1
+                        ],
+                        "content": {
+                            "slug": "861n3rh4z-simple",
+                            "translatable_id": 84
+                        },
+                        "product_stock": {
+                            "id": 23,
+                            "product_id": 22,
+                            "value": 0,
+                            "in_stock": true,
+                            "unlimited": true,
+                            "date_updated": "2023-11-09 05:03:02+01:00",
+                            "location_id": 1
+                        }
+                    },
+                    "content_vars": [
+                        {
+                            "label": "Merk",
+                            "attribute_id": 2,
+                            "attribute_option_id": 1,
+                            "value_label": "junmardev",
+                            "name": "brand",
+                            "value": "junmardev",
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 0
+                        },
+                        {
+                            "label": "Beschrijving nodig op kassa",
+                            "attribute_id": 3,
+                            "attribute_option_id": 2,
+                            "value_label": "Nee",
+                            "name": "needs_description_on_kassa",
+                            "value": "0",
+                            "attribute_published": true,
+                            "attribute_option_order": 0,
+                            "attribute_order": 0
+                        }
+                    ]
+                },
+                "id": 22,
+                "product_id": 22,
+                "product_price_id": 22,
+                "date_created": "2023-11-09 05:03:02+01:00",
+                "active": true,
+                "backorder_enabled": false,
+                "object_instance_id": 142,
+                "date_updated": "2023-11-09 05:03:03+01:00",
+                "configuration_id": 1,
+                "relation_limited": false,
+                "product_default_price_id": 22,
+                "product_emballage_price_is_dirty": false,
+                "location_ids": [
+                    1
+                ],
+                "unfulfilled_location_ids": [],
+                "in_stock_location_ids": [
+                    1
+                ],
+                "orderable_limited_to_location_id": 1
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 983.0,
+    "_version": "1.0",
+    "_timestamp": "2023-11-09T04:05:19+00:00"
+}
