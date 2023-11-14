@@ -19,6 +19,7 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Traits\TaskHandlerTrait;
+use Throwable;
 
 abstract class AbstractImport
 {
@@ -190,7 +191,7 @@ abstract class AbstractImport
 
     /**
      * @throws LockTimeoutException
-     * @throws LockException
+     * @throws LockException|Throwable
      */
     public function run(array $options = []): void
     {
@@ -235,58 +236,52 @@ abstract class AbstractImport
                     ['start' => $start, 'limit' => $limit, 'sorts' => $sorts, 'filters' => $filters]
                 );
                 $response = $module->$functionName($start, $limit, $sorts, $filters);
-            } else {
-                if (is_null($query) && !is_null($language)) {
-                    $this->debug(
-                        "fetching $moduleName::$functionName with:",
-                        [
-                            'language' => $language,
-                            'start' => $start,
-                            'limit' => $limit,
-                            'sorts' => $sorts,
-                            'filters' => $filters,
-                        ]
-                    );
-                    $response = $module->$functionName($language, $start, $limit, $sorts, $filters);
-                } else {
-                    if (!is_null($query) && !is_null($language)) {
-                        $this->debug(
-                            "fetching $moduleName::$functionName with:",
-                            [
-                                'query' => $query,
-                                'language' => $language,
-                                'start' => $start,
-                                'limit' => $limit,
-                                'sorts' => $sorts,
-                                'filters' => $filters,
-                            ]
-                        );
-                        $response = $module->$functionName($query, $language, $start, $limit, $sorts, $filters);
-                    } else {
-                        if (!is_null($query) && is_null($language)) {
-                            $this->debug(
-                                "fetching $moduleName::$functionName with:",
-                                [
-                                    'query' => $query,
-                                    'start' => $start,
-                                    'limit' => $limit,
-                                    'sorts' => $sorts,
-                                    'filters' => $filters,
-                                ]
-                            );
-                            $response = $module->$functionName($query, $start, $limit, $sorts, $filters);
-                        }
-                    }
-                }
+            } elseif (is_null($query) && !is_null($language)) {
+                $this->debug(
+                    "fetching $moduleName::$functionName with:",
+                    [
+                        'language' => $language,
+                        'start' => $start,
+                        'limit' => $limit,
+                        'sorts' => $sorts,
+                        'filters' => $filters,
+                    ]
+                );
+                $response = $module->$functionName($language, $start, $limit, $sorts, $filters);
+            } elseif (!is_null($query) && !is_null($language)) {
+                $this->debug(
+                    "fetching $moduleName::$functionName with:",
+                    [
+                        'query' => $query,
+                        'language' => $language,
+                        'start' => $start,
+                        'limit' => $limit,
+                        'sorts' => $sorts,
+                        'filters' => $filters,
+                    ]
+                );
+                $response = $module->$functionName($query, $language, $start, $limit, $sorts, $filters);
+            } elseif (!is_null($query) && is_null($language)) {
+                $this->debug(
+                    "fetching $moduleName::$functionName with:",
+                    [
+                        'query' => $query,
+                        'start' => $start,
+                        'limit' => $limit,
+                        'sorts' => $sorts,
+                        'filters' => $filters,
+                    ]
+                );
+                $response = $module->$functionName($query, $start, $limit, $sorts, $filters);
             }
 
-            if (key_exists('count', $response)) {
+            if (array_key_exists('count', $response)) {
                 $this->debug("$moduleName::$functionName fetched {$response['count']} items");
             } else {
                 $this->debug("$moduleName::$functionName did not fetched any items");
             }
 
-            if (key_exists('data', $response) && key_exists('count', $response)) {
+            if (array_key_exists('data', $response) && array_key_exists('count', $response)) {
                 $last_fetched_amount = (int) $response['count'];
                 $start = $start + ($last_fetched_amount - 1);
                 $items = $response['data'];
@@ -334,7 +329,7 @@ abstract class AbstractImport
                         ++$this->failedItemCount;
                         ++$this->processedItemCount;
                         $this->debug("Processed {$count}/{$response['count']} items");
-                    } catch (\Throwable $exception) {
+                    } catch (Throwable $exception) {
                         $errorMessage = $exception->getMessage();
                         $data = [
                             'item' => $item,

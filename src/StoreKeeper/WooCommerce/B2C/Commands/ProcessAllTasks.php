@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Commands;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\ConnectionTimedOutException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
@@ -276,6 +277,7 @@ class ProcessAllTasks extends AbstractCommand
             ->bindValue('type1', TaskHandler::ORDERS_IMPORT)
             ->bindValue('type2', TaskHandler::ORDERS_EXPORT)
             ->bindValue('type3', TaskHandler::ORDERS_DELETE)
+            ->orderBy(['times_ran ASC', 'id ASC'])
             ->limit(100);
 
         $query = $db->prepare($select);
@@ -405,6 +407,12 @@ class ProcessAllTasks extends AbstractCommand
         return $limit;
     }
 
+    /**
+     * @throws Throwable
+     * @throws ConnectionTimedOutException
+     * @throws BaseException
+     * @throws LockException
+     */
     protected function processTaskIds(array $task_ids, bool $rethrow): void
     {
         $task_quantity = count($task_ids);
@@ -462,7 +470,25 @@ class ProcessAllTasks extends AbstractCommand
 
                 $this->reportTaskSuccess($task_id, $log_context);
             } catch (LockException $e) {
-                throw $e; // do not report the task eror
+                // Do not report the task error
+                throw $e;
+            } catch (ConnectionTimedOutException $exception) {
+                // Catch ConnectionTimedOutException class from API curl
+                // Do not report the task error
+                throw $exception;
+            } catch (SubProcessException $exception) {
+                // Catch ConnectionTimedOutException class from spawned subprocess
+                // This catch block is when processing all tasks via scheduled processor
+                $process = $exception->getProcess();
+                if (false === strpos($process->getErrorOutput(), ConnectionTimedOutException::class)) {
+                    // Report error and set task status to failed if not ConnectionTimedOutException
+                    // Otherwise, ignore the error as it was already rescheduled when it happened the first time
+                    $this->reportTaskError($task_id, $exception, $log_context);
+
+                    if ($rethrow) {
+                        throw $exception;
+                    }
+                }
             } catch (Throwable $e) {
                 $this->reportTaskError($task_id, $e, $log_context);
 

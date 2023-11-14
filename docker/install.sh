@@ -14,6 +14,11 @@ fi
 
 cd $WORPRESS_ROOT || exit 11
 
+echo "Plugin composer install"
+cd wp-content/plugins/storekeeper-for-woocommerce && composer install || exit 22
+
+cd $WORPRESS_ROOT || exit 12
+
 if [ -f "wp-config.php" ]; then
   echo "wp-config.php already created"
 else
@@ -34,7 +39,7 @@ if ! wp core is-installed; then
   wp core install \
     --url=$WORPRESS_URL --title=$WORPRESS_TITLE --admin_user=$WORDPRESS_ADMIN_USER \
     --admin_password=$WORDPRESS_ADMIN_PASSWORD --admin_email=$WORDPRESS_ADMIN_EMAIL \
-    --skip-email || exit 12
+    --skip-email || exit 13
 else
   echo "Wordpress is already installed"
 fi
@@ -54,9 +59,6 @@ then
   echo "Installing storefront"
   wp theme install storefront --activate || exit 21
 fi
-
-echo "Plugin composer install"
-cd wp-content/plugins/storekeeper-for-woocommerce && composer install || exit 22
 
 if ! wp plugin is-active storekeeper-for-woocommerce; then
   wp plugin activate storekeeper-for-woocommerce || exit 23

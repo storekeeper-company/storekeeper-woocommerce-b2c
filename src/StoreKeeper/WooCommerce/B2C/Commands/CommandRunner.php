@@ -128,7 +128,7 @@ class CommandRunner
             );
         }
 
-        return (int) $result;
+        return (int) ($result ?? 0);
     }
 
     protected function logVmStats(array $context = [])
