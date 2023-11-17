@@ -261,7 +261,7 @@ HTML;
                 }
 
                 if (isset($errorOutput['exception-difference'])) {
-                    echo ''.__('Entity differences', I18N::DOMAIN).':<br>';
+                    echo ''.__('Extra metadata', I18N::DOMAIN).':<br>';
                     $extrasDifferences = $errorOutput['exception-difference'];
                     $shopExtras = $extrasDifferences['shop-extras'];
                     $backofficeExtras = $extrasDifferences['backoffice-extras'];
