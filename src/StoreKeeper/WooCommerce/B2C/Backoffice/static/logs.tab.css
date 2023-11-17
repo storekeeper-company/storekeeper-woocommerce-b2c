@@ -53,3 +53,11 @@
 .storekeeper-page-storekeeper-logs .storekeeper-tab .search-box {
     margin-left: auto;
 }
+
+table.table.table-bordered,
+table.table.table-bordered th,
+table.table.table-bordered td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 3px;
+}

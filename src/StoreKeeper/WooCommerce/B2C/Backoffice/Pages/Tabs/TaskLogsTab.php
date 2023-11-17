@@ -192,7 +192,7 @@ class TaskLogsTab extends AbstractLogsTab
                 $retryUrl = add_query_arg([
                     'selected' => $id,
                     'rowAction' => self::RETRY_ACTION,
-                    ],
+                ],
                     $this->getActionUrl(self::DO_SINGLE_ACTION)
                 );
                 $retryUrl = esc_url($retryUrl);
@@ -200,7 +200,7 @@ class TaskLogsTab extends AbstractLogsTab
                 $markUrl = add_query_arg([
                     'selected' => $id,
                     'rowAction' => self::MARK_ACTION,
-                    ],
+                ],
                     $this->getActionUrl(self::DO_SINGLE_ACTION)
                 );
                 $markUrl = esc_url($markUrl);
@@ -259,6 +259,23 @@ HTML;
                 if (isset($errorOutput['exception-reference'])) {
                     echo __('Error reference', I18N::DOMAIN).': '.esc_html($errorOutput['exception-reference']).':<br>';
                 }
+
+                if (isset($errorOutput['exception-difference'])) {
+                    echo ''.__('Entity differences', I18N::DOMAIN).':<br>';
+                    $extrasDifferences = $errorOutput['exception-difference'];
+                    $shopExtras = $extrasDifferences['shop-extras'];
+                    $backofficeExtras = $extrasDifferences['backoffice-extras'];
+                    if (count($shopExtras) > 0) {
+                        echo '<strong>'.__('Shop', I18N::DOMAIN).'</strong><br>';
+                        $this->generateExtrasTable($shopExtras);
+                    }
+                    if (count($backofficeExtras) > 0) {
+                        echo '<br><strong>'.__('Backoffice', I18N::DOMAIN).'</strong><br>';
+                        $this->generateExtrasTable($backofficeExtras);
+                    }
+                    echo '<br>';
+                }
+
                 echo ''.__('Stack Trace', I18N::DOMAIN).':<br>';
                 echo '<div>';
                 foreach ($replace_pairs as $from => $to) {
@@ -465,5 +482,35 @@ HTML;
     protected function clearArgs(): void
     {
         wp_redirect(remove_query_arg(['selected', 'action', 'rowAction']));
+    }
+
+    private function generateExtrasTable($extras): void
+    {
+        $tableHeaders = [];
+        foreach ($extras as $extra) {
+            foreach ($extra as $key => $extraData) {
+                if (!in_array($key, $tableHeaders, true)) {
+                    $tableHeaders[] = $key;
+                }
+            }
+        }
+
+        echo '<table class="table table-bordered"><thead><tr>';
+        foreach ($tableHeaders as $tableHeader) {
+            echo "<th>$tableHeader</th>";
+        }
+        echo '</tr><tbody>';
+        foreach ($extras as $extra) {
+            echo '<tr>';
+            foreach ($tableHeaders as $tableHeader) {
+                if (isset($extra[$tableHeader])) {
+                    echo '<td>'.$extra[$tableHeader].'</td>';
+                } else {
+                    echo '<td>-</td>';
+                }
+            }
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
     }
 }
