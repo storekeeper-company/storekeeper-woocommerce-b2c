@@ -7,6 +7,7 @@ use Mockery\MockInterface;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoHandler;
+use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\OrderDifferenceException;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
@@ -879,10 +880,8 @@ class OrderExportTest extends AbstractOrderExportTest
         try {
             $this->processTask($task);
             $this->assertEquals("$shopOrderId{$expectedPrefix}", $sent_order['shop_order_number'], 'Shop order number sent should have expected prefix');
-        } catch (GeneralException $exception) {
-            if ('ShopModule::OrderDuplicateNumber' === $exception->getApiExceptionClass()) {
-                $failed = true;
-            }
+        } catch (ExportException $exception) {
+            $failed = true;
         }
 
         $this->assertEquals($expectedToFail, $failed, 'Failure expectation did not match');
