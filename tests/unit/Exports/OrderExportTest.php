@@ -788,11 +788,19 @@ class OrderExportTest extends AbstractOrderExportTest
         $data['order with 1 duplicate number only'] = [
             '(1)',
             1,
+            false,
         ];
 
-        $data['order with 4 duplicate numbers'] = [
+        $data['order with 3 duplicate numbers'] = [
+            '(3)',
+            3,
+            false,
+        ];
+
+        $data['order with 4 duplicate numbers expected failure'] = [
             '(4)',
             4,
+            true,
         ];
 
         return $data;
@@ -801,7 +809,7 @@ class OrderExportTest extends AbstractOrderExportTest
     /**
      * @dataProvider dataProviderDuplicateOrder
      */
-    public function testOrderWithDuplicateOrderNumberInBackoffice(string $expectedPrefix, int $duplicateCount): void
+    public function testOrderWithDuplicateOrderNumberInBackoffice(string $expectedPrefix, int $duplicateCount, bool $expectedToFail): void
     {
         $this->initApiConnection();
         $this->emptyEnvironment();
@@ -867,9 +875,17 @@ class OrderExportTest extends AbstractOrderExportTest
         $OrderHandler = new OrderHandler();
         $task = $OrderHandler->create($shopOrderId);
 
-        $this->processTask($task);
+        $failed = false;
+        try {
+            $this->processTask($task);
+            $this->assertEquals("$shopOrderId{$expectedPrefix}", $sent_order['shop_order_number'], 'Shop order number sent should have expected prefix');
+        } catch (GeneralException $exception) {
+            if ('ShopModule::OrderDuplicateNumber' === $exception->getApiExceptionClass()) {
+                $failed = true;
+            }
+        }
 
-        $this->assertEquals("$shopOrderId{$expectedPrefix}", $sent_order['shop_order_number'], 'Shop order number sent should have expected prefix');
+        $this->assertEquals($expectedToFail, $failed, 'Failure expectation did not match');
     }
 
     public function testCustomerEmailIsAdmin()

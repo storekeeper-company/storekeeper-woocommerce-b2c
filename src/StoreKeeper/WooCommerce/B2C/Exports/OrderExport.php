@@ -38,6 +38,8 @@ class OrderExport extends AbstractExport
     const STATUS_REFUNDED = 'refunded';
     const STATUS_CANCELLED = 'cancelled';
 
+    const MAXIMUM_DUPLICATE_COUNT = 3;
+
     protected function getFunction()
     {
         return 'WC_Order';
@@ -292,7 +294,7 @@ class OrderExport extends AbstractExport
                     $storekeeper_id = $ShopModule->newOrder($callData);
                     $succeed = true;
                 } catch (GeneralException $exception) {
-                    if ('ShopModule::OrderDuplicateNumber' === $exception->getApiExceptionClass()) {
+                    if ($duplicateCounter <= self::MAXIMUM_DUPLICATE_COUNT && 'ShopModule::OrderDuplicateNumber' === $exception->getApiExceptionClass()) {
                         $callData['shop_order_number'] = "{$shopOrderId}($duplicateCounter)";
                         ++$duplicateCounter;
                     } else {
