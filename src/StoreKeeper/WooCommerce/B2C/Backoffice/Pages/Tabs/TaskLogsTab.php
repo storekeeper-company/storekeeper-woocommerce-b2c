@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
@@ -261,15 +262,14 @@ HTML;
                 }
 
                 if (isset($errorOutput['exception-difference'])) {
-                    echo ''.__('Extra metadata', I18N::DOMAIN).':<br>';
+                    echo __('Extra metadata', I18N::DOMAIN).':<br>';
                     $extrasDifferences = $errorOutput['exception-difference'];
-                    $shopExtras = $extrasDifferences['shop-extras'];
-                    $backofficeExtras = $extrasDifferences['backoffice-extras'];
-                    if (count($shopExtras) > 0) {
+                    $shopExtras = $extrasDifferences['shop-extras'] ?? [];
+                    $backofficeExtras = $extrasDifferences['backoffice-extras'] ?? [];
+                    if (count($shopExtras) > 0 || count($backofficeExtras) > 0) {
                         echo '<strong>'.__('Shop', I18N::DOMAIN).'</strong><br>';
                         $this->generateExtrasTable($shopExtras);
-                    }
-                    if (count($backofficeExtras) > 0) {
+
                         echo '<br><strong>'.__('Backoffice', I18N::DOMAIN).'</strong><br>';
                         $this->generateExtrasTable($backofficeExtras);
                     }
@@ -484,33 +484,46 @@ HTML;
         wp_redirect(remove_query_arg(['selected', 'action', 'rowAction']));
     }
 
-    private function generateExtrasTable($extras): void
+    private function generateExtrasTable(array $extras): void
     {
-        $tableHeaders = [];
-        foreach ($extras as $extra) {
-            foreach ($extra as $key => $extraData) {
-                if (!in_array($key, $tableHeaders, true)) {
-                    $tableHeaders[] = $key;
+        if (count($extras) > 0) {
+            $tableHeaders = [];
+            foreach ($extras as $extra) {
+                foreach ($extra as $key => $extraData) {
+                    if (!in_array($key, $tableHeaders, true)) {
+                        $tableHeaders[] = $key;
+                    }
                 }
             }
-        }
 
-        echo '<table class="table table-bordered"><thead><tr>';
-        foreach ($tableHeaders as $tableHeader) {
-            echo "<th>$tableHeader</th>";
-        }
-        echo '</tr><tbody>';
-        foreach ($extras as $extra) {
-            echo '<tr>';
+            echo '<table class="table table-bordered"><thead><tr>';
+
             foreach ($tableHeaders as $tableHeader) {
-                if (isset($extra[$tableHeader])) {
-                    echo '<td>'.$extra[$tableHeader].'</td>';
-                } else {
-                    echo '<td>-</td>';
-                }
+                echo '<th>'.esc_html($tableHeader).'</th>';
             }
-            echo '</tr>';
+            echo '</tr><tbody>';
+
+            $rowIds = array_column($extras, OrderExport::EXTRA_ROW_ID_KEY);
+            array_multisort(
+                $rowIds,
+                SORT_ASC,
+                $extras
+            );
+
+            foreach ($extras as $extra) {
+                echo '<tr>';
+                foreach ($tableHeaders as $tableHeader) {
+                    if (isset($extra[$tableHeader])) {
+                        echo '<td>'.esc_html($extra[$tableHeader]).'</td>';
+                    } else {
+                        echo '<td>-</td>';
+                    }
+                }
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+        } else {
+            echo '<i>'.__('No extra metadata found.', I18N::DOMAIN).'</i><br>';
         }
-        echo '</tbody></table>';
     }
 }
