@@ -171,7 +171,15 @@ class InfoHandler
 
         $orderSystemStatus['last_synchronized_date'] = TaskModel::getLatestSuccessfulSynchronizedDateForType(TaskHandler::ORDERS_EXPORT);
 
-        $orderSystemStatus['ids_with_failed_tasks'] = TaskModel::getFailedOrderIds();
+        $failedOrderIds = TaskModel::getFailedOrderIds();
+
+        $failedOrderIdsWithoutCancelled = array_filter($failedOrderIds, static function (int $orderId) {
+            $order = new WC_Order($orderId);
+
+            return OrderExport::STATUS_CANCELLED !== $order->get_status();
+        });
+
+        $orderSystemStatus['ids_with_failed_tasks'] = $failedOrderIdsWithoutCancelled;
 
         $orderStatuses = wc_get_order_statuses();
         unset($orderStatuses['wc-cancelled']);

@@ -176,6 +176,21 @@ class TaskModel extends AbstractModel implements IModelPurge
         );
     }
 
+    public static function getTasksByStatuses(array $statuses = []): array
+    {
+        global $wpdb;
+
+        $bindStatus = implode("','", $statuses);
+        $select = static::getSelectHelper()
+            ->cols(['*'])
+            ->where('status = :status')
+            ->bindValue('status', $bindStatus);
+
+        $query = static::prepareQuery($select);
+
+        return $wpdb->get_results($query, ARRAY_N);
+    }
+
     public static function create(array $data): int
     {
         $data['meta_data'] = serialize($data['meta_data'] ?? []);
