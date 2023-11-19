@@ -781,6 +781,97 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->processTask($task);
     }
 
+    public function dataProviderDuplicateOrder(): array
+    {
+        $data = [];
+
+        $data['order with 1 duplicate number only'] = [
+            '(1)',
+            1,
+        ];
+
+        $data['order with 4 duplicate numbers'] = [
+            '(4)',
+            4,
+        ];
+
+        return $data;
+    }
+
+    /**
+     * @dataProvider dataProviderDuplicateOrder
+     */
+    public function testOrderWithDuplicateOrderNumberInBackoffice(string $expectedPrefix, int $duplicateCount): void
+    {
+        $this->initApiConnection();
+        $this->emptyEnvironment();
+
+        $order = WC_Helper_Order::create_order();
+        $order->save();
+        $shopOrderId = $order->get_id();
+
+        $triesCount = 0;
+
+        $sent_order = [];
+        StoreKeeperApi::$mockAdapter
+            ->withModule(
+                'ShopModule',
+                function (MockInterface $module) use (&$sent_order, &$triesCount, $duplicateCount) {
+                    $module->allows('findShopCustomerBySubuserEmail')->andReturnUsing(
+                        function () {
+                            return ['id' => mt_rand()];
+                        }
+                    );
+
+                    $module->allows('naturalSearchShopFlatProductForHooks')->andReturnUsing(
+                        function () {
+                            return [
+                                'data' => [],
+                                'total' => 0,
+                                'count' => 0,
+                            ];
+                        }
+                    );
+
+                    $module->allows('newOrder')->andReturnUsing(
+                        function ($params) use (&$sent_order, &$triesCount, $duplicateCount) {
+                            if ($triesCount < $duplicateCount) {
+                                ++$triesCount;
+
+                                throw GeneralException::buildFromBody(['class' => 'ShopModule::OrderDuplicateNumber']);
+                            }
+                            [$order] = $params;
+
+                            $sent_order = $order;
+                            $sent_order['id'] = mt_rand();
+                            $sent_order = $this->calculateNewOrder($sent_order);
+
+                            return $sent_order['id'];
+                        }
+                    );
+
+                    $module->allows('getOrder')->andReturnUsing(
+                        function () use (&$sent_order) {
+                            return $sent_order;
+                        }
+                    );
+
+                    $module->allows('updateOrder')->andReturnUsing(
+                        function () {
+                            return null;
+                        }
+                    );
+                }
+            );
+
+        $OrderHandler = new OrderHandler();
+        $task = $OrderHandler->create($shopOrderId);
+
+        $this->processTask($task);
+
+        $this->assertEquals("$shopOrderId{$expectedPrefix}", $sent_order['shop_order_number'], 'Shop order number sent should have expected prefix');
+    }
+
     public function testCustomerEmailIsAdmin()
     {
         $this->initApiConnection();
