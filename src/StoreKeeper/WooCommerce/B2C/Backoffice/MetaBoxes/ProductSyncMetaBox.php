@@ -5,6 +5,8 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceSingleProduct;
 use StoreKeeper\WooCommerce\B2C\Commands\WebCommandRunner;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -41,7 +43,10 @@ class ProductSyncMetaBox extends AbstractPostSyncMetaBox
         $idValue = esc_html($storekeeperId ?: '-');
 
         $dateLabel = esc_html__('Last sync', I18N::DOMAIN);
-        $dateValue = esc_html($this->getPostMeta($product->get_id(), 'storekeeper_sync_date', '-'));
+        $dateValue = DatabaseConnection::formatFromDatabaseDateIfNotEmpty(
+            esc_html($this->getPostMeta($product->get_id(), 'storekeeper_sync_date', null))
+        );
+        $syncDateForDisplay = DateTimeHelper::formatForDisplay($dateValue);
 
         $backoffice = '';
         if (0 !== $storekeeperId && StoreKeeperOptions::isConnected()) {
@@ -62,7 +67,7 @@ class ProductSyncMetaBox extends AbstractPostSyncMetaBox
                     </div>
                     <div>
                         <strong>$dateLabel:</strong>
-                        <div>$dateValue</div>
+                        <div>$syncDateForDisplay</div>
                     </div>
                 </li>
                 <li class="wide">        
