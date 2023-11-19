@@ -467,22 +467,7 @@ class OrderExport extends AbstractExport
             $backofficeOrderItemExtra = $backofficeOrderItemExtras[$extrasCounter];
             $databaseOrderItemExtra = $databaseOrderItemExtras[$extrasCounter];
             if ($databaseOrderItemExtra !== $backofficeOrderItemExtra) {
-                $parsedBackofficeExtra = implode(', ', array_map(
-                   static function ($value, $key) {
-                       return sprintf('%s=%s', $key, $value);
-                   },
-                    $backofficeOrderItemExtra,
-                    array_keys($backofficeOrderItemExtra)
-                ));
-
-                $parsedShopExtra = implode(', ', array_map(
-                    static function ($value, $key) {
-                        return sprintf('%s=%s', $key, $value);
-                    },
-                    $databaseOrderItemExtra,
-                    array_keys($databaseOrderItemExtra)
-                ));
-                throw new OrderDifferenceException("Extra metadata did not match, Backoffice extras \"$parsedBackofficeExtra\" and Shop extras \"$parsedShopExtra\"", $databaseOrderItemExtras, $backofficeOrderItemExtras);
+                throw new OrderDifferenceException('Extra metadata did not match', $databaseOrderItemExtras, $backofficeOrderItemExtras);
             }
         }
     }
