@@ -9,6 +9,8 @@ use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoHandler;
 use StoreKeeper\WooCommerce\B2C\Exceptions\OrderDifferenceException;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
+use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
+use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -997,6 +999,64 @@ class OrderExportTest extends AbstractOrderExportTest
         }
         $new_order_id = $this->createWooCommerceOrder($create_order);
         $this->processNewOrder($new_order_id, $new_order);
+    }
+
+    public function testOrderWithZeroRefundAmount()
+    {
+        $this->initApiConnection();
+
+        $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER_CREATE);
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) {
+                $module->expects('attachPaymentIdsToOrder')
+                    ->andReturnUsing(
+                        function () {
+                            return null;
+                        }
+                    );
+
+                $module->allows('refundAllOrderItems')->andReturnUsing(
+                    function ($got) {
+                        [$refund] = $got;
+                        $refundPayments = $refund['refund_payments'];
+                        foreach ($refundPayments as $refundPayment) {
+                            if (0.0 === $refundPayment['amount']) {
+                                throw GeneralException::buildFromBody(['class' => 'General', 'error' => 'Refund amount needs to be negative']);
+                            }
+                        }
+
+                        return null;
+                    }
+                );
+            },
+        );
+
+        $this->emptyEnvironment();
+
+        $newOrder = $this->getOrderProps();
+        $newOrderId = $this->createWooCommerceOrder($newOrder);
+        // Mock payment for refund to work
+        PaymentModel::addPayment($newOrderId, mt_rand(), 100, true);
+
+        $this->processNewOrder($newOrderId, $newOrder);
+
+        // Create the refund
+        wc_create_refund([
+            'amount' => 0.00,
+            'reason' => 'test refund',
+            'order_id' => $newOrderId,
+        ]);
+
+        $this->runner->execute(
+            ProcessAllTasks::getCommandName(), [],
+            [ProcessAllTasks::ARG_FAIL_ON_ERROR => true]
+        );
+
+        $refunds = RefundModel::findBy(['wc_order_id = :order_id'], ['order_id' => $newOrderId]);
+        $this->assertCount(1, $refunds, '1 refund should have been created');
+        $this->assertTrue((bool) $refunds[0]['is_synced'], 'Refund should be marked as synchronized');
     }
 
     /**
