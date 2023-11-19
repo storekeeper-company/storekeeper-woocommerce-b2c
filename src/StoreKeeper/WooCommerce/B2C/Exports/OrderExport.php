@@ -296,6 +296,10 @@ class OrderExport extends AbstractExport
                 } catch (GeneralException $exception) {
                     if ($duplicateCounter <= self::MAXIMUM_DUPLICATE_COUNT && 'ShopModule::OrderDuplicateNumber' === $exception->getApiExceptionClass()) {
                         $callData['shop_order_number'] = "{$shopOrderId}($duplicateCounter)";
+                        $this->debug("Attempting to create the order $duplicateCounter times", [
+                            'shopOrderId' => $shopOrderId,
+                            'shop_order_number' => $callData['shop_order_number'],
+                        ]);
                         ++$duplicateCounter;
                     } else {
                         throw $exception;
