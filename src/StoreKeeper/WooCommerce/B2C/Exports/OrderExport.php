@@ -40,6 +40,8 @@ class OrderExport extends AbstractExport
 
     const MAXIMUM_DUPLICATE_COUNT = 3;
 
+    private ?int $shopOrderId = null;
+
     protected function getFunction()
     {
         return 'WC_Order';
@@ -71,7 +73,7 @@ class OrderExport extends AbstractExport
      */
     protected function processItem($order): void
     {
-        $shopOrderId = $order->get_id();
+        $this->shopOrderId = $shopOrderId = $order->get_id();
         $this->debug('Exporting order with id '.$shopOrderId);
         if ('eur' !== strtolower(get_woocommerce_currency())) {
             $iso = get_woocommerce_currency();
@@ -753,6 +755,19 @@ class OrderExport extends AbstractExport
         }
 
         return null;
+    }
+
+    protected function convertKnownGeneralException(GeneralException $throwable): Throwable
+    {
+        if ('ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
+            return new ExportException(
+                esc_html__('Order with this order number already exists. Tried duplicate up to '.$this->shopOrderId.'('.self::MAXIMUM_DUPLICATE_COUNT.')', I18N::DOMAIN),
+                $throwable->getCode(),
+                $throwable
+            );
+        }
+
+        return parent::convertKnownGeneralException($throwable);
     }
 
     protected function processPaymentsAndRefunds(WC_Order $WpObject, int $storekeeper_id): void
