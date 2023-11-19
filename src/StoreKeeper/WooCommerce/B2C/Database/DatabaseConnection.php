@@ -159,7 +159,7 @@ class DatabaseConnection
 
     public static function formatFromDatabaseDateIfNotEmpty($date): ?\DateTime
     {
-        if (!is_string($date)) {
+        if (!is_string($date) || empty($date)) {
             return null;
         }
 
