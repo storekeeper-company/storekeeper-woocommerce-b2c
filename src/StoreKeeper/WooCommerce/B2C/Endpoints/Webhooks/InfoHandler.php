@@ -172,12 +172,18 @@ class InfoHandler
         $orderSystemStatus['last_synchronized_date'] = TaskModel::getLatestSuccessfulSynchronizedDateForType(TaskHandler::ORDERS_EXPORT);
 
         $failedOrderIds = TaskModel::getFailedOrderIds();
-
-        $failedOrderIdsWithoutCancelled = array_filter($failedOrderIds, static function (int $orderId) {
-            $order = new WC_Order($orderId);
-
+        $failedOrdersQuery = new \WC_Order_Query([
+            'post__in' => $failedOrderIds,
+            'orderby' => 'ID',
+            'order' => 'ASC',
+        ]);
+        $failedOrders = $failedOrdersQuery->get_orders();
+        $failedOrdersWithoutCancelled = array_filter($failedOrders, static function (WC_Order $order) {
             return OrderExport::STATUS_CANCELLED !== $order->get_status();
         });
+        $failedOrderIdsWithoutCancelled = array_map(static function (WC_Order $order) {
+            return $order->get_id();
+        }, $failedOrdersWithoutCancelled);
 
         $orderSystemStatus['ids_with_failed_tasks'] = $failedOrderIdsWithoutCancelled;
 
@@ -189,7 +195,6 @@ class InfoHandler
             'meta_compare' => '=',
             'orderby' => 'date_created',
             'order' => 'ASC',
-            '',
         ]);
         $orderQuery->set('status', array_keys($orderStatuses));
         $unsynchronizedOrders = $orderQuery->get_orders();
