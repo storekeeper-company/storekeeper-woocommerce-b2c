@@ -145,7 +145,7 @@ class LoggerFactory
         ];
 
         if ($exception instanceof GeneralException) {
-            $exception['exception-reference'] = $exception->getReference();
+            $metadata['exception-reference'] = $exception->getReference();
         }
 
         return array_merge($customMetadata, $metadata);
