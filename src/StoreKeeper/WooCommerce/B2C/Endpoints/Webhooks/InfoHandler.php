@@ -171,13 +171,18 @@ class InfoHandler
 
         $orderSystemStatus['last_synchronized_date'] = TaskModel::getLatestSuccessfulSynchronizedDateForType(TaskHandler::ORDERS_EXPORT);
 
+        $orderStatuses = wc_get_order_statuses();
+        unset($orderStatuses['wc-cancelled']);
+
         $failedOrderIds = TaskModel::getFailedOrderIds();
         $failedOrdersQuery = new \WC_Order_Query([
             'post__in' => $failedOrderIds,
             'orderby' => 'ID',
             'order' => 'ASC',
+            'status', array_keys($orderStatuses),
         ]);
         $failedOrders = $failedOrdersQuery->get_orders();
+        // Order query by multiple status don't work so we have to filter manually
         $failedOrdersWithoutCancelled = array_filter($failedOrders, static function (WC_Order $order) {
             return OrderExport::STATUS_CANCELLED !== $order->get_status();
         });
@@ -187,19 +192,17 @@ class InfoHandler
 
         $orderSystemStatus['ids_with_failed_tasks'] = $failedOrderIdsWithoutCancelled;
 
-        $orderStatuses = wc_get_order_statuses();
-        unset($orderStatuses['wc-cancelled']);
         $orderQuery = new \WC_Order_Query([
             'meta_key' => OrderHandler::TO_BE_SYNCHRONIZED_META_KEY,
             'meta_value' => 'yes',
             'meta_compare' => '=',
             'orderby' => 'date_created',
             'order' => 'ASC',
+            'status', array_keys($orderStatuses),
         ]);
-        $orderQuery->set('status', array_keys($orderStatuses));
         $unsynchronizedOrders = $orderQuery->get_orders();
         $unsynchronizedOrderIds = [];
-
+        // Order query by multiple status don't work so we have to filter manually
         $unsynchronizedOrders = array_filter($unsynchronizedOrders, static function (WC_Order $order) {
             return OrderExport::STATUS_CANCELLED !== $order->get_status();
         });
