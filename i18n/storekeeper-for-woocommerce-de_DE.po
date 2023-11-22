@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-10-17 06:00\n"
+"PO-Revision-Date: 2023-11-17 17:00\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: de_DE\n"
@@ -110,10 +110,6 @@ msgstr "Verarbeitung von %s Elementen von %s abgeschlossen"
 msgid "Done processing %s items of %s (%s new / %s updated)"
 msgstr "Abgeschlossene Verarbeitung von %s-Elementen von %s (%s neu / %s aktualisiert)"
 
-#: vendor/wp-cli/wp-cli/php/utils-wp.php:233
-msgid "Drag widgets here to remove them from the sidebar but keep their settings."
-msgstr "Ziehen Sie Widgets hierher, um sie aus der Seitenleiste zu entfernen, aber ihre Einstellungen beizubehalten."
-
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:88
 msgid "Duration in seconds"
 msgstr "Dauer in Sekunden"
@@ -177,10 +173,6 @@ msgstr "In-Out-Menge"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:78
 msgid "In package quantity"
 msgstr "In Packungsmenge"
-
-#: vendor/wp-cli/wp-cli/php/utils-wp.php:230
-msgid "Inactive Widgets"
-msgstr "Inaktive Widgets"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:147
 msgid "Invalid return url, contact shop owner to check the payment"

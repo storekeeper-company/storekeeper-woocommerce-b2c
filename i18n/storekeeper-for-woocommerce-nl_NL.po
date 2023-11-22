@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-10-17 06:00\n"
+"PO-Revision-Date: 2023-11-17 17:00\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
@@ -459,10 +459,6 @@ msgstr "Export downloaden (CSV)"
 msgid "Download export (zip)"
 msgstr "Download export (ZIP)"
 
-#: vendor/wp-cli/wp-cli/php/utils-wp.php:233
-msgid "Drag widgets here to remove them from the sidebar but keep their settings."
-msgstr "Sleep widgets hierheen om ze uit de zijbalk te verwijderen, maar met behoud van hun instellingen."
-
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:88
 msgid "Duration in seconds"
 msgstr "Duur in seconden"
@@ -494,6 +490,10 @@ msgstr "Het inschakelen van PHP extensie %s is vereist"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:330
 msgid "English"
 msgstr "Engels"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:333
+msgid "Enter message or back reference/post/task ID"
+msgstr "Voer bericht- of terugverwijzing/post/taak-ID in"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:67
 msgid "Error:"
@@ -718,6 +718,10 @@ msgstr "CSV-bestanden genereren en exporteren voor tags die worden gebruikt om t
 msgid "German"
 msgstr "Duits"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:334
+msgid "Go"
+msgstr "Gaan"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:138
 msgid "Go to backoffice import form"
 msgstr "Ga naar de BackOffice importpagina"
@@ -765,10 +769,6 @@ msgstr "In uit hoeveelheid"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:78
 msgid "In package quantity"
 msgstr "In verpakking hoeveelheid"
-
-#: vendor/wp-cli/wp-cli/php/utils-wp.php:230
-msgid "Inactive Widgets"
-msgstr "Inactieve Widgets"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:146
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:168
@@ -1401,6 +1401,10 @@ msgstr "Instellingen opslaan"
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:100
 msgid "Scheduler settings"
 msgstr "Planner-instellingen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:332
+msgid "Search"
+msgstr "Zoeken"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:86
 msgid "Season"

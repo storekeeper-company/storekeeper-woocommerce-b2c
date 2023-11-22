@@ -471,10 +471,6 @@ msgstr "Download export (CSV)"
 msgid "Download export (zip)"
 msgstr "Download export (ZIP)"
 
-#: vendor/wp-cli/wp-cli/php/utils-wp.php:233
-msgid "Drag widgets here to remove them from the sidebar but keep their settings."
-msgstr "Drag widgets here to remove them from the sidebar but keep their settings."
-
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:88
 msgid "Duration in seconds"
 msgstr "Duration in seconds"
@@ -506,6 +502,10 @@ msgstr "Enabling PHP %s extension is required"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:330
 msgid "English"
 msgstr "English"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:333
+msgid "Enter message or back reference/post/task ID"
+msgstr "Enter message or back reference/post/task ID"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:67
 msgid "Error:"
@@ -734,6 +734,10 @@ msgstr "Generate and export CSV files for tags which will be used to import to S
 msgid "German"
 msgstr "German"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:334
+msgid "Go"
+msgstr "Go"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:138
 msgid "Go to backoffice import form"
 msgstr "Go to BackOffice import page"
@@ -785,10 +789,6 @@ msgstr "In out quantity"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:78
 msgid "In package quantity"
 msgstr "In package quantity"
-
-#: vendor/wp-cli/wp-cli/php/utils-wp.php:230
-msgid "Inactive Widgets"
-msgstr "Inactive Widgets"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:146
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:168
@@ -1448,6 +1448,10 @@ msgstr "Save settings"
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:100
 msgid "Scheduler settings"
 msgstr "Scheduler settings"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:332
+msgid "Search"
+msgstr "Search"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:86
 msgid "Season"
