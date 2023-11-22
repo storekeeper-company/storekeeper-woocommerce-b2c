@@ -7,6 +7,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exceptions\OrderDifferenceException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
@@ -146,6 +147,13 @@ class LoggerFactory
 
         if ($exception instanceof GeneralException) {
             $metadata['exception-reference'] = $exception->getReference();
+        }
+
+        if ($exception instanceof OrderDifferenceException) {
+            $metadata['exception-difference'] = [
+                'shop-extras' => $exception->getShopExtras(),
+                'backoffice-extras' => $exception->getBackofficeExtras(),
+            ];
         }
 
         return array_merge($customMetadata, $metadata);

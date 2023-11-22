@@ -433,6 +433,131 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->assertSame($result, $hasDifference, 'Difference result is not same as expected');
     }
 
+    public function dataProviderOrderDifferenceByExtra()
+    {
+        $data = [];
+
+        $data['same sequence but backoffice items contain invalid key'] = [
+            [
+                [
+                    'extra' => [
+                        'wp_row_id' => 70812,
+                        'wp_row_md5' => '843938f0d7648eb36fd2a2c6a0eb23a5',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70813,
+                        'wp_row_md5' => 'd3b65a5f75e64fc03a10d9df3ec88dde',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70814,
+                        'wp_row_md5' => '2c0db6a6f1c0dceaa000f44c99ad5a15',
+                        'wp_row_type' => 'shipping_method',
+                    ],
+                ],
+            ],
+            [
+                [
+                    'extra' => [
+                        'wp_row_id' => 70812,
+                        'wp_row_md5' => '843938f0d7648eb36fd2a2c6a0eb23a5',
+                        'wp_row_type' => 'product',
+                        'wp_product_id' => 93709,
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70813,
+                        'wp_row_md5' => 'd3b65a5f75e64fc03a10d9df3ec88dde',
+                        'wp_row_type' => 'product',
+                        'wp_product_id' => 93746,
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70814,
+                        'wp_row_md5' => '2c0db6a6f1c0dceaa000f44c99ad5a15',
+                        'wp_row_type' => 'shipping_method',
+                    ],
+                ],
+            ],
+        ];
+
+        $data['same keys but different sequence'] = [
+            [
+                [
+                    'extra' => [
+                        'wp_row_id' => 70813,
+                        'wp_row_md5' => 'd3b65a5f75e64fc03a10d9df3ec88dde',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70812,
+                        'wp_row_md5' => '843938f0d7648eb36fd2a2c6a0eb23a5',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70814,
+                        'wp_row_md5' => '2c0db6a6f1c0dceaa000f44c99ad5a15',
+                        'wp_row_type' => 'shipping_method',
+                    ],
+                ],
+            ],
+            [
+                [
+                    'extra' => [
+                        'wp_row_id' => 70814,
+                        'wp_row_md5' => '2c0db6a6f1c0dceaa000f44c99ad5a15',
+                        'wp_row_type' => 'shipping_method',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70812,
+                        'wp_row_md5' => '843938f0d7648eb36fd2a2c6a0eb23a5',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70813,
+                        'wp_row_md5' => 'd3b65a5f75e64fc03a10d9df3ec88dde',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+            ],
+        ];
+
+        return $data;
+    }
+
+    /**
+     * @dataProvider dataProviderOrderDifferenceByExtra
+     */
+    public function testOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems)
+    {
+        $this->initApiConnection();
+
+        $exportTask = new OrderExport([]);
+        $hasDifference = false;
+        try {
+            $exportTask->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
+        } catch (OrderDifferenceException $exception) {
+            $hasDifference = true;
+        }
+
+        $this->assertFalse($hasDifference, 'Order items should not be tagged as has difference');
+    }
+
     protected function computeOrderTotal(array $orderItems)
     {
         $total = 0;
