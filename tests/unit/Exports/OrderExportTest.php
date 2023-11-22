@@ -1006,7 +1006,7 @@ class OrderExportTest extends AbstractOrderExportTest
             $this->processTask($task);
             $this->assertEquals("$shopOrderId{$expectedPrefix}", $sent_order['shop_order_number'], 'Shop order number sent should have expected prefix');
         } catch (ExportException $exception) {
-            $failed = true;
+            $failed = 'ShopModule::OrderDuplicateNumber' === $exception->getPrevious()->getApiExceptionClass();
         }
 
         $this->assertEquals($expectedToFail, $failed, 'Failure expectation did not match');
