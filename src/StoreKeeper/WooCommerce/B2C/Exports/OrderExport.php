@@ -48,6 +48,10 @@ class OrderExport extends AbstractExport
         self::EXTRA_ROW_TYPE,
     ];
 
+    const MAXIMUM_DUPLICATE_COUNT = 3;
+
+    private ?int $shopOrderId = null;
+
     protected function getFunction()
     {
         return 'WC_Order';
@@ -79,14 +83,15 @@ class OrderExport extends AbstractExport
      */
     protected function processItem($order): void
     {
-        $this->debug('Exporting order with id '.$order->get_id());
+        $this->shopOrderId = $shopOrderId = $order->get_id();
+        $this->debug('Exporting order with id '.$shopOrderId);
         if ('eur' !== strtolower(get_woocommerce_currency())) {
             $iso = get_woocommerce_currency();
             throw new Exception("Orders with woocommerce with currency_iso3 '$iso' are not supported");
         }
 
-        if ($order->get_id() <= 0) {
-            throw new Exception("Order with id {$order->get_id()} does not exists.");
+        if ($shopOrderId <= 0) {
+            throw new Exception("Order with id {$shopOrderId} does not exists.");
         }
 
         $isUpdate = $this->already_exported();
@@ -104,7 +109,7 @@ class OrderExport extends AbstractExport
 
         // Adding the shop order number on order creation.
         if (!$isUpdate) {
-            $callData['shop_order_number'] = $order->get_id();
+            $callData['shop_order_number'] = $shopOrderId;
         }
 
         $this->debug('started export of order', $callData);
@@ -160,7 +165,7 @@ class OrderExport extends AbstractExport
             } elseif ($hasDifference && $storekeeperOrder['is_paid']) {
                 $this->debug('Cannot synchronize order, there are differences but order is already paid',
                     array_merge(
-                        ['shop_order_id' => $order->get_id()],
+                        ['shop_order_id' => $shopOrderId],
                         $callData
                     ));
                 throw new OrderDifferenceException("Order is paid but has differences ({$differenceException->getMessage()})", $differenceException->getShopExtras(), $differenceException->getBackofficeExtras(), $differenceException->getCode(), $differenceException);
@@ -295,15 +300,34 @@ class OrderExport extends AbstractExport
             $storekeeper_id = $this->get_storekeeper_id();
             $ShopModule->updateOrder($callData, $this->get_storekeeper_id());
         } else {
-            $storekeeper_id = $ShopModule->newOrder($callData);
+            $succeed = false;
+            $duplicateCounter = 1;
+            while (!$succeed) {
+                try {
+                    $storekeeper_id = $ShopModule->newOrder($callData);
+                    $succeed = true;
+                } catch (GeneralException $exception) {
+                    if ($duplicateCounter <= self::MAXIMUM_DUPLICATE_COUNT && 'ShopModule::OrderDuplicateNumber' === $exception->getApiExceptionClass()) {
+                        $callData['shop_order_number'] = "{$shopOrderId}($duplicateCounter)";
+                        $this->debug("Attempting to create the order $duplicateCounter times", [
+                            'shopOrderId' => $shopOrderId,
+                            'shop_order_number' => $callData['shop_order_number'],
+                        ]);
+                        ++$duplicateCounter;
+                    } else {
+                        throw $exception;
+                    }
+                }
+            }
+
             WordpressExceptionThrower::throwExceptionOnWpError(
-                update_post_meta($order->get_id(), 'storekeeper_id', $storekeeper_id)
+                update_post_meta($shopOrderId, 'storekeeper_id', $storekeeper_id)
             );
         }
 
         $date = DatabaseConnection::formatToDatabaseDate();
         WordpressExceptionThrower::throwExceptionOnWpError(
-            update_post_meta($order->get_id(), 'storekeeper_sync_date', $date)
+            update_post_meta($shopOrderId, 'storekeeper_sync_date', $date)
         );
         $this->debug('Saved order data', $storekeeper_id);
 
@@ -761,7 +785,7 @@ class OrderExport extends AbstractExport
     {
         if ('ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
             return new ExportException(
-                esc_html__('Order with this order number already exists.', I18N::DOMAIN),
+                esc_html__('Order with this order number already exists. Tried duplicate up to '.$this->shopOrderId.'('.self::MAXIMUM_DUPLICATE_COUNT.')', I18N::DOMAIN),
                 $throwable->getCode(),
                 $throwable
             );
