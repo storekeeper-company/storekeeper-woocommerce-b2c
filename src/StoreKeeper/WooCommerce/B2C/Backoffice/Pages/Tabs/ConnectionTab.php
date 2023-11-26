@@ -167,6 +167,7 @@ class ConnectionTab extends AbstractTab
         $this->renderOrderSyncFromDate();
         $this->renderSeoSetting();
         $this->renderPaymentSetting();
+        $this->renderShippingMethodSetting();
         $this->renderBackorderSetting();
         $this->renderBarcodeModeSetting();
         $this->renderCategoryOptions();
@@ -425,6 +426,26 @@ HTML;
                 StoreKeeperOptions::isPaymentSyncEnabled() ? '' : 'disabled',
             ).' '.__(
                 'When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop\'s checkout',
+                I18N::DOMAIN
+            ).$extraInfo
+        );
+    }
+
+    private function renderShippingMethodSetting(): void
+    {
+        $shippingMethodName = StoreKeeperOptions::getConstant(StoreKeeperOptions::SHIPPING_METHOD_USED);
+        $extraInfo = '';
+        if (!StoreKeeperOptions::isShippingMethodSyncEnabled()) {
+            $extraInfo = '<br><small>'.__('Shipping methods are disabled in currently selected Synchronization mode').'</small>';
+        }
+        $this->renderFormGroup(
+            __('Use StoreKeeper shipping methods', I18N::DOMAIN),
+            $this->getFormCheckbox(
+                $shippingMethodName,
+                'yes' === StoreKeeperOptions::get($shippingMethodName, 'no') && StoreKeeperOptions::isShippingMethodSyncEnabled(),
+                StoreKeeperOptions::isShippingMethodSyncEnabled() ? '' : 'disabled',
+            ).' '.__(
+                'When checked, shipping countries and methods from your StoreKeeper backoffice are added to your WooCommerce settings and webshop\'s checkout',
                 I18N::DOMAIN
             ).$extraInfo
         );

@@ -29,6 +29,28 @@ class InfoHandlerTest extends AbstractTest
 
         $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER, false);
 
+        $file = $this->getHookDataDump('hook.info.json');
+        $rest = $this->getRestWithToken($file);
+        $this->assertEquals('info', $file->getHookAction());
+
+        $this->assertPreConfiguration($rest);
+        $this->assertPostConfiguration($rest);
+    }
+
+    private function assertPreConfiguration(\WP_REST_Request $rest): void
+    {
+        $response = $this->handleRequest($rest);
+        $data = $response->get_data();
+
+        $extra = $data['extra'];
+        $activeCapabilities = $extra['active_capability'];
+        $this->assertNotContains('b2s_shipping_method', $activeCapabilities, 'Shipping method should not be a default capability');
+
+    }
+
+    private function assertPostConfiguration(\WP_REST_Request $rest): void
+    {
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
         // These first 2 orders will fail because the woocommerce_currency is not `EUR`
         $firstFailedOrderId = $this->createWoocommerceOrder();
         $secondFailedOrderId = $this->createWoocommerceOrder();
@@ -64,8 +86,8 @@ class InfoHandlerTest extends AbstractTest
         $secondUnsynchronizedOrderId = $this->createWoocommerceOrder();
 
         $expectedFailedOrderIds = [
-          $firstFailedOrderId,
-          $secondFailedOrderId,
+            $firstFailedOrderId,
+            $secondFailedOrderId,
         ];
 
         $expectedIdsNotSynchronized = [
@@ -80,10 +102,6 @@ class InfoHandlerTest extends AbstractTest
 
         $expectedLastOrder = wc_get_order($secondUnsynchronizedOrderId);
         $expectedLastOrderDate = $expectedLastOrder->get_date_created()->format(DATE_RFC2822);
-
-        $file = $this->getHookDataDump('hook.info.json');
-        $rest = $this->getRestWithToken($file);
-        $this->assertEquals('info', $file->getHookAction());
 
         $response = $this->handleRequest($rest);
         $data = $response->get_data();
@@ -166,6 +184,9 @@ class InfoHandlerTest extends AbstractTest
 
         // Assert failed compatibility checks
         $this->assertCount(0, $failedCompatibilityChecks, 'Failed compatibility checks should return 1 (woocommerce_manage_stock)');
+
+        $activeCapabilities = $extra['active_capability'];
+        $this->assertContains('b2s_shipping_method', $activeCapabilities, 'Shipping method should be active');
     }
 
     protected function createWoocommerceOrder(): int

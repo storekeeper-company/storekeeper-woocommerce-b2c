@@ -270,6 +270,13 @@ class InfoHandler
             $activeCapabilities[] = 'b2s_payment_method';
         }
 
+        if (
+            StoreKeeperOptions::isShippingMethodSyncEnabled() &&
+            'yes' === StoreKeeperOptions::get(StoreKeeperOptions::SHIPPING_METHOD_USED, 'no')
+        ) {
+            $activeCapabilities[] = 'b2s_shipping_method';
+        }
+
         $activeCapabilities[] = 's2b_image_variants';
         $activeCapabilities[] = 's2b_report_product_state';
         $activeCapabilities[] = 's2b_report_system_status';
