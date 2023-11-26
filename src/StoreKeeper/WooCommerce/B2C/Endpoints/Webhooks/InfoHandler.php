@@ -179,7 +179,7 @@ class InfoHandler
             'post__in' => $failedOrderIds,
             'orderby' => 'ID',
             'order' => 'ASC',
-            'status', array_keys($orderStatuses),
+            'status' => array_keys($orderStatuses),
         ]);
         $failedOrders = $failedOrdersQuery->get_orders();
         // Order query by multiple status don't work so we have to filter manually
@@ -198,7 +198,7 @@ class InfoHandler
             'meta_compare' => '=',
             'orderby' => 'date_created',
             'order' => 'ASC',
-            'status', array_keys($orderStatuses),
+            'status' => array_keys($orderStatuses),
         ]);
         $unsynchronizedOrders = $orderQuery->get_orders();
         $unsynchronizedOrderIds = [];
