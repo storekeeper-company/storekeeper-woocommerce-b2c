@@ -31,18 +31,6 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox
 
     final public function renderSyncBox($post): void
     {
-        $s = \WC_Shipping_Zones::get_shipping_method(5);
-        $r = \WC_Shipping_Zones::get_zone(2);
-        $loc = $r->get_zone_locations();
-        $scn = \WC()->shipping()->get_shipping_method_class_names();
-//        $h = $r->add_shipping_method('free_shipping');
-        $b = $r->get_shipping_methods();
-        $q = new \WC_Shipping_Free_Shipping();
-        $q->add_rate();
-        $z = \WC_Shipping_Zones::get('zone_id', 2);
-
-//        $z->add_meta_data('my_zone_meta_test', 'test');
-//        $z->save();
         global $theorder;
 
         if (!is_object($theorder)) {
