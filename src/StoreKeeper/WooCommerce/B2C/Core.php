@@ -43,6 +43,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFullSync;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProductPage;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShippingMethods;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShopInfo;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceTags;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProductPage;
@@ -89,6 +90,7 @@ class Core
         SyncWoocommerceAttributeOptionPage::class,
         SyncWoocommerceProducts::class,
         SyncWoocommerceProductPage::class,
+        SyncWoocommerceShippingMethods::class,
         ProcessAllTasks::class,
         ProcessSingleTask::class,
         CleanWoocommerceEnvironment::class,

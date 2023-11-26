@@ -45,7 +45,6 @@ class InfoHandlerTest extends AbstractTest
         $extra = $data['extra'];
         $activeCapabilities = $extra['active_capability'];
         $this->assertNotContains('b2s_shipping_method', $activeCapabilities, 'Shipping method should not be a default capability');
-
     }
 
     private function assertPostConfiguration(\WP_REST_Request $rest): void

@@ -7,7 +7,6 @@ use StoreKeeper\WooCommerce\B2C\Imports\ShippingMethodImport;
 
 class SyncWoocommerceShippingMethods extends AbstractSyncCommand
 {
-
     public function execute(array $arguments, array $assoc_arguments)
     {
         if ($this->prepareExecute()) {

@@ -5,8 +5,13 @@
   "function": "listShippingMethodsForHooks",
   "params": [
     0,
-    20,
-    null,
+    100,
+    [
+      {
+        "name": "id",
+        "dir": "asc"
+      }
+    ],
     [
       {
         "name": "enabled__=",
