@@ -38,6 +38,20 @@ class OrderExport extends AbstractExport
     const STATUS_REFUNDED = 'refunded';
     const STATUS_CANCELLED = 'cancelled';
 
+    const EXTRA_ROW_ID_KEY = 'wp_row_id';
+    const EXTRA_ROW_MD5_KEY = 'wp_row_md5';
+    const EXTRA_ROW_TYPE = 'wp_row_type';
+
+    const KNOWN_EXTRAS_KEY = [
+        self::EXTRA_ROW_MD5_KEY,
+        self::EXTRA_ROW_ID_KEY,
+        self::EXTRA_ROW_TYPE,
+    ];
+
+    const MAXIMUM_DUPLICATE_COUNT = 3;
+
+    private ?int $shopOrderId = null;
+
     protected function getFunction()
     {
         return 'WC_Order';
@@ -69,14 +83,15 @@ class OrderExport extends AbstractExport
      */
     protected function processItem($order): void
     {
-        $this->debug('Exporting order with id '.$order->get_id());
+        $this->shopOrderId = $shopOrderId = $order->get_id();
+        $this->debug('Exporting order with id '.$shopOrderId);
         if ('eur' !== strtolower(get_woocommerce_currency())) {
             $iso = get_woocommerce_currency();
             throw new Exception("Orders with woocommerce with currency_iso3 '$iso' are not supported");
         }
 
-        if ($order->get_id() <= 0) {
-            throw new Exception("Order with id {$order->get_id()} does not exists.");
+        if ($shopOrderId <= 0) {
+            throw new Exception("Order with id {$shopOrderId} does not exists.");
         }
 
         $isUpdate = $this->already_exported();
@@ -94,7 +109,7 @@ class OrderExport extends AbstractExport
 
         // Adding the shop order number on order creation.
         if (!$isUpdate) {
-            $callData['shop_order_number'] = $order->get_id();
+            $callData['shop_order_number'] = $shopOrderId;
         }
 
         $this->debug('started export of order', $callData);
@@ -133,12 +148,13 @@ class OrderExport extends AbstractExport
             $storekeeperOrder = $ShopModule->getOrder($storekeeperId, null);
 
             $hasDifference = false;
-            $differenceMessage = '';
+            /* @var OrderDifferenceException|null $differenceException */
+            $differenceException = null;
             try {
                 $this->checkOrderDifference($order, $storekeeperOrder);
             } catch (OrderDifferenceException $exception) {
                 $hasDifference = true;
-                $differenceMessage = $exception->getMessage();
+                $differenceException = $exception;
             }
             // Previously, order items were never updated, but issues arise when payment gateways
             // were changed, so they were never synched as they are part of order items.
@@ -149,10 +165,10 @@ class OrderExport extends AbstractExport
             } elseif ($hasDifference && $storekeeperOrder['is_paid']) {
                 $this->debug('Cannot synchronize order, there are differences but order is already paid',
                     array_merge(
-                        ['shop_order_id' => $order->get_id()],
+                        ['shop_order_id' => $shopOrderId],
                         $callData
                     ));
-                throw new \RuntimeException("Order is paid but has differences ({$differenceMessage})");
+                throw new OrderDifferenceException("Order is paid but has differences ({$differenceException->getMessage()})", $differenceException->getShopExtras(), $differenceException->getBackofficeExtras(), $differenceException->getCode(), $differenceException);
             } else {
                 $callData['order_items__do_not_change'] = true;
                 $callData['order_items__remove'] = null;
@@ -284,15 +300,34 @@ class OrderExport extends AbstractExport
             $storekeeper_id = $this->get_storekeeper_id();
             $ShopModule->updateOrder($callData, $this->get_storekeeper_id());
         } else {
-            $storekeeper_id = $ShopModule->newOrder($callData);
+            $succeed = false;
+            $duplicateCounter = 1;
+            while (!$succeed) {
+                try {
+                    $storekeeper_id = $ShopModule->newOrder($callData);
+                    $succeed = true;
+                } catch (GeneralException $exception) {
+                    if ($duplicateCounter <= self::MAXIMUM_DUPLICATE_COUNT && 'ShopModule::OrderDuplicateNumber' === $exception->getApiExceptionClass()) {
+                        $callData['shop_order_number'] = "{$shopOrderId}($duplicateCounter)";
+                        $this->debug("Attempting to create the order $duplicateCounter times", [
+                            'shopOrderId' => $shopOrderId,
+                            'shop_order_number' => $callData['shop_order_number'],
+                        ]);
+                        ++$duplicateCounter;
+                    } else {
+                        throw $exception;
+                    }
+                }
+            }
+
             WordpressExceptionThrower::throwExceptionOnWpError(
-                update_post_meta($order->get_id(), 'storekeeper_id', $storekeeper_id)
+                update_post_meta($shopOrderId, 'storekeeper_id', $storekeeper_id)
             );
         }
 
         $date = DatabaseConnection::formatToDatabaseDate();
         WordpressExceptionThrower::throwExceptionOnWpError(
-            update_post_meta($order->get_id(), 'storekeeper_sync_date', $date)
+            update_post_meta($shopOrderId, 'storekeeper_sync_date', $date)
         );
         $this->debug('Saved order data', $storekeeper_id);
 
@@ -432,18 +467,20 @@ class OrderExport extends AbstractExport
     /**
      * @throws OrderDifferenceException
      */
-    private function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): void
+    public function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): void
     {
         $databaseOrderItemExtras = array_column($databaseOrderItems, 'extra');
         $backofficeOrderItemExtras = array_column($backofficeOrderItems, 'extra');
+        $this->cleanExtras($databaseOrderItemExtras);
+        $this->cleanExtras($backofficeOrderItemExtras);
 
         foreach ($databaseOrderItemExtras as &$extras) {
-            array_multisort($extras);
+            ksort($extras);
         }
         unset($extras);
 
         foreach ($backofficeOrderItemExtras as &$extras) {
-            array_multisort($extras);
+            ksort($extras);
         }
         unset($extras);
 
@@ -454,7 +491,18 @@ class OrderExport extends AbstractExport
             $backofficeOrderItemExtra = $backofficeOrderItemExtras[$extrasCounter];
             $databaseOrderItemExtra = $databaseOrderItemExtras[$extrasCounter];
             if ($databaseOrderItemExtra !== $backofficeOrderItemExtra) {
-                throw new OrderDifferenceException('Extra metadata did not match, Backoffice extras ['.implode(',', $backofficeOrderItemExtra).'] and Shop extras ['.implode(',', $databaseOrderItemExtra).']');
+                throw new OrderDifferenceException('Extra metadata did not match', $databaseOrderItemExtras, $backofficeOrderItemExtras);
+            }
+        }
+    }
+
+    private function cleanExtras(array &$extras): void
+    {
+        foreach ($extras as &$extra) {
+            foreach ($extra as $key => $data) {
+                if (!in_array($key, self::KNOWN_EXTRAS_KEY, true)) {
+                    unset($extra[$key]);
+                }
             }
         }
     }
@@ -619,9 +667,9 @@ class OrderExport extends AbstractExport
 
                 // Adding the actual product ID here causes difference if order is deleted.
                 $extra = [
-                    'wp_row_id' => $orderItemProduct->get_id(),
-                    'wp_row_md5' => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
-                    'wp_row_type' => self::ROW_PRODUCT_TYPE,
+                    self::EXTRA_ROW_ID_KEY => $orderItemProduct->get_id(),
+                    self::EXTRA_ROW_MD5_KEY => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
+                    self::EXTRA_ROW_TYPE => self::ROW_PRODUCT_TYPE,
                 ];
 
                 $data['extra'] = $extra;
@@ -650,9 +698,9 @@ class OrderExport extends AbstractExport
             }
 
             $extra = [
-                'wp_row_id' => $fee->get_id(),
-                'wp_row_md5' => md5(json_encode($fee->get_data(), JSON_THROW_ON_ERROR)),
-                'wp_row_type' => self::ROW_FEE_TYPE,
+                self::EXTRA_ROW_ID_KEY => $fee->get_id(),
+                self::EXTRA_ROW_MD5_KEY => md5(json_encode($fee->get_data(), JSON_THROW_ON_ERROR)),
+                self::EXTRA_ROW_TYPE => self::ROW_FEE_TYPE,
             ];
 
             $data['extra'] = $extra;
@@ -674,9 +722,9 @@ class OrderExport extends AbstractExport
             ];
 
             $extra = [
-                'wp_row_id' => $shipping_method->get_id(),
-                'wp_row_md5' => md5(json_encode($shipping_method->get_data(), JSON_THROW_ON_ERROR)),
-                'wp_row_type' => self::ROW_SHIPPING_METHOD_TYPE,
+                self::EXTRA_ROW_ID_KEY => $shipping_method->get_id(),
+                self::EXTRA_ROW_MD5_KEY => md5(json_encode($shipping_method->get_data(), JSON_THROW_ON_ERROR)),
+                self::EXTRA_ROW_TYPE => self::ROW_SHIPPING_METHOD_TYPE,
             ];
 
             $data['extra'] = $extra;
@@ -737,7 +785,7 @@ class OrderExport extends AbstractExport
     {
         if ('ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
             return new ExportException(
-                esc_html__('Order with this order number already exists.', I18N::DOMAIN),
+                esc_html__('Order with this order number already exists. Tried duplicate up to '.$this->shopOrderId.'('.self::MAXIMUM_DUPLICATE_COUNT.')', I18N::DOMAIN),
                 $throwable->getCode(),
                 $throwable
             );
@@ -861,50 +909,58 @@ class OrderExport extends AbstractExport
         $id = $unsyncedRefundsWithoutId['id'];
         $refundId = $unsyncedRefundsWithoutId['wc_refund_id'];
         $refundAmount = $unsyncedRefundsWithoutId['amount'];
-        if (PaymentModel::orderHasPayment($woocommerceOrderId)) {
-            try {
-                $storekeeperPayment = $this->getPaymentForRefund($woocommerceOrderId);
-                $storekeeperRefundId = $shopModule->refundAllOrderItems([
-                    'id' => $storekeeperId,
-                    'refund_payments' => [
-                        [
-                            'payment_id' => $storekeeperPayment['payment_id'],
-                            'amount' => round(-abs($refundAmount), 2),
-                            'description' => sprintf(
-                                __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
-                                $refundId
-                            ),
+        $roundedAmount = round(-abs($refundAmount), 2);
+        if (0.00 === $roundedAmount) {
+            // Just mark the refund as synced as it is 0 anyway
+            $this->debug('Refund will be marked as synced since the amount is 0', [
+                'refundId' => $refundId,
+                'woocommerceOrderId' => $woocommerceOrderId,
+            ]);
+            PaymentGateway::markRefundAsSynced($woocommerceOrderId, null, $refundId);
+        } else {
+            if (PaymentModel::orderHasPayment($woocommerceOrderId)) {
+                try {
+                    $storekeeperPayment = $this->getPaymentForRefund($woocommerceOrderId);
+                    $storekeeperRefundId = $shopModule->refundAllOrderItems([
+                        'id' => $storekeeperId,
+                        'refund_payments' => [
+                            [
+                                'payment_id' => $storekeeperPayment['payment_id'],
+                                'amount' => $roundedAmount,
+                                'description' => sprintf(
+                                    __('Refund via Wordpress plugin (Refund #%s)', I18N::DOMAIN),
+                                    $refundId
+                                ),
+                            ],
                         ],
-                    ],
-                ]);
-                $this->debug('Storekeeper refund was created', [
-                    'payment' => $storekeeperPayment,
-                    'refund_id' => $storekeeperRefundId,
-                ]);
-                PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
-            } catch (GeneralException $generalException) {
-                if ('Only invoiced orders can be refunded' === $generalException->getMessage()) {
-                    $storekeeperRefundId = PaymentGateway::createRefundAsPayment($refundId, $refundAmount);
+                    ]);
                     $this->debug('Storekeeper refund was created', [
-                        'order_id' => $storekeeperId,
-                        'payment_id' => $storekeeperRefundId,
+                        'payment' => $storekeeperPayment,
+                        'refund_id' => $storekeeperRefundId,
                     ]);
                     PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
-                    $this->syncPaymentToBackend($storekeeperRefundId, $storekeeperId);
-                } else {
-                    throw $generalException;
+                } catch (GeneralException $generalException) {
+                    if ('Only invoiced orders can be refunded' === $generalException->getMessage()) {
+                        $storekeeperRefundId = PaymentGateway::createRefundAsPayment($refundId, $refundAmount);
+                        $this->debug('Storekeeper refund was created', [
+                            'order_id' => $storekeeperId,
+                            'payment_id' => $storekeeperRefundId,
+                        ]);
+                        PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
+                        $this->syncPaymentToBackend($storekeeperRefundId, $storekeeperId);
+                    } else {
+                        throw $generalException;
+                    }
                 }
+            } else {
+                $storekeeperRefundId = PaymentGateway::createRefundAsPayment($refundId, $refundAmount);
+                $this->debug('Storekeeper refund was created', [
+                    'order_id' => $storekeeperId,
+                    'payment_id' => $storekeeperRefundId,
+                ]);
+                PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
+                $this->syncPaymentToBackend($storekeeperRefundId, $storekeeperId);
             }
-
-            PaymentGateway::markRefundAsSynced($woocommerceOrderId, $storekeeperRefundId, $refundId);
-        } else {
-            $storekeeperRefundId = PaymentGateway::createRefundAsPayment($refundId, $refundAmount);
-            $this->debug('Storekeeper refund was created', [
-                'order_id' => $storekeeperId,
-                'payment_id' => $storekeeperRefundId,
-            ]);
-            PaymentGateway::updateRefund($id, $storekeeperRefundId, $refundAmount);
-            $this->syncPaymentToBackend($storekeeperRefundId, $storekeeperId);
             PaymentGateway::markRefundAsSynced($woocommerceOrderId, $storekeeperRefundId, $refundId);
         }
     }

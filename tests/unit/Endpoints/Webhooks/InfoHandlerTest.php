@@ -15,6 +15,12 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
 use Throwable;
+use WC_Helper_Product;
+use WC_Helper_Shipping;
+use WC_Order_Item_Product;
+use WC_Order_Item_Shipping;
+use WC_Shipping_Rate;
+use WC_Tax;
 
 class InfoHandlerTest extends AbstractTest
 {
@@ -29,11 +35,14 @@ class InfoHandlerTest extends AbstractTest
 
         $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER, false);
 
-        // These first 2 orders will fail because the woocommerce_currency is not `EUR`
+        // These first 3 orders will fail because the woocommerce_currency is not `EUR`
         $firstFailedOrderId = $this->createWoocommerceOrder();
         $secondFailedOrderId = $this->createWoocommerceOrder();
+        // Cancelled order will be ignored on info handler ids_with_failed_tasks
+        $cancelledFailedOrderId = $this->createWoocommerceOrder(OrderExport::STATUS_CANCELLED);
         $this->exportOrder($firstFailedOrderId);
         $this->exportOrder($secondFailedOrderId);
+        $this->exportOrder($cancelledFailedOrderId);
         update_option('woocommerce_currency', 'EUR');
 
         // This will be the expected last synchronized order and last task processed
@@ -60,6 +69,8 @@ class InfoHandlerTest extends AbstractTest
 
         $expectedSuccessfulOrderTask = reset($expectedSuccessfulOrderTasks);
 
+        // Cancelled order will be ignored on info handler ids_not_synchronized
+        $this->createWoocommerceOrder(OrderExport::STATUS_CANCELLED);
         $firstUnsynchronizedOrderId = $this->createWoocommerceOrder();
         $secondUnsynchronizedOrderId = $this->createWoocommerceOrder();
 
@@ -148,12 +159,14 @@ class InfoHandlerTest extends AbstractTest
             'Oldest order unsynchronized date should match with extras'
         );
 
-        // 6 tasks were queued because every single order created, 3 tasks were created
-        // We are expecting 2 unsynchronized orders, so 2 orders x 3 tasks = 6 tasks
+        // 7 tasks were queued because every single order created, 2 tasks were created
+        // We are expecting 2 unsynchronized orders, and 1 cancelled unsynchronized order
+        // So 3 orders x 2 tasks = 6 tasks
+        // Then another task was created when one of the order's status was changed to cancelled
         // This is because of the updateWithIgnore hooks, see Core::setOrderHooks
         // Assert task processor
         $this->assertEquals(
-            6,
+            7,
             $taskProcessorStatus['in_queue_quantity'],
             'Task in queue should match with extras'
         );
@@ -168,9 +181,85 @@ class InfoHandlerTest extends AbstractTest
         $this->assertCount(0, $failedCompatibilityChecks, 'Failed compatibility checks should return 1 (woocommerce_manage_stock)');
     }
 
-    protected function createWoocommerceOrder(): int
+    /**
+     * @throws \WC_Data_Exception
+     */
+    protected function createWoocommerceOrder(?string $status = null): int
     {
-        return \WC_Helper_Order::create_order()->save();
+        $product = WC_Helper_Product::create_simple_product();
+        WC_Helper_Shipping::create_simple_flat_rate();
+
+        $orderData = [
+            'status' => 'pending',
+            'customer_id' => 1,
+            'customer_note' => '',
+            'total' => '',
+        ];
+
+        if (!is_null($status)) {
+            $orderData['status'] = $status;
+        }
+
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1'; // Required, else wc_create_order throws an exception
+        $order = wc_create_order($orderData);
+
+        // Add order products
+        $item = new WC_Order_Item_Product();
+        $item->set_props(
+            [
+                'product' => $product,
+                'quantity' => 4,
+                'subtotal' => wc_get_price_excluding_tax($product, ['qty' => 4]),
+                'total' => wc_get_price_excluding_tax($product, ['qty' => 4]),
+            ]
+        );
+        $item->save();
+        $order->add_item($item);
+
+        // Set billing address
+        $order->set_billing_first_name('Jeroen');
+        $order->set_billing_last_name('Sormani');
+        $order->set_billing_company('WooCompany');
+        $order->set_billing_address_1('WooAddress');
+        $order->set_billing_address_2('');
+        $order->set_billing_city('WooCity');
+        $order->set_billing_state('NY');
+        $order->set_billing_postcode('123456');
+        $order->set_billing_country('US');
+        $order->set_billing_email('admin@example.org');
+        $order->set_billing_phone('555-32123');
+
+        // Add shipping costs
+        $shipping_taxes = WC_Tax::calc_shipping_tax('10', WC_Tax::get_shipping_tax_rates());
+        $rate = new WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
+        $item = new WC_Order_Item_Shipping();
+        $item->set_props(
+            [
+                'method_title' => $rate->label,
+                'method_id' => $rate->id,
+                'total' => wc_format_decimal($rate->cost),
+                'taxes' => $rate->taxes,
+            ]
+        );
+        foreach ($rate->get_meta_data() as $key => $value) {
+            $item->add_meta_data($key, $value, true);
+        }
+        $order->add_item($item);
+
+        // Set payment gateway
+        $payment_gateways = WC()->payment_gateways->payment_gateways();
+        $order->set_payment_method($payment_gateways['bacs']);
+
+        // Set totals
+        $order->set_shipping_total(10);
+        $order->set_discount_total(0);
+        $order->set_discount_tax(0);
+        $order->set_cart_tax(0);
+        $order->set_shipping_tax(0);
+        $order->set_total(50); // 4 x $10 simple helper product
+        $order->save();
+
+        return $order->get_id();
     }
 
     /**

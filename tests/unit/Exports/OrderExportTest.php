@@ -7,8 +7,11 @@ use Mockery\MockInterface;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoHandler;
+use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\OrderDifferenceException;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
+use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
+use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -432,6 +435,131 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->assertSame($result, $hasDifference, 'Difference result is not same as expected');
     }
 
+    public function dataProviderOrderDifferenceByExtra()
+    {
+        $data = [];
+
+        $data['same sequence but backoffice items contain invalid key'] = [
+            [
+                [
+                    'extra' => [
+                        'wp_row_id' => 70812,
+                        'wp_row_md5' => '843938f0d7648eb36fd2a2c6a0eb23a5',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70813,
+                        'wp_row_md5' => 'd3b65a5f75e64fc03a10d9df3ec88dde',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70814,
+                        'wp_row_md5' => '2c0db6a6f1c0dceaa000f44c99ad5a15',
+                        'wp_row_type' => 'shipping_method',
+                    ],
+                ],
+            ],
+            [
+                [
+                    'extra' => [
+                        'wp_row_id' => 70812,
+                        'wp_row_md5' => '843938f0d7648eb36fd2a2c6a0eb23a5',
+                        'wp_row_type' => 'product',
+                        'wp_product_id' => 93709,
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70813,
+                        'wp_row_md5' => 'd3b65a5f75e64fc03a10d9df3ec88dde',
+                        'wp_row_type' => 'product',
+                        'wp_product_id' => 93746,
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70814,
+                        'wp_row_md5' => '2c0db6a6f1c0dceaa000f44c99ad5a15',
+                        'wp_row_type' => 'shipping_method',
+                    ],
+                ],
+            ],
+        ];
+
+        $data['same keys but different sequence'] = [
+            [
+                [
+                    'extra' => [
+                        'wp_row_id' => 70813,
+                        'wp_row_md5' => 'd3b65a5f75e64fc03a10d9df3ec88dde',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70812,
+                        'wp_row_md5' => '843938f0d7648eb36fd2a2c6a0eb23a5',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70814,
+                        'wp_row_md5' => '2c0db6a6f1c0dceaa000f44c99ad5a15',
+                        'wp_row_type' => 'shipping_method',
+                    ],
+                ],
+            ],
+            [
+                [
+                    'extra' => [
+                        'wp_row_id' => 70814,
+                        'wp_row_md5' => '2c0db6a6f1c0dceaa000f44c99ad5a15',
+                        'wp_row_type' => 'shipping_method',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70812,
+                        'wp_row_md5' => '843938f0d7648eb36fd2a2c6a0eb23a5',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+                [
+                    'extra' => [
+                        'wp_row_id' => 70813,
+                        'wp_row_md5' => 'd3b65a5f75e64fc03a10d9df3ec88dde',
+                        'wp_row_type' => 'product',
+                    ],
+                ],
+            ],
+        ];
+
+        return $data;
+    }
+
+    /**
+     * @dataProvider dataProviderOrderDifferenceByExtra
+     */
+    public function testOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems)
+    {
+        $this->initApiConnection();
+
+        $exportTask = new OrderExport([]);
+        $hasDifference = false;
+        try {
+            $exportTask->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
+        } catch (OrderDifferenceException $exception) {
+            $hasDifference = true;
+        }
+
+        $this->assertFalse($hasDifference, 'Order items should not be tagged as has difference');
+    }
+
     protected function computeOrderTotal(array $orderItems)
     {
         $total = 0;
@@ -781,6 +909,111 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->processTask($task);
     }
 
+    public function dataProviderDuplicateOrder(): array
+    {
+        $data = [];
+
+        $data['order with 1 duplicate number only'] = [
+            '(1)',
+            1,
+            false,
+        ];
+
+        $data['order with 3 duplicate numbers'] = [
+            '(3)',
+            3,
+            false,
+        ];
+
+        $data['order with 4 duplicate numbers expected failure'] = [
+            '(4)',
+            4,
+            true,
+        ];
+
+        return $data;
+    }
+
+    /**
+     * @dataProvider dataProviderDuplicateOrder
+     */
+    public function testOrderWithDuplicateOrderNumberInBackoffice(string $expectedPrefix, int $duplicateCount, bool $expectedToFail): void
+    {
+        $this->initApiConnection();
+        $this->emptyEnvironment();
+
+        $order = WC_Helper_Order::create_order();
+        $order->save();
+        $shopOrderId = $order->get_id();
+
+        $triesCount = 0;
+
+        $sent_order = [];
+        StoreKeeperApi::$mockAdapter
+            ->withModule(
+                'ShopModule',
+                function (MockInterface $module) use (&$sent_order, &$triesCount, $duplicateCount) {
+                    $module->allows('findShopCustomerBySubuserEmail')->andReturnUsing(
+                        function () {
+                            return ['id' => mt_rand()];
+                        }
+                    );
+
+                    $module->allows('naturalSearchShopFlatProductForHooks')->andReturnUsing(
+                        function () {
+                            return [
+                                'data' => [],
+                                'total' => 0,
+                                'count' => 0,
+                            ];
+                        }
+                    );
+
+                    $module->allows('newOrder')->andReturnUsing(
+                        function ($params) use (&$sent_order, &$triesCount, $duplicateCount) {
+                            if ($triesCount < $duplicateCount) {
+                                ++$triesCount;
+
+                                throw GeneralException::buildFromBody(['class' => 'ShopModule::OrderDuplicateNumber']);
+                            }
+                            [$order] = $params;
+
+                            $sent_order = $order;
+                            $sent_order['id'] = mt_rand();
+                            $sent_order = $this->calculateNewOrder($sent_order);
+
+                            return $sent_order['id'];
+                        }
+                    );
+
+                    $module->allows('getOrder')->andReturnUsing(
+                        function () use (&$sent_order) {
+                            return $sent_order;
+                        }
+                    );
+
+                    $module->allows('updateOrder')->andReturnUsing(
+                        function () {
+                            return null;
+                        }
+                    );
+                }
+            );
+
+        $OrderHandler = new OrderHandler();
+        $task = $OrderHandler->create($shopOrderId);
+
+        $failed = false;
+        try {
+            $this->processTask($task);
+            $this->assertEquals("$shopOrderId{$expectedPrefix}", $sent_order['shop_order_number'], 'Shop order number sent should have expected prefix');
+        } catch (ExportException $exception) {
+            $failed = 'ShopModule::OrderDuplicateNumber' === $exception->getPrevious()->getApiExceptionClass();
+        }
+
+        $this->assertEquals($expectedToFail, $failed, 'Failure expectation did not match');
+    }
+
     public function testCustomerEmailIsAdmin()
     {
         $this->initApiConnection();
@@ -997,6 +1230,64 @@ class OrderExportTest extends AbstractOrderExportTest
         }
         $new_order_id = $this->createWooCommerceOrder($create_order);
         $this->processNewOrder($new_order_id, $new_order);
+    }
+
+    public function testOrderWithZeroRefundAmount()
+    {
+        $this->initApiConnection();
+
+        $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER_CREATE);
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) {
+                $module->expects('attachPaymentIdsToOrder')
+                    ->andReturnUsing(
+                        function () {
+                            return null;
+                        }
+                    );
+
+                $module->allows('refundAllOrderItems')->andReturnUsing(
+                    function ($got) {
+                        [$refund] = $got;
+                        $refundPayments = $refund['refund_payments'];
+                        foreach ($refundPayments as $refundPayment) {
+                            if (0.0 === $refundPayment['amount']) {
+                                throw GeneralException::buildFromBody(['class' => 'General', 'error' => 'Refund amount needs to be negative']);
+                            }
+                        }
+
+                        return null;
+                    }
+                );
+            },
+        );
+
+        $this->emptyEnvironment();
+
+        $newOrder = $this->getOrderProps();
+        $newOrderId = $this->createWooCommerceOrder($newOrder);
+        // Mock payment for refund to work
+        PaymentModel::addPayment($newOrderId, mt_rand(), 100, true);
+
+        $this->processNewOrder($newOrderId, $newOrder);
+
+        // Create the refund
+        wc_create_refund([
+            'amount' => 0.00,
+            'reason' => 'test refund',
+            'order_id' => $newOrderId,
+        ]);
+
+        $this->runner->execute(
+            ProcessAllTasks::getCommandName(), [],
+            [ProcessAllTasks::ARG_FAIL_ON_ERROR => true]
+        );
+
+        $refunds = RefundModel::findBy(['wc_order_id = :order_id'], ['order_id' => $newOrderId]);
+        $this->assertCount(1, $refunds, '1 refund should have been created');
+        $this->assertTrue((bool) $refunds[0]['is_synced'], 'Refund should be marked as synchronized');
     }
 
     /**
