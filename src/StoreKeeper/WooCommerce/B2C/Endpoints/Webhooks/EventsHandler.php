@@ -167,6 +167,7 @@ class EventsHandler
             $this->handleFeaturedAttributeEvents($fullEventType, $details);
             $this->handleMenuItemEvents($fullEventType, $taskData);
             $this->handleSiteRedirectEvents($fullEventType, $taskData);
+            $this->handleShippingMethodEvents($fullEventType, $taskData);
         }
     }
 
@@ -217,6 +218,22 @@ class EventsHandler
 
             $this->handleOrderEvents($fullEventType, $taskData, $details);
             $this->handleProductStockEvents($fullEventType, $taskData);
+            $this->handleShippingMethodEvents($fullEventType, $taskData);
+        }
+    }
+
+    private function handleShippingMethodEvents(string $eventType, array $taskData): void
+    {
+        switch ($eventType) {
+            // ShopModule::ShopProduct
+            case 'ShippingModule::ShippingMethod::created':
+            case 'ShippingModule::ShippingMethod::updated':
+                TaskHandler::scheduleTask(TaskHandler::SHIPPING_METHOD_IMPORT, $this->getId(), $taskData);
+                break;
+            case 'ShippingModule::ShippingMethod::deleted':
+                // TODO: Implement
+//                TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
+                break;
         }
     }
 

@@ -248,6 +248,7 @@ class ConnectionTab extends AbstractTab
     public function saveAction()
     {
         $payment = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
+        $shippingMethod = StoreKeeperOptions::getConstant(StoreKeeperOptions::SHIPPING_METHOD_USED);
         $backorder = StoreKeeperOptions::getConstant(StoreKeeperOptions::NOTIFY_ON_BACKORDER);
         $seoHandler = StoreKeeperOptions::getConstant(StoreKeeperOptions::SEO_HANDLER);
         $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
@@ -266,6 +267,23 @@ class ConnectionTab extends AbstractTab
                 $data[$payment] = StoreKeeperOptions::get($payment);
             } else {
                 $data[$payment] = 'on' === sanitize_key($_POST[$payment]) ? 'yes' : 'no';
+            }
+        }
+
+        if (in_array($_POST[$mode], StoreKeeperOptions::MODES_WITH_SHIPPING_METHODS, true)) {
+            if (!StoreKeeperOptions::isShippingMethodSyncEnabled()) {
+                // Retain the old value
+                $data[$shippingMethod] = StoreKeeperOptions::get($shippingMethod);
+            } else {
+                $data[$shippingMethod] = 'on' === sanitize_key($_POST[$shippingMethod]) ? 'yes' : 'no';
+                if ('yes' === $data[$shippingMethod]) {
+                    TaskHandler::scheduleTask(
+                        TaskHandler::SHIPPING_METHOD_IMPORT,
+                        0,
+                        [],
+                        true
+                    );
+                }
             }
         }
 

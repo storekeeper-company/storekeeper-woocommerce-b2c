@@ -38,6 +38,8 @@ class ShippingMethodModel extends AbstractModel implements IModelPurge
             return null;
         }
 
-        return (int) reset($results);
+        $result = current($results);
+
+        return (int) current($result);
     }
 }

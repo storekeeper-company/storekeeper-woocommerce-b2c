@@ -9,7 +9,6 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Models\ShippingMethodModel;
 use StoreKeeper\WooCommerce\B2C\Models\ShippingZoneModel;
-use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 
 class ShippingMethodImport extends AbstractImport implements WithConsoleProgressBarInterface
@@ -23,11 +22,22 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
     const SHIPPING_CLASS_FREE_SHIPPING = 'free_shipping';
     const SHIPPING_CLASS_LOCAL_PICKUP = 'local_pickup';
 
+    const FREE_SHIPPING_REQUIRES = 'min_amount';
+
     const SK_SHIPPING_TYPE_ALIAS_PARCEL = 'Parcel';
     const SK_SHIPPING_TYPE_ALIAS_TRUCK_DELIVERY = 'TruckDelivery';
     const SK_SHIPPING_TYPE_ALIAS_PICKUP_AT_STORE = 'PickupAtStore';
 
     const SK_SHIPPING_TYPE_MODULE = 'ShippingModule';
+
+    private int $storekeeper_id = 0;
+
+    public function __construct(array $settings = [])
+    {
+        $this->storekeeper_id = array_key_exists('storekeeper_id', $settings) ? (int) $settings['storekeeper_id'] : 0;
+        unset($settings['storekeeper_id']);
+        parent::__construct($settings);
+    }
 
     protected function getModule()
     {
@@ -41,7 +51,7 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
 
     protected function getFilters()
     {
-        return [
+        $filters = [
             [
                 'name' => 'enabled__=',
                 'val' => '1',
@@ -51,6 +61,15 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                 'val' => '0',
             ],
         ];
+
+        if ($this->storekeeper_id > 0) {
+            $filters[] = [
+                'name' => 'id__=',
+                'val' => $this->storekeeper_id,
+            ];
+        }
+
+        return $filters;
     }
 
     protected function getLanguage()
@@ -65,12 +84,15 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
     protected function processItem(Dot $dotObject, array $options = [])
     {
         $this->debug('Processing shipping method', $dotObject->get());
+        $storekeeperId = $dotObject->get('id');
 
         if (!$this->isShippingTypeValid($dotObject)) {
+            $this->debug("Unsupported shipping type {$dotObject->get('shipping_type.alias')}", [
+                'storeKeeperId' => $storekeeperId,
+            ]);
             // TODO: Skip or throw error?
             throw new ShippingMethodImportException("Unsupported shipping type {$dotObject->get('shipping_type.alias')}");
         }
-        $storekeeperId = $dotObject->get('id');
         $country_iso2s = $dotObject->has('country_iso2s') ? $dotObject->get('country_iso2s') : [];
 
         if (empty($country_iso2s)) {
@@ -84,9 +106,17 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
         foreach ($country_iso2s as $country_iso2) {
             $shippingZone = ShippingZoneModel::getByCountryIso2($country_iso2);
             if (empty($shippingZone)) {
+                $this->debug('No shipping zone found, will attempt to create one', [
+                    'storeKeeperId' => $storekeeperId,
+                    'countryIso2' => $country_iso2,
+                ]);
                 $wcShippingZone = new \WC_Shipping_Zone();
                 $wcShippingZone->set_zone_name(self::SHIPPING_ZONE_NAME_PREFIX.strtoupper($country_iso2));
                 if (!WC()->countries->country_exists(strtoupper($country_iso2))) {
+                    $this->debug('Country is not supported on this webshop', [
+                        'storeKeeperId' => $storekeeperId,
+                        'countryIso2' => $country_iso2,
+                    ]);
                     throw new ShippingMethodImportException("Country code '$country_iso2' is not valid or not allowed in WooCommerce settings");
                 }
                 $wcShippingZone->set_locations([
@@ -100,15 +130,32 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                    'wc_zone_id' => $wcShippingZoneId,
                    'country_iso2' => $country_iso2,
                 ]);
+
+                $this->debug('Successfully created a new zone', [
+                    'storeKeeperId' => $storekeeperId,
+                    'wcShippingZoneId' => $wcShippingZoneId,
+                    'countryIso2' => $country_iso2,
+                ]);
             } else {
                 $wcShippingZoneId = $shippingZone['wc_zone_id'];
                 $wcShippingZone = new \WC_Shipping_Zone($wcShippingZoneId);
                 $shippingZoneId = (int) $shippingZone['id'];
+
+                $this->debug('Shipping zone found', [
+                    'storeKeeperId' => $storekeeperId,
+                    'wcShippingZoneId' => $wcShippingZoneId,
+                    'countryIso2' => $country_iso2,
+                ]);
             }
 
             $wcShippingMethodInstanceId = ShippingMethodModel::getInstanceIdByStorekeeperZoneAndId($shippingZoneId, $storekeeperId);
 
             if (is_null($wcShippingMethodInstanceId)) {
+                $this->debug('No shipping method for zone, will attempt to create one', [
+                    'storeKeeperId' => $storekeeperId,
+                    'countryIso2' => $country_iso2,
+                    'wcShippingZoneId' => $wcShippingZoneId,
+                ]);
                 $wcShippingMethodType = $this->getWoocommerceShippingMethodType($dotObject);
                 $wcShippingMethodInstanceId = $wcShippingZone->add_shipping_method($wcShippingMethodType);
                 $wcShippingMethodInstance = \WC_Shipping_Zones::get_shipping_method($wcShippingMethodInstanceId);
@@ -117,46 +164,66 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                     'storekeeper_id' => $storekeeperId,
                     'sk_zone_id' => $shippingZoneId,
                 ]);
+
+                $this->debug('Successfully created a new zone', [
+                    'storeKeeperId' => $storekeeperId,
+                    'wcShippingZoneId' => $wcShippingZoneId,
+                    'countryIso2' => $country_iso2,
+                    'wcShippingInstanceId' => $wcShippingMethodInstanceId,
+                ]);
             } else {
                 $wcShippingMethodInstance = \WC_Shipping_Zones::get_shipping_method($wcShippingMethodInstanceId);
                 $wcShippingMethodType = $wcShippingMethodInstance->id;
+
+                $this->debug('Shipping zone found', [
+                    'storeKeeperId' => $storekeeperId,
+                    'wcShippingZoneId' => $wcShippingZoneId,
+                    'wcShippingMethodInstanceId' => $wcShippingMethodInstanceId,
+                    'countryIso2' => $country_iso2,
+                ]);
             }
 
             switch ($wcShippingMethodType) {
                 case self::SHIPPING_CLASS_FLAT_RATE:
+                    $this->debug('Setting correct data for shipping method instance', [
+                        'storeKeeperId' => $storekeeperId,
+                        'wcShippingMethodInstanceId' => $wcShippingMethodInstanceId,
+                        'shippingMethodType' => self::SHIPPING_CLASS_FLAT_RATE,
+                    ]);
                     /* @var \WC_Shipping_Flat_Rate $wcShippingMethodInstance */
                     $wcShippingMethodInstance->init_instance_settings();
                     $wcShippingMethodInstance->instance_settings['cost'] = (string) $dotObject->get('shipping_method_price_flat_strategy.ppu_wt');
                     $wcShippingMethodInstance->instance_settings['title'] = (string) $dotObject->get('name');
-                    // TODO: What to do with taxes?
                     $this->saveShippingMethodInstance($wcShippingMethodInstance);
-
                     break;
                 case self::SHIPPING_CLASS_LOCAL_PICKUP:
+                    $this->debug('Setting correct data for shipping method instance', [
+                        'storeKeeperId' => $storekeeperId,
+                        'wcShippingMethodInstanceId' => $wcShippingMethodInstanceId,
+                        'shippingMethodType' => self::SHIPPING_CLASS_LOCAL_PICKUP,
+                    ]);
                     /* @var \WC_Shipping_Local_Pickup $wcShippingMethodInstance */
                     $wcShippingMethodInstance->init_instance_settings();
                     $wcShippingMethodInstance->instance_settings['cost'] = (string) $dotObject->get('shipping_method_price_flat_strategy.ppu_wt');
                     $wcShippingMethodInstance->instance_settings['title'] = (string) $dotObject->get('name');
-                    // TODO: What to do with taxes?
                     $this->saveShippingMethodInstance($wcShippingMethodInstance);
                     break;
                 case self::SHIPPING_CLASS_FREE_SHIPPING:
                 default:
+                    $this->debug('Setting correct data for shipping method instance', [
+                        'storeKeeperId' => $storekeeperId,
+                        'wcShippingMethodInstanceId' => $wcShippingMethodInstanceId,
+                        'shippingMethodType' => self::SHIPPING_CLASS_FREE_SHIPPING,
+                    ]);
                     /* @var \WC_Shipping_Free_Shipping $wcShippingMethodInstance */
                     $wcShippingMethodInstance->init_instance_settings();
                     $wcShippingMethodInstance->instance_settings['min_amount'] = (int) $dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt');
                     $wcShippingMethodInstance->instance_settings['title'] = (string) $dotObject->get('name');
-                    // TODO: What to do with taxes?
+                    $wcShippingMethodInstance->instance_settings['requires'] = self::FREE_SHIPPING_REQUIRES;
                     $this->saveShippingMethodInstance($wcShippingMethodInstance);
                     break;
             }
         }
-//        $s = \WC_Shipping_Zones::get_zones();
-////        $term = \WC_Shipping_Zones::get_shipping_method();
-//        $shippingMethod = WordpressExceptionThrower::throwExceptionOnWpError(
-//            wc_shipping_method
-//        );
-        // TODO: Implement processItem() method.
     }
 
     protected function getImportEntityName(): string

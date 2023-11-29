@@ -38,4 +38,23 @@ class ShippingZoneModel extends AbstractModel implements IModelPurge
 
         return reset($results);
     }
+
+    public static function getWoocommerceZoneIds(): array
+    {
+        global $wpdb;
+
+        $select = static::getSelectHelper()
+            ->cols(['wc_zone_id']);
+
+        $query = static::prepareQuery($select);
+
+        $results = $wpdb->get_results($query, ARRAY_N);
+
+        return array_map(
+            static function ($value) {
+                return (int) current($value);
+            },
+            $results
+        );
+    }
 }
