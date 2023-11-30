@@ -6,6 +6,7 @@ use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Models\ShippingMethodModel;
 use StoreKeeper\WooCommerce\B2C\Models\ShippingZoneModel;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
 
@@ -26,6 +27,7 @@ class ShippingMethodTest extends AbstractTest
     public function testCreate()
     {
         $this->initApiConnection();
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
 
         $this->createShippingMethod();
 
@@ -39,6 +41,7 @@ class ShippingMethodTest extends AbstractTest
     public function testUpdate()
     {
         $this->initApiConnection();
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
 
         $this->createShippingMethod();
 

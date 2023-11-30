@@ -227,7 +227,6 @@ class EventsHandler
     {
         if (BackofficeCore::isShippingMethodUsed()) {
             switch ($eventType) {
-                // ShopModule::ShopProduct
                 case 'ShippingModule::ShippingMethod::created':
                 case 'ShippingModule::ShippingMethod::updated':
                     TaskHandler::scheduleTask(TaskHandler::SHIPPING_METHOD_IMPORT, $this->getId(), $taskData);
