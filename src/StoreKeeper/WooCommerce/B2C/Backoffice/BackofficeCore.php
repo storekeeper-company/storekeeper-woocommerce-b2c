@@ -35,7 +35,7 @@ class BackofficeCore
         $this->adminNotices();
         $this->metaBoxes();
 
-        if (StoreKeeperOptions::isShippingMethodSyncEnabled()) {
+        if (self::isShippingMethodUsed()) {
             $this->loader->add_action('admin_enqueue_scripts', $this, 'addShippingMethodScripts');
         }
     }
@@ -114,5 +114,10 @@ class BackofficeCore
                 ]
             );
         }
+    }
+
+    public static function isShippingMethodUsed(): bool
+    {
+        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::SHIPPING_METHOD_USED, 'no') && StoreKeeperOptions::isShippingMethodSyncEnabled();
     }
 }

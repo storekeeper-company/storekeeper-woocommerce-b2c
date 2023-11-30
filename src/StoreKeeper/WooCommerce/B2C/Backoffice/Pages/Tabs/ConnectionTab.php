@@ -10,6 +10,8 @@ use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoEndpoint;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Models\ShippingMethodModel;
+use StoreKeeper\WooCommerce\B2C\Models\ShippingZoneModel;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
@@ -283,6 +285,15 @@ class ConnectionTab extends AbstractTab
                         [],
                         true
                     );
+                } else {
+                    $woocommerceZoneIds = ShippingZoneModel::getWoocommerceZoneIds();
+                    foreach ($woocommerceZoneIds as $woocommerceZoneId) {
+                        $woocommerceZone = new \WC_Shipping_Zone($woocommerceZoneId);
+                        $woocommerceZone->delete(true);
+                    }
+
+                    ShippingZoneModel::purge();
+                    ShippingMethodModel::purge();
                 }
             }
         }

@@ -13,25 +13,6 @@ class SyncWoocommerceShippingMethodsTest extends AbstractTest
 
     public function testRun()
     {
-        $this->initApiConnection();
-        $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY);
-
-        $this->assertShippingMethodCreation();
-    }
-
-    public function testUpdate()
-    {
-        $this->assertShippingMethodCreation();
-        // TODO: Create unit test for update
-    }
-
-    public function testDelete()
-    {
-        // TODO: Delete unit test
-    }
-
-    private function assertShippingMethodCreation(): void
-    {
         $expectedShippingMethodsPerCountry = [
             'SK_NL' => [
                 [
@@ -73,6 +54,17 @@ class SyncWoocommerceShippingMethodsTest extends AbstractTest
             ],
         ];
 
+        [$actualCountries, $actualShippingMethodsPerCountry] = $this->createShippingMethods();
+
+        $this->assertEquals(array_keys($expectedShippingMethodsPerCountry), $actualCountries, 'Shipping zones should match expected values');
+        $this->assertEquals($expectedShippingMethodsPerCountry, $actualShippingMethodsPerCountry, 'Shipping methods does not match');
+    }
+
+    private function createShippingMethods(): array
+    {
+        $this->initApiConnection();
+        $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY);
+
         $this->runner->execute(SyncWoocommerceShippingMethods::getCommandName());
 
         $woocommerceShippingZones = \WC_Shipping_Zones::get_zones();
@@ -81,34 +73,36 @@ class SyncWoocommerceShippingMethodsTest extends AbstractTest
         foreach ($woocommerceShippingZones as $shippingZone) {
             $woocommerceShippingZone = new \WC_Shipping_Zone($shippingZone['id']);
             $woocommerceShippingLocations = $woocommerceShippingZone->get_zone_locations();
-            $woocommerceShippingLocation = $woocommerceShippingLocations[0];
-            $isFromStoreKeeper = !is_null(ShippingZoneModel::getByCountryIso2($woocommerceShippingLocation->code));
-            if ($isFromStoreKeeper) {
-                $this->assertCount(1, $woocommerceShippingZone->get_zone_locations(), 'Only one country should be set for shipping zone');
-                $zoneName = $woocommerceShippingZone->get_zone_name();
-                $actualCountries[] = $zoneName;
-                $shippingMethods = $woocommerceShippingZone->get_shipping_methods();
-                $actualShippingMethodsPerCountry[$zoneName] = [];
-                foreach ($shippingMethods as $shippingMethod) {
-                    $actualShippingMethodData = [
-                        'title' => $shippingMethod->title,
-                    ];
+            $this->assertCount(1, $woocommerceShippingLocations, 'Only one country should be set for shipping zone');
 
-                    if ($shippingMethod instanceof \WC_Shipping_Free_Shipping) {
-                        $actualShippingMethodData['min_amount'] = $shippingMethod->min_amount;
-                        $actualShippingMethodData['requires'] = $shippingMethod->requires;
-                    } else {
-                        $actualShippingMethodData['cost'] = $shippingMethod->cost;
-                    }
+            $woocommerceShippingLocation = current($woocommerceShippingLocations);
 
-                    $actualShippingMethodData['type'] = get_class($shippingMethod);
+            $this->assertNotNull(ShippingZoneModel::getByCountryIso2($woocommerceShippingLocation->code));
+            $zoneName = $woocommerceShippingZone->get_zone_name();
+            $actualCountries[] = $zoneName;
+            $shippingMethods = $woocommerceShippingZone->get_shipping_methods();
+            $actualShippingMethodsPerCountry[$zoneName] = [];
+            foreach ($shippingMethods as $shippingMethod) {
+                $actualShippingMethodData = [
+                    'title' => $shippingMethod->title,
+                ];
 
-                    $actualShippingMethodsPerCountry[$zoneName][] = $actualShippingMethodData;
+                if ($shippingMethod instanceof \WC_Shipping_Free_Shipping) {
+                    $actualShippingMethodData['min_amount'] = $shippingMethod->min_amount;
+                    $actualShippingMethodData['requires'] = $shippingMethod->requires;
+                } else {
+                    $actualShippingMethodData['cost'] = $shippingMethod->cost;
                 }
+
+                $actualShippingMethodData['type'] = get_class($shippingMethod);
+
+                $actualShippingMethodsPerCountry[$zoneName][] = $actualShippingMethodData;
             }
         }
 
-        $this->assertEquals(array_keys($expectedShippingMethodsPerCountry), $actualCountries, 'Shipping zones should match expected values');
-        $this->assertEquals($expectedShippingMethodsPerCountry, $actualShippingMethodsPerCountry, 'Shipping methods does not match');
+        return [
+            $actualCountries,
+            $actualShippingMethodsPerCountry,
+        ];
     }
 }

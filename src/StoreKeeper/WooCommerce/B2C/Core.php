@@ -186,7 +186,9 @@ class Core
     {
         $runner = new WpCliCommandRunner();
         foreach (self::COMMANDS as $class) {
-            $runner->addCommandClass($class);
+            if (SyncWoocommerceShippingMethods::class !== $class || BackofficeCore::isShippingMethodUsed()) {
+                $runner->addCommandClass($class);
+            }
         }
 
         return $runner;
@@ -199,7 +201,9 @@ class Core
     {
         $runner = new CommandRunner();
         foreach (self::COMMANDS as $class) {
-            $runner->addCommandClass($class);
+            if (SyncWoocommerceShippingMethods::class !== $class || BackofficeCore::isShippingMethodUsed()) {
+                $runner->addCommandClass($class);
+            }
         }
 
         return $runner;

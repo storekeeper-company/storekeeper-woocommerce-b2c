@@ -93,48 +93,50 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
             // TODO: Skip or throw error?
             throw new ShippingMethodImportException("Unsupported shipping type {$dotObject->get('shipping_type.alias')}");
         }
-        $country_iso2s = $dotObject->has('country_iso2s') ? $dotObject->get('country_iso2s') : [];
+        $countryIso2s = $dotObject->has('country_iso2s') ? $dotObject->get('country_iso2s') : [];
 
-        if (empty($country_iso2s)) {
+        if (empty($countryIso2s)) {
             $ShopModule = $this->storekeeper_api->getModule('ShopModule');
             $response = $ShopModule->getShopWithRelation();
             $shopData = new Dot($response);
             $defaultCountryIso2 = $shopData->get('relation_data.business_data.country_iso2');
-            $country_iso2s[] = $defaultCountryIso2;
+            $countryIso2s[] = $defaultCountryIso2;
         }
 
-        foreach ($country_iso2s as $country_iso2) {
-            $shippingZone = ShippingZoneModel::getByCountryIso2($country_iso2);
+        $this->removeOrphanedShippingZones($storekeeperId, $countryIso2s);
+
+        foreach ($countryIso2s as $countryIso2) {
+            $shippingZone = ShippingZoneModel::getByCountryIso2($countryIso2);
             if (empty($shippingZone)) {
                 $this->debug('No shipping zone found, will attempt to create one', [
                     'storeKeeperId' => $storekeeperId,
-                    'countryIso2' => $country_iso2,
+                    'countryIso2' => $countryIso2,
                 ]);
                 $wcShippingZone = new \WC_Shipping_Zone();
-                $wcShippingZone->set_zone_name(self::SHIPPING_ZONE_NAME_PREFIX.strtoupper($country_iso2));
-                if (!WC()->countries->country_exists(strtoupper($country_iso2))) {
+                $wcShippingZone->set_zone_name(self::SHIPPING_ZONE_NAME_PREFIX.strtoupper($countryIso2));
+                if (!WC()->countries->country_exists(strtoupper($countryIso2))) {
                     $this->debug('Country is not supported on this webshop', [
                         'storeKeeperId' => $storekeeperId,
-                        'countryIso2' => $country_iso2,
+                        'countryIso2' => $countryIso2,
                     ]);
-                    throw new ShippingMethodImportException("Country code '$country_iso2' is not valid or not allowed in WooCommerce settings");
+                    throw new ShippingMethodImportException("Country code '$countryIso2' is not valid or not allowed in WooCommerce settings");
                 }
                 $wcShippingZone->set_locations([
                     [
-                        'code' => strtoupper($country_iso2),
+                        'code' => strtoupper($countryIso2),
                         'type' => self::SHIPPING_LOCATION_TYPE,
                     ],
                 ]);
                 $wcShippingZoneId = $wcShippingZone->save();
                 $shippingZoneId = ShippingZoneModel::create([
                    'wc_zone_id' => $wcShippingZoneId,
-                   'country_iso2' => $country_iso2,
+                   'country_iso2' => $countryIso2,
                 ]);
 
                 $this->debug('Successfully created a new zone', [
                     'storeKeeperId' => $storekeeperId,
                     'wcShippingZoneId' => $wcShippingZoneId,
-                    'countryIso2' => $country_iso2,
+                    'countryIso2' => $countryIso2,
                 ]);
             } else {
                 $wcShippingZoneId = $shippingZone['wc_zone_id'];
@@ -144,16 +146,16 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                 $this->debug('Shipping zone found', [
                     'storeKeeperId' => $storekeeperId,
                     'wcShippingZoneId' => $wcShippingZoneId,
-                    'countryIso2' => $country_iso2,
+                    'countryIso2' => $countryIso2,
                 ]);
             }
 
-            $wcShippingMethodInstanceId = ShippingMethodModel::getInstanceIdByStorekeeperZoneAndId($shippingZoneId, $storekeeperId);
+            $wcShippingMethodInstanceId = ShippingMethodModel::getInstanceIdByShippingZoneAndStoreKeeperId($shippingZoneId, $storekeeperId);
 
             if (is_null($wcShippingMethodInstanceId)) {
                 $this->debug('No shipping method for zone, will attempt to create one', [
                     'storeKeeperId' => $storekeeperId,
-                    'countryIso2' => $country_iso2,
+                    'countryIso2' => $countryIso2,
                     'wcShippingZoneId' => $wcShippingZoneId,
                 ]);
                 $wcShippingMethodType = $this->getWoocommerceShippingMethodType($dotObject);
@@ -168,7 +170,7 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                 $this->debug('Successfully created a new zone', [
                     'storeKeeperId' => $storekeeperId,
                     'wcShippingZoneId' => $wcShippingZoneId,
-                    'countryIso2' => $country_iso2,
+                    'countryIso2' => $countryIso2,
                     'wcShippingInstanceId' => $wcShippingMethodInstanceId,
                 ]);
             } else {
@@ -179,7 +181,7 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                     'storeKeeperId' => $storekeeperId,
                     'wcShippingZoneId' => $wcShippingZoneId,
                     'wcShippingMethodInstanceId' => $wcShippingMethodInstanceId,
-                    'countryIso2' => $country_iso2,
+                    'countryIso2' => $countryIso2,
                 ]);
             }
 
@@ -229,6 +231,39 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
     protected function getImportEntityName(): string
     {
         return __('shipping methods', I18N::DOMAIN);
+    }
+
+    private function removeOrphanedShippingZones(int $storeKeeperId, array $countryIso2s): void
+    {
+        $skShippingZoneIds = ShippingMethodModel::getShippingZoneIdsByStoreKeeperId($storeKeeperId);
+
+        if (!is_null($skShippingZoneIds)) {
+            $findByIds = implode(',', $skShippingZoneIds);
+            $skShippingZones = ShippingZoneModel::findBy(
+                ["id IN ($findByIds)"],
+            );
+
+            if (!empty($skShippingZones)) {
+                foreach ($skShippingZones as $skShippingZone) {
+                    if (!in_array($skShippingZone['country_iso2'], $countryIso2s, true)) {
+                        $wcShippingMethodInstanceId = ShippingMethodModel::getInstanceIdByShippingZoneAndStoreKeeperId(
+                            $skShippingZone['id'],
+                            $storeKeeperId
+                        );
+
+                        $woocommerceZone = new \WC_Shipping_Zone($skShippingZone['wc_zone_id']);
+                        $woocommerceZone->delete_shipping_method($wcShippingMethodInstanceId);
+                        $woocommerceZone->save();
+                        ShippingMethodModel::deleteByInstanceId($wcShippingMethodInstanceId);
+
+                        if (0 === count($woocommerceZone->get_shipping_methods())) {
+                            $woocommerceZone->delete(true);
+                            ShippingZoneModel::delete($skShippingZone['id']);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private function isShippingTypeValid(Dot $dotObject): bool

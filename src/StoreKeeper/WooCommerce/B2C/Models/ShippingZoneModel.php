@@ -57,4 +57,12 @@ class ShippingZoneModel extends AbstractModel implements IModelPurge
             $results
         );
     }
+
+    public static function purge(): int
+    {
+        $delete = self::getDeleteHelper();
+        global $wpdb;
+
+        return $wpdb->query(self::prepareQuery($delete));
+    }
 }

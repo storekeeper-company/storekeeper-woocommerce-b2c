@@ -6,6 +6,7 @@ use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
@@ -224,16 +225,17 @@ class EventsHandler
 
     private function handleShippingMethodEvents(string $eventType, array $taskData): void
     {
-        switch ($eventType) {
-            // ShopModule::ShopProduct
-            case 'ShippingModule::ShippingMethod::created':
-            case 'ShippingModule::ShippingMethod::updated':
-                TaskHandler::scheduleTask(TaskHandler::SHIPPING_METHOD_IMPORT, $this->getId(), $taskData);
-                break;
-            case 'ShippingModule::ShippingMethod::deleted':
-                // TODO: Implement
-//                TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
-                break;
+        if (BackofficeCore::isShippingMethodUsed()) {
+            switch ($eventType) {
+                // ShopModule::ShopProduct
+                case 'ShippingModule::ShippingMethod::created':
+                case 'ShippingModule::ShippingMethod::updated':
+                    TaskHandler::scheduleTask(TaskHandler::SHIPPING_METHOD_IMPORT, $this->getId(), $taskData);
+                    break;
+                case 'ShippingModule::ShippingMethod::deleted':
+                    TaskHandler::scheduleTask(TaskHandler::SHIPPING_METHOD_DELETE, $this->getId(), $taskData);
+                    break;
+            }
         }
     }
 

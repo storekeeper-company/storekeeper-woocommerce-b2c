@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks;
 
 use DateTime;
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
@@ -271,8 +272,7 @@ class InfoHandler
         }
 
         if (
-            StoreKeeperOptions::isShippingMethodSyncEnabled() &&
-            'yes' === StoreKeeperOptions::get(StoreKeeperOptions::SHIPPING_METHOD_USED, 'no')
+            BackofficeCore::isShippingMethodUsed()
         ) {
             $activeCapabilities[] = 'b2s_shipping_method';
         }

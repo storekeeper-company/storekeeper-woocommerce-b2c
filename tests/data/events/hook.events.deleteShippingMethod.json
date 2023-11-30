@@ -1,6 +1,6 @@
 {
     "success": true,
-    "call_id": "656795c2d008d",
+    "call_id": "6568bdb63ef52",
     "request": {
         "headers": {
             "host": [
@@ -31,7 +31,7 @@
                 "gzip"
             ]
         },
-        "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2023-11-29 20:49:15+01\",\"backref\":\"ShippingModule::ShippingMethod(id=7)\",\"events\":{\"186\":{\"id\":186,\"event\":\"updated\",\"date\":\"2023-11-29 20:49:15+01\"}}}}",
+        "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2023-11-30 17:52:01+01\",\"backref\":\"ShippingModule::ShippingMethod(id=7)\",\"events\":{\"191\":{\"id\":191,\"event\":\"deleted\",\"date\":\"2023-11-30 17:52:01+01\"}}}}",
         "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
         "method": "POST",
         "query_params": {
@@ -42,7 +42,7 @@
     "hook_action": "events",
     "return": true,
     "_type": "hook",
-    "time_ms": 1006.0,
+    "time_ms": 979.0,
     "_version": "1.0",
-    "_timestamp": "2023-11-29T19:49:23+00:00"
+    "_timestamp": "2023-11-30T16:52:07+00:00"
 }
