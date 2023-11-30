@@ -181,6 +181,30 @@ class InfoHandlerTest extends AbstractTest
         $this->assertCount(0, $failedCompatibilityChecks, 'Failed compatibility checks should return 1 (woocommerce_manage_stock)');
     }
 
+    public function testFreshWebshop()
+    {
+        $this->initApiConnection();
+
+        $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER, false);
+        update_option('woocommerce_currency', 'EUR');
+
+        $successfulOrderId = $this->createWoocommerceOrder();
+        $this->exportOrder($successfulOrderId);
+
+        $file = $this->getHookDataDump('hook.info.json');
+        $rest = $this->getRestWithToken($file);
+
+        $response = $this->handleRequest($rest);
+        $data = $response->get_data();
+        $extra = $data['extra'];
+        $systemStatus = $extra['system_status'];
+        $orderSystemStatus = $systemStatus['order'];
+
+        // Assert order system status
+        $this->assertCount(0, $orderSystemStatus['ids_not_synchronized'], 'Not synchronized IDs should match with extras');
+        $this->assertCount(0, $orderSystemStatus['ids_with_failed_tasks'], 'Failed order IDs should match with extras');
+    }
+
     /**
      * @throws \WC_Data_Exception
      */
