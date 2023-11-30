@@ -25,7 +25,16 @@ class DateTimeHelper
         return new DateTime('now', new DateTimeZone('UTC'));
     }
 
-    public static function formatForDisplay(?DateTime $dateTime): string
+    public static function formatForStorekeeperApi(?DateTime $dateTime = null): string
+    {
+        if (is_null($dateTime)) {
+            $dateTime = self::currentDateTime();
+        }
+
+        return $dateTime->setTimezone(wp_timezone())->format('c');
+    }
+
+    public static function formatForDisplay(?DateTime $dateTime = null): string
     {
         if (is_null($dateTime)) {
             return '-';

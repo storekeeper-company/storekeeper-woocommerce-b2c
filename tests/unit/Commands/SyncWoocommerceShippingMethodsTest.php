@@ -77,7 +77,7 @@ class SyncWoocommerceShippingMethodsTest extends AbstractTest
 
             $woocommerceShippingLocation = current($woocommerceShippingLocations);
 
-            $this->assertNotNull(ShippingZoneModel::getByCountryIso2($woocommerceShippingLocation->code));
+            $this->assertNotNull(ShippingZoneModel::getByCountryIso2($woocommerceShippingLocation->code), 'Shipping zone should be creacted for country iso2');
             $zoneName = $woocommerceShippingZone->get_zone_name();
             $actualCountries[] = $zoneName;
             $shippingMethods = $woocommerceShippingZone->get_shipping_methods();

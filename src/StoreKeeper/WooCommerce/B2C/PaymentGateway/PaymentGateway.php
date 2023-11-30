@@ -462,7 +462,7 @@ SQL;
                 );
             }
         } catch (AuthException $authException) {
-            $this->getCheckOutLogger()->error($authException->getMessage(), ['trace' => $authException->getTraceAsString()]);
+            self::getCheckOutLogger()->error($authException->getMessage(), ['trace' => $authException->getTraceAsString()]);
             LoggerFactory::createErrorTask('add-storeKeeper-gateway-auth', $authException);
 
             return $default_gateway_classes;
@@ -529,9 +529,7 @@ SQL;
 
     public static function getCheckOutLogger(): Logger
     {
-        $checkOutLogger = LoggerFactory::create('checkout');
-
-        return $checkOutLogger;
+        return LoggerFactory::create('checkout');
     }
 
     protected function isPaymentStatusPaid($payment_status): bool
