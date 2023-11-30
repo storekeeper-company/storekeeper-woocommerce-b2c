@@ -329,9 +329,10 @@ class TaskHandler
                 $title = __('Redirect delete', I18N::DOMAIN)."(id=$id)";
                 break;
             case self::SHIPPING_METHOD_IMPORT:
-                $title = __('Shipping method import', I18N::DOMAIN);
                 if ($id > 0) {
-                    $title .= "(id=$id)";
+                    $title = __('Shipping method import', I18N::DOMAIN)."(id=$id)";
+                } else {
+                    $title = __('All shipping method import', I18N::DOMAIN);
                 }
                 break;
             case self::SHIPPING_METHOD_DELETE:
