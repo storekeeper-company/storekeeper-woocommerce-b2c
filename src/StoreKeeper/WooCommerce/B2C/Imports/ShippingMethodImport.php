@@ -86,13 +86,17 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
         $this->debug('Processing shipping method', $dotObject->get());
         $storekeeperId = $dotObject->get('id');
 
-        if (!$this->isShippingTypeValid($dotObject)) {
-            $this->debug("Unsupported shipping type {$dotObject->get('shipping_type.alias')}", [
-                'storeKeeperId' => $storekeeperId,
-            ]);
-            // TODO: Skip or throw error?
-            throw new ShippingMethodImportException("Unsupported shipping type {$dotObject->get('shipping_type.alias')}");
+        if ($this->isShippingTypeValid($dotObject)) {
+            $this->processShippingMethod($dotObject, $storekeeperId);
         }
+
+        $this->debug("Unsupported shipping type {$dotObject->get('shipping_type.alias')}, will be skipped.", [
+            'storeKeeperId' => $storekeeperId,
+        ]);
+    }
+
+    private function processShippingMethod(Dot $dotObject, $storekeeperId): void
+    {
         $countryIso2s = $dotObject->has('country_iso2s') ? $dotObject->get('country_iso2s') : [];
 
         if (empty($countryIso2s)) {
@@ -129,8 +133,8 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                 ]);
                 $wcShippingZoneId = $wcShippingZone->save();
                 $shippingZoneId = ShippingZoneModel::create([
-                   'wc_zone_id' => $wcShippingZoneId,
-                   'country_iso2' => $countryIso2,
+                    'wc_zone_id' => $wcShippingZoneId,
+                    'country_iso2' => $countryIso2,
                 ]);
 
                 $this->debug('Successfully created a new zone', [

@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShippingMethods;
 use StoreKeeper\WooCommerce\B2C\Imports\ShippingMethodImport;
 use StoreKeeper\WooCommerce\B2C\Models\ShippingZoneModel;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class SyncWoocommerceShippingMethodsTest extends AbstractTest
 {
@@ -13,6 +14,7 @@ class SyncWoocommerceShippingMethodsTest extends AbstractTest
 
     public function testRun()
     {
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
         $expectedShippingMethodsPerCountry = [
             'SK_NL' => [
                 [
