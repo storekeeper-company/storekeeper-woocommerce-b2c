@@ -12,9 +12,17 @@ class SyncWoocommerceShippingMethodsTest extends AbstractTest
     const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-shipping-methods';
     const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
 
-    public function testRun()
+    public function setUpRunner()
     {
         StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
+
+        parent::setUpRunner();
+    }
+
+    public function testRun()
+    {
+        $this->initApiConnection();
+
         $expectedShippingMethodsPerCountry = [
             'SK_NL' => [
                 [
@@ -64,7 +72,6 @@ class SyncWoocommerceShippingMethodsTest extends AbstractTest
 
     private function createShippingMethods(): array
     {
-        $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY);
 
         $this->runner->execute(SyncWoocommerceShippingMethods::getCommandName());

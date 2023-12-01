@@ -153,6 +153,10 @@ msgstr "Attributes sync"
 msgid "Back to export"
 msgstr "Back to export"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:273
+msgid "Backoffice"
+msgstr "BackOffice"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:150
 msgid "Backoffice %s role"
 msgstr "Backoffice %s role"
@@ -507,6 +511,10 @@ msgstr "English"
 msgid "Enter message or back reference/post/task ID"
 msgstr "Enter message or back reference/post/task ID"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:260
+msgid "Error reference"
+msgstr "Error reference"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:67
 msgid "Error:"
 msgstr "Error:"
@@ -602,6 +610,10 @@ msgstr "Export products"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:119
 msgid "Export tags"
 msgstr "Export tags"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:264
+msgid "Extra metadata"
+msgstr "Extra meta data"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:130
 msgid "Failed"
@@ -1050,9 +1062,9 @@ msgstr "Order only"
 msgid "Order sync from date"
 msgstr "Order sync from date"
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:702
-msgid "Order with this order number already exists."
-msgstr "Order with this order number already exists."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:133
+msgid "Order was synced successfully."
+msgstr "Order was synced successfully"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/DashboardTab.php:28
 msgid "Orders & customers synced"
@@ -1517,6 +1529,10 @@ msgstr "Setting SKU for product:"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:72
 msgid "Settings"
 msgstr "Settings"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:269
+msgid "Shop"
+msgstr "Shop"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:82
 msgid "Shop info sync"

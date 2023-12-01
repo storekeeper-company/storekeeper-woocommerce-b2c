@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-11-17 17:00\n"
+"PO-Revision-Date: 2023-12-01 14:49\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
@@ -150,6 +150,10 @@ msgstr "Kenmerken synchroniseren"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:77
 msgid "Back to export"
 msgstr "Terug naar export"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:273
+msgid "Backoffice"
+msgstr "BackOffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:150
 msgid "Backoffice %s role"
@@ -495,6 +499,10 @@ msgstr "Engels"
 msgid "Enter message or back reference/post/task ID"
 msgstr "Voer bericht- of terugverwijzing/post/taak-ID in"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:260
+msgid "Error reference"
+msgstr "Error foutcode"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:67
 msgid "Error:"
 msgstr "Error:"
@@ -590,6 +598,10 @@ msgstr "Producten exporteren"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:119
 msgid "Export tags"
 msgstr "Tags exporteren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:264
+msgid "Extra metadata"
+msgstr "Extra meta data"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:130
 msgid "Failed"
@@ -1009,9 +1021,9 @@ msgstr "Alleen bestellingen"
 msgid "Order sync from date"
 msgstr "Bestelling synchroniseren vanaf datum"
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:702
-msgid "Order with this order number already exists."
-msgstr "Bestelling met dit bestelnummer bestaat al."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:133
+msgid "Order was synced successfully."
+msgstr "Bestelling was succesvol gesynchroniseerd"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/DashboardTab.php:28
 msgid "Orders & customers synced"
@@ -1470,6 +1482,10 @@ msgstr "SKU instellen voor product:"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:72
 msgid "Settings"
 msgstr "Instellingen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:269
+msgid "Shop"
+msgstr "Shop"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:82
 msgid "Shop info sync"

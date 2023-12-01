@@ -201,6 +201,9 @@ class Core
     {
         $runner = new CommandRunner();
         foreach (self::COMMANDS as $class) {
+            $s = BackofficeCore::isShippingMethodUsed();
+            $q = StoreKeeperOptions::isShippingMethodSyncEnabled();
+            $r = 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::SHIPPING_METHOD_USED, 'no');
             if (SyncWoocommerceShippingMethods::class !== $class || BackofficeCore::isShippingMethodUsed()) {
                 $runner->addCommandClass($class);
             }
