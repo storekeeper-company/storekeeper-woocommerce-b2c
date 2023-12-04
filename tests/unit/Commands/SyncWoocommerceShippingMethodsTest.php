@@ -14,7 +14,7 @@ class SyncWoocommerceShippingMethodsTest extends AbstractTest
 
     public function setUpRunner()
     {
-        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'yes');
 
         parent::setUpRunner();
     }

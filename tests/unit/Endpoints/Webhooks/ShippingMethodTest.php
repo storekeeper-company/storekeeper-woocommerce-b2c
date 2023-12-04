@@ -22,12 +22,16 @@ class ShippingMethodTest extends AbstractTest
     const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateShippingMethod.json';
     const UPDATE_DATADUMP_SHIPPING_METHOD = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
 
+    const UPDATE_CHANGED_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedType';
+    const UPDATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedUnknownType';
+    const UPDATE_DISABLED_DATADUMP_DIRECTORY = 'events/shippingMethod/updateDisabled';
+
     const DELETE_DATADUMP_HOOK = 'events/hook.events.deleteShippingMethod.json';
 
     public function testCreate()
     {
         $this->initApiConnection();
-        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'yes');
 
         $this->createShippingMethod();
 
@@ -41,7 +45,7 @@ class ShippingMethodTest extends AbstractTest
     public function testUpdate()
     {
         $this->initApiConnection();
-        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'yes');
 
         $this->createShippingMethod();
 
@@ -55,6 +59,65 @@ class ShippingMethodTest extends AbstractTest
         $skShippingMethodData = new Dot(current($skShippingMethod));
 
         $this->assertShippingMethod($skShippingMethodData);
+    }
+
+    public function testUpdateChangedType()
+    {
+        $this->initApiConnection();
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'yes');
+
+        $this->createShippingMethod();
+
+        $this->mockApiCallsFromDirectory(self::UPDATE_CHANGED_TYPE_DATADUMP_DIRECTORY);
+        $this->executeWebhook(self::UPDATE_DATADUMP_HOOK);
+
+        $this->runner->execute(ProcessAllTasks::getCommandName());
+
+        $woocommerceShippingZones = \WC_Shipping_Zones::get_zones();
+        $woocommerceShippingZoneId = current($woocommerceShippingZones)['id'];
+        $woocommerceShippingZone = new \WC_Shipping_Zone($woocommerceShippingZoneId);
+        $woocommerceShippingMethods = $woocommerceShippingZone->get_shipping_methods();
+        $this->assertCount(1, $woocommerceShippingMethods, 'Only one shipping method should be created for this zone');
+        $woocommerceShippingMethod = current($woocommerceShippingMethods);
+
+        // Expected to be flat rate  based on datadump after update
+        $this->assertInstanceOf(\WC_Shipping_Flat_Rate::class, $woocommerceShippingMethod, 'Shipping method is expected to be instance of flat rate after update');
+    }
+
+    public function testUpdateChangedUnknownType()
+    {
+        $this->initApiConnection();
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'yes');
+
+        $this->createShippingMethod();
+
+        $this->mockApiCallsFromDirectory(self::UPDATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY);
+        $this->executeWebhook(self::UPDATE_DATADUMP_HOOK);
+
+        $this->runner->execute(ProcessAllTasks::getCommandName());
+
+        $woocommerceShippingZones = \WC_Shipping_Zones::get_zones();
+        $this->assertEquals(0, ShippingMethodModel::count(), 'No shipping method entity should be left');
+        $this->assertCount(0, $woocommerceShippingZones, 'No shipping zones should be left');
+        $this->assertEquals(0, ShippingZoneModel::count(), 'No shipping zone entity should be left');
+    }
+
+    public function testUpdateDisabled()
+    {
+        $this->initApiConnection();
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'yes');
+
+        $this->createShippingMethod();
+
+        $this->mockApiCallsFromDirectory(self::UPDATE_DISABLED_DATADUMP_DIRECTORY);
+        $this->executeWebhook(self::UPDATE_DATADUMP_HOOK);
+
+        $this->runner->execute(ProcessAllTasks::getCommandName());
+
+        $woocommerceShippingZones = \WC_Shipping_Zones::get_zones();
+        $this->assertEquals(0, ShippingMethodModel::count(), 'No shipping method entity should be left');
+        $this->assertCount(0, $woocommerceShippingZones, 'No shipping zones should be left');
+        $this->assertEquals(0, ShippingZoneModel::count(), 'No shipping zone entity should be left');
     }
 
     public function testDelete()
@@ -102,7 +165,7 @@ class ShippingMethodTest extends AbstractTest
         $woocommerceShippingZone = new \WC_Shipping_Zone($woocommerceShippingZoneId);
 
         $woocommerceShippingMethods = $woocommerceShippingZone->get_shipping_methods();
-        $this->assertCount(1, $woocommerceShippingMethods, 'Only one shipping method should be create for this zone');
+        $this->assertCount(1, $woocommerceShippingMethods, 'Only one shipping method should be created for this zone');
         $woocommerceShippingMethod = current($woocommerceShippingMethods);
 
         // Expected to be free shipping based on datadump

@@ -14,10 +14,6 @@
     ],
     [
       {
-        "name": "enabled__=",
-        "val": "1"
-      },
-      {
         "name": "is_system__=",
         "val": "0"
       },

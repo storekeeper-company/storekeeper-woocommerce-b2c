@@ -118,6 +118,6 @@ class BackofficeCore
 
     public static function isShippingMethodUsed(): bool
     {
-        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::SHIPPING_METHOD_USED, 'no') && StoreKeeperOptions::isShippingMethodSyncEnabled();
+        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'no') && StoreKeeperOptions::isShippingMethodAllowedForCurrentSyncMode();
     }
 }

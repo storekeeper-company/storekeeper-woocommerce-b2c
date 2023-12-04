@@ -2,6 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
+use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\FormElementTrait;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
@@ -18,6 +20,7 @@ use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
+use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
 
@@ -47,6 +50,8 @@ class ConnectionTab extends AbstractTab
 
     public function render(): void
     {
+        $this->showPossibleWarnings();
+
         if (StoreKeeperOptions::isConnected()) {
             $this->renderConnected();
         } else {
@@ -56,6 +61,13 @@ class ConnectionTab extends AbstractTab
         $this->renderStatistics();
 
         $this->renderSettings();
+    }
+
+    private function showPossibleWarnings(): void
+    {
+        if (array_key_exists('shipping-method-unsupported', $_REQUEST)) {
+            AdminNotices::showWarning(__('Shipping method synchronization is not supported, please upgrade to a higher package.', I18N::DOMAIN));
+        }
     }
 
     private function renderConnected()
@@ -249,8 +261,10 @@ class ConnectionTab extends AbstractTab
 
     public function saveAction()
     {
+        $shouldAddShippingMethodWarning = false;
+
         $payment = StoreKeeperOptions::getConstant(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED);
-        $shippingMethod = StoreKeeperOptions::getConstant(StoreKeeperOptions::SHIPPING_METHOD_USED);
+        $shippingMethod = StoreKeeperOptions::getConstant(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED);
         $backorder = StoreKeeperOptions::getConstant(StoreKeeperOptions::NOTIFY_ON_BACKORDER);
         $seoHandler = StoreKeeperOptions::getConstant(StoreKeeperOptions::SEO_HANDLER);
         $mode = StoreKeeperOptions::getConstant(StoreKeeperOptions::SYNC_MODE);
@@ -273,11 +287,29 @@ class ConnectionTab extends AbstractTab
         }
 
         if (in_array($_POST[$mode], StoreKeeperOptions::MODES_WITH_SHIPPING_METHODS, true)) {
-            if (!StoreKeeperOptions::isShippingMethodSyncEnabled()) {
+            $shippingMethodOldValue = StoreKeeperOptions::get($shippingMethod, 'no');
+            if (!StoreKeeperOptions::isShippingMethodAllowedForCurrentSyncMode()) {
                 // Retain the old value
-                $data[$shippingMethod] = StoreKeeperOptions::get($shippingMethod);
+                $data[$shippingMethod] = $shippingMethodOldValue;
             } else {
-                $data[$shippingMethod] = 'on' === sanitize_key($_POST[$shippingMethod]) ? 'yes' : 'no';
+                $shippingMethodNewValue = 'on' === sanitize_key($_POST[$shippingMethod]) ? 'yes' : 'no';
+                $data[$shippingMethod] = $shippingMethodNewValue;
+                if ('yes' === $shippingMethodNewValue && $shippingMethodNewValue !== $shippingMethodOldValue) {
+                    $isShippingMethodSyncSupported = true;
+                    try {
+                        $api = StoreKeeperApi::getApiByAuthName();
+                        $shopModule = $api->getModule('ShopModule');
+                        $shopModule->listShippingMethodsForHooks();
+                    } catch (GeneralException $exception) {
+                        $isShippingMethodSyncSupported = false;
+                    }
+
+                    if (!$isShippingMethodSyncSupported) {
+                        $shouldAddShippingMethodWarning = true;
+                        $data[$shippingMethod] = 'no';
+                    }
+                }
+
                 if ('yes' === $data[$shippingMethod]) {
                     TaskHandler::scheduleTask(
                         TaskHandler::SHIPPING_METHOD_IMPORT,
@@ -324,7 +356,15 @@ class ConnectionTab extends AbstractTab
             update_option($key, $value);
         }
 
-        wp_redirect(remove_query_arg('action'));
+        $url = remove_query_arg('action');
+        if ($shouldAddShippingMethodWarning) {
+            $url = add_query_arg([
+                'shipping-method-unsupported' => 1,
+            ], $url);
+        } else {
+            $url = remove_query_arg('shipping-method-unsupported', $url);
+        }
+        wp_redirect($url);
     }
 
     private function renderSyncModeSetting(): void
@@ -462,17 +502,17 @@ HTML;
 
     private function renderShippingMethodSetting(): void
     {
-        $shippingMethodName = StoreKeeperOptions::getConstant(StoreKeeperOptions::SHIPPING_METHOD_USED);
+        $shippingMethodName = StoreKeeperOptions::getConstant(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED);
         $extraInfo = '';
-        if (!StoreKeeperOptions::isShippingMethodSyncEnabled()) {
+        if (!StoreKeeperOptions::isShippingMethodAllowedForCurrentSyncMode()) {
             $extraInfo = '<br><small>'.__('Shipping methods are disabled in currently selected Synchronization mode').'</small>';
         }
         $this->renderFormGroup(
             __('Use StoreKeeper shipping methods', I18N::DOMAIN),
             $this->getFormCheckbox(
                 $shippingMethodName,
-                'yes' === StoreKeeperOptions::get($shippingMethodName, 'no') && StoreKeeperOptions::isShippingMethodSyncEnabled(),
-                StoreKeeperOptions::isShippingMethodSyncEnabled() ? '' : 'disabled',
+                'yes' === StoreKeeperOptions::get($shippingMethodName, 'no') && StoreKeeperOptions::isShippingMethodAllowedForCurrentSyncMode(),
+                StoreKeeperOptions::isShippingMethodAllowedForCurrentSyncMode() ? '' : 'disabled',
             ).' '.__(
                 'When checked, shipping countries and methods from your StoreKeeper backoffice are added to your WooCommerce settings and webshop\'s checkout',
                 I18N::DOMAIN

@@ -7,6 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 class ShippingZoneModel extends AbstractModel implements IModelPurge
 {
     const TABLE_NAME = 'storekeeper_shipping_zones';
+    const FK_WOOCOMMERCE_ZONE_ID = 'wc_zone_id_fk';
 
     public static function getFieldsWithRequired(): array
     {

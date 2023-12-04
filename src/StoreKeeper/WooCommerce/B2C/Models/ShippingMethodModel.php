@@ -7,6 +7,8 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 class ShippingMethodModel extends AbstractModel implements IModelPurge
 {
     const TABLE_NAME = 'storekeeper_shipping_methods';
+    const FK_WOOCOMMERCE_INSTANCE_ID = 'wc_instance_id_fk';
+    const FK_STOREKEEPER_ZONE_ID = 'sk_zone_id_fk';
 
     public static function getFieldsWithRequired(): array
     {
@@ -67,19 +69,9 @@ class ShippingMethodModel extends AbstractModel implements IModelPurge
         );
     }
 
-    public static function deleteByInstanceId(int $wcInstanceId): int
+    public static function methodExists(int $storekeeperId)
     {
-        global $wpdb;
-
-        $delete = static::getDeleteHelper()
-            ->where('wc_instance_id = :wc_instance_id')
-            ->bindValue('wc_instance_id', $wcInstanceId);
-
-        $affectedRows = $wpdb->query(static::prepareQuery($delete));
-
-        AbstractModel::ensureAffectedRows($affectedRows);
-
-        return (int) $affectedRows;
+        return self::count(['storekeeper_id = :storekeeper_id'], ['storekeeper_id' => $storekeeperId]) > 0;
     }
 
     public static function purge(): int

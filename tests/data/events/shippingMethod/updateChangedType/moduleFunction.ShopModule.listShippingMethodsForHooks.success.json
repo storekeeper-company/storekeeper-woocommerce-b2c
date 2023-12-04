@@ -43,32 +43,31 @@
           "alias": "main"
         },
         "shipping_method_price_strategy": {
-          "id": 3,
+          "id": 4,
           "name": "JNT",
           "shipping_method_price_strategy_type_id": 1
         },
         "shipping_method_price_flat_strategy": {
-          "id": 3,
+          "id": 4,
           "currency_iso3": "EUR",
-          "ppu": 0,
-          "ppu_wt": 0,
+          "ppu": 4.13,
+          "ppu_wt": 5,
           "tax": 0.21,
           "tax_rate_id": 55,
-          "shipping_method_price_strategy_id": 3,
-          "free_from_value_wt": 10
+          "shipping_method_price_strategy_id": 4
         },
         "id": 7,
-        "name": "JNT - Free Shipping",
+        "name": "JNT - Updated type",
         "enabled": true,
         "date_created": "2023-11-23 04:09:50+01:00",
         "shipping_type_id": 3,
         "configuration_id": 1,
         "needs_shipping": true,
-        "shipping_method_price_strategy_id": 3,
+        "shipping_method_price_strategy_id": 4,
         "is_system": false,
         "country_iso2s": [
           "NL",
-          "PH"
+          "DE"
         ],
         "object_instance_id": 167
       }

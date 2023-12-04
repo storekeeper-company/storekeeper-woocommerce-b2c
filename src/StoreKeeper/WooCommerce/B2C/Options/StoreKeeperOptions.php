@@ -18,7 +18,7 @@ class StoreKeeperOptions extends AbstractOptions
     public const MAIN_CATEGORY_ID = 'main-category-id';
     public const NOTIFY_ON_BACKORDER = 'notify-on-backorder';
     public const PAYMENT_GATEWAY_ACTIVATED = 'payment-gateway-activated';
-    public const SHIPPING_METHOD_USED = 'shipping-method-used';
+    public const SHIPPING_METHOD_ACTIVATED = 'shipping-method-activated';
     public const CATEGORY_DESCRIPTION_HTML = 'category-description-html';
     public const SYNC_MODE = 'sync-mode';
     public const INSTALLED_VERSION = 'installed-version';
@@ -174,7 +174,7 @@ class StoreKeeperOptions extends AbstractOptions
         return in_array(self::getSyncMode(), self::MODES_WITH_PAYMENTS, true);
     }
 
-    public static function isShippingMethodSyncEnabled(): bool
+    public static function isShippingMethodAllowedForCurrentSyncMode(): bool
     {
         return in_array(self::getSyncMode(), self::MODES_WITH_SHIPPING_METHODS, true);
     }

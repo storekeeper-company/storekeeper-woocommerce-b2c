@@ -40,6 +40,7 @@ class InfoHandlerTest extends AbstractTest
         $this->assertEquals('info', $file->getHookAction());
 
         $this->assertPreConfiguration($rest);
+        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'yes');
         $this->assertPostConfiguration($rest);
     }
 
@@ -55,7 +56,6 @@ class InfoHandlerTest extends AbstractTest
 
     private function assertPostConfiguration(\WP_REST_Request $rest): void
     {
-        StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_USED, 'yes');
         // These first 3 orders will fail because the woocommerce_currency is not `EUR`
         $firstFailedOrderId = $this->createWoocommerceOrder();
         $secondFailedOrderId = $this->createWoocommerceOrder();
