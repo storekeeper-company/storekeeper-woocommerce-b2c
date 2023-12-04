@@ -191,6 +191,9 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                         break;
                 }
             } catch (UnsupportedShippingMethodTypeException $exception) {
+                $this->debug("Unsupported shipping type {$dotObject->get('shipping_type.alias')}.", [
+                    'storeKeeperId' => $storekeeperId,
+                ]);
                 // Remove the woocommerce zone just in case it was orphaned
                 // because of changing into an unsupported type
                 if (0 === count($wcShippingZone->get_shipping_methods())) {
