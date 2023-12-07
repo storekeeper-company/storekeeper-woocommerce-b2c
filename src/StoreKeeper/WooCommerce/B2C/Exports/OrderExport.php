@@ -424,7 +424,7 @@ class OrderExport extends AbstractExport
         $this->removeSkippedItemsByName($databaseOrderItems, $backofficeOrderItems);
 
         if ($allHasExtras) {
-            $this->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
+            $this->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems, $databaseOrder);
         } else {
             $this->checkOrderDifferenceBySet($databaseOrderItems, $backofficeOrderItems);
         }
@@ -467,33 +467,108 @@ class OrderExport extends AbstractExport
     /**
      * @throws OrderDifferenceException
      */
-    public function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems): void
+    public function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems, WC_Order $wcOrder): void
     {
         $databaseOrderItemExtras = array_column($databaseOrderItems, 'extra');
         $backofficeOrderItemExtras = array_column($backofficeOrderItems, 'extra');
         $this->cleanExtras($databaseOrderItemExtras);
         $this->cleanExtras($backofficeOrderItemExtras);
 
-        foreach ($databaseOrderItemExtras as &$extras) {
-            ksort($extras);
+        // Start comparing product order items
+        $databaseProductExtras = $this->filterExtrasByRowExtraType($databaseOrderItemExtras, self::ROW_PRODUCT_TYPE);
+        $backofficeProductExtras = $this->filterExtrasByRowExtraType($backofficeOrderItemExtras, self::ROW_PRODUCT_TYPE);
+        $isSame = $this->compareExtras($databaseProductExtras, $backofficeProductExtras);
+        if (!$isSame) {
+            throw new OrderDifferenceException('Product order items did not match', $databaseOrderItemExtras, $backofficeOrderItemExtras);
         }
-        unset($extras);
+        // End comparing product order items
 
-        foreach ($backofficeOrderItemExtras as &$extras) {
-            ksort($extras);
+        // Start comparing fee order items
+        $databaseFeeExtras = $this->filterExtrasByRowExtraType($databaseOrderItemExtras, self::ROW_FEE_TYPE);
+        $backofficeFeeExtras = $this->filterExtrasByRowExtraType($backofficeOrderItemExtras, self::ROW_FEE_TYPE);
+        $isSame = $this->compareExtras($databaseFeeExtras, $backofficeFeeExtras);
+        if (!$isSame) {
+            throw new OrderDifferenceException('Fee order items did not match', $databaseOrderItemExtras, $backofficeOrderItemExtras);
         }
-        unset($extras);
+        // End comparing fee order items
 
-        sort($databaseOrderItemExtras);
-        sort($backofficeOrderItemExtras);
+        // Start comparing shipping order items
+        $databaseShippingExtras = $this->filterExtrasByRowExtraType($databaseOrderItemExtras, self::ROW_SHIPPING_METHOD_TYPE);
+        $backofficeShippingExtras = $this->filterExtrasByRowExtraType($backofficeOrderItemExtras, self::ROW_SHIPPING_METHOD_TYPE);
+        $isSame = $this->compareExtras($databaseShippingExtras, $backofficeShippingExtras);
+        if (!$isSame) {
+            // Try comparing each shipping methods without taxes
 
-        for ($extrasCounter = 0, $backofficeOrderItemExtraCount = count($backofficeOrderItemExtras); $extrasCounter < $backofficeOrderItemExtraCount; ++$extrasCounter) {
-            $backofficeOrderItemExtra = $backofficeOrderItemExtras[$extrasCounter];
-            $databaseOrderItemExtra = $databaseOrderItemExtras[$extrasCounter];
-            if ($databaseOrderItemExtra !== $backofficeOrderItemExtra) {
-                throw new OrderDifferenceException('Extra metadata did not match', $databaseOrderItemExtras, $backofficeOrderItemExtras);
+            // Reset indexes first
+            $databaseShippingExtras = array_values($databaseShippingExtras);
+
+            // Get all shipping order items without taxes on md5
+            $databaseShippingOrderItemsWithoutTaxes = $this->getShippingOrderItems($wcOrder, true);
+            $databaseShippingOrderItemExtrasWithoutTaxes = array_column($databaseShippingOrderItemsWithoutTaxes, 'extra');
+            foreach ($backofficeShippingExtras as $backofficeShippingExtra) {
+                // Compare every single extra by its ID
+                ksort($backofficeShippingExtra);
+
+                $backofficeRowId = $backofficeShippingExtra[self::EXTRA_ROW_ID_KEY];
+                // Find the extra with the same row ID from backoffice extras
+                $databaseShippingExtraMaybeWithTaxIndex = array_search($backofficeRowId, array_column($databaseShippingExtras, self::EXTRA_ROW_ID_KEY), true);
+                if (false === $databaseShippingExtraMaybeWithTaxIndex) {
+                    throw new OrderDifferenceException('Shipping order item does not exist on the initially sent extras', $databaseOrderItemExtras, $backofficeOrderItemExtras);
+                }
+
+                $databaseShippingExtraMaybeWithTax = $databaseShippingExtras[$databaseShippingExtraMaybeWithTaxIndex];
+                ksort($databaseShippingExtraMaybeWithTax);
+                // Compare the extra we assume that has tax to the backoffice extra
+                if ($databaseShippingExtraMaybeWithTax !== $backofficeShippingExtra) {
+                    // Find the extra with the same row ID from backoffice extras
+                    $databaseShippingExtraWithoutTaxIndex = array_search($backofficeRowId, array_column($databaseShippingOrderItemExtrasWithoutTaxes, self::EXTRA_ROW_ID_KEY), true);
+                    $databaseShippingExtraWithoutTax = $databaseShippingOrderItemExtrasWithoutTaxes[$databaseShippingExtraWithoutTaxIndex];
+                    ksort($databaseShippingExtraWithoutTax);
+
+                    // Compare the extra that has no tax to the backoffice extra
+                    if ($databaseShippingExtraWithoutTax !== $backofficeShippingExtra) {
+                        throw new OrderDifferenceException('Shipping order items did not match even without taxes comparison', $databaseOrderItemExtras, $backofficeOrderItemExtras);
+                    }
+                }
             }
         }
+        // End comparing shipping order items
+    }
+
+    private function compareExtras(array $databaseExtras, array $backofficeExtras): bool
+    {
+        if (count($databaseExtras) !== count($backofficeExtras)) {
+            return false;
+        }
+        foreach ($databaseExtras as &$extras) {
+            ksort($extras);
+        }
+        unset($extras);
+
+        foreach ($backofficeExtras as &$extras) {
+            ksort($extras);
+        }
+        unset($extras);
+
+        sort($databaseExtras);
+        sort($backofficeExtras);
+
+        for ($extrasCounter = 0, $backofficeOrderItemExtraCount = count($backofficeExtras); $extrasCounter < $backofficeOrderItemExtraCount; ++$extrasCounter) {
+            $backofficeOrderItemExtra = $backofficeExtras[$extrasCounter];
+            $databaseOrderItemExtra = $databaseExtras[$extrasCounter];
+            if ($databaseOrderItemExtra !== $backofficeOrderItemExtra) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function filterExtrasByRowExtraType(array $orderItemExtras, string $rowType): array
+    {
+        return array_filter($orderItemExtras, static function ($orderItemExtra) use ($rowType) {
+            return $orderItemExtra[self::EXTRA_ROW_TYPE] === $rowType;
+        });
     }
 
     private function cleanExtras(array &$extras): void
@@ -709,6 +784,16 @@ class OrderExport extends AbstractExport
 
         $this->debug('Added fee items');
 
+        $shippingMethodOrderItems = $this->getShippingOrderItems($order);
+        $orderItems = array_merge($orderItems, $shippingMethodOrderItems);
+        $this->debug('Added shipping items');
+
+        return $orderItems;
+    }
+
+    public function getShippingOrderItems(WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
+    {
+        $orderItems = [];
         /**
          * @var $shipping_method \WC_Order_Item_Shipping
          */
@@ -721,9 +806,14 @@ class OrderExport extends AbstractExport
                 'is_shipping' => true,
             ];
 
+            $shippingMethodData = $shipping_method->get_data();
+            if ($excludeTaxesTotalOnMd5 || !$this->already_exported()) {
+                $shippingMethodData['taxes']['total'] = [];
+            }
+
             $extra = [
                 self::EXTRA_ROW_ID_KEY => $shipping_method->get_id(),
-                self::EXTRA_ROW_MD5_KEY => md5(json_encode($shipping_method->get_data(), JSON_THROW_ON_ERROR)),
+                self::EXTRA_ROW_MD5_KEY => md5(json_encode($shippingMethodData, JSON_THROW_ON_ERROR)),
                 self::EXTRA_ROW_TYPE => self::ROW_SHIPPING_METHOD_TYPE,
             ];
 
@@ -731,7 +821,6 @@ class OrderExport extends AbstractExport
 
             $orderItems[] = $data;
         }
-        $this->debug('Added shipping items');
 
         return $orderItems;
     }
