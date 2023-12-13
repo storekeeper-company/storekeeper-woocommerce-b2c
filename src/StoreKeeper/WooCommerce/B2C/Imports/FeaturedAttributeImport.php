@@ -37,13 +37,15 @@ class FeaturedAttributeImport extends AbstractImport implements WithConsoleProgr
      *
      * @throws \Exception
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         FeaturedAttributeOptions::setAttribute(
             $dotObject->get('alias'),
             $dotObject->get('attribute_id'),
             $dotObject->get('attribute.name')
         );
+
+        return null;
     }
 
     protected function getImportEntityName(): string

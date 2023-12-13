@@ -53,21 +53,12 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
 
     protected function getFilters()
     {
-        $filters = [
+        return [
             [
                 'name' => 'is_system__=',
                 'val' => '0',
             ],
         ];
-
-        if ($this->storekeeper_id > 0) {
-            $filters[] = [
-                'name' => 'id__=',
-                'val' => $this->storekeeper_id,
-            ];
-        }
-
-        return $filters;
     }
 
     protected function getLanguage()
@@ -79,7 +70,7 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
      * @throws ShippingMethodImportException
      * @throws WordpressException
      */
-    protected function processItem(Dot $dotObject, array $options = [])
+    protected function processItem(Dot $dotObject, array $options = []): ?int
     {
         $this->debug('Processing shipping method', $dotObject->get());
         $storekeeperId = $dotObject->get('id');
@@ -99,6 +90,8 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                 'storeKeeperId' => $storekeeperId,
             ]);
         }
+
+        return $storekeeperId;
     }
 
     public function deleteShippingMethodAndOrphanedShippingZones(int $storeKeeperId): void
@@ -319,6 +312,27 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
         ]);
 
         return $wcShippingMethodInstance;
+    }
+
+    protected function afterRun(array $storeKeeperIds)
+    {
+        // We have this after run clean up for disabled methods that are no longer returned on listShippingMethodsForHooks
+        $whereClauses = [];
+        if (!empty($storeKeeperIds)) {
+            $implodedStoreKeeperIds = implode(',', $storeKeeperIds);
+            $whereClauses[] = "storekeeper_id NOT IN ($implodedStoreKeeperIds)";
+        }
+        $missingStoreKeeperMethodIds = ShippingMethodModel::getUniqueStoreKeeperIds(
+            $whereClauses,
+        );
+
+        if (!is_null($missingStoreKeeperMethodIds)) {
+            foreach ($missingStoreKeeperMethodIds as $missingStoreKeeperMethodId) {
+                $this->deleteShippingMethodAndOrphanedShippingZones($missingStoreKeeperMethodId);
+            }
+        }
+
+        parent::afterRun($storeKeeperIds);
     }
 
     protected function getImportEntityName(): string

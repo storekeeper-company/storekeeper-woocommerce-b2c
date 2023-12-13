@@ -83,7 +83,7 @@ class AttributeOptionImport extends AbstractImport implements WithConsoleProgres
      * @throws \Exception
      * @throws WordpressException
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         $this->debug('Importing Attribute option with id', $dotObject->get());
         $dotObject->set('label', $this->getTranslationIfRequired($dotObject, 'label'));
@@ -101,6 +101,8 @@ class AttributeOptionImport extends AbstractImport implements WithConsoleProgres
             $dotObject->get('image_url'),
             $dotObject->get('order', 0),
         );
+
+        return null;
     }
 
     protected function getImportEntityName(): string

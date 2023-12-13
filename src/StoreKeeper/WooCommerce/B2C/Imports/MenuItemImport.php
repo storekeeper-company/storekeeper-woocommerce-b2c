@@ -73,7 +73,7 @@ class MenuItemImport extends AbstractImport
      *
      * @throws Exception
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         $menuItemId = $dotObject->get('id');
         $menuAlias = $dotObject->get('menu.alias');
@@ -101,6 +101,8 @@ class MenuItemImport extends AbstractImport
         update_post_meta($postId, 'menu_item_storekeeper_id', $menuItemId);
 
         $this->debug('Processed menu item');
+
+        return null;
     }
 
     /**

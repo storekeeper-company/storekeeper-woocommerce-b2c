@@ -69,6 +69,38 @@ class ShippingMethodModel extends AbstractModel implements IModelPurge
         );
     }
 
+    public static function getUniqueStoreKeeperIds(array $whereClauses = [], array $whereValues = []): ?array
+    {
+        global $wpdb;
+
+        $select = static::getSelectHelper()
+            ->cols(['storekeeper_id'])
+            ->groupBy(['storekeeper_id'])
+            ->orderBy(['storekeeper_id ASC']);
+
+        if (!empty($whereValues)) {
+            $select->bindValues($whereValues);
+        }
+
+        foreach ($whereClauses as $whereClause) {
+            $select->where($whereClause);
+        }
+
+        $query = static::prepareQuery($select);
+        $results = $wpdb->get_results($query, ARRAY_N);
+
+        if (empty($results)) {
+            return null;
+        }
+
+        return array_map(
+            static function ($value) {
+                return (int) current($value);
+            },
+            $results
+        );
+    }
+
     public static function methodExists(int $storekeeperId)
     {
         return self::count(['storekeeper_id = :storekeeper_id'], ['storekeeper_id' => $storekeeperId]) > 0;

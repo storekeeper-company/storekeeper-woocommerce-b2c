@@ -95,6 +95,10 @@ msgstr "All"
 msgid "All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the Force sync button"
 msgstr "All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the \"Force sync\" button"
 
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:335
+msgid "All shipping method import"
+msgstr "All shipping method import"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:82
 msgid "All skus was generated successfully"
 msgstr "All SKU's were generated successfully"
@@ -972,6 +976,10 @@ msgstr "New"
 msgid "New products are not synced back to StoreKeeper."
 msgstr "New products are not synced back to StoreKeeper."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:526
+msgid "No extra metadata found."
+msgstr "No extra metadata found."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:272
 msgid "No sync"
 msgstr "No sync"
@@ -1530,6 +1538,26 @@ msgstr "Setting SKU for product:"
 msgid "Settings"
 msgstr "Settings"
 
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:251
+msgid "Shipping method"
+msgstr "Shipping method"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:339
+msgid "Shipping method delete"
+msgstr "Shipping method delete"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:333
+msgid "Shipping method import"
+msgstr "Shipping method import"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:468
+msgid "Shipping methods are disabled in currently selected Synchronization mode"
+msgstr "Shipping methods are disabled in currently selected Synchronization mode"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:106
+msgid "Shipping methods sync"
+msgstr "Shipping methods sync"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:269
 msgid "Shop"
 msgstr "Shop"
@@ -1824,6 +1852,14 @@ msgstr "Sync all products from Storekeeper Backoffice and making sure that it is
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceProducts.php:11
 msgid "Sync all products."
 msgstr "Sync all products."
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShippingMethods.php:26
+msgid "Sync all shipping methods from Storekeeper Backoffice to be used during checkout."
+msgstr "Sync all shipping methods from Storekeeper BackOffice to be used during checkout."
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShippingMethods.php:21
+msgid "Sync all shipping methods."
+msgstr "Sync all shipping methods."
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCategories.php:17
 msgid "Sync all tags from Storekeeper Backoffice"
@@ -2122,6 +2158,10 @@ msgstr "Upon changing runner, please make sure to remove the cron above from cro
 msgid "Upsell product sync"
 msgstr "Upsell product sync"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:471
+msgid "Use StoreKeeper shipping methods"
+msgstr "Use StoreKeeper shipping methods"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/FrontendSettingsTab.php:73
 msgid "Use image CDN if available"
 msgstr "Use image CDN if available"
@@ -2186,6 +2226,10 @@ msgstr "When checked, images will be served using StoreKeeper CDN if available (
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:419
 msgid "When checked, imported or updated products will have the backorder status set to 'Allow, but notify customer', else I will be set to 'Allow'"
 msgstr "When checked, imported or updated products will have the backorder status set to 'Allow, but notify customer', else I will be set to 'Allow'"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:476
+msgid "When checked, shipping countries and methods from your StoreKeeper backoffice are added to your WooCommerce settings and webshop's checkout"
+msgstr "When checked, shipping countries and methods from your StoreKeeper BackOffice are added to your WooCommerce settings and webshop's checkout"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:231
 msgid "With the One Time Export you can export all the data from your WooCommerce webshop to your StoreKeeper BackOffice. After completing this export you should import the files into your StoreKeeper BackOffice."
@@ -2386,6 +2430,10 @@ msgstr "redirect"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/AbstractLogsTab.php:78
 msgid "results"
 msgstr "results"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ShippingMethodImport.php:237
+msgid "shipping methods"
+msgstr "shipping methods"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:109
 msgid "tag"

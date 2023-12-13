@@ -23,7 +23,49 @@
     "data": [
       {
         "shipping_type": {
-          "id": 3,
+          "id": 2,
+          "module_name": "ShippingModule",
+          "alias": "PickupAtStore",
+          "date_created": "2023-07-03 09:54:04+02:00"
+        },
+        "configuration": {
+          "id": 1,
+          "relation_data_id": 2,
+          "group_id": 1,
+          "published": true,
+          "date_created": "2023-07-03 09:54:42+02:00",
+          "product_id": 8,
+          "is_default": true,
+          "alias": "main"
+        },
+        "shipping_method_price_strategy": {
+          "id": 1,
+          "name": "Pickup at Store",
+          "shipping_method_price_strategy_type_id": 1
+        },
+        "shipping_method_price_flat_strategy": {
+          "id": 1,
+          "currency_iso3": "EUR",
+          "ppu": 0,
+          "ppu_wt": 0,
+          "tax": 0.21,
+          "tax_rate_id": 55,
+          "shipping_method_price_strategy_id": 1
+        },
+        "id": 3,
+        "name": "Pickup at Store",
+        "enabled": true,
+        "date_created": "2023-11-23 04:06:18+01:00",
+        "shipping_type_id": 2,
+        "configuration_id": 1,
+        "needs_shipping": true,
+        "shipping_method_price_strategy_id": 1,
+        "is_system": false,
+        "object_instance_id": 165
+      },
+      {
+        "shipping_type": {
+          "id": 4,
           "module_name": "ShippingModule",
           "alias": "Parcel",
           "date_created": "2023-07-03 09:54:04+02:00"
@@ -40,7 +82,7 @@
         },
         "shipping_method_price_strategy": {
           "id": 4,
-          "name": "JNT",
+          "name": "JNT - Parcel type",
           "shipping_method_price_strategy_type_id": 1
         },
         "shipping_method_price_flat_strategy": {
@@ -50,10 +92,10 @@
           "ppu_wt": 5,
           "tax": 0.21,
           "tax_rate_id": 55,
-          "shipping_method_price_strategy_id": 4
+          "shipping_method_price_strategy_id": 5
         },
         "id": 7,
-        "name": "JNT - Updated type",
+        "name": "JNT - Parcel type",
         "enabled": true,
         "date_created": "2023-11-23 04:09:50+01:00",
         "shipping_type_id": 3,
@@ -62,14 +104,13 @@
         "shipping_method_price_strategy_id": 4,
         "is_system": false,
         "country_iso2s": [
-          "NL",
           "DE"
         ],
         "object_instance_id": 167
       }
     ],
-    "total": 1,
-    "count": 1
+    "total": 2,
+    "count": 2
   },
   "_type": "moduleFunction",
   "time_ms": 1047.0,

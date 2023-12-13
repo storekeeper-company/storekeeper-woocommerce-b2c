@@ -115,7 +115,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         return null;
     }
 
-    protected function processItem(Dot $dotObject, array $options = [])
+    protected function processItem(Dot $dotObject, array $options = []): ?int
     {
         $couponCode = self::getCouponCodeByStorekeeperId($dotObject->get('id'));
 
@@ -125,6 +125,8 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         } else {
             $this->updateCouponCode($couponCode, $dotObject);
         }
+
+        return null;
     }
 
     protected function createCouponCode(Dot $dotObject)
@@ -281,10 +283,10 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         return $wcType;
     }
 
-    protected function afterRun()
+    protected function afterRun(array $storeKeeperIds)
     {
         $this->makeMissingCouponPrivate();
-        parent::afterRun();
+        parent::afterRun($storeKeeperIds);
     }
 
     protected function makeMissingCouponPrivate(): void

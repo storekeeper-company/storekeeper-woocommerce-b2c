@@ -23,7 +23,8 @@ class ShippingMethodTest extends AbstractTest
     const UPDATE_DATADUMP_SHIPPING_METHOD = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
 
     const UPDATE_CHANGED_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedType';
-    const UPDATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedUnknownType';
+    const CREATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedUnknownType/create';
+    const UPDATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedUnknownType/update';
     const UPDATE_DISABLED_DATADUMP_DIRECTORY = 'events/shippingMethod/updateDisabled';
 
     const DELETE_DATADUMP_HOOK = 'events/hook.events.deleteShippingMethod.json';
@@ -89,7 +90,8 @@ class ShippingMethodTest extends AbstractTest
         $this->initApiConnection();
         StoreKeeperOptions::set(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'yes');
 
-        $this->createShippingMethod();
+        $this->createShippingMethod(self::CREATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY);
+        $this->assertEquals(2, ShippingMethodModel::count(), '2 shipping methods should have been created initially');
 
         $this->mockApiCallsFromDirectory(self::UPDATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY);
         $this->executeWebhook(self::UPDATE_DATADUMP_HOOK);
@@ -97,9 +99,9 @@ class ShippingMethodTest extends AbstractTest
         $this->runner->execute(ProcessAllTasks::getCommandName());
 
         $woocommerceShippingZones = \WC_Shipping_Zones::get_zones();
-        $this->assertEquals(0, ShippingMethodModel::count(), 'No shipping method entity should be left');
-        $this->assertCount(0, $woocommerceShippingZones, 'No shipping zones should be left');
-        $this->assertEquals(0, ShippingZoneModel::count(), 'No shipping zone entity should be left');
+        $this->assertEquals(1, ShippingMethodModel::count(), '1 shipping method entity should be left');
+        $this->assertCount(1, $woocommerceShippingZones, '1 shipping zones should be left');
+        $this->assertEquals(1, ShippingZoneModel::count(), '1 shipping zone entity should be left');
     }
 
     public function testUpdateDisabled()
@@ -135,9 +137,9 @@ class ShippingMethodTest extends AbstractTest
         $this->assertEquals(0, ShippingMethodModel::count(), 'No shipping method entity should be left');
     }
 
-    private function createShippingMethod()
+    private function createShippingMethod(string $createDatadumpDirectory = self::CREATE_DATADUMP_DIRECTORY)
     {
-        $this->mockApiCallsFromDirectory(self::CREATE_DATADUMP_DIRECTORY);
+        $this->mockApiCallsFromDirectory($createDatadumpDirectory);
         $this->executeWebhook(self::CREATE_DATADUMP_HOOK);
 
         $this->runner->execute(ProcessAllTasks::getCommandName());

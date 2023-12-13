@@ -245,7 +245,7 @@ abstract class AbstractProductImport extends AbstractImport
     /**
      * @throws ProductImportException
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         $ShopModule = $this->storekeeper_api->getModule('ShopModule');
 
