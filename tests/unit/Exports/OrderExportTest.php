@@ -552,7 +552,72 @@ class OrderExportTest extends AbstractOrderExportTest
         $exportTask = new OrderExport([]);
         $hasDifference = false;
         try {
-            $exportTask->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems);
+            $exportTask->checkOrderDifferenceByExtra($databaseOrderItems, $backofficeOrderItems, new \WC_Order());
+        } catch (OrderDifferenceException $exception) {
+            $hasDifference = true;
+        }
+
+        $this->assertFalse($hasDifference, 'Order items should not be tagged as has difference');
+    }
+
+    /**
+     * Test for shipping methods that have taxes after order was synchronized to backoffice.
+     *
+     * @see https://app.clickup.com/t/869370gv5
+     */
+    public function testShippingMethodsOrderDifferenceByExtra()
+    {
+        $this->initApiConnection();
+        $exportTask = new OrderExport([]);
+
+        // Replicate order data from termullondermode that was sent to backoffice
+        $wcOrder = new \WC_Order();
+        $wcOrder->set_id(27668);
+        $wcOrderItemShipping = new \WC_Order_Item_Shipping();
+        $wcOrderItemShipping->set_id(3453);
+        $wcOrderItemShipping->set_name('Gratis verzending');
+        $wcOrderItemShipping->set_method_title('Gratis verzending');
+        $wcOrderItemShipping->set_method_id('free_shipping');
+        $wcOrderItemShipping->set_instance_id('10');
+        $wcOrderItemShipping->set_total('0.00');
+        $wcOrderItemShipping->set_taxes([
+            'total' => [],
+        ]);
+        $wcOrderItemShipping->set_order_id(27668);
+        $expected = (object) [
+            'meta_id' => 30561,
+            'meta_key' => 'Artikelen',
+            'meta_value' => 'Beachlife Black Swirl triangel bikinitop zwart &times; 1, Beachlife Black Swirl strik bikinibroekje &times; 1',
+        ];
+        $wcOrderItemShipping->init_meta_data([
+            $expected,
+        ]);
+        $wcOrderItemShipping->save();
+        $wcOrder->add_item($wcOrderItemShipping);
+        $wcOrder->save();
+        $expectedOrderItemShipping = current($wcOrder->get_shipping_methods());
+
+        $expectedMd5 = md5(json_encode($expectedOrderItemShipping->get_data(), JSON_THROW_ON_ERROR));
+        $expectedOrderItems = $exportTask->getShippingOrderItems($wcOrder);
+
+        // Replicate actual data from termullondermode woocommerce
+        $updatedWcOrderItemShipping = $expectedOrderItemShipping;
+        $updatedWcOrderItemShipping->set_taxes([
+            'total' => [
+                3 => '',
+            ],
+        ]);
+        $updatedWcOrderItemShipping->save();
+
+        $actualWcOrderItemShipping = current($wcOrder->get_shipping_methods());
+        $actualMd5 = md5(json_encode($actualWcOrderItemShipping->get_data(), JSON_THROW_ON_ERROR));
+        $actualOrderItems = $exportTask->getShippingOrderItems($wcOrder);
+
+        $this->assertNotEquals($expectedMd5, $actualMd5, 'Calculated md5 should not match by default');
+
+        $hasDifference = false;
+        try {
+            $exportTask->checkOrderDifferenceByExtra($actualOrderItems, $expectedOrderItems, $wcOrder);
         } catch (OrderDifferenceException $exception) {
             $hasDifference = true;
         }

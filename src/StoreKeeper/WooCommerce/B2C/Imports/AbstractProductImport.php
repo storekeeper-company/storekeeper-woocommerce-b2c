@@ -270,7 +270,7 @@ abstract class AbstractProductImport extends AbstractImport
                 ]);
             }
 
-            return $woocommerceProductId;
+            return $shopProductId;
         } catch (ConnectException $exception) {
             // Throw the guzzle timeout exception as is
             throw $exception;
