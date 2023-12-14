@@ -9,7 +9,7 @@ class PluginStatus
     public const PORTO_FUNCTIONALITY = 'porto-functionality/porto-functionality.php';
     public const YOAST_SEO = 'wordpress-seo/wp-seo.php';
     public const RANK_MATH_SEO = 'seo-by-rank-math/rank-math.php';
-
+    public const PRODUCT_X = 'product-blocks/product-blocks.php';
     private static $plugins;
 
     private static function getPlugins()
@@ -45,6 +45,11 @@ class PluginStatus
     public static function isStoreKeeperSwatchesEnabled(): bool
     {
         return self::isEnabled(self::SK_SWATCHES);
+    }
+
+    public static function isProductXEnabled(): bool
+    {
+        return self::isEnabled(self::PRODUCT_X);
     }
 
     public static function isPortoFunctionalityEnabled(): bool

@@ -15,7 +15,7 @@ class SsoHelper
     const OPTION_ROLE_PREFIX = 'storekeeper_role';
 
     const DISABLED_SSO_ROLE = '';
-    const DEFAULT_SSO_FOR_KNOWN_ROLES = 'author'; // default is use for known roles, that are not set in settings yet.
+    const DEFAULT_SSO_FOR_KNOWN_ROLES = RoleHelper::ROLE_WEBSHOP_MANAGER; // default is use for known roles, that are not set in settings yet.
 
     const FALLBACK_SSO_ROLE_NAME = 'fallback'; // fallback is used for unknown roles.
     const ADMIN_SSO_ROLE_NAME = 'admin';
