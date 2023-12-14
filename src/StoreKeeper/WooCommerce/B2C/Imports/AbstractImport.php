@@ -228,6 +228,7 @@ abstract class AbstractImport
         }
         $last_fetched_amount = $limit; // For start should be equal to the limit
 
+        $allProcessedStoreKeeperIds = [];
         while (!$done_importing && $last_fetched_amount >= $limit) {
             $response = [];
             if (is_null($query) && is_null($language)) {
@@ -298,8 +299,11 @@ abstract class AbstractImport
                     $count = $index + 1;
                     try {
                         $dotObject = new Dot($item);
-                        $this->processItem($dotObject, $options);
+                        $storeKeeperId = $this->processItem($dotObject, $options);
 
+                        if (!is_null($storeKeeperId)) {
+                            $allProcessedStoreKeeperIds[] = $storeKeeperId;
+                        }
                         unset($dotObject);
 
                         ++$this->processedItemCount;
@@ -371,7 +375,7 @@ abstract class AbstractImport
 
         $this->debug('started after run', $fetched_total);
 
-        $this->afterRun();
+        $this->afterRun($allProcessedStoreKeeperIds);
     }
 
     public function getTranslationIfRequired(Dot $deepArray, $path, $fallback = null)
@@ -396,7 +400,7 @@ abstract class AbstractImport
      * @param $dotObject Dot
      * @param $options
      */
-    abstract protected function processItem(Dot $dotObject, array $options = []);
+    abstract protected function processItem(Dot $dotObject, array $options = []): ?int;
 
     abstract protected function getImportEntityName(): string;
 
@@ -418,7 +422,7 @@ abstract class AbstractImport
     {
     }
 
-    protected function afterRun()
+    protected function afterRun(array $storeKeeperIds)
     {
         WpCliHelper::attemptSuccessOutput(sprintf(__('Done processing %s items of %s', I18N::DOMAIN), $this->getProcessedItemCount(), $this->getImportEntityName()));
     }

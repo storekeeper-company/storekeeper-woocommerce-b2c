@@ -6,6 +6,9 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\StoreKeeperSeoPages;
+use StoreKeeper\WooCommerce\B2C\Models\ShippingZoneModel;
+use StoreKeeper\WooCommerce\B2C\Options\AbstractOptions;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 
 class BackofficeCore
@@ -31,6 +34,10 @@ class BackofficeCore
         $this->settings();
         $this->adminNotices();
         $this->metaBoxes();
+
+        if (self::isShippingMethodUsed()) {
+            $this->loader->add_action('admin_enqueue_scripts', $this, 'addShippingMethodScripts');
+        }
     }
 
     private function settings()
@@ -93,5 +100,24 @@ class BackofficeCore
             "storekeeper-style-$stylePath",
             $stylePath
         );
+    }
+
+    public function addShippingMethodScripts(): void
+    {
+        $woocommerceZoneIds = ShippingZoneModel::getWoocommerceZoneIds();
+        if (!empty($woocommerceZoneIds)) {
+            $shippingMethodHandle = AbstractOptions::PREFIX.'-shipping-method-overrides';
+            wp_enqueue_script($shippingMethodHandle, plugin_dir_url(__FILE__).'/static/shipping-methods.override.js');
+            wp_localize_script($shippingMethodHandle, 'shippingZones',
+                [
+                    'ids' => $woocommerceZoneIds,
+                ]
+            );
+        }
+    }
+
+    public static function isShippingMethodUsed(): bool
+    {
+        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'no') && StoreKeeperOptions::isShippingMethodAllowedForCurrentSyncMode();
     }
 }

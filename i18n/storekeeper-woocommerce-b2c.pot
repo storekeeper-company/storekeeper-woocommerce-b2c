@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
 "woocommerce\n"
-"POT-Creation-Date: 2023-11-17 15:55:53+00:00\n"
+"POT-Creation-Date: 2023-12-01 13:46:01+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -81,67 +81,67 @@ msgstr ""
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:76
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StatusPage.php:13
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:204
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:126
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:127
 msgid "Status"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:22
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:24
 msgid "%s sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:43
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:40
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:45
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:42
 msgid "Backoffice ID"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:46
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:43
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:48
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:45
 msgid "Last sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:51
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:48
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:56
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:53
 msgid "Open in backoffice"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:58
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:55
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:63
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:60
 msgid "Force sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:62
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:67
 msgid ""
 "All orders won't be synced automatically with your currently selected "
 "Synchronization mode, but you can do it manually using the Force sync button"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:104
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:125
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:109
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:130
 msgid "Failed to sync order"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:104
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:132
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:109
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:137
 msgid "Please try again"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:133
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:138
 msgid "Order was synced successfully."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:25
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:27
 msgid "Product synchronization"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:116
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:121
 msgid "Something went wrong while syncing product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:123
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:128
 msgid "Product was synced successfully."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:132
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:137
 msgid "Failed to sync product"
 msgstr ""
 
@@ -313,7 +313,7 @@ msgid "%s of %s"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/AbstractLogsTab.php:113
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:116
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:117
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:40
 msgid "Date"
 msgstr ""
@@ -323,7 +323,7 @@ msgid "Apply to all"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:49
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:176
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:179
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportSettingsTab.php:66
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/FrontendSettingsTab.php:38
 msgid "Save settings"
@@ -341,205 +341,220 @@ msgstr ""
 msgid "Backoffice %s role"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:66
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:68
 msgid "Currently connected to"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:69
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:71
 msgid "Disconnect"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:84
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:86
 msgid "Backoffice connection"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:87
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:89
 msgid "Connect to StoreKeeper"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:96
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:98
 msgid "Backoffice API key"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:100
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:102
 msgid "Steps"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:104
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:106
 msgid "Copy the \"Backoffice API Key\" from the text area."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:105
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:107
 msgid "Log into your admin environment"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:106
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:108
 msgid ""
 "Navigate to settings > technical settings and click on the \"webhook\" tab."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:107
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:109
 msgid ""
 "Paste your api key into the field that says \"Api key\" and click connect."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:108
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:110
 msgid "Once done, you should reload this page and you will be fully connected."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:126
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:128
 msgid "Sync statistics"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:129
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:131
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:73
 msgid "Tasks in queue"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:132
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:134
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:76
 msgid " (new: %s p/h, processing rate: %s p/h)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:142
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:144
 msgid "Webhooks log count"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:147
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:149
 msgid "Last task processed"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:152
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:154
 msgid "Last webhook received"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:164
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:166
 msgid "Synchronization settings"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:194
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:197
 msgid "No tasks processed (successfully) yet, but the cron is running"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:197
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:200
 msgid "Never, please check the \"cron tab\" notice."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:204
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:207
 msgid "Never"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:302
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:80
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:332
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:84
 msgid "Full sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:303
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:333
 msgid "Order only"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:304
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:334
 msgid "Products only"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:305
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:335
 msgid "No sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:307
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:337
 msgid ""
 "Products, categories, labels/tags, attributes with options, coupons, orders "
 "and customers are being synced"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:311
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:341
 msgid ""
 "Orders and customers are being exported, order status and product stock with "
 "matching skus are being imports"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:315
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:345
 msgid ""
 "Products, categories, labels/tags, attributes with options, and coupons are "
 "being synced"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:319
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:349
 msgid "Nothing will be synced"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:339
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:369
 msgid "Synchronization mode"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:355
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:385
 msgid "Storekeeper SEO handler"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:356
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:386
 msgid "Don't handle SEO"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:360
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:390
 msgid "Yoast SEO handler"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:364
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:394
 msgid "Rank Math SEO handler"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:368
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:398
 msgid "SEO handler"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:382
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:412
 msgid "Barcode meta key"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:390
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:420
 msgid ""
 "Changing this settings allows to use various EAN, barcode plugins. After "
 "changing this setting all products need to be synchronized again."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:402
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:432
 msgid "Order sync from date"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:406
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:436
 msgid ""
 "Order created before the date set will not be synchronized to backoffice."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:418
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:448
 msgid "Payments are disabled in currently selected Synchronization mode"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:421
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:451
 msgid "Activate StoreKeeper payments"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:426
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:456
 msgid ""
 "When checked, active webshop payment methods from your StoreKeeper "
 "backoffice are added to your webshop's checkout"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:437
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:468
+msgid ""
+"Shipping methods are disabled in currently selected Synchronization mode"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:471
+msgid "Use StoreKeeper shipping methods"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:476
+msgid ""
+"When checked, shipping countries and methods from your StoreKeeper "
+"backoffice are added to your WooCommerce settings and webshop's checkout"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:487
 msgid "Import category description as HTML"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:441
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:491
 msgid ""
 "It will import the category descriptions as html, otherwise plain text. It "
 "requires a theme support for rendering it correctly."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:452
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:502
 msgid "Notify when backorderable"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:456
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:506
 msgid ""
 "When checked, imported or updated products will have the backorder status "
 "set to 'Allow, but notify customer', else I will be set to 'Allow'"
@@ -1126,117 +1141,121 @@ msgstr ""
 msgid "The %s table was set to Engine=InnoDB."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:82
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:86
 msgid "Shop info sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:84
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:88
 msgid "Coupon code sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:86
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:90
 msgid "Categories sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:88
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:92
 msgid "Tags/labels sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:90
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:94
 msgid "Attributes sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:92
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:96
 msgid "Featured attributes sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:94
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:98
 msgid "Attribute options sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:96
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:100
 msgid "Products sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:98
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:102
 msgid "Upsell product sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:100
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:104
 msgid "Cross sell product sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:118
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:106
+msgid "Shipping methods sync"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:124
 msgid ""
 "Some synchronizations can take up to 24 hours to complete, leave the page "
 "open until its done."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:125
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:131
 msgid "Sync controls"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:127
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:133
 msgid "Start sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:159
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:167
 msgid "Executing %s."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:160
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:168
 msgid ""
 "This can take up to 24 hours depending of your data, please do not close the "
 "tab."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:168
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:176
 msgid "Done executing %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:173
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:181
 msgid "%s successful"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:107
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:108
 msgid "ID"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:111
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:112
 msgid "Message"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:122
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:123
 msgid "Log type"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:131
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:132
 msgid "Times ran"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:135
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:136
 msgid "Action"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:189
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:190
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:405
 msgid "Retry"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:190
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:191
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:406
 msgid "Mark as success"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:260
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:261
 msgid "Error reference"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:264
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:265
 msgid "Extra metadata"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:269
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:270
 msgid "Shop"
 msgstr ""
 
@@ -1274,6 +1293,10 @@ msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:402
 msgid "Select action"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:526
+msgid "No extra metadata found."
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:20
@@ -1891,6 +1914,16 @@ msgid ""
 "counts the total amount of products by checking the Storekeeper Backoffice"
 msgstr ""
 
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShippingMethods.php:21
+msgid "Sync all shipping methods."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShippingMethods.php:26
+msgid ""
+"Sync all shipping methods from Storekeeper Backoffice to be used during "
+"checkout."
+msgstr ""
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShopInfo.php:14
 msgid "Sync shop details."
 msgstr ""
@@ -1932,11 +1965,11 @@ msgstr ""
 msgid "upsell products"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:214
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:220
 msgid "%s: You need to have WooCommerce installed for this add-on to work"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:310
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:316
 msgid ""
 "Your WooCommerce version (%s) is lower then the minimum required %s which "
 "could cause unexpected behaviour"
@@ -2012,24 +2045,20 @@ msgid ""
 "manually."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:115
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:120
 msgid "Customer Email"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:117
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:122
 msgid "Customer phone number"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:779
-msgid "Order with this order number already exists."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:913
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:931
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:269
 msgid "Refund via Wordpress plugin (Refund #%s)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1029
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1046
 msgid "Wordpress plugin"
 msgstr ""
 
@@ -2105,23 +2134,23 @@ msgstr ""
 msgid "An error occurred!"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:69
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:78
 msgid "minutes"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:72
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:81
 msgid "hours"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:75
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:84
 msgid "days"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:78
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:87
 msgid "months"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:80
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:89
 msgid "years"
 msgstr ""
 
@@ -2296,6 +2325,10 @@ msgstr ""
 msgid "redirect"
 msgstr ""
 
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ShippingMethodImport.php:237
+msgid "shipping methods"
+msgstr ""
+
 #: src/StoreKeeper/WooCommerce/B2C/Options/CronOptions.php:97
 msgid "Successfully processing tasks"
 msgstr ""
@@ -2308,7 +2341,7 @@ msgstr ""
 msgid "Processing tasks does not execute correctly"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Options/StoreKeeperOptions.php:101
+#: src/StoreKeeper/WooCommerce/B2C/Options/StoreKeeperOptions.php:107
 msgid "Default (%s)"
 msgstr ""
 
@@ -2406,155 +2439,171 @@ msgstr ""
 msgid "Unable to set php configuration option %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:127
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:133
 msgid "New"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:129
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:135
 msgid "Processing"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:131
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:137
 msgid "Success"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:133
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:139
 msgid "Failed"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:222
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:231
 msgid "Product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:224
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:233
 msgid "Category"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:226
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:235
 msgid "Product stock"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:228
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:237
 msgid "Tag"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:230
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:239
 msgid "Coupon code"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:232
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:241
 msgid "Menu item"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:234
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:243
 msgid "Redirect"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:236
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:245
 msgid "Order"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:238
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:303
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:247
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:314
 msgid "Trigger variation save actions"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:240
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:306
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:249
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:317
 msgid "Parent product recalculation"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:242
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:321
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:251
+msgid "Shipping method"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:253
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:342
 msgid "Report error"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:244
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:255
 msgid "Other"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:252
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:263
 msgid "Full import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:255
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:266
 msgid "Attribute import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:258
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:269
 msgid "Category import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:261
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:272
 msgid "Product import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:264
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:275
 msgid "Product update"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:267
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:278
 msgid "Product stock update"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:270
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:281
 msgid "Tag import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:273
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:284
 msgid "Coupon code import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:276
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:287
 msgid "Order export"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:279
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:290
 msgid "Order import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:282
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:293
 msgid "Delete category"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:296
 msgid "Delete product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:288
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:299
 msgid "Deactiveer product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:291
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:302
 msgid "Activeer product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:294
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:305
 msgid "Delete tag"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:297
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:308
 msgid "Delete order"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:300
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:311
 msgid "Delete coupon code"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:309
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:320
 msgid "Menu item import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:312
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:323
 msgid "Menu item delete"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:315
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:326
 msgid "Redirect import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:329
 msgid "Redirect delete"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:333
+msgid "Shipping method import"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:335
+msgid "All shipping method import"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:339
+msgid "Shipping method delete"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:33

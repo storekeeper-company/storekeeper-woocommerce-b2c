@@ -18,6 +18,7 @@ class StoreKeeperOptions extends AbstractOptions
     public const MAIN_CATEGORY_ID = 'main-category-id';
     public const NOTIFY_ON_BACKORDER = 'notify-on-backorder';
     public const PAYMENT_GATEWAY_ACTIVATED = 'payment-gateway-activated';
+    public const SHIPPING_METHOD_ACTIVATED = 'shipping-method-activated';
     public const CATEGORY_DESCRIPTION_HTML = 'category-description-html';
     public const SYNC_MODE = 'sync-mode';
     public const INSTALLED_VERSION = 'installed-version';
@@ -42,6 +43,11 @@ class StoreKeeperOptions extends AbstractOptions
     ];
 
     public const MODES_WITH_PAYMENTS = [
+        StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
+        StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
+    ];
+
+    public const MODES_WITH_SHIPPING_METHODS = [
         StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
         StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,
     ];
@@ -166,6 +172,11 @@ class StoreKeeperOptions extends AbstractOptions
     public static function isPaymentSyncEnabled(): bool
     {
         return in_array(self::getSyncMode(), self::MODES_WITH_PAYMENTS, true);
+    }
+
+    public static function isShippingMethodAllowedForCurrentSyncMode(): bool
+    {
+        return in_array(self::getSyncMode(), self::MODES_WITH_SHIPPING_METHODS, true);
     }
 
     public static function isImageCdnEnabled(): bool

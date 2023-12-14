@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks;
 
 use DateTime;
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
@@ -284,6 +285,12 @@ class InfoHandler
             'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes')
         ) {
             $activeCapabilities[] = 'b2s_payment_method';
+        }
+
+        if (
+            BackofficeCore::isShippingMethodUsed()
+        ) {
+            $activeCapabilities[] = 'b2s_shipping_method';
         }
 
         $activeCapabilities[] = 's2b_image_variants';

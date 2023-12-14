@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\OverlayRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
@@ -18,6 +19,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFullSync;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProductPage;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShippingMethods;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShopInfo;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceTags;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProductPage;
@@ -44,6 +46,7 @@ class SynCheckTab extends AbstractTab
     const PRODUCTS_TYPE = 'products';
     const UP_SELL_PRODUCTS_TYPE = 'up-sell-products';
     const CROSS_SELL_PRODUCTS_TYPE = 'cross-sell-products';
+    const SHIPPING_METHODS_TYPE = 'shipping-methods';
 
     const SYNC_TYPES = [
         self::FULL_TYPE => SyncWoocommerceFullSync::class,
@@ -57,6 +60,7 @@ class SynCheckTab extends AbstractTab
         self::PRODUCTS_TYPE => SyncWoocommerceProducts::class,
         self::UP_SELL_PRODUCTS_TYPE => SyncWoocommerceUpsellProducts::class,
         self::CROSS_SELL_PRODUCTS_TYPE => SyncWoocommerceCrossSellProducts::class,
+        self::SHIPPING_METHODS_TYPE => SyncWoocommerceShippingMethods::class,
     ];
 
     const OTHER_COMMANDS = [
@@ -98,6 +102,8 @@ class SynCheckTab extends AbstractTab
                 return __('Upsell product sync', I18N::DOMAIN);
             case self::CROSS_SELL_PRODUCTS_TYPE:
                 return __('Cross sell product sync', I18N::DOMAIN);
+            case self::SHIPPING_METHODS_TYPE:
+                return __('Shipping methods sync', I18N::DOMAIN);
             default:
                 return $type;
         }
@@ -126,15 +132,17 @@ class SynCheckTab extends AbstractTab
 
         $startSync = __('Start sync', I18N::DOMAIN);
         foreach (self::SYNC_TYPES as $type => $class) {
-            $url = add_query_arg(
-                'type',
-                $type,
-                $this->getActionUrl(self::SYNC_ACTION)
-            );
-            $this->renderFormGroup(
-                $this->getTypeLabel($type),
-                $this->getFormLink($url, $startSync, 'button')
-            );
+            if (self::SHIPPING_METHODS_TYPE !== $type || BackofficeCore::isShippingMethodUsed()) {
+                $url = add_query_arg(
+                    'type',
+                    $type,
+                    $this->getActionUrl(self::SYNC_ACTION)
+                );
+                $this->renderFormGroup(
+                    $this->getTypeLabel($type),
+                    $this->getFormLink($url, $startSync, 'button')
+                );
+            }
         }
 
         $this->renderFormEnd();

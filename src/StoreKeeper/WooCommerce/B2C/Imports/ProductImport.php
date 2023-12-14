@@ -1465,7 +1465,7 @@ SQL;
         return $props;
     }
 
-    protected function afterRun()
+    protected function afterRun(array $storeKeeperIds)
     {
         $data = [];
         if (

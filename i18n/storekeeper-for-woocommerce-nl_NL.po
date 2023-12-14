@@ -5,7 +5,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: lokalise.com\n"
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2023-11-17 17:00\n"
+"PO-Revision-Date: 2023-12-13 17:29\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n\n"
 "Language: nl_NL\n"
@@ -94,6 +94,10 @@ msgstr "Alle"
 msgid "All orders won't be synced automatically with your currently selected Synchronization mode, but you can do it manually using the Force sync button"
 msgstr "Alle bestellingen worden niet automatisch gesynchroniseerd met de Synchronisatiemodus die je op dat moment hebt geselecteerd, maar je kunt dit handmatig doen met de knop \"Synchronisatie forceren\""
 
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:335
+msgid "All shipping method import"
+msgstr "Alle verzendmethoden importeren"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:82
 msgid "All skus was generated successfully"
 msgstr "Alle SKU's zijn succesvol gegenereerd"
@@ -150,6 +154,10 @@ msgstr "Kenmerken synchroniseren"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:77
 msgid "Back to export"
 msgstr "Terug naar export"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:273
+msgid "Backoffice"
+msgstr "BackOffice"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:150
 msgid "Backoffice %s role"
@@ -495,6 +503,10 @@ msgstr "Engels"
 msgid "Enter message or back reference/post/task ID"
 msgstr "Voer bericht- of terugverwijzing/post/taak-ID in"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:260
+msgid "Error reference"
+msgstr "Error foutcode"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:67
 msgid "Error:"
 msgstr "Error:"
@@ -590,6 +602,10 @@ msgstr "Producten exporteren"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:119
 msgid "Export tags"
 msgstr "Tags exporteren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:264
+msgid "Extra metadata"
+msgstr "Extra meta data"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:130
 msgid "Failed"
@@ -927,6 +943,10 @@ msgstr "Nieuw"
 msgid "New products are not synced back to StoreKeeper."
 msgstr "Nieuwe producten worden niet terug gesynchroniseerd naar StoreKeeper."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:526
+msgid "No extra metadata found."
+msgstr "Geen extra metadata gevonden."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:272
 msgid "No sync"
 msgstr "Geen synch"
@@ -1009,9 +1029,9 @@ msgstr "Alleen bestellingen"
 msgid "Order sync from date"
 msgstr "Bestelling synchroniseren vanaf datum"
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:702
-msgid "Order with this order number already exists."
-msgstr "Bestelling met dit bestelnummer bestaat al."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:133
+msgid "Order was synced successfully."
+msgstr "Bestelling was succesvol gesynchroniseerd"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/DashboardTab.php:28
 msgid "Orders & customers synced"
@@ -1471,6 +1491,30 @@ msgstr "SKU instellen voor product:"
 msgid "Settings"
 msgstr "Instellingen"
 
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:251
+msgid "Shipping method"
+msgstr "Verzendmethode"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:339
+msgid "Shipping method delete"
+msgstr "Verzendmethode verwijderen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:333
+msgid "Shipping method import"
+msgstr "Verzendmethode importeren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:468
+msgid "Shipping methods are disabled in currently selected Synchronization mode"
+msgstr "Verzendmethoden zijn uitgeschakeld in de huidige geselecteerde synchronisatiemodus"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:106
+msgid "Shipping methods sync"
+msgstr "Verzendmethoden sync"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:269
+msgid "Shop"
+msgstr "Shop"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SynCheckTab.php:82
 msgid "Shop info sync"
 msgstr "Winkel info sync"
@@ -1757,6 +1801,14 @@ msgstr "Synchroniseer alle producten vanuit Storekeeper Backoffice en zorg ervoo
 msgid "Sync all products."
 msgstr "Synchroniseer alle producten."
 
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShippingMethods.php:26
+msgid "Sync all shipping methods from Storekeeper Backoffice to be used during checkout."
+msgstr "Synchroniseer alle verzendmethoden vanuit Storekeeper BackOffice om te gebruiken bij het afrekenen."
+
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShippingMethods.php:21
+msgid "Sync all shipping methods."
+msgstr "Synchroniseer alle verzendmethoden."
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCategories.php:17
 msgid "Sync all tags from Storekeeper Backoffice"
 msgstr "Alle tags synchroniseren vanuit Storekeeper BackOffice"
@@ -2033,6 +2085,10 @@ msgstr "Zorg er bij het veranderen van runner voor dat je de bovenstaande cron v
 msgid "Upsell product sync"
 msgstr "Upsell productsync"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:471
+msgid "Use StoreKeeper shipping methods"
+msgstr "Gebruik StoreKeeper verzendmethoden"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/FrontendSettingsTab.php:73
 msgid "Use image CDN if available"
 msgstr "Gebruik image CDN indien beschikbaar"
@@ -2088,6 +2144,10 @@ msgstr "Als deze optie is aangevinkt, worden afbeeldingen aangeboden via StoreKe
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:419
 msgid "When checked, imported or updated products will have the backorder status set to 'Allow, but notify customer', else I will be set to 'Allow'"
 msgstr "Als deze optie is aangevinkt, wordt bij geïmporteerde of bijgewerkte producten de nabestelstatus ingesteld op 'Toestaan, maar breng de klant op de hoogte', anders wordt deze ingesteld op 'Toestaan'."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:476
+msgid "When checked, shipping countries and methods from your StoreKeeper backoffice are added to your WooCommerce settings and webshop's checkout"
+msgstr "Wanneer deze optie is aangevinkt, worden verzendlanden en -methoden uit je StoreKeeper BackOffice toegevoegd aan je WooCommerce instellingen en de checkout van je webshop"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:231
 msgid "With the One Time Export you can export all the data from your WooCommerce webshop to your StoreKeeper BackOffice. After completing this export you should import the files into your StoreKeeper BackOffice."
@@ -2285,6 +2345,10 @@ msgstr "redirect"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/AbstractLogsTab.php:78
 msgid "results"
 msgstr "resultaten"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ShippingMethodImport.php:237
+msgid "shipping methods"
+msgstr "Verzendmethoden"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:109
 msgid "tag"

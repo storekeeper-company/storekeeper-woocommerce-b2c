@@ -245,7 +245,7 @@ abstract class AbstractProductImport extends AbstractImport
     /**
      * @throws ProductImportException
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         $ShopModule = $this->storekeeper_api->getModule('ShopModule');
 
@@ -270,7 +270,7 @@ abstract class AbstractProductImport extends AbstractImport
                 ]);
             }
 
-            return $woocommerceProductId;
+            return $shopProductId;
         } catch (ConnectException $exception) {
             // Throw the guzzle timeout exception as is
             throw $exception;

@@ -197,7 +197,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         }
     }
 
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         $this->debug('Processing category', $dotObject->get());
 
@@ -281,7 +281,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
             if (!$dotObject->get('published')) {
                 Categories::deleteCategoryByTermId($term->term_id);
 
-                return;
+                return null;
             }
 
             // Update
@@ -329,6 +329,8 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
                 }
             }
         }
+
+        return null;
     }
 
     /**

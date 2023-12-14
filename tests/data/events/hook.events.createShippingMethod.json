@@ -1,0 +1,48 @@
+{
+    "success": true,
+    "call_id": "6568be0f7277c",
+    "request": {
+        "headers": {
+            "host": [
+                "stirred-snipe-certainly.ngrok-free.app"
+            ],
+            "user_agent": [
+                "GuzzleHttp\/7"
+            ],
+            "content_length": [
+                "197"
+            ],
+            "content_type": [
+                "application\/json"
+            ],
+            "upxhooktoken": [
+                "4e6f77b94ab1d269aaacb937922c8943e5af33cfe0ece8848ae0778bb7819760"
+            ],
+            "x_forwarded_for": [
+                "2a01:4f9:5a:1c8a::2"
+            ],
+            "x_forwarded_host": [
+                "stirred-snipe-certainly.ngrok-free.app"
+            ],
+            "x_forwarded_proto": [
+                "https"
+            ],
+            "accept_encoding": [
+                "gzip"
+            ]
+        },
+        "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2023-11-30 17:53:31+01\",\"backref\":\"ShippingModule::ShippingMethod(id=7)\",\"events\":{\"192\":{\"id\":192,\"event\":\"created\",\"date\":\"2023-11-30 17:53:31+01\"}}}}",
+        "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+        "method": "POST",
+        "query_params": {
+            "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+        },
+        "file_params": []
+    },
+    "hook_action": "events",
+    "return": true,
+    "_type": "hook",
+    "time_ms": 990.0,
+    "_version": "1.0",
+    "_timestamp": "2023-11-30T16:53:36+00:00"
+}

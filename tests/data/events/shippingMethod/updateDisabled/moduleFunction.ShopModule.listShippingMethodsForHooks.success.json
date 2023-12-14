@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "call_id": "5e79a1f00b651",
+  "module_name": "ShopModule",
+  "function": "listShippingMethodsForHooks",
+  "params": [
+    0,
+    100,
+    [
+      {
+        "name": "id",
+        "dir": "asc"
+      }
+    ],
+    [
+      {
+        "name": "is_system__=",
+        "val": "0"
+      }
+    ]
+  ],
+  "return": {
+    "data": [],
+    "total": 0,
+    "count": 0
+  },
+  "_type": "moduleFunction",
+  "time_ms": 1047.0,
+  "_version": "1.0",
+  "_timestamp": "2020-03-24T06:00:17+00:00"
+}

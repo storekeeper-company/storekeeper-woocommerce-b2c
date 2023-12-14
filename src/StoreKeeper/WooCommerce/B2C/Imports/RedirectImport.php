@@ -70,7 +70,7 @@ class RedirectImport extends AbstractImport
      *
      * @throws \Exception
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         // Get the needed parameters from the deep object item
         $to_url = $dotObject->get('to_url');
@@ -83,6 +83,8 @@ class RedirectImport extends AbstractImport
         RedirectHandler::registerRedirect($this->storekeeper_id, $from_url, $to_url, $status_code);
 
         $this->debug("Imported redirect from $from_url to $to_url");
+
+        return null;
     }
 
     protected function getImportEntityName(): string

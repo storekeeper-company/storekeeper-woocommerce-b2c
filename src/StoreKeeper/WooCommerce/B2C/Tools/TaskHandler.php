@@ -31,6 +31,8 @@ use StoreKeeper\WooCommerce\B2C\Tasks\ProductStockUpdateTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductUpdateImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\RedirectDeleteTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\RedirectImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ShippingMethodDeleteTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\ShippingMethodImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TagDeleteTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TagImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TriggerVariationSaveActionTask;
@@ -70,6 +72,8 @@ class TaskHandler
     const ORDERS_EXPORT = 'orders-export';
     const ORDERS_IMPORT = 'orders-import';
     const ORDERS_DELETE = 'orders-delete';
+    const SHIPPING_METHOD_IMPORT = 'shipping-method-import';
+    const SHIPPING_METHOD_DELETE = 'shipping-method-delete';
 
     const STATUS_NEW = 'status-new';
     const STATUS_PROCESSING = 'status-processing';
@@ -99,6 +103,7 @@ class TaskHandler
     const ORDER_TYPE_GROUP = 'order';
     const TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP = 'trigger-variation-save-action';
     const PARENT_PRODUCT_RECALCULATION_TYPE_GROUP = 'parent-product-recalculation';
+    const SHIPPING_METHOD_GROUP = 'shipping-method';
     const REPORT_ERROR_TYPE_GROUP = 'report-error';
 
     const TYPE_GROUPS = [
@@ -113,6 +118,7 @@ class TaskHandler
         self::ORDER_TYPE_GROUP,
         self::TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP,
         self::PARENT_PRODUCT_RECALCULATION_TYPE_GROUP,
+        self::SHIPPING_METHOD_GROUP,
         self::REPORT_ERROR_TYPE_GROUP,
     ];
 
@@ -208,6 +214,9 @@ class TaskHandler
             case self::REDIRECT_IMPORT:
             case self::REDIRECT_DELETE:
                 return self::REDIRECT_TYPE_GROUP;
+            case self::SHIPPING_METHOD_IMPORT:
+            case self::SHIPPING_METHOD_DELETE:
+                return self::SHIPPING_METHOD_GROUP;
             case self::REPORT_ERROR:
                 return self::REPORT_ERROR_TYPE_GROUP;
             default:
@@ -238,6 +247,8 @@ class TaskHandler
                 return __('Trigger variation save actions', I18N::DOMAIN);
             case self::PARENT_PRODUCT_RECALCULATION_TYPE_GROUP:
                 return __('Parent product recalculation', I18N::DOMAIN);
+            case self::SHIPPING_METHOD_GROUP:
+                return __('Shipping method', I18N::DOMAIN);
             case self::REPORT_ERROR_TYPE_GROUP:
                 return __('Report error', I18N::DOMAIN);
             default:
@@ -316,6 +327,16 @@ class TaskHandler
                 break;
             case self::REDIRECT_DELETE:
                 $title = __('Redirect delete', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::SHIPPING_METHOD_IMPORT:
+                if ($id > 0) {
+                    $title = __('Shipping method import', I18N::DOMAIN)."(id=$id)";
+                } else {
+                    $title = __('All shipping method import', I18N::DOMAIN);
+                }
+                break;
+            case self::SHIPPING_METHOD_DELETE:
+                $title = __('Shipping method delete', I18N::DOMAIN)."(id=$id)";
                 break;
             case self::REPORT_ERROR:
                 $title = __('Report error', I18N::DOMAIN)."(task_id=$id)";
@@ -488,6 +509,12 @@ class TaskHandler
                 break;
             case self::REDIRECT_DELETE:
                 $import = new RedirectDeleteTask();
+                break;
+            case self::SHIPPING_METHOD_IMPORT:
+                $import = new ShippingMethodImportTask();
+                break;
+            case self::SHIPPING_METHOD_DELETE:
+                $import = new ShippingMethodDeleteTask();
                 break;
             case self::REPORT_ERROR:
                 return; // nothing to handle

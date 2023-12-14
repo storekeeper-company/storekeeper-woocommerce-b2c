@@ -132,7 +132,7 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
      * @throws \Exception
      * @throws WordpressException
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         $term = $this->getItem($dotObject->get('id'));
 
@@ -145,13 +145,13 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
             if (!$dotObject->get('published')) {
                 WordpressExceptionThrower::throwExceptionOnWpError(wp_delete_term($term->ID, self::WOOCOMMERCE_PRODUCT_TAG_TAXONOMY));
 
-                return;
+                return null;
             }
 
             $title = $this->getTranslationIfRequired($dotObject, 'title');
 
             if (empty(trim($title))) {
-                return;  // todo wtf?
+                return null;
             }
 
             // Update
@@ -169,7 +169,7 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
             $title = $this->getTranslationIfRequired($dotObject, 'title');
 
             if (empty(trim($title))) {
-                return;  // todo wtf?
+                return null;
             }
 
             $slug = $dotObject->get('slug', null);
@@ -190,6 +190,8 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
             $term_id = $term['term_id'];
             add_term_meta($term_id, 'storekeeper_id', $dotObject->get('id'), true);
         }
+
+        return null;
     }
 
     protected function getImportEntityName(): string

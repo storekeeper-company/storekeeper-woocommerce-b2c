@@ -1,0 +1,117 @@
+{
+    "success": true,
+    "call_id": "5e32b71fdf47e",
+    "module_name": "ShopModule",
+    "function": "getShopWithRelation",
+    "params": [],
+    "return": {
+        "id": 13638,
+        "configuration_id": 1,
+        "site_id": 8470,
+        "category_id": 2,
+        "is_default": false,
+        "date_created": "2020-01-14 15:57:08+01:00",
+        "date_updated": "2020-01-14 15:57:08+01:00",
+        "alias": "5e1dd6c4-0347-47b7-8007-daa041b5b873",
+        "relation_data_id": 2,
+        "published": true,
+        "hook_id": 742,
+        "name": "luki docker",
+        "shop_type_id": 7,
+        "order_prefix": "S16",
+        "deleted": false,
+        "address_id": 55977,
+        "relation_data": {
+            "business_data": {
+                "id": 2,
+                "date_created": "2018-08-22 18:03:02+02:00",
+                "deleted": false,
+                "vat_number": "NL852760000B01",
+                "coc_number": "57841810\/0000",
+                "name": "StoreKeeper Dev",
+                "vat_validated": false,
+                "country_iso2": "NL",
+                "date_updated": "2020-01-27 06:57:23+01:00",
+                "logo_url": "\/download\/public\/lukishop\/FileModule\/lukishop\/main\/b1afd9cf-fe10-48c7-b086-d178b93d6b38.png?img_w=1377&img_h=420&",
+                "legal_form": "Besloten vennootschap (Private limited Company)",
+                "logo_black_white_url": "https:\/\/api-myawesomeshop.storekeepercloud.com\/download\/public\/lukishop\/FileModule\/lukishop\/main\/grijs_op_wit_2__lxx.png?img_w=1032&img_h=501&",
+                "relation_data_id": 2
+            },
+            "contact_set": {
+                "id": 2,
+                "relation_data_id": 2,
+                "date_created": "2018-08-22 18:03:02+02:00",
+                "deleted": false,
+                "email": "hello@storekeeper.nl",
+                "phone": "06 123 456 78",
+                "date_updated": "2018-11-05 17:15:42+01:00"
+            },
+            "contact_address": {
+                "id": 55977,
+                "relation_data_id": 2,
+                "date_created": "2020-01-14 15:57:10+01:00",
+                "deleted": false,
+                "date_updated": "2020-01-14 15:57:10+01:00",
+                "country_iso2": "NL",
+                "published": false
+            },
+            "address_billing": {
+                "id": 55977,
+                "relation_data_id": 2,
+                "date_created": "2020-01-14 15:57:10+01:00",
+                "deleted": false,
+                "date_updated": "2020-01-14 15:57:10+01:00",
+                "country_iso2": "NL",
+                "published": false
+            },
+            "contact_person": {
+                "id": 2,
+                "relation_data_id": 2,
+                "date_created": "2018-08-22 18:03:02+02:00",
+                "deleted": false,
+                "ismale": true,
+                "date_updated": "2018-08-22 18:03:02+02:00"
+            },
+            "subaccount": {
+                "id": 2,
+                "name": "lukishop",
+                "active": true
+            },
+            "bank_number": {
+                "id": 2,
+                "relation_data_id": 2,
+                "number": "",
+                "bank_number_type_id": 1,
+                "date_updated": "2018-08-22 18:03:02+02:00",
+                "bank_number_type": {
+                    "id": 1,
+                    "alias": "other",
+                    "module_name": "RelationsModule",
+                    "date_created": "2018-08-22 16:20:12+02:00"
+                }
+            },
+            "id": 2,
+            "isprivate": false,
+            "business_data_id": 2,
+            "address_id": 2,
+            "person_id": 2,
+            "contact_set_id": 2,
+            "deleted": false,
+            "subaccount_id": 2,
+            "system": false,
+            "name": "StoreKeeper Dev",
+            "shortname": "lukishop",
+            "date_created": "2018-08-22 18:03:02+02:00",
+            "parent_id": 1,
+            "bank_number_id": 2,
+            "description": "Hey",
+            "address_billing_id": 22628,
+            "image_url": "\/download\/public\/lukishop\/FileModule\/lukishop\/main\/b1afd9cf-fe10-48c7-b086-d178b93d6b38.png?img_w=1377&img_h=420&",
+            "object_instance_id": 5
+        }
+    },
+    "_type": "moduleFunction",
+    "time_ms": 721.0,
+    "_version": "1.0",
+    "_timestamp": "2020-01-30T10:59:44+00:00"
+}

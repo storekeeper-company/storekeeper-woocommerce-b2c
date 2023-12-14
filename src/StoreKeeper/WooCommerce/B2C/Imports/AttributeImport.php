@@ -65,7 +65,7 @@ class AttributeImport extends AbstractImport implements WithConsoleProgressBarIn
         return $f;
     }
 
-    protected function processItem(Dot $dotObject, array $options = [])
+    protected function processItem(Dot $dotObject, array $options = []): ?int
     {
         $title = $this->getTranslationIfRequired($dotObject, 'label');
         $dotObject->set('label', $title);
@@ -75,6 +75,8 @@ class AttributeImport extends AbstractImport implements WithConsoleProgressBarIn
             $dotObject->get('name'),
             $dotObject->get('label')
         );
+
+        return null;
     }
 
     protected function getImportEntityName(): string

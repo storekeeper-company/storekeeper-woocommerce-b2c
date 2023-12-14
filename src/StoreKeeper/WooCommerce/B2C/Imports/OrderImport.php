@@ -60,7 +60,7 @@ class OrderImport extends AbstractImport
      * @throws Exception
      * @throws NonExistentObjectException
      */
-    protected function processItem($dotObject, array $options = [])
+    protected function processItem($dotObject, array $options = []): ?int
     {
         global $storekeeper_ignore_order_id;
         $order = $this->getItem($this->storekeeper_id);
@@ -107,6 +107,8 @@ class OrderImport extends AbstractImport
             $order->set_status('processing');
             $order->save();
         }
+
+        return null;
     }
 
     /**
