@@ -4,6 +4,8 @@ namespace StoreKeeper\WooCommerce\B2C\Options;
 
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LockTimeoutException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 class CronOptions extends AbstractOptions
@@ -15,6 +17,7 @@ class CronOptions extends AbstractOptions
     const LAST_EXECUTION_HAS_PROCESSED = 'cron-last-has-processed';
     const LAST_POST_EXECUTION_STATUS = 'cron-last-post-execution-status';
     const LAST_POST_EXECUTION_ERROR = 'cron-last-post-execution-error';
+    const LAST_POST_EXECUTION_ERROR_CLASS = 'cron-last-post-execution-error-class';
 
     const INVALID_PREFIX = 'cron-invalid-run-';
     const WPCRON_INVALID_RUN_TIMESTAMP = self::INVALID_PREFIX.CronRegistrar::RUNNER_WPCRON;
@@ -38,6 +41,7 @@ class CronOptions extends AbstractOptions
         static::delete(self::LAST_EXECUTION_HAS_PROCESSED);
         static::set(self::LAST_POST_EXECUTION_STATUS, null);
         static::delete(self::LAST_POST_EXECUTION_ERROR);
+        static::delete(self::LAST_POST_EXECUTION_ERROR_CLASS);
         static::delete(self::WPCRON_INVALID_RUN_TIMESTAMP);
         static::delete(self::CLI_INVALID_RUN_TIMESTAMP);
         static::delete(self::API_INVALID_RUN_TIMESTAMP);
@@ -60,14 +64,20 @@ class CronOptions extends AbstractOptions
 
     public static function updateFailedExecution(\Throwable $throwable): void
     {
-        self::set(self::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_FAILED);
-        self::set(self::LAST_POST_EXECUTION_ERROR, $throwable->getMessage());
+        if( $throwable instanceof LockTimeoutException ){
+            // do not save the lock exceptions as failed
+        } else {
+            self::set(self::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_FAILED);
+            self::set(self::LAST_POST_EXECUTION_ERROR, $throwable->getMessage());
+            self::set(self::LAST_POST_EXECUTION_ERROR_CLASS, get_class($throwable));
+        }
     }
 
     public static function updateSuccessfulExecution(): void
     {
         self::set(self::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_SUCCESS);
         self::delete(self::LAST_POST_EXECUTION_ERROR);
+        self::delete(self::LAST_POST_EXECUTION_ERROR_CLASS);
     }
 
     public static function getInvalidRunners(): array
