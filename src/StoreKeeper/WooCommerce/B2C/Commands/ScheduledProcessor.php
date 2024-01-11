@@ -13,6 +13,10 @@ class ScheduledProcessor extends ProcessAllTasks
         return parent::getLongDescription().__(' This is used for cron and has cron checks so you should execute wp sk process-all-tasks instead.', I18N::DOMAIN);
     }
 
+    protected function getLockClass(): string
+    {
+        return ProcessAllTasks::class;
+    }
     /**
      * {@inheritDoc}
      */

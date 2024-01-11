@@ -54,8 +54,12 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
      */
     public function lock(): bool
     {
-        $this->lock = new MySqlLock(get_class($this));
+        $lockClass = $this->getLockClass();
+        $this->lock = new MySqlLock($lockClass);
 
+        $this->logger->debug("Trying to lock command", [
+            'lockClass' => $lockClass
+        ]);
         return $this->lock->lock();
     }
 
@@ -176,5 +180,10 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
         }
 
         $this->endProgressBar();
+    }
+
+    protected function getLockClass(): string
+    {
+        return get_class($this);
     }
 }
