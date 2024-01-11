@@ -49,7 +49,7 @@ class MySqlLock implements LockInterface
 
         $result = $statement->get_result();
         if( $result === false ){
-
+            throw new \Exception("Failed to get lock: ($statement->error) $statement->error");
         }
         $row = $result->fetch_row();
         if (1 === $row[0]) {
