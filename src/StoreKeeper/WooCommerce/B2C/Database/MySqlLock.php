@@ -10,25 +10,15 @@ class MySqlLock implements LockInterface
 {
     public static $database;
 
-    /**
-     * @var string
-     */
-    protected $lock;
-
-    /**
-     * @var int
-     */
-    private $timeout;
-    private $isLocked = false;
+    protected string $lock;
+    protected string $hashedLock;
+    private int $timeout;
+    private bool $isLocked = false;
 
     public function __construct(string $lock, int $timeout = 15)
     {
-        if (\strlen($lock) > 64) {
-            $lock = hash('sha256', $lock);
-            $lock = 'sha256_'.substr($lock, 0, -8);
-        }
-
         $this->lock = $lock;
+        $this->hashedLock = 'sha256_'.hash('sha256', $lock);
         $this->timeout = $timeout;
     }
 
@@ -53,7 +43,7 @@ class MySqlLock implements LockInterface
 
         $database = $this->getDatabase()->getConnection();
         $statement = $database->prepare('SELECT GET_LOCK(?,?)');
-        $statement->bind_param('si', $this->lock, $this->timeout);
+        $statement->bind_param('si', $this->hashedLock, $this->timeout);
         $statement->execute();
 
         $result = $statement->get_result();
@@ -71,10 +61,10 @@ class MySqlLock implements LockInterface
             /*
              *  NULL if an error occurred (such as running out of memory or the thread was killed with mysqladmin kill).
              */
-            throw new LockException('An error occurred while acquiring the lock');
+            throw new LockException("An error occurred while acquiring the lock ($this->lock, $this->hashedLock)");
         }
 
-        throw new LockTimeoutException("Lock time ($this->timeout) exceeded");
+        throw new LockTimeoutException("Lock time ($this->timeout) exceeded ($this->lock, $this->hashedLock)");
     }
 
     public function unlock(): void
@@ -82,7 +72,7 @@ class MySqlLock implements LockInterface
         if ($this->isLocked) {
             $database = $this->getDatabase()->getConnection();
             $statement = $database->prepare('DO RELEASE_LOCK(?)');
-            $statement->bind_param('s', $this->lock);
+            $statement->bind_param('s', $this->hashedLock);
             $statement->execute();
 
             $this->isLocked = false;
