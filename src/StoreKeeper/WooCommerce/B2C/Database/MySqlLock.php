@@ -8,6 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\LockInterface;
 
 class MySqlLock implements LockInterface
 {
+    const HASH = 'sha256';
     public static $database;
 
     protected string $lock;
@@ -18,7 +19,7 @@ class MySqlLock implements LockInterface
     public function __construct(string $lock, int $timeout = 15)
     {
         $this->lock = $lock;
-        $this->hashedLock = 'sha256_'.hash('sha256', $lock);
+        $this->hashedLock = substr('' . self::HASH . '_' .hash(self::HASH, $lock), 0, 64);
         $this->timeout = $timeout;
     }
 
@@ -47,6 +48,9 @@ class MySqlLock implements LockInterface
         $statement->execute();
 
         $result = $statement->get_result();
+        if( $result === false ){
+
+        }
         $row = $result->fetch_row();
         if (1 === $row[0]) {
             /*
