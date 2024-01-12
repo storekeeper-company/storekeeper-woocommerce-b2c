@@ -204,9 +204,14 @@ class InfoHandler
         $unsynchronizedOrders = $orderQuery->get_orders();
         $unsynchronizedOrderIds = [];
         // Order query by multiple status don't work so we have to filter manually
-        $unsynchronizedOrders = array_filter($unsynchronizedOrders, static function (WC_Order $order) {
-            return OrderExport::STATUS_CANCELLED !== $order->get_status();
-        });
+        $unsynchronizedOrders = array_filter(
+            $unsynchronizedOrders,
+            static function (WC_Order $order) {
+                $status = $order->get_status();
+                return OrderExport::STATUS_CANCELLED !== $status
+                    && OrderExport::STATUS_REFUNDED !== $status;
+            }
+        );
 
         $oldestUnsynchronizedOrderDateTime = null;
         if (!empty($unsynchronizedOrders)) {

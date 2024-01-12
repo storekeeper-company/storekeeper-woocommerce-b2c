@@ -90,8 +90,9 @@ class InfoHandlerTest extends AbstractTest
 
         $expectedSuccessfulOrderTask = reset($expectedSuccessfulOrderTasks);
 
-        // Cancelled order will be ignored on info handler ids_not_synchronized
+        // Cancelled and refunded order will be ignored on info handler ids_not_synchronized
         $this->createWoocommerceOrder(OrderExport::STATUS_CANCELLED);
+        $this->createWoocommerceOrder(OrderExport::STATUS_REFUNDED);
         $firstUnsynchronizedOrderId = $this->createWoocommerceOrder();
         $secondUnsynchronizedOrderId = $this->createWoocommerceOrder();
 
@@ -182,8 +183,9 @@ class InfoHandlerTest extends AbstractTest
         // Then another task was created when one of the order's status was changed to cancelled
         // This is because of the updateWithIgnore hooks, see Core::setOrderHooks
         // Assert task processor
+        // 3 extra tasks on refunded order
         $this->assertEquals(
-            7,
+            10,
             $taskProcessorStatus['in_queue_quantity'],
             'Task in queue should match with extras'
         );
