@@ -13,6 +13,7 @@ use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
+use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\StringFunctions;
@@ -1153,7 +1154,79 @@ class OrderExportTest extends AbstractOrderExportTest
 
         $this->processTask($task);
     }
+    public function testCustomerEmailIsInvalid()
+    {
+        $this->initApiConnection();
+        $this->emptyEnvironment();
 
+        $customerEmail = 'username.@example.com'; // invalid cos '.' before @
+        $expectEmail = CustomerFinder::convertToNoEmail($customerEmail);
+        $order = WC_Helper_Order::create_order();
+        $order->set_billing_email($customerEmail);
+        $order->save();
+
+        $calledFn = [];
+
+        $sent_order = [];
+        StoreKeeperApi::$mockAdapter
+            ->withModule(
+                'ShopModule',
+                function (MockInterface $module) use (&$sent_order, $expectEmail, &$calledFn) {
+                    $module->allows('findShopCustomerBySubuserEmail')->andReturnUsing(
+                        function () {
+                            // Throwing this error basically means email was not found
+                            throw GeneralException::buildFromBody(['error' => 'Wrong DataBasicSubuser']);
+                        }
+                    );
+
+                    $module->allows('newShopCustomer')->andReturnUsing(
+                        function ($payload) use ($expectEmail, &$calledFn) {
+                            [$relationPayload] = $payload;
+                            $subuser = $relationPayload['relation']['subuser'];
+
+                            $this->assertEquals($expectEmail, $subuser['login'], 'It should noemail');
+                            $this->assertEquals($expectEmail, $subuser['email'], 'It should noemail');
+                            $calledFn[] = 'newShopCustomer';
+                            return mt_rand();
+                        }
+                    );
+
+                    $module->allows('naturalSearchShopFlatProductForHooks')->andReturn([
+                        'data' => [],
+                        'total' => 0,
+                        'count' => 0,
+                    ]);
+
+                    $module->allows('newOrder')->andReturnUsing(
+                        function ($payload) use (&$sent_order, &$calledFn) {
+                            [$order] = $payload;
+
+                            $sent_order = $order;
+                            $sent_order['id'] = rand();
+                            $sent_order = $this->calculateNewOrder($sent_order);
+                            $calledFn[] = 'newOrder';
+                            return $sent_order['id'];
+                        }
+                    );
+
+                    $module->allows('getOrder')->andReturnUsing(
+                        function () use (&$sent_order) {
+                            return $sent_order;
+                        }
+                    );
+
+                    $module->allows('updateOrder')->andReturnNull();
+
+
+                }
+            );
+
+        $OrderHandler = new OrderHandler();
+        $task = $OrderHandler->create($order->get_id());
+        $this->processTask($task);
+
+        $this->assertEquals(['newShopCustomer','newOrder'], $calledFn, 'called functions');
+    }
     /**
      * In some cases when the theme is broken the order gets a Variable product instead of variance
      * So far it only happen when the order has single variance.

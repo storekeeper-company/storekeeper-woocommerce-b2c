@@ -39,9 +39,6 @@ class FrontendCore
         $this->loader->add_filter(OrderTrackingMessage::getTag(), $orderHookHandler, 'createOrderTrackingMessage', 10, 2);
         $this->loader->add_action('woocommerce_checkout_create_order_fee_item', $orderHookHandler, 'addEmballageTaxRateId', 11, 4);
 
-        $cartHandler = new CartHandler();
-        $this->loader->add_action('woocommerce_cart_calculate_fees', $cartHandler, 'addEmballageFee', 11);
-
         $this->registerShortCodes();
         $this->registerHandlers();
         $this->registerStyle();
@@ -55,6 +52,9 @@ class FrontendCore
     {
         $seo = new StoreKeeperSeoHandler();
         $seo->registerHooks();
+
+        $cartHandler = new CartHandler();
+        $cartHandler->registerHooks();
 
         $categorySummray = new CategorySummaryHandler();
         $categorySummray->registerHooks();

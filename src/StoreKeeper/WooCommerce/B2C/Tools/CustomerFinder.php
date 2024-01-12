@@ -95,15 +95,20 @@ class CustomerFinder
     {
         $email = $order->get_billing_email('edit');
 
+        $initialEmailWasValid = self::isValidEmail($email);
+        if( !$initialEmailWasValid){
+            $email = self::convertToNoEmail($email);
+        }
         try {
             // Check if the customer already exists
             $relationDataId = self::findCustomerRelationDataIdByEmail($email);
         } catch (EmailIsAdminUserException $exception) {
-            $storeUrlParts = wp_parse_url(home_url());
-            $storeBaseUrl = $storeUrlParts['host'];
-            $email = 'nomail+'.crc32($email).'@'.$storeBaseUrl;
-
-            $relationDataId = self::findCustomerRelationDataIdByEmail($email);
+            if( $initialEmailWasValid ){
+                $email = self::convertToNoEmail($email);
+                $relationDataId = self::findCustomerRelationDataIdByEmail($email);
+            } else {
+                throw $exception;
+            }
         }
 
         if ($relationDataId) {
@@ -264,5 +269,21 @@ class CustomerFinder
             'contact_person' => self::extractContactPersonFromOrder($order),
             'name' => self::extractBillingNameFromOrder($order),
         ];
+    }
+
+    public static function convertToNoEmail(?string $email): string
+    {
+        $storeUrlParts = wp_parse_url(home_url());
+        $storeBaseUrl = $storeUrlParts['host'];
+        $email = 'nomail+' . crc32($email ?? '') . '@' . $storeBaseUrl;
+        return $email;
+    }
+
+    public static function isValidEmail(?string $email): bool
+    {
+        if( !empty($email) ){
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        }
+        return false;
     }
 }
