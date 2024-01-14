@@ -9,9 +9,6 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
       - name: Get Latest Release Tag
         id: latest_release
         run: |
@@ -32,7 +29,7 @@ jobs:
 
       - name: Create Latest File
 #        if: steps.check_latest.outputs.is_latest == 'true'
-        run: echo ${{ steps.latest_release.outputs.tag }} > LATEST
+        run: mkdir echo ${{ steps.latest_release.outputs.tag }} > LATEST
 
       - name: Upload to FTP
 #        if: steps.check_latest.outputs.is_latest == 'true'
