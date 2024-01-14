@@ -21,20 +21,25 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if Current Release is Latest
-        run: |
-          if [ "${{ github.event.release.tag_name }}" != "${{ steps.latest_release.outputs.tag }}" ]; then
-            echo "This is not the latest release. Exiting."
-            exit 0
+        id: check_latest
+        run: | 
+          if [ "${{ github.event.release.tag_name }}" == "${{ steps.latest_release.outputs.tag }}" ]; then
+            echo "::set-output name=is_latest::true"
+          else
+            echo "::set-output name=is_latest::false"
+            echo "This is not the latest release. Skipping upload."
           fi
 
       - name: Create Latest File
+#        if: steps.check_latest.outputs.is_latest == 'true'
         run: echo ${{ steps.latest_release.outputs.tag }} > LATEST
 
       - name: Upload to FTP
+#        if: steps.check_latest.outputs.is_latest == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          ftp-server: ${{ secrets.VERSION_FTP_SERVER }}
-          ftp-username: ${{ secrets.VERSION_FTP_USERNAME }}
-          ftp-password: ${{ secrets.VERSION_FTP_PASSWORD }}
+          server: ${{ secrets.VERSION_FTP_SERVER }}
+          username: ${{ secrets.VERSION_FTP_USERNAME }}
+          password: ${{ secrets.VERSION_FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./
