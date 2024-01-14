@@ -31,7 +31,7 @@ jobs:
         run: echo ${{ steps.latest_release.outputs.tag }} > LATEST
 
       - name: Upload to FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           ftp-server: ${{ secrets.VERSION_FTP_SERVER }}
           ftp-username: ${{ secrets.VERSION_FTP_USERNAME }}
