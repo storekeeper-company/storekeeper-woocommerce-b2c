@@ -183,4 +183,8 @@ class StoreKeeperOptions extends AbstractOptions
     {
         return 'yes' === self::get(self::IMAGE_CDN, 'yes');
     }
+    public static function isShippingMethodSyncEnabled(): bool
+    {
+        return 'yes' === self::get(self::SHIPPING_METHOD_ACTIVATED, 'yes');
+    }
 }

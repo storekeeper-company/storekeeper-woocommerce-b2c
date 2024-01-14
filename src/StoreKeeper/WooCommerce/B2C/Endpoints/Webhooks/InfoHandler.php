@@ -53,6 +53,8 @@ class InfoHandler
     const SOFTWARE_NAME = 'storekeeper-woocommerce-b2c';
 
     const IMAGE_CDN_PLUGIN_OPTION = StoreKeeperOptions::IMAGE_CDN;
+    const SHIPPING_METHOD_SYNC_OPTION = 'shipping-method-sync';
+    const SK_PAYMENTS_OPTION = 'sk-payments';
 
     public function run(): array
     {
@@ -60,7 +62,7 @@ class InfoHandler
 
         array_walk_recursive($data, static function (&$v) {
             if ($v instanceof \DateTimeInterface) {
-                $v = $v->format(DATE_RFC2822);
+                $v = $v->format(DATE_ATOM);
             }
         });
 
@@ -137,7 +139,10 @@ class InfoHandler
 
         $postExecutionSuccessful = CronRegistrar::STATUS_SUCCESS === $postExecutionStatus;
 
-        $taskProcessorStatus['in_queue_quantity'] = TaskModel::count(['status = :status'], ['status' => TaskHandler::STATUS_NEW]);
+        $taskProcessorStatus['in_queue_quantity'] = TaskModel::count(
+            ['status = :status'],
+            ['status' => TaskHandler::STATUS_NEW]
+        );
         $taskProcessorStatus['processing_p_h'] = $processedRate;
         $taskProcessorStatus['runner'] = $cronRunner;
         $taskProcessorStatus['last_execute_date'] = DatabaseConnection::formatFromDatabaseDateIfNotEmpty($preExecutionDateTime);
@@ -147,6 +152,13 @@ class InfoHandler
         $taskProcessorStatus['last_is_success'] = $postExecutionSuccessful;
         $taskProcessorStatus['last_error_message'] = $postExecutionError;
         $taskProcessorStatus['other_processor_type_is_running'] = !empty($invalidRunners);
+        $taskProcessorStatus['failed_task_quantity'] = TaskModel::count(
+            ['status = :status AND type_group != :type_group'],
+            [
+                'status' => TaskHandler::STATUS_FAILED,
+                'type_group' =>  TaskHandler::REPORT_ERROR_TYPE_GROUP
+            ]
+        );
 
         return $taskProcessorStatus;
     }
@@ -236,6 +248,8 @@ class InfoHandler
     {
         $pluginOptions = [];
         $pluginOptions[self::IMAGE_CDN_PLUGIN_OPTION] = StoreKeeperOptions::isImageCdnEnabled();
+        $pluginOptions[self::SHIPPING_METHOD_SYNC_OPTION] = StoreKeeperOptions::isShippingMethodSyncEnabled();
+        $pluginOptions[self::SK_PAYMENTS_OPTION] = StoreKeeperOptions::isPaymentSyncEnabled();
 
         return $pluginOptions;
     }
@@ -301,6 +315,12 @@ class InfoHandler
         $activeCapabilities[] = 's2b_image_variants';
         $activeCapabilities[] = 's2b_report_product_state';
         $activeCapabilities[] = 's2b_report_system_status';
+
+        if (
+            StoreKeeperOptions::isImageCdnEnabled()
+        ) {
+            $activeCapabilities[] = 's2b_image_cdn';
+        }
 
         return $activeCapabilities;
     }
