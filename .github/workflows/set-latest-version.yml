@@ -24,7 +24,7 @@ jobs:
             echo "Latest release:"
             cat LATEST
           else
-            echo "IS_LATEST=1" >> $GITHUB_ENV # todo IS_LATEST=0
+            echo "IS_LATEST=0" >> $GITHUB_ENV
             echo "This (=${{ github.event.release.tag_name }}) is not the latest release (=$TAG). Skipping upload."
           fi
           echo $TAG > LATEST
