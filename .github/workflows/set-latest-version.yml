@@ -1,0 +1,40 @@
+name: Set latest version on
+
+on:
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Get Latest Release Tag
+        id: latest_release
+        run: |
+          LATEST_TAG=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
+          echo "::set-output name=tag::$LATEST_TAG"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if Current Release is Latest
+        run: |
+          if [ "${{ github.event.release.tag_name }}" != "${{ steps.latest_release.outputs.tag }}" ]; then
+            echo "This is not the latest release. Exiting."
+            exit 0
+          fi
+
+      - name: Create Latest File
+        run: echo ${{ steps.latest_release.outputs.tag }} > LATEST
+
+      - name: Upload to FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+        with:
+          ftp-server: ${{ secrets.VERSION_FTP_SERVER }}
+          ftp-username: ${{ secrets.VERSION_FTP_USERNAME }}
+          ftp-password: ${{ secrets.VERSION_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./
