@@ -3,7 +3,6 @@ name: Set latest version on
 on:
   release:
     types: [published, edited]
-  workflow_dispatch:
 
 jobs:
   upload:
@@ -13,26 +12,25 @@ jobs:
         id: latest_release
         run: |
           LATEST_TAG=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name')
-          echo "::set-output name=tag::$LATEST_TAG"
+          echo "TAG=$LATEST_TAG" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if Current Release is Latest
         id: check_latest
-        run: | 
-          if [ "${{ github.event.release.tag_name }}" == "${{ steps.latest_release.outputs.tag }}" ]; then
-            echo "::set-output name=is_latest::true"
+        run: |
+          if [ "${{ github.event.release.tag_name }}" == "$TAG" ]; then
+            echo "IS_LATEST=1" >> $GITHUB_ENV
+            echo $TAG > LATEST
+            echo "Latest release:"
+            cat LATEST
           else
-            echo "::set-output name=is_latest::false"
-            echo "This is not the latest release. Skipping upload."
+            echo "IS_LATEST=0" >> $GITHUB_ENV
+            echo "This (=${{ github.event.release.tag_name }}) is not the latest release (=$TAG). Skipping upload."
           fi
 
-      - name: Create Latest File
-#        if: steps.check_latest.outputs.is_latest == 'true'
-        run: mkdir echo ${{ steps.latest_release.outputs.tag }} > LATEST
-
       - name: Upload to FTP
-#        if: steps.check_latest.outputs.is_latest == 'true'
+#        if: env.IS_LATEST == '1'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.VERSION_FTP_SERVER }}
