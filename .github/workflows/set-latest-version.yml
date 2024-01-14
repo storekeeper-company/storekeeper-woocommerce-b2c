@@ -24,13 +24,13 @@ jobs:
             echo "Latest release:"
             cat LATEST
           else
-            echo "IS_LATEST=0" >> $GITHUB_ENV
+            echo "IS_LATEST=1" >> $GITHUB_ENV # todo IS_LATEST=0
             echo "This (=${{ github.event.release.tag_name }}) is not the latest release (=$TAG). Skipping upload."
           fi
           echo $TAG > LATEST
 
       - name: Upload to FTP
-#        if: env.IS_LATEST == '1'
+        if: env.IS_LATEST == '1'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.VERSION_FTP_SERVER }}
