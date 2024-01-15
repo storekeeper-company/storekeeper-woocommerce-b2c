@@ -259,27 +259,35 @@ HTML;
                 echo '<div id="error-message-'.esc_attr($task['id']).'" style="display: none">';
                 echo '<h3><strong style="color:darkred">'.esc_html($errorOutput['exception-class']).': '.esc_html($errorOutput['exception-message']).'</strong></h3>';
                 if (isset($errorOutput['exception-reference'])) {
-                    echo __('Error reference', I18N::DOMAIN).': '.esc_html($errorOutput['exception-reference']).':<br>';
+                    echo esc_html__('Error reference', I18N::DOMAIN).': '.esc_html($errorOutput['exception-reference']).':<br>';
+                }
+                if (isset($errorOutput['plugin-version'])) {
+                    echo esc_html__('StoreKeeper plugin version', I18N::DOMAIN).': '.esc_html($errorOutput['plugin-version']);
+
+                    if( version_compare($errorOutput['plugin-version'], STOREKEEPER_WOOCOMMERCE_B2C_VERSION, '<') ){
+                        echo ' <small style="color:darkred">('.esc_html__('this task was run with older version', I18N::DOMAIN).')</small>';
+                    }
+                    echo '<br>';
                 }
 
                 echo '<pre>'.esc_html($location).'</pre>';
 
                 if (isset($errorOutput['exception-difference'])) {
-                    echo __('Extra metadata', I18N::DOMAIN).':<br>';
+                    echo esc_html__('Extra metadata', I18N::DOMAIN).':<br>';
                     $extrasDifferences = $errorOutput['exception-difference'];
                     $shopExtras = $extrasDifferences['shop-extras'] ?? [];
                     $backofficeExtras = $extrasDifferences['backoffice-extras'] ?? [];
                     if (count($shopExtras) > 0 || count($backofficeExtras) > 0) {
-                        echo '<strong>'.__('Shop', I18N::DOMAIN).'</strong><br>';
+                        echo '<strong>'.esc_html__('Shop', I18N::DOMAIN).'</strong><br>';
                         $this->generateExtrasTable($shopExtras);
 
-                        echo '<br><strong>'.__('Backoffice', I18N::DOMAIN).'</strong><br>';
+                        echo '<br><strong>'.esc_html__('Backoffice', I18N::DOMAIN).'</strong><br>';
                         $this->generateExtrasTable($backofficeExtras);
                     }
                     echo '<br>';
                 }
 
-                echo ''.__('Stack Trace', I18N::DOMAIN).':<br>';
+                echo ''.esc_html__('Stack Trace', I18N::DOMAIN).':<br>';
                 echo '<div>';
                 foreach ($replace_pairs as $from => $to) {
                     echo esc_html($to.' => '.$from).'<br/>';

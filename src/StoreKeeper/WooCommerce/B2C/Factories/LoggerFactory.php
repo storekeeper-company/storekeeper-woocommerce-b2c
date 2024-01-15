@@ -159,6 +159,7 @@ EOE;
             'exception-trace' => $traceAsString,
             'exception-location' => $exception->getFile().':'.$exception->getLine(),
             'exception-class' => get_class($exception),
+            'plugin-version' => STOREKEEPER_WOOCOMMERCE_B2C_VERSION,
         ];
 
         if ($exception instanceof GeneralException) {
