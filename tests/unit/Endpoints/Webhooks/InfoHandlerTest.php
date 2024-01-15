@@ -109,10 +109,10 @@ class InfoHandlerTest extends AbstractTest
         ];
 
         $expectedOldestOrderNotSynchronized = wc_get_order($firstFailedOrderId);
-        $expectedOldestDateNotSynchronized = $expectedOldestOrderNotSynchronized->get_date_created()->format(DATE_RFC2822);
+        $expectedOldestDateNotSynchronized = $expectedOldestOrderNotSynchronized->get_date_created()->format(DATE_ATOM);
 
         $expectedLastOrder = wc_get_order($secondUnsynchronizedOrderId);
-        $expectedLastOrderDate = $expectedLastOrder->get_date_created()->format(DATE_RFC2822);
+        $expectedLastOrderDate = $expectedLastOrder->get_date_created()->format(DATE_ATOM);
 
         $response = $this->handleRequest($rest);
         $data = $response->get_data();
@@ -167,7 +167,7 @@ class InfoHandlerTest extends AbstractTest
         $this->assertEqualsCanonicalizing($expectedFailedOrderIds, $orderSystemStatus['ids_with_failed_tasks'], 'Failed order IDs should match with extras');
         $this->assertEquals($expectedLastOrderDate, $orderSystemStatus['last_date']);
         $this->assertEquals(
-            DatabaseConnection::formatFromDatabaseDate($expectedSuccessfulOrderTask['date_last_processed'])->format(DATE_RFC2822),
+            DatabaseConnection::formatFromDatabaseDate($expectedSuccessfulOrderTask['date_last_processed'])->format(DATE_ATOM),
             $orderSystemStatus['last_synchronized_date'],
             'Last successful synchronized order ID should match with extras'
         );
@@ -191,7 +191,7 @@ class InfoHandlerTest extends AbstractTest
         );
 
         $this->assertEquals(
-            DatabaseConnection::formatFromDatabaseDate($expectedSuccessfulOrderTask['date_last_processed'])->format(DATE_RFC2822),
+            DatabaseConnection::formatFromDatabaseDate($expectedSuccessfulOrderTask['date_last_processed'])->format(DATE_ATOM),
             $taskProcessorStatus['last_task_date'],
             'Last task ran date should match with extras'
         );
