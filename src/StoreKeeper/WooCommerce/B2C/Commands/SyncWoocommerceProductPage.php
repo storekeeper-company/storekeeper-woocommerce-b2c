@@ -68,6 +68,7 @@ class SyncWoocommerceProductPage extends AbstractSyncCommand
         $import = new ProductImport($assoc_arguments);
         $import->setLogger($this->logger);
         $import->setTaskHandler(new TaskHandler());
+        $import->setSkipBroken(true);
         $import->run(
             [
                 'skip_cross_sell' => true,

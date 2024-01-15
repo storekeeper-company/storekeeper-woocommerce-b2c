@@ -46,6 +46,18 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     protected $newItemsCount = 0;
     protected $updatedItemsCount = 0;
 
+    protected bool $skipBroken = false;
+
+    public function isSkipBroken(): bool
+    {
+        return $this->skipBroken;
+    }
+
+    public function setSkipBroken(bool $skipBroken): void
+    {
+        $this->skipBroken = $skipBroken;
+    }
+
     /**
      * @param $StoreKeeperId
      *

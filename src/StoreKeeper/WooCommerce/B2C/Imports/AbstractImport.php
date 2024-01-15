@@ -7,7 +7,7 @@ use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\ApiWrapper;
-use StoreKeeper\WooCommerce\B2C\Database\ImportProcessLock;
+use StoreKeeper\WooCommerce\B2C\Database\MySqlLock;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockTimeoutException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ProductImportException;
@@ -143,9 +143,14 @@ abstract class AbstractImport
      */
     public function lock(): bool
     {
-        $this->lock = new ImportProcessLock(static::class);
-
+        $lockClass = $this->getLockClass();
+        $this->lock = new MySqlLock($lockClass);
         return $this->lock->lock();
+    }
+
+    protected function getLockClass(): string
+    {
+        return get_class($this);
     }
 
     /**
@@ -292,6 +297,13 @@ abstract class AbstractImport
                         ++$this->failedItemCount;
                         ++$this->processedItemCount;
                         $this->debug("Processed {$count}/{$response['count']} items");
+
+                        if( $this instanceof ProductImport ){
+                            // this is bad, but lots of rewriting needed otherwise
+                            if(! $this->isSkipBroken() ){
+                                throw $exception;
+                            }
+                        }
                     } catch (Throwable $exception) {
                         $errorMessage = $exception->getMessage();
                         $data = [
