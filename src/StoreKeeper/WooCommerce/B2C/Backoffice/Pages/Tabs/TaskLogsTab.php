@@ -254,12 +254,15 @@ HTML;
                     rtrim(ABSPATH, '/').'/' => '[WP]/',
                 ];
                 $trace = strtr($trace, $replace_pairs);
+                $location = strtr($errorOutput['exception-location'] ?? '', $replace_pairs);
 
                 echo '<div id="error-message-'.esc_attr($task['id']).'" style="display: none">';
                 echo '<h3><strong style="color:darkred">'.esc_html($errorOutput['exception-class']).': '.esc_html($errorOutput['exception-message']).'</strong></h3>';
                 if (isset($errorOutput['exception-reference'])) {
                     echo __('Error reference', I18N::DOMAIN).': '.esc_html($errorOutput['exception-reference']).':<br>';
                 }
+
+                echo '<pre>'.esc_html($location).'</pre>';
 
                 if (isset($errorOutput['exception-difference'])) {
                     echo __('Extra metadata', I18N::DOMAIN).':<br>';

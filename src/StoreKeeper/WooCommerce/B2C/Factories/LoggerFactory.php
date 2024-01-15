@@ -136,11 +136,27 @@ class LoggerFactory
      */
     public static function generateMetadata(string $key, \Throwable $exception, array $customMetadata): array
     {
+
+        $traceAsString = $exception->getTraceAsString();
+
+        $previous = $exception;
+        while( $previous = $previous->getPrevious() ){
+            $class = get_class($previous);
+            $traceAsString .= <<<EOE
+
+
+Previous[$class]:  {$previous->getMessage()}
+At: {$previous->getFile()}:{$previous->getLine()}
+Trace: 
+{$previous->getTraceAsString()}
+EOE;
+        }
+
         $metadata = [
             'error-key' => $key,
             'exception-message' => $exception->getMessage(),
             'exception-code' => $exception->getCode(),
-            'exception-trace' => $exception->getTraceAsString(),
+            'exception-trace' => $traceAsString,
             'exception-location' => $exception->getFile().':'.$exception->getLine(),
             'exception-class' => get_class($exception),
         ];
