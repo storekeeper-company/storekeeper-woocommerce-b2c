@@ -17,6 +17,7 @@ class ProductStockUpdateTask extends AbstractTask
                 ]
             );
             $productStock->setTaskHandler($this->getTaskHandler());
+            $productStock->setLogger($this->logger);
             $productStock->run();
         }
     }

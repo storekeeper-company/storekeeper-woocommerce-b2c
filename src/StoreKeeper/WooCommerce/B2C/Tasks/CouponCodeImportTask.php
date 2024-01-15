@@ -18,6 +18,7 @@ class CouponCodeImportTask extends AbstractTask
                 ]
             );
 
+            $coupon_code_import->setLogger($this->logger);
             $coupon_code_import->run();
         }
     }

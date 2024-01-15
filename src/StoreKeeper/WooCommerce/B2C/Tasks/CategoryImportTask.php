@@ -19,6 +19,7 @@ class CategoryImportTask extends AbstractTask
                     'debug' => key_exists('debug', $task_options) ? $task_options['debug'] : false,
                 ]
             );
+            $tag->setLogger($this->logger);
             $tag->run();
         }
     }

@@ -17,6 +17,7 @@ class ProductImportTask extends AbstractTask
                 ]
             );
             $product->setTaskHandler($this->getTaskHandler());
+            $product->setLogger($this->logger);
             $product->run();
         }
     }

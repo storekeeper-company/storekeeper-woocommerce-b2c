@@ -50,16 +50,25 @@ class ProductUpdateImport extends ProductImport
         string $importProductType
     ): int {
         $scope = array_intersect($this->scope, self::ALLOWED_UPDATE_SCOPES);
-        // Process full product if not within scope or product does not exist in WooCommerce yet.
         if (
             0 === count($scope) ||
-            false === self::getProductByProductData($dotObject)) {
-            // ProductImport::processSimpleAndConfigurableProduct will process full product
+            false === self::getProductByProductData($dotObject)
+        ) {
+            $this->logger->debug(
+                "Update product scope is empty or no product is found, runnign full import",
+                ['scope' => $scope]
+            );
             return parent::processSimpleAndConfigurableProduct($dotObject, $log_data, $options, $importProductType);
         }
 
+        $this->logger->debug(
+            "Update product from scope",
+            ['scope' => $scope]
+        );
+
+
         // Get the product entity
-        $newProduct = $this->getNewProduct($dotObject, $importProductType);
+        $newProduct = $this->ensureWooCommerceProduct($dotObject, $importProductType);
 
         if (
             in_array(self::PRODUCT_DEFAULT_PRICE_SCOPE, $scope, true) ||

@@ -14,6 +14,7 @@ class ShippingMethodImportTask extends AbstractTask
             ]
         );
 
+        $import->setLogger($this->logger);
         $import->run();
     }
 }

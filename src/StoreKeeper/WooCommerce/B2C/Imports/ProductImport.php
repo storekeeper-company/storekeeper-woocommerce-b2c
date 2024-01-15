@@ -839,7 +839,7 @@ SQL;
         string $importProductType
     ): int {
         // Get the product entity
-        $newProduct = $this->getNewProduct($dotObject, $importProductType);
+        $newProduct = $this->ensureWooCommerceProduct($dotObject, $importProductType);
         // Handle seo
         $this->processSeo($newProduct, $dotObject);
         // Product variables/details
@@ -865,7 +865,7 @@ SQL;
      *
      * @throws WordpressException
      */
-    protected function getNewProduct(Dot $dotObject, string $importProductType)
+    protected function ensureWooCommerceProduct(Dot $dotObject, string $importProductType)
     {
         $newProduct = null;
         $productCheck = self::gettingSimpleOrConfigurableProduct($dotObject);
@@ -885,7 +885,7 @@ SQL;
         }
 
         if (is_null($newProduct)) {
-            throw new Exception("No product is association with id={$product_id['id']}");
+            throw new Exception("No product is association with id={$product_id}");
         }
 
         $this->setWoocommerceProductId($newProduct->get_id());

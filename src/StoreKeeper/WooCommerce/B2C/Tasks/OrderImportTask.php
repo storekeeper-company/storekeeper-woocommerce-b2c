@@ -25,7 +25,7 @@ class OrderImportTask extends AbstractTask
                     'new' => json_decode($new_order, true),
                 ]
             );
-
+            $order->setLogger($this->logger);
             $order->run();
         }
     }

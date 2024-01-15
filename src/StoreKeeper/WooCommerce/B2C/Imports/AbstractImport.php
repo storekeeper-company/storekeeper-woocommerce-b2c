@@ -135,47 +135,6 @@ abstract class AbstractImport
         ];
     }
 
-    public function getFailedItemCount(): int
-    {
-        return $this->failedItemCount;
-    }
-
-    public function total_still_left($offset)
-    {
-        $module = $this->storekeeper_api->getModule($this->getModule());
-        $function = $this->getFunction();
-        $query = $this->getQuery();
-        $language = $this->getLanguage();
-        $filters = $this->getFilters();
-        $sorts = $this->getSorts();
-        $start = $this->import_start + (int) $offset;
-
-        // Only call for one
-        $limit = 1;
-
-        // Call
-        $response = [];
-        if (is_null($query) && is_null($language)) {
-            $response = $module->$function($start, $limit, $sorts, $filters);
-        } else {
-            if (is_null($query) && !is_null($language)) {
-                $response = $module->$function($language, $start, $limit, $sorts, $filters);
-            } else {
-                if (!is_null($query) && !is_null($language)) {
-                    $response = $module->$function($query, $language, $start, $limit, $sorts, $filters);
-                } else {
-                    if (!is_null($query) && is_null($language)) {
-                        $response = $module->$function($query, $start, $limit, $sorts, $filters);
-                    }
-                }
-            }
-        }
-
-        $fetched_total = (int) $response['total'];
-
-        return $fetched_total - $start;
-    }
-
     protected $total_fetched = 0;
 
     /**
