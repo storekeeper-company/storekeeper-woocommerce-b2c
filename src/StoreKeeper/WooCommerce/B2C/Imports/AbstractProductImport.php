@@ -253,6 +253,11 @@ abstract class AbstractProductImport extends AbstractImport
         try {
             $woocommerceProductId = $this->doProcessProductItem($dotObject, $options);
 
+            $this->logger->debug("Processed product", [
+                'shop_product_id' => $shopProductId,
+                'product_id' => $woocommerceProductId,
+            ]);
+
             if (false !== $woocommerceProductId) {
                 $ShopModule->setShopProductObjectSyncStatusForHook([
                     'status' => self::SYNC_STATUS_SUCCESS,

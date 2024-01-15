@@ -40,12 +40,12 @@ class ProductAttributes
         self::setBarcodeMeta($newProduct, $product);
     }
 
-    public static function setBarcodeMeta(\WC_Product $newProduct, Dot $product)
+    public static function setBarcodeMeta(\WC_Product $newProduct, Dot $product): bool
     {
+        $barcode_was_set = false;
         $barcode = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BARCODE);
         if ($barcode) {
             $meta_key = StoreKeeperOptions::getBarcodeMetaKey($newProduct);
-            $barcode_was_set = false;
             if ($product->has('flat_product.content_vars')) {
                 foreach ($product->get('flat_product.content_vars') as $cvData) {
                     $contentVar = new Dot($cvData);
@@ -61,6 +61,7 @@ class ProductAttributes
                 $newProduct->delete_meta_data($meta_key);
             }
         }
+        return $barcode_was_set;
     }
 
     public static function getBarcodeMeta(\WC_Product $wc_product)

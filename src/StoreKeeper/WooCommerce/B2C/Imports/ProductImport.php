@@ -760,6 +760,11 @@ SQL;
             throw new Exception("Could not find parent in the backend with assigned product with shop_product_id: $shopProductId");
         }
 
+        $this->debug('Loaded AssignedProduct configuration', [
+            'configurable_shop_product' => $configResponse['configurable_shop_product'],
+            'storekeeper_shop_product_id' => $shopProductId,
+        ]);
+
         /** Check if the parent has changed */
         $parentShopProductId = $configResponse['configurable_shop_product']['shop_product_id'];
 
@@ -804,6 +809,13 @@ SQL;
 
         // Check if the parent has changed
         $parentProduct = new WC_Product_Variable($parentProductCheck);
+
+        $this->debug('Recalculating parents', [
+            'parent_shop_product_id' => $parentShopProductId,
+            'storekeeper_shop_product_id' => $shopProductId,
+            'parent_post_id' => $productCheck instanceof \WP_Post ? $productCheck->post_parent : null,
+        ]);
+
 
         // Schedule a task to calculate the current parent
         $this->getTaskHandler()->rescheduleTask(
@@ -1355,10 +1367,14 @@ SQL;
      */
     protected function updateAssignedProduct($assignedProductPost, WC_Product_Variable $parentProduct, $assignedProductData, $configObject)
     {
+        $this->debug('Update assigned product', [
+            'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
+            'parent_post_id' => $parentProduct->get_id(),
+        ]);
+
         $variationProduct = new WC_Product_Variation($assignedProductPost);
         $attribute_options_by_id = $this->getArrayById($configObject->get('attribute_options'));
 
-        // Update the attributes
         $configurable_options = self::getAssignedWantedAttributes($assignedProductData, $attribute_options_by_id);
 
         $firstAttributeId = $configObject->get('attributes.0.id');
@@ -1383,7 +1399,19 @@ SQL;
         // Setting the props.
         WordpressExceptionThrower::throwExceptionOnWpError($variationProduct->set_props($props));
 
-        ProductAttributes::setBarcodeMeta($variationProduct, $assignedProductData);
+        $this->debug('Saved variation attributes', [
+            'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
+            'parent_post_id' => $parentProduct->get_id(),
+            'props' => $props
+        ]);
+
+
+        $barcode_was_set = ProductAttributes::setBarcodeMeta($variationProduct, $assignedProductData);
+
+        $this->debug('Saved barcode', [
+            'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
+            'barcode_was_set' => $barcode_was_set
+        ]);
 
         $post_id = $variationProduct->save();
 
