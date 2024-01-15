@@ -70,7 +70,8 @@ class AttributeImport extends AbstractImport implements WithConsoleProgressBarIn
         $title = $this->getTranslationIfRequired($dotObject, 'label');
         $dotObject->set('label', $title);
 
-        Attributes::importAttribute(
+        $attribute = new Attributes($this->logger);
+        $attribute->importAttribute(
             $dotObject->get('id'),
             $dotObject->get('name'),
             $dotObject->get('label')

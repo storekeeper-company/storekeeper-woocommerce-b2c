@@ -88,12 +88,13 @@ class AttributeOptionImport extends AbstractImport implements WithConsoleProgres
         $this->debug('Importing Attribute option with id', $dotObject->get());
         $dotObject->set('label', $this->getTranslationIfRequired($dotObject, 'label'));
 
-        $attribute_id = Attributes::importAttribute(
+        $attribute = new Attributes($this->logger);
+        $attribute_id = $attribute->importAttribute(
             $dotObject->get('attribute.id'),
             $dotObject->get('attribute.name'),
             $dotObject->get('attribute.label')
         );
-        Attributes::importAttributeOption(
+        $attribute->importAttributeOption(
             $attribute_id,
             $dotObject->get('id'),
             $dotObject->get('name'),

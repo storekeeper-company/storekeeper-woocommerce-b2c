@@ -3,12 +3,18 @@
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 use Adbar\Dot;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
 
-class ProductAttributes
+class ProductAttributes implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     private const ATTRIBUTE_NAMES = 'attribute_names';
     private const ATTRIBUTE_POSITION = 'attribute_position';
     private const ATTRIBUTE_VISIBILITY = 'attribute_visibility';
@@ -23,11 +29,16 @@ class ProductAttributes
         self::ATTRIBUTE_VARIATION,
     ];
 
-    public static function setSimpleAttributes(\WC_Product $newProduct, Dot $product)
+    public function __construct(?LoggerInterface $logger = null)
+    {
+        $this->logger = $logger ?? new NullLogger();
+    }
+
+    public function setSimpleAttributes(\WC_Product $newProduct, Dot $product)
     {
         $attribute_box = [];
         if ($product->has('flat_product.content_vars')) {
-            $attribute_box = self::getAttributeBoxFromContentVars(
+            $attribute_box = $this->getAttributeBoxFromContentVars(
                 $product->get('flat_product.content_vars', [])
             );
         }
@@ -69,8 +80,9 @@ class ProductAttributes
         return $wc_product->get_meta(StoreKeeperOptions::getBarcodeMetaKey($wc_product));
     }
 
-    protected static function getAttributeBoxFromContentVars(array $content_vars): array
+    protected function getAttributeBoxFromContentVars(array $content_vars): array
     {
+        $attributes = new Attributes($this->logger);
         $attribute_box = [];
         foreach ($content_vars as $cvData) {
             $contentVar = new Dot($cvData);
@@ -85,16 +97,20 @@ class ProductAttributes
 
             $position = $contentVar->get('attribute_order', 0);
             if ($contentVar->has('attribute_option_id')) {
-                $attribute_id = Attributes::importAttribute(
+                $attribute_id = $attributes->importAttribute(
                     $contentVar->get('attribute_id'),
                     $contentVar->get('name'),
                     $contentVar->get('label')
                 );
                 $value = [
-                    self::importAttributeOptionFromContentVar(
+                    $attributes->importAttributeOption(
                         $attribute_id,
-                        $contentVar
-                    ),
+                        $contentVar->get('attribute_option_id'),
+                        $contentVar->get('value'),
+                        $contentVar->get('value_label'),
+                        $contentVar->get('attribute_option_image_url', null),
+                        $contentVar->get('attribute_option_order', 0),
+                    )
                 ];
                 $attribute = wc_get_attribute($attribute_id);
                 $attribute_name = $attribute->slug;
@@ -151,17 +167,18 @@ class ProductAttributes
         }
     }
 
-    public static function setConfigurableAttributes(\WC_Product $newProduct, Dot $product, Dot $optionsConfig)
+    public function setConfigurableAttributes(\WC_Product $newProduct, Dot $product, Dot $optionsConfig)
     {
-        $attribute_sk_to_wc = Attributes::importsAttributes(
+        $attributes = new Attributes($this->logger);
+        $attribute_sk_to_wc = $attributes->importsAttributes(
             $optionsConfig->get('attributes')
         );
-        $options_sk_to_wc = Attributes::importsAttributeOptions(
+        $options_sk_to_wc = $attributes->importsAttributeOptions(
             $attribute_sk_to_wc,
             $optionsConfig->get('attribute_options')
         );
 
-        $attribute_box = self::getAttributeBoxFromContentVars(
+        $attribute_box = $this->getAttributeBoxFromContentVars(
             $product->get('flat_product.content_vars', [])
         );
 
@@ -191,12 +208,13 @@ class ProductAttributes
         ProductAttributes::setBarcodeMeta($newProduct, $product);
     }
 
-    public static function setAssignedAttributes(\WC_Product $newProduct, Dot $optionsConfig, array $wantedAttributeOptionIds)
+    public function setAssignedAttributes(\WC_Product $newProduct, Dot $optionsConfig, array $wantedAttributeOptionIds): void
     {
-        $attribute_sk_to_wc = Attributes::importsAttributes(
+        $attributes = new Attributes($this->logger);
+        $attribute_sk_to_wc = $attributes->importsAttributes(
             $optionsConfig->get('attributes')
         );
-        $options_sk_to_wc = Attributes::importsAttributeOptions(
+        $options_sk_to_wc = $attributes->importsAttributeOptions(
             $attribute_sk_to_wc,
             $optionsConfig->get('attribute_options')
         );
@@ -210,24 +228,6 @@ class ProductAttributes
 
         $newProduct->set_attributes($options);
     }
-
-    /**
-     * @param $attribute_id
-     *
-     * @return int term_id
-     */
-    protected static function importAttributeOptionFromContentVar($attribute_id, Dot $content_var): int
-    {
-        return Attributes::importAttributeOption(
-            $attribute_id,
-            $content_var->get('attribute_option_id'),
-            $content_var->get('value'),
-            $content_var->get('value_label'),
-            $content_var->get('attribute_option_image_url', null),
-            $content_var->get('attribute_option_order', 0),
-        );
-    }
-
     public static function getSortedAttributes($attributes)
     {
         usort($attributes, function ($a, $b) {

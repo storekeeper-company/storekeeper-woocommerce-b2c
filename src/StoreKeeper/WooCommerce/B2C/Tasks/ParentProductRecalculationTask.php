@@ -73,7 +73,8 @@ class ParentProductRecalculationTask extends AbstractTask
 
             $parent_product = new \WC_Product_Variable($parent_post);
 
-            ProductAttributes::setConfigurableAttributes(
+            $productAttributes = new ProductAttributes($this->logger);
+            $productAttributes->setConfigurableAttributes(
                 $parent_product, $parent_product_object, $options_config
             );
 

@@ -1080,10 +1080,11 @@ SQL;
      */
     protected function saveProduct($newProduct, Dot $dotObject, array $log_data): array
     {
+        $productAttributes = new ProductAttributes($this->logger);
         $pricePerUnit = $dotObject->get('product_default_price.ppu_wt');
         if ('simple' === $newProduct->get_type()) {
             $this->debug('Going to set attributes', $log_data);
-            ProductAttributes::setSimpleAttributes($newProduct, $dotObject);
+            $productAttributes->setSimpleAttributes($newProduct, $dotObject);
             $this->debug('Set SimpleAttributes on product', $log_data);
 
             $post_id = $newProduct->save();
@@ -1099,7 +1100,7 @@ SQL;
             );
             $optionsConfig = new Dot($response);
 
-            ProductAttributes::setConfigurableAttributes($newProduct, $dotObject, $optionsConfig);
+            $productAttributes->setConfigurableAttributes($newProduct, $dotObject, $optionsConfig);
 
             $post_id = $newProduct->save();
             $productStatus = $this->getProductStatusByPrice((float) $pricePerUnit);
@@ -1390,7 +1391,8 @@ SQL;
             $props['menu_order'] = wc_clean($menuOrder);
         }
 
-        ProductAttributes::setAssignedAttributes(
+        $productAttributes = new ProductAttributes($this->logger);
+        $productAttributes->setAssignedAttributes(
             $variationProduct,
             $configObject,
             $configurable_options
@@ -1406,7 +1408,7 @@ SQL;
         ]);
 
 
-        $barcode_was_set = ProductAttributes::setBarcodeMeta($variationProduct, $assignedProductData);
+        $barcode_was_set = $productAttributes->setBarcodeMeta($variationProduct, $assignedProductData);
 
         $this->debug('Saved barcode', [
             'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,

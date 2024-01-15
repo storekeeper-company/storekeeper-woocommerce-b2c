@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 use Exception;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -16,7 +17,7 @@ use function wc_create_attribute;
 use function wc_get_attribute;
 use function wc_update_attribute;
 
-class Attributes
+class Attributes implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
@@ -78,11 +79,11 @@ class Attributes
      *
      * @throws WordpressException
      */
-    public static function importsAttributes(array $sk_attributes): array
+    public function importsAttributes(array $sk_attributes): array
     {
         $attribute_sk_to_wc = [];
         foreach ($sk_attributes as $sk_attribute) {
-            $attribute_sk_to_wc[$sk_attribute['id']] = self::importAttribute(
+            $attribute_sk_to_wc[$sk_attribute['id']] = $this->importAttribute(
                 $sk_attribute['id'],
                 $sk_attribute['name'],
                 $sk_attribute['label'],
@@ -99,13 +100,13 @@ class Attributes
      *
      * @throws WordpressException
      */
-    public static function importsAttributeOptions(array $attribute_sk_to_wc, array $sk_options): array
+    public function importsAttributeOptions(array $attribute_sk_to_wc, array $sk_options): array
     {
         $option_sk_to_wc = [];
         foreach ($sk_options as $sk_option) {
             $attribute_id = $attribute_sk_to_wc[$sk_option['attribute_id']];
             $attributeImage = $sk_option['image_url'] ?? null;
-            $option_sk_to_wc[$sk_option['id']] = self::importAttributeOption(
+            $option_sk_to_wc[$sk_option['id']] = $this->importAttributeOption(
                 $attribute_id,
                 $sk_option['id'],
                 $sk_option['name'],
@@ -342,7 +343,7 @@ class Attributes
         }
     }
 
-    public static function importAttributeOption(
+    public function importAttributeOption(
         int $attribute_id,
         int $sk_attribute_option_id,
         string $option_alias,
@@ -350,6 +351,14 @@ class Attributes
         ?string $option_image = null,
         int $option_order = 0
     ): int {
+        $this->logger->debug("Importing attribute option", [
+            'attribute_id' => $attribute_id,
+            'sk_attribute_option_id' => $sk_attribute_option_id,
+            'option_alias' => $option_alias,
+            'option_name' => $option_name,
+            'option_image' => $option_image,
+            'option_order' => $option_order
+        ]);
         $wc_attribute = wc_get_attribute($attribute_id);
         self::registerAttributeTemporary($wc_attribute->slug, $wc_attribute->name);
 
@@ -390,6 +399,13 @@ class Attributes
             $option_alias = wp_unique_term_slug($option_alias, (object) [
                 'taxonomy' => $wc_attribute->slug,
             ]);
+
+            $this->logger->debug("Insert new attribute option", [
+                'sk_attribute_option_id' => $sk_attribute_option_id,
+                'wc_attribute->slug' => $wc_attribute->slug,
+                'option_name' => $option_name,
+                'slug' => $option_alias
+            ]);
             $term = WordpressExceptionThrower::throwExceptionOnWpError(
                 wp_insert_term(
                     $option_name,
@@ -401,6 +417,13 @@ class Attributes
             );
             $term_id = $term['term_id'];
         } else {
+            $this->logger->debug("Found existing attribute option -> updating", [
+                'sk_attribute_option_id' => $sk_attribute_option_id,
+                'term_id' => $term_id,
+                'wc_attribute->slug' => $wc_attribute->slug,
+                'name' => $option_name,
+                'by_meta' => $by_meta
+            ]);
             WordpressExceptionThrower::throwExceptionOnWpError(
                 wp_update_term(
                     $term_id,
@@ -413,6 +436,12 @@ class Attributes
         }
 
         update_term_meta($term_id, 'order', $option_order);
+
+        $this->logger->debug("Update attribute option image", [
+            'sk_attribute_option_id' => $sk_attribute_option_id,
+            'term_id' => $term_id,
+            'option_image' => $option_image,
+        ]);
 
         if ($option_image) {
             self::setAttributeOptionImage($term_id, $option_image);
@@ -427,6 +456,8 @@ class Attributes
             $option_alias
         );
 
+
+
         if ($by_meta) {
             // clean the old way of getting the option <7.4.0
             delete_term_meta(
@@ -434,6 +465,11 @@ class Attributes
                 'storekeeper_id'
             );
         }
+
+        $this->logger->debug("Done processing attribute option", [
+            'sk_attribute_option_id' => $sk_attribute_option_id,
+            'term_id' => $term_id,
+        ]);
 
         return $term_id;
     }
@@ -443,11 +479,16 @@ class Attributes
      *
      * @throws WordpressException
      */
-    public static function importAttribute(
+    public function importAttribute(
         int $storekeeper_id,
         string $alias,
         string $title
     ): int {
+        $this->logger->debug("Importing attribute", [
+            'id' => $storekeeper_id,
+            'alias' => $alias,
+            'title' => $title,
+        ]);
         $existingAttribute = self::getAttribute($storekeeper_id);
         if (empty($existingAttribute)) {
             // maybe the attribute was deleted on the StoreKeper site and recreated (alias cannot be changed)
@@ -475,6 +516,12 @@ class Attributes
                 wc_create_attribute($update_arguments)
             );
 
+            $this->logger->debug("Created new  attribute", [
+                'id' => $storekeeper_id,
+                'attribute_id' => $attribute_id,
+                'data' => $update_arguments,
+            ]);
+
             $wcAttribute = WordpressExceptionThrower::throwExceptionOnWpError(
                 wc_get_attribute($attribute_id)
             );
@@ -490,6 +537,12 @@ class Attributes
                 wc_update_attribute($existingAttribute->id, $update_arguments)
             );
 
+            $this->logger->debug("Updated existing attribute", [
+                'id' => $storekeeper_id,
+                'attribute_id' => $attribute_id,
+                'data' => $update_arguments,
+            ]);
+
             // Manually update attribute as wc_update_attribute reverts
             // attribute type to select when it does not exist
             // Initially the fix was setting WP_ADMIN to true due to woocommerce-swatch, then it breaks
@@ -499,6 +552,11 @@ class Attributes
         AttributeModel::setAttributeStoreKeeperId(
             $attribute_id, $storekeeper_id, $alias
         );
+
+        $this->logger->debug("Done importing attribute", [
+            'id' => $storekeeper_id,
+            'attribute_id' => $attribute_id,
+        ]);
 
         return $attribute_id;
     }
