@@ -679,9 +679,7 @@ class Attributes implements LoggerAwareInterface
         $this->logger->debug("All attribute option terms name sare correct", [
             'option_sk_to_wc' => $option_sk_to_wc
         ]);
-        // names are good at this point, check meta value
         $term_meta = $this->getTermsMetaValues($expect_term_ids, ['product_attribute_image','order']);
-
         $this->logger->debug("All attribute option terms meta is loaded", [
             'option_sk_to_wc' => $option_sk_to_wc
         ]);
@@ -701,12 +699,19 @@ class Attributes implements LoggerAwareInterface
         }
 
         if (self::isAttributeImageEnabled()) {
+            $original_urls = [];
+            foreach ($sk_options as $sk_option) {
+                if( !empty($sk_option['image_url'])){
+                    $original_urls[] = $sk_option['image_url'];
+                }
+            }
+            $byUrl = Media::getAttachmentIdsByUrls($original_urls);
             foreach ($sk_options as $sk_option) {
                 $term_id = $option_sk_to_wc[$sk_option['id']];
                 $image_url = $sk_option['image_url'] ?? null;
                 $term_image_id = (int)($term_meta[$term_id]['product_attribute_image'] ?? 0);
                 if (!empty($image_url)) {
-                    $attachment_id = Media::getAttachmentId($image_url);
+                    $attachment_id = $byUrl[$image_url] ?? null;
                     if ($term_image_id !== $attachment_id) {
                         $this->logger->debug("Attribute option is not in sync -> image difference", [
                             'sk_option' => $sk_option,
@@ -772,4 +777,5 @@ class Attributes implements LoggerAwareInterface
         }
         return $term_meta;
     }
+
 }

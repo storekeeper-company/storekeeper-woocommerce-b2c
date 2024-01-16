@@ -77,6 +77,31 @@ class Media
 
         return null;
     }
+
+    public static function getAttachmentIdsByUrls(array $original_urls): array
+    {
+        global $wpdb;
+        $placeholders = implode(', ', array_fill(0, count($original_urls), '%s'));
+
+        $sql = "
+    SELECT p.ID, pm.meta_value
+    FROM {$wpdb->posts} p
+    INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+    WHERE p.post_type = 'attachment'
+    AND pm.meta_key = 'original_url'
+    AND pm.meta_value IN ($placeholders)
+    AND p.post_status IN ('publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit')
+";
+
+        $query = $wpdb->prepare($sql, $original_urls);
+        $results = $wpdb->get_results($query);
+
+        $byUrl = [];
+        foreach ($results as $obj){
+            $byUrl[$obj->meta_value] = (int) $obj->ID;
+        }
+        return $byUrl;
+    }
     public static function getAttachmentByCdnUrl($cdnUrl)
     {
         $attachments = get_posts(
