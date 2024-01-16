@@ -661,15 +661,16 @@ class Attributes implements LoggerAwareInterface
 
                 if (self::isAttributeImageEnabled()) {
                     $image_url = $sk_option['image_url'] ?? null;
-                    $term_image_id = get_term_meta($term_id, 'product_attribute_image', true);
+                    $term_image_id = (int) get_term_meta($term_id, 'product_attribute_image', true);
                     if (!empty($image_url)) {
                         $attachment = Media::getAttachment($image_url);
                         if(!$attachment ||  $term_image_id !== $attachment->ID ){
                             $this->logger->debug("Attribute option is not in sync -> image difference", [
                                 'sk_option' => $sk_option,
                                 '$image_url' => $image_url,
-                                '$term_image_id' => $term_image_id,
+                                'term_product_attribute_image' => $term_image_id,
                                 'term_id' => $term_id,
+                                '$attachment->ID' => $attachment instanceof \WP_Post ? $attachment->ID : null,
                             ]);
                             return null;
                         }
