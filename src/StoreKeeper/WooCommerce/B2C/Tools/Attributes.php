@@ -638,6 +638,10 @@ class Attributes implements LoggerAwareInterface
             }
         }
 
+        $this->logger->debug("All attribute option have terms", [
+            'option_sk_to_wc' => $option_sk_to_wc
+        ]);
+
         $expect_term_ids = array_values($option_sk_to_wc);
         $termById = $this->getTermsById($expect_term_ids);
         $not_found = array_diff(
@@ -651,6 +655,10 @@ class Attributes implements LoggerAwareInterface
             ]);
             return null;
         }
+
+        $this->logger->debug("All attribute option terms exists", [
+            'option_sk_to_wc' => $option_sk_to_wc
+        ]);
 
         foreach ($sk_options as $sk_option) {
             $term_id = $option_sk_to_wc[$sk_option['id']];
@@ -668,13 +676,20 @@ class Attributes implements LoggerAwareInterface
             }
         }
 
+        $this->logger->debug("All attribute option terms name sare correct", [
+            'option_sk_to_wc' => $option_sk_to_wc
+        ]);
         // names are good at this point, check meta value
         $term_meta = $this->getTermsMetaValues($expect_term_ids, ['product_attribute_image','order']);
+
+        $this->logger->debug("All attribute option terms meta is loaded", [
+            'option_sk_to_wc' => $option_sk_to_wc
+        ]);
         foreach ($sk_options as $sk_option) {
             $term_id = $option_sk_to_wc[$sk_option['id']];
             $order = $sk_option['order'] ?? 0;
-            $term_order = (int) ($term_meta[$term_id]['order'] ?? 0);
-            if( $term_order !== $order ){
+            $term_order = (int)($term_meta[$term_id]['order'] ?? 0);
+            if ($term_order !== $order) {
                 $this->logger->debug("Attribute option is not in sync -> order difference", [
                     'sk_option' => $sk_option,
                     '$order' => $order,
@@ -683,13 +698,16 @@ class Attributes implements LoggerAwareInterface
                 ]);
                 return null;
             }
+        }
 
-            if (self::isAttributeImageEnabled()) {
+        if (self::isAttributeImageEnabled()) {
+            foreach ($sk_options as $sk_option) {
+                $term_id = $option_sk_to_wc[$sk_option['id']];
                 $image_url = $sk_option['image_url'] ?? null;
-                $term_image_id = (int) ($term_meta[$term_id]['product_attribute_image'] ?? 0);
+                $term_image_id = (int)($term_meta[$term_id]['product_attribute_image'] ?? 0);
                 if (!empty($image_url)) {
                     $attachment_id = Media::getAttachmentId($image_url);
-                    if($term_image_id !== $attachment_id ){
+                    if ($term_image_id !== $attachment_id) {
                         $this->logger->debug("Attribute option is not in sync -> image difference", [
                             'sk_option' => $sk_option,
                             '$image_url' => $image_url,
@@ -699,7 +717,7 @@ class Attributes implements LoggerAwareInterface
                         ]);
                         return null;
                     }
-                } else if( !empty($term_image_id)){
+                } else if (!empty($term_image_id)) {
                     $this->logger->debug("Attribute option is not in sync -> image should not be on option", [
                         'sk_option' => $sk_option,
                         '$image_url' => $image_url,
@@ -709,6 +727,10 @@ class Attributes implements LoggerAwareInterface
                     return null;
                 }
             }
+
+            $this->logger->debug("All attribute images are correct", [
+                'option_sk_to_wc' => $option_sk_to_wc
+            ]);
         }
         return $option_sk_to_wc;
     }
