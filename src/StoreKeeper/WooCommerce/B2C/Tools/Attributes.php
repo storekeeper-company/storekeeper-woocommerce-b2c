@@ -37,6 +37,13 @@ class Attributes implements LoggerAwareInterface
         $this->logger = $logger ?? new NullLogger();
     }
 
+    protected static function isAttributeImageEnabled(): bool
+    {
+        return PluginStatus::isWoocommerceVariationSwatchesEnabled()
+            || PluginStatus::isStoreKeeperSwatchesEnabled()
+            || Core::isTest();
+    }
+
     protected static function getDefaultType()
     {
         // If the swatches plugin is active.
@@ -102,18 +109,30 @@ class Attributes implements LoggerAwareInterface
      */
     public function importsAttributeOptions(array $attribute_sk_to_wc, array $sk_options): array
     {
-        $option_sk_to_wc = [];
-        foreach ($sk_options as $sk_option) {
-            $attribute_id = $attribute_sk_to_wc[$sk_option['attribute_id']];
-            $attributeImage = $sk_option['image_url'] ?? null;
-            $option_sk_to_wc[$sk_option['id']] = $this->importAttributeOption(
-                $attribute_id,
-                $sk_option['id'],
-                $sk_option['name'],
-                $sk_option['label'],
-                $attributeImage,
-                $sk_option['order'] ?? 0
-            );
+        $option_sk_to_wc = $this->getAttributeOptionsIfInSync($sk_options, $attribute_sk_to_wc);
+
+        if( is_null($option_sk_to_wc) ){
+            $this->logger->debug("Attribute options not in sync ", [
+                'sk_option_ids' => array_map(fn($option) => $option['id']  , $sk_options),
+            ]);
+
+            $option_sk_to_wc = [];
+            foreach ($sk_options as $sk_option) {
+                $attribute_id = $attribute_sk_to_wc[$sk_option['attribute_id']];
+                $attributeImage = $sk_option['image_url'] ?? null;
+                $option_sk_to_wc[$sk_option['id']] = $this->importAttributeOption(
+                    $attribute_id,
+                    $sk_option['id'],
+                    $sk_option['name'],
+                    $sk_option['label'],
+                    $attributeImage,
+                    $sk_option['order'] ?? 0
+                );
+            }
+        } else {
+            $this->logger->debug("Attribute options are in sync ", [
+                'option_sk_to_wc' => $option_sk_to_wc,
+            ]);
         }
 
         return $option_sk_to_wc;
@@ -321,8 +340,7 @@ class Attributes implements LoggerAwareInterface
     {
         // Import the image if the Swatches plugin is enabled
         // OR when the plugin is being tested.
-        if (PluginStatus::isWoocommerceVariationSwatchesEnabled() || PluginStatus::isStoreKeeperSwatchesEnabled(
-            ) || Core::isTest()) {
+        if (self::isAttributeImageEnabled()) {
             if (Media::attachmentExists($image_url)) {
                 $attachment = Media::getAttachment($image_url);
                 $media_id = $attachment->ID;
@@ -391,7 +409,7 @@ class Attributes implements LoggerAwareInterface
         }
 
         // Update attribute option.
-        $option_name = substr($option_name, 0, self::MAX_NAME_LENGTH);
+        $option_name = $this->formatOptionName($option_name);
         if (!$term_id) {
             $option_alias = CommonAttributeOptionName::getName(
                 $wc_attribute->slug, $option_alias
@@ -591,5 +609,93 @@ class Attributes implements LoggerAwareInterface
         }
 
         return $clean_slug;
+    }
+    /**
+     * @param array $sk_options options from storekeeper
+     * @param array $attribute_sk_to_wc
+     * @return array|null {storekeeper_option_id => term_id}, if not in sync returns null
+     */
+    protected function getAttributeOptionsIfInSync(array $sk_options, array $attribute_sk_to_wc): ?array
+    {
+        $option_sk_to_wc = [];
+        foreach ($sk_options as $sk_option) {
+            $attribute_id = $attribute_sk_to_wc[$sk_option['attribute_id']];
+            $term_id = AttributeOptionModel::getTermIdByStorekeeperId(
+                $attribute_id,
+                $sk_option['id']
+            );
+            $option_sk_to_wc[$sk_option['id']] = $term_id;
+
+            if (!is_null($term_id)) {
+                $term = get_term($term_id);
+                if ($term instanceof \WP_Error || is_null($term)) {
+                    $this->logger->debug("Attribute option is not in sync -> failed to get term", [
+                        'sk_option' => $sk_option,
+                        'term_id' => $term_id,
+                        'error' => $term instanceof \WP_Error ? $term->get_error_message() : null
+                    ]);
+                    return null;
+                }
+                $option_name = $this->formatOptionName($sk_option['label']);
+                /* @var $term \WP_Term */
+                if( $term->name !== $option_name) {
+                    $this->logger->debug("Attribute option is not in sync -> name difference", [
+                        'sk_option' => $sk_option,
+                        'option_name' => $option_name,
+                        '$term->name' => $term->name,
+                        'term_id' => $term_id,
+                    ]);
+                    return null;
+                }
+                $order = $sk_option['order'] ?? 0;
+                $term_order = (int) get_term_meta($term_id, 'order', true);
+                if( $term_order !== $order ){
+                    $this->logger->debug("Attribute option is not in sync -> order difference", [
+                        'sk_option' => $sk_option,
+                        '$order' => $order,
+                        '$term_order' => $term_order,
+                        'term_id' => $term_id,
+                    ]);
+                    return null;
+                }
+
+                if (self::isAttributeImageEnabled()) {
+                    $image_url = $sk_option['image_url'] ?? null;
+                    $term_image_id = get_term_meta($term_id, 'product_attribute_image', true);
+                    if (!empty($image_url)) {
+                        $attachment = Media::getAttachment($image_url);
+                        if(!$attachment ||  $term_image_id !== $attachment->ID ){
+                            $this->logger->debug("Attribute option is not in sync -> image difference", [
+                                'sk_option' => $sk_option,
+                                '$image_url' => $image_url,
+                                '$term_image_id' => $term_image_id,
+                                'term_id' => $term_id,
+                            ]);
+                            return null;
+                        }
+                    } else if( !empty($term_image_id)){
+                        $this->logger->debug("Attribute option is not in sync -> image should not be on option", [
+                            'sk_option' => $sk_option,
+                            '$image_url' => $image_url,
+                            '$term_image_id' => $term_image_id,
+                            'term_id' => $term_id,
+                        ]);
+                        return null;
+                    }
+                }
+            } else {
+                $this->logger->debug("Attribute option is not in sync ", [
+                    'sk_option' => $sk_option
+                ]);
+                return null;
+            }
+        }
+        return $option_sk_to_wc;
+    }
+
+    protected function formatOptionName(string $option_name): string
+    {
+        $option_name = substr($option_name, 0, self::MAX_NAME_LENGTH);
+        return $option_name;
     }
 }
