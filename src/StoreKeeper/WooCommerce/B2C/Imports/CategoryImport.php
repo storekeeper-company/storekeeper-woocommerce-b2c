@@ -375,7 +375,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
 
     private static function setImage($term_id, $image_url)
     {
-        $media_id = Media::getAttachmentId($image_url);
+        $media_id = Media::ensureAttachment($image_url);
 
         update_term_meta($term_id, 'thumbnail_id', $media_id);
 

@@ -615,7 +615,7 @@ class Attributes implements LoggerAwareInterface
      * @param array $attribute_sk_to_wc
      * @return array|null {storekeeper_option_id => term_id}, if not in sync returns null
      */
-    protected function getAttributeOptionsIfInSync(array $sk_options, array $attribute_sk_to_wc): ?array
+    public function getAttributeOptionsIfInSync(array $sk_options, array $attribute_sk_to_wc): ?array
     {
         $option_sk_to_wc = [];
         if( empty($sk_options)){
@@ -671,6 +671,7 @@ class Attributes implements LoggerAwareInterface
         // names are good at this point, check meta value
         $term_meta = $this->getTermsMetaValues($expect_term_ids, ['product_attribute_image','order']);
         foreach ($sk_options as $sk_option) {
+            $term_id = $option_sk_to_wc[$sk_option['id']];
             $order = $sk_option['order'] ?? 0;
             $term_order = (int) ($term_meta[$term_id]['order'] ?? 0);
             if( $term_order !== $order ){
@@ -687,14 +688,14 @@ class Attributes implements LoggerAwareInterface
                 $image_url = $sk_option['image_url'] ?? null;
                 $term_image_id = (int) ($term_meta[$term_id]['product_attribute_image'] ?? 0);
                 if (!empty($image_url)) {
-                    $attachment = Media::getAttachment($image_url);
-                    if(!$attachment ||  $term_image_id !== $attachment->ID ){
+                    $attachment_id = Media::getAttachmentId($image_url);
+                    if($term_image_id !== $attachment_id ){
                         $this->logger->debug("Attribute option is not in sync -> image difference", [
                             'sk_option' => $sk_option,
                             '$image_url' => $image_url,
                             'term_product_attribute_image' => $term_image_id,
                             'term_id' => $term_id,
-                            '$attachment->ID' => $attachment instanceof \WP_Post ? $attachment->ID : null,
+                            '$attachment->ID' => $attachment_id,
                         ]);
                         return null;
                     }

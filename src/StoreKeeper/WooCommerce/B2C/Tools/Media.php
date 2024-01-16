@@ -31,7 +31,7 @@ class Media
         return $url;
     }
 
-    public static function getAttachmentId($original_url)
+    public static function ensureAttachment($original_url)
     {
         if ($attachment = self::getAttachment($original_url)) {
             return $attachment->ID;
@@ -59,7 +59,24 @@ class Media
 
         return current($attachments);
     }
+    public static function getAttachmentId($original_url): ?int
+    {
+        $attachments = get_posts(
+            [
+                'post_type' => 'attachment',
+                'posts_per_page' => 1,
+                'fields'         => 'ids',
+                'meta_key' => 'original_url',
+                'meta_value' => $original_url,
+                'post_status' => ['publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit'],
+            ]
+        );
+        if(!empty($attachments)){
+            return $attachments[0];
+        }
 
+        return null;
+    }
     public static function getAttachmentByCdnUrl($cdnUrl)
     {
         $attachments = get_posts(

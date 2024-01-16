@@ -6,6 +6,7 @@ use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
+use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeOptionName;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 
@@ -24,10 +25,10 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
-        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
+        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY . '/media');
 
         // Read the original data from the data dump
-        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_FILE);
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY . '/' . self::DATADUMP_SOURCE_FILE);
         $return = $file->getReturn();
         $original_options = $return['data'];
 
@@ -91,7 +92,7 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
             if ($original_option->has('image_url')) {
                 // Check media
                 $current_media_id = get_term_meta($term_id, 'product_attribute_image', true);
-                $media_id = Media::getAttachmentId($original_option->get('image_url'));
+                $media_id = Media::ensureAttachment($original_option->get('image_url'));
                 $this->assertEquals(
                     $current_media_id,
                     $media_id,
@@ -116,6 +117,32 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
                 'More/less than 1 attribute option was created.'
             );
         }
+    }
+    public function testOptionInSync()
+    {
+        $this->initApiConnection();
+        $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
+        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
+
+        // Read the original data from the data dump
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_FILE);
+        $return = $file->getReturn();
+        $original_options = $return['data'];
+
+        $this->assertNotEmpty($original_options, 'Sk options are not empty');
+        $this->runner->execute(SyncWoocommerceAttributeOptions::getCommandName());
+
+
+        $attribute_sk_to_wc = [];
+        foreach ($original_options as $option){
+            $attribute = AttributeModel::getAttributeByStoreKeeperId($option['attribute_id']);
+            $attribute_sk_to_wc[$option['attribute_id']] = $attribute->id;
+        }
+        $Attributes = new Attributes();
+        $in_sync = $Attributes->getAttributeOptionsIfInSync(
+            $original_options, $attribute_sk_to_wc
+        );
+        $this->assertNotNull($in_sync, 'Attribute options are in sync');
     }
 
     public function fetchAllStoreKeeperAttributeOptions()
