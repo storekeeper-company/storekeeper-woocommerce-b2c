@@ -618,6 +618,10 @@ class Attributes implements LoggerAwareInterface
     protected function getAttributeOptionsIfInSync(array $sk_options, array $attribute_sk_to_wc): ?array
     {
         $option_sk_to_wc = [];
+        if( empty($sk_options)){
+            return $option_sk_to_wc;
+        }
+
         foreach ($sk_options as $sk_option) {
             $attribute_id = $attribute_sk_to_wc[$sk_option['attribute_id']];
             $term_id = AttributeOptionModel::getTermIdByStorekeeperId(
@@ -626,69 +630,83 @@ class Attributes implements LoggerAwareInterface
             );
             $option_sk_to_wc[$sk_option['id']] = $term_id;
 
-            if (!is_null($term_id)) {
-                $term = get_term($term_id);
-                if ($term instanceof \WP_Error || is_null($term)) {
-                    $this->logger->debug("Attribute option is not in sync -> failed to get term", [
-                        'sk_option' => $sk_option,
-                        'term_id' => $term_id,
-                        'error' => $term instanceof \WP_Error ? $term->get_error_message() : null
-                    ]);
-                    return null;
-                }
-                $option_name = $this->formatOptionName($sk_option['label']);
-                /* @var $term \WP_Term */
-                if( $term->name !== $option_name) {
-                    $this->logger->debug("Attribute option is not in sync -> name difference", [
-                        'sk_option' => $sk_option,
-                        'option_name' => $option_name,
-                        '$term->name' => $term->name,
-                        'term_id' => $term_id,
-                    ]);
-                    return null;
-                }
-                $order = $sk_option['order'] ?? 0;
-                $term_order = (int) get_term_meta($term_id, 'order', true);
-                if( $term_order !== $order ){
-                    $this->logger->debug("Attribute option is not in sync -> order difference", [
-                        'sk_option' => $sk_option,
-                        '$order' => $order,
-                        '$term_order' => $term_order,
-                        'term_id' => $term_id,
-                    ]);
-                    return null;
-                }
-
-                if (self::isAttributeImageEnabled()) {
-                    $image_url = $sk_option['image_url'] ?? null;
-                    $term_image_id = (int) get_term_meta($term_id, 'product_attribute_image', true);
-                    if (!empty($image_url)) {
-                        $attachment = Media::getAttachment($image_url);
-                        if(!$attachment ||  $term_image_id !== $attachment->ID ){
-                            $this->logger->debug("Attribute option is not in sync -> image difference", [
-                                'sk_option' => $sk_option,
-                                '$image_url' => $image_url,
-                                'term_product_attribute_image' => $term_image_id,
-                                'term_id' => $term_id,
-                                '$attachment->ID' => $attachment instanceof \WP_Post ? $attachment->ID : null,
-                            ]);
-                            return null;
-                        }
-                    } else if( !empty($term_image_id)){
-                        $this->logger->debug("Attribute option is not in sync -> image should not be on option", [
-                            'sk_option' => $sk_option,
-                            '$image_url' => $image_url,
-                            '$term_image_id' => $term_image_id,
-                            'term_id' => $term_id,
-                        ]);
-                        return null;
-                    }
-                }
-            } else {
-                $this->logger->debug("Attribute option is not in sync ", [
+            if (is_null($term_id)) {
+                $this->logger->debug("Attribute option is not in sync no term found", [
                     'sk_option' => $sk_option
                 ]);
                 return null;
+            }
+        }
+
+        $expect_term_ids = array_values($option_sk_to_wc);
+        $termById = $this->getTermsById($expect_term_ids);
+        $not_found = array_diff(
+            $expect_term_ids,
+            array_keys($termById),
+        );
+        if( !empty($not_found)){
+            $this->logger->debug("Attribute option: Not all term ids ware found", [
+                'not_found_ids' => $not_found,
+                'expect_term_ids' => $expect_term_ids,
+            ]);
+            return null;
+        }
+
+        foreach ($sk_options as $sk_option) {
+            $term_id = $option_sk_to_wc[$sk_option['id']];
+            $term = $termById[$term_id];
+            $option_name = $this->formatOptionName($sk_option['label']);
+            /* @var $term \WP_Term */
+            if( $term->name !== $option_name) {
+                $this->logger->debug("Attribute option is not in sync -> name difference", [
+                    'sk_option' => $sk_option,
+                    'option_name' => $option_name,
+                    '$term->name' => $term->name,
+                    'term_id' => $term_id,
+                ]);
+                return null;
+            }
+        }
+
+        // names are good at this point, check meta value
+        $term_meta = $this->getTermsMetaValues($expect_term_ids, ['product_attribute_image','order']);
+        foreach ($sk_options as $sk_option) {
+            $order = $sk_option['order'] ?? 0;
+            $term_order = (int) ($term_meta[$term_id]['order'] ?? 0);
+            if( $term_order !== $order ){
+                $this->logger->debug("Attribute option is not in sync -> order difference", [
+                    'sk_option' => $sk_option,
+                    '$order' => $order,
+                    '$term_order' => $term_order,
+                    'term_id' => $term_id,
+                ]);
+                return null;
+            }
+
+            if (self::isAttributeImageEnabled()) {
+                $image_url = $sk_option['image_url'] ?? null;
+                $term_image_id = (int) ($term_meta[$term_id]['product_attribute_image'] ?? 0);
+                if (!empty($image_url)) {
+                    $attachment = Media::getAttachment($image_url);
+                    if(!$attachment ||  $term_image_id !== $attachment->ID ){
+                        $this->logger->debug("Attribute option is not in sync -> image difference", [
+                            'sk_option' => $sk_option,
+                            '$image_url' => $image_url,
+                            'term_product_attribute_image' => $term_image_id,
+                            'term_id' => $term_id,
+                            '$attachment->ID' => $attachment instanceof \WP_Post ? $attachment->ID : null,
+                        ]);
+                        return null;
+                    }
+                } else if( !empty($term_image_id)){
+                    $this->logger->debug("Attribute option is not in sync -> image should not be on option", [
+                        'sk_option' => $sk_option,
+                        '$image_url' => $image_url,
+                        '$term_image_id' => $term_image_id,
+                        'term_id' => $term_id,
+                    ]);
+                    return null;
+                }
             }
         }
         return $option_sk_to_wc;
@@ -698,5 +716,37 @@ class Attributes implements LoggerAwareInterface
     {
         $option_name = substr($option_name, 0, self::MAX_NAME_LENGTH);
         return $option_name;
+    }
+
+    protected function getTermsById(array $term_ids): array
+    {
+        $terms = get_terms([
+            'include' => $term_ids,
+            'hide_empty' => false,
+        ]);
+        $termById = [];
+        foreach ($terms as $term) {
+            $termById[$term->term_id] = $term;
+        }
+        return $termById;
+    }
+
+    protected function getTermsMetaValues(array $expect_term_ids, array $meta_keys): array
+    {
+        global $wpdb;
+        $term_ids_list = implode(',', array_map('intval', $expect_term_ids));
+        $meta_keys_list = implode("','", array_map('esc_sql', $meta_keys));
+        $sql = "
+    SELECT term_id, meta_key, meta_value
+    FROM {$wpdb->termmeta}
+    WHERE term_id IN ({$term_ids_list})
+    AND meta_key IN ('{$meta_keys_list}')
+";
+        $results = $wpdb->get_results($sql);
+        $term_meta = [];
+        foreach ($results as $row) {
+            $term_meta[$row->term_id][$row->meta_key] = $row->meta_value;
+        }
+        return $term_meta;
     }
 }
