@@ -80,6 +80,9 @@ class Media
 
     public static function getAttachmentIdsByUrls(array $original_urls): array
     {
+        if( empty($original_urls) ){
+            return [];
+        }
         global $wpdb;
         $placeholders = implode(', ', array_fill(0, count($original_urls), '%s'));
 

@@ -742,7 +742,7 @@ class Attributes implements LoggerAwareInterface
 
     protected function formatOptionName(string $option_name): string
     {
-        $option_name = substr($option_name, 0, self::MAX_NAME_LENGTH);
+        $option_name = substr(trim($option_name), 0, self::MAX_NAME_LENGTH);
         return $option_name;
     }
 
