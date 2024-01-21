@@ -2,11 +2,14 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice;
 
+use Blocksy\Plugin;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\StoreKeeperSeoPages;
+use StoreKeeper\WooCommerce\B2C\Commands\ImportStartingSite\BlocksyDemoInstall;
 use StoreKeeper\WooCommerce\B2C\Models\ShippingZoneModel;
+use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Options\AbstractOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -58,6 +61,17 @@ class BackofficeCore
         $Seo->registerHooks();
 
         $this->loader->run();
+
+        if( PluginStatus::isBlocksyEnabled() ){
+            add_action('init', [$this, 'blocksyInit'], 0); // blocksy is 0
+        }
+    }
+
+    public function blocksyInit() {
+        $blocksy = Plugin::instance();
+        $blocksy->demo = new BlocksyDemoInstall($blocksy->demo,[
+            __DIR__.'/../../../../../tmp/SKTest.json' // todo
+        ]);
     }
 
     private function metaBoxes(): void

@@ -10,6 +10,7 @@ class PluginStatus
     public const YOAST_SEO = 'wordpress-seo/wp-seo.php';
     public const RANK_MATH_SEO = 'seo-by-rank-math/rank-math.php';
     public const PRODUCT_X = 'product-blocks/product-blocks.php';
+    public const BLOCKSY_COMPANION_PRO = 'blocksy-companion-pro/blocksy-companion.php';
     private static $plugins;
 
     private static function getPlugins()
@@ -36,7 +37,10 @@ class PluginStatus
     {
         return self::isEnabled(self::RANK_MATH_SEO);
     }
-
+    public static function isBlocksyEnabled(): bool
+    {
+        return self::isEnabled(self::BLOCKSY_COMPANION_PRO);
+    }
     public static function isWoocommerceVariationSwatchesEnabled(): bool
     {
         return self::isEnabled(self::WOO_VARIATION_SWATCHES);

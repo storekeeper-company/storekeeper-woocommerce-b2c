@@ -15,6 +15,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportCustomer;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportProduct;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportProductBlueprint;
 use StoreKeeper\WooCommerce\B2C\Commands\FileExports\FileExportTag;
+use StoreKeeper\WooCommerce\B2C\Commands\ImportStartingSiteCommand;
 use StoreKeeper\WooCommerce\B2C\Commands\MarkTasksAsRetry;
 use StoreKeeper\WooCommerce\B2C\Commands\MarkTasksAsSuccess;
 use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\Task\TaskDelete;
@@ -71,6 +72,8 @@ class Core
     const HIGH_PRIORITY = 9001;
 
     const COMMANDS = [
+        ImportStartingSiteCommand::class,
+
         ScheduledProcessor::class,
         SyncWoocommerceShopInfo::class,
         SyncWoocommerceFullSync::class,
