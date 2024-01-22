@@ -2,19 +2,26 @@
 
 namespace StoreKeeper\WooCommerce\B2C\PaymentGateway;
 
+use Automattic\WooCommerce\Blocks\Package;
+use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
+use Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry;
 use Monolog\Logger;
 use StoreKeeper\ApiWrapper\Exception\AuthException;
+use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\PaymentException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
+use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
-class PaymentGateway
+class PaymentGateway implements WithHooksInterface
 {
+    protected ?array $methods = null;
     public const FLASH_QUERY_ARG = 'payment_status';
     public const FLASH_STATUS_CANCELLED = 'CANCELED';
     public const FLASH_STATUS_ON_HOLD = 'ONHOLD';
@@ -24,6 +31,41 @@ class PaymentGateway
     const PAYMENT_CANCELLED_STATUSES = ['cancelled', 'expired', 'error'];
     public static $refundedBySkStatus = false;
 
+    public function registerHooks(): void
+    {
+        $activated = StoreKeeperOptions::isPaymentGatewayActive();
+        if( $activated ){
+            add_action('woocommerce_thankyou', [$this, 'checkPayment']);
+            add_filter('woocommerce_payment_gateways', [$this, 'addGatewayClasses']);
+            add_filter('woocommerce_api_backoffice_pay_gateway_return', [$this, 'onReturn']);
+            add_filter('init', [$this, 'registerCheckoutFlash']);
+            add_action( 'woocommerce_blocks_loaded', [$this, 'addBlockSupport'] );
+        }
+        if (Core::isTest() || $activated) {
+            add_action('woocommerce_create_refund', [$this, 'createWooCommerceRefund'], 10, 2);
+            add_action('woocommerce_order_refunded', [$this, 'createStoreKeeperRefundPayment'], 10, 2);
+            add_action('woocommerce_order_partially_refunded', [$this, 'createStoreKeeperRefundPayment'], 10, 2);
+        }
+    }
+
+    public function addBlockSupport(): void
+    {
+        if ( class_exists( AbstractPaymentMethodType::class ) ) {
+            add_action(
+                'woocommerce_blocks_payment_method_type_registration',
+                function( PaymentMethodRegistry $payment_method_registry ) {
+                    $methods = $this->getSkMethods();
+
+                    foreach ($methods as $method){
+                        $payment_method_registry->register(
+                            new BlockSupport($method)
+                        );
+                    }
+                },
+                5
+            );
+        }
+    }
     protected static function querySql(string $sql): bool
     {
         global $wpdb;
@@ -426,24 +468,7 @@ SQL;
      */
     public function addGatewayClasses($default_gateway_classes)
     {
-        try {
-            $api = StoreKeeperApi::getApiByAuthName();
-            $ShopModule = $api->getModule('ShopModule');
-
-            $methods = $ShopModule->listTranslatedPaymentMethodForHooks(
-                Language::getSiteLanguageIso2(),
-                0,
-                0,
-                null,
-                [
-                    [
-                        // Only show web compatible payment methods
-                        'name' => 'provider_method_type/alias__in_list',
-                        'multi_val' => ['Web', 'ExternalGiftCard', 'OnlineGiftCard'],
-                    ],
-                ]
-            )['data'];
-
+            $methods = $this->getSkMethods();
             $gateway_classes = [];
             foreach ($methods as $method) {
                 $imageUrl = array_key_exists('image_url', $method) ? $method['image_url'] : '';
@@ -461,17 +486,6 @@ SQL;
                     ]
                 );
             }
-        } catch (AuthException $authException) {
-            self::getCheckOutLogger()->error('addGatewayClasses: '. $authException->getMessage());
-            LoggerFactory::createErrorTask('add-storeKeeper-gateway-auth', $authException);
-
-            return $default_gateway_classes;
-        } catch (\Throwable $e) {
-            self::getCheckOutLogger()->error('addGatewayClasses: '. $e->getMessage());
-            LoggerFactory::createErrorTask('add-storeKeeper-gateway-exception', $e);
-
-            return $default_gateway_classes;
-        }
 
         return array_merge($default_gateway_classes, $gateway_classes);
     }
@@ -540,5 +554,40 @@ SQL;
     protected function isPaymentStatusPaid($payment_status): bool
     {
         return in_array($payment_status, self::PAYMENT_PAID_STATUSES, true);
+    }
+
+    protected function getSkMethods(): array
+    {
+        if( is_null($this->methods)){
+            try {
+                $api = StoreKeeperApi::getApiByAuthName();
+                $ShopModule = $api->getModule('ShopModule');
+
+                $this->methods = $ShopModule->listTranslatedPaymentMethodForHooks(
+                    Language::getSiteLanguageIso2(),
+                    0,
+                    0,
+                    null,
+                    [
+                        [
+                            // Only show web compatible payment methods
+                            'name' => 'provider_method_type/alias__in_list',
+                            'multi_val' => ['Web', 'ExternalGiftCard', 'OnlineGiftCard'],
+                        ],
+                    ]
+                )['data'];
+            } catch (AuthException $e) {
+                self::getCheckOutLogger()->error(__CLASS__.':'.__FUNCTION__.' AuthException '. $e->getMessage());
+                LoggerFactory::createErrorTask('add-storeKeeper-gateway-auth', $e);
+
+                return [];
+            } catch (\Throwable $e) {
+                self::getCheckOutLogger()->error(__CLASS__.':'.__FUNCTION__.' Throwable '. $e->getMessage());
+                LoggerFactory::createErrorTask('add-storeKeeper-gateway-exception', $e);
+
+                return [];
+            }
+        }
+        return $this->methods;
     }
 }

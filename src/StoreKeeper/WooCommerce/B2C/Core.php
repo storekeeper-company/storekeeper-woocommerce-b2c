@@ -135,6 +135,12 @@ class Core
      */
     protected $loader;
 
+    public static function plugin_url() {
+        return untrailingslashit( plugins_url( '/', STOREKEEPER_WOOCOMMERCE_FILE ) );
+    }
+    public static function plugin_abspath() {
+        return trailingslashit( plugin_dir_path( __FILE__ ) );
+    }
     /**
      * Core constructor.
      */
@@ -155,9 +161,12 @@ class Core
         self::registerCommands();
         $this->loadAdditionalCore();
         $this->loadEndpoints();
+
         if (StoreKeeperOptions::isPaymentSyncEnabled()) {
-            $this->registerPaymentGateway();
+            $PaymentGateway = new PaymentGateway();
+            $PaymentGateway->registerHooks();
         }
+
         $this->versionChecks();
         $this->registerMarkDown();
         $this->registerAddressFormatting();
@@ -257,36 +266,6 @@ class Core
         }
 
         return $tmp.'/dumps/';
-    }
-
-    private function registerPaymentGateway(): void
-    {
-        if ($this->isPaymentGatewayActivated()) {
-            //activated the payment gateway and backend is connected, which is required for this feature.
-            $PaymentGateway = new PaymentGateway();
-            $this->loader->add_action('woocommerce_thankyou', $PaymentGateway, 'checkPayment');
-            $this->loader->add_filter('woocommerce_payment_gateways', $PaymentGateway, 'addGatewayClasses');
-            // check the order status
-            $this->loader->add_filter('woocommerce_api_backoffice_pay_gateway_return', $PaymentGateway, 'onReturn');
-
-            $this->loader->add_filter('init', $PaymentGateway, 'registerCheckoutFlash');
-        }
-
-        // Add hooks when testing
-        if (self::isTest() || $this->isPaymentGatewayActivated()) {
-            // Handle payment refunds
-            $PaymentGateway = new PaymentGateway();
-
-            $this->loader->add_action('woocommerce_create_refund', $PaymentGateway, 'createWooCommerceRefund', 10, 2);
-            $this->loader->add_action('woocommerce_order_refunded', $PaymentGateway, 'createStoreKeeperRefundPayment', 10, 2);
-            $this->loader->add_action('woocommerce_order_partially_refunded', $PaymentGateway, 'createStoreKeeperRefundPayment', 10, 2);
-        }
-    }
-
-    private function isPaymentGatewayActivated(): bool
-    {
-        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes') &&
-            StoreKeeperOptions::isConnected();
     }
 
     private function registerAddressFormatting(): void
