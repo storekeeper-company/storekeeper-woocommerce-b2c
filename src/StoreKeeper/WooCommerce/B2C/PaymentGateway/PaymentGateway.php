@@ -462,8 +462,13 @@ SQL;
                 );
             }
         } catch (AuthException $authException) {
-            self::getCheckOutLogger()->error($authException->getMessage(), ['trace' => $authException->getTraceAsString()]);
+            self::getCheckOutLogger()->error('addGatewayClasses: '. $authException->getMessage());
             LoggerFactory::createErrorTask('add-storeKeeper-gateway-auth', $authException);
+
+            return $default_gateway_classes;
+        } catch (\Throwable $e) {
+            self::getCheckOutLogger()->error('addGatewayClasses: '. $e->getMessage());
+            LoggerFactory::createErrorTask('add-storeKeeper-gateway-exception', $e);
 
             return $default_gateway_classes;
         }

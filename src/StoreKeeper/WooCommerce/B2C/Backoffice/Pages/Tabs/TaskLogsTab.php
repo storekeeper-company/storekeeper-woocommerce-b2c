@@ -258,6 +258,9 @@ HTML;
 
                 echo '<div id="error-message-'.esc_attr($task['id']).'" style="display: none">';
                 echo '<h3><strong style="color:darkred">'.esc_html($errorOutput['exception-class']).': '.esc_html($errorOutput['exception-message']).'</strong></h3>';
+                if (isset($errorOutput['error-key'])) {
+                    echo esc_html__('Error key', I18N::DOMAIN).': '.esc_html($errorOutput['error-key']).'<br>';
+                }
                 if (isset($errorOutput['exception-reference'])) {
                     echo esc_html__('Error reference', I18N::DOMAIN).': '.esc_html($errorOutput['exception-reference']).':<br>';
                 }
