@@ -169,12 +169,6 @@ class Core
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
 
-//        add_action('init', function () {
-//            if( RoleHelper::isContentManager() ){
-//                $current_user = wp_get_current_user();
-//                $current_user->remove_cap('manage_options');
-//            }
-//        });
     }
 
     private function prepareCron()
