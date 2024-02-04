@@ -1154,6 +1154,7 @@ class OrderExportTest extends AbstractOrderExportTest
 
         $this->processTask($task);
     }
+
     public function testCustomerEmailIsInvalid()
     {
         $this->initApiConnection();
@@ -1187,6 +1188,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             $this->assertEquals($expectEmail, $subuser['login'], 'It should noemail');
                             $this->assertEquals($expectEmail, $subuser['email'], 'It should noemail');
                             $calledFn[] = 'newShopCustomer';
+
                             return mt_rand();
                         }
                     );
@@ -1205,6 +1207,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             $sent_order['id'] = rand();
                             $sent_order = $this->calculateNewOrder($sent_order);
                             $calledFn[] = 'newOrder';
+
                             return $sent_order['id'];
                         }
                     );
@@ -1216,8 +1219,6 @@ class OrderExportTest extends AbstractOrderExportTest
                     );
 
                     $module->allows('updateOrder')->andReturnNull();
-
-
                 }
             );
 
@@ -1225,8 +1226,9 @@ class OrderExportTest extends AbstractOrderExportTest
         $task = $OrderHandler->create($order->get_id());
         $this->processTask($task);
 
-        $this->assertEquals(['newShopCustomer','newOrder'], $calledFn, 'called functions');
+        $this->assertEquals(['newShopCustomer', 'newOrder'], $calledFn, 'called functions');
     }
+
     /**
      * In some cases when the theme is broken the order gets a Variable product instead of variance
      * So far it only happen when the order has single variance.

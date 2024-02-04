@@ -2,9 +2,11 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Imports;
 
+use Adbar\Dot;
 use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Imports\AbstractProductImport;
+use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\AbstractTest;
@@ -153,6 +155,156 @@ class ProductImportTest extends AbstractTest
         /* @var WC_Product_Variable $variableProduct */
         $variableProduct = $woocommerceProducts[0];
         $this->assertCount(1, $variableProduct->get_upsell_ids(), '1 upsell IDs should be set');
+    }
+
+    public function dataProviderTestGetStockProperties()
+    {
+        $tests = [];
+
+        $tests['simple or configurable assign product in stock, limited, has positive orderable value'] = [
+            [
+                'simple',
+                true,
+                false,
+                5,
+                10,
+            ],
+            true,
+            true,
+            10,
+        ];
+
+        $tests['simple or configurable assign product in stock, limited, has negative orderable value'] = [
+            [
+                'simple',
+                true,
+                false,
+                5,
+                -10,
+            ],
+            false,
+            true,
+            0,
+        ];
+
+        $tests['simple or configurable assign product in stock, limited, has no orderable value'] = [
+            [
+                'configurable_assign',
+                true,
+                false,
+                5,
+                null,
+            ],
+            true,
+            true,
+            5,
+        ];
+
+        $tests['simple or configurable assign product out stock, limited, has orderable value'] = [
+            [
+                'simple',
+                false,
+                false,
+                5, // Ignored cause in_stock is false
+                10, // Ignored cause in_stock is false
+            ],
+            false,
+            true,
+            0,
+        ];
+
+        $tests['simple or configurable assign product out stock, unlimited, has orderable value'] = [
+            [
+                'simple',
+                false,
+                true, // Ignored cause in_stock is false
+                5,
+                10, // Ignored cause in_stock is false
+            ],
+            false,
+            true,
+            0,
+        ];
+
+        $tests['configurable product in stock, limited, has positive orderable value'] = [
+            [
+                'configurable',
+                true,
+                false,
+                5,
+                10,
+            ],
+            true,
+            true,
+            10,
+        ];
+
+        // Configurable products are forced to be in stock and unlimited if orderable value is < 0, otherwise it will show out of stock
+        // in shop https://app.clickup.com/t/8693q167z, it should then depend on the variations if they can be ordered or not
+        $tests['configurable product in stock, limited, has negative orderable value'] = [
+            [
+                'configurable',
+                true,
+                false,
+                5,
+                -10,
+            ],
+            true,
+            false,
+            0,
+        ];
+
+        $tests['configurable product in stock, limited, has no orderable value'] = [
+            [
+                'configurable',
+                true,
+                false,
+                5,
+                false,
+            ],
+            true,
+            true,
+            5,
+        ];
+
+        $tests['configurable product out of stock, limited, has no orderable value'] = [
+            [
+                'configurable',
+                false,
+                false,
+                -5,
+                false,
+            ],
+            true,
+            false,
+            0,
+        ];
+
+        return $tests;
+    }
+
+    /**
+     * @dataProvider dataProviderTestGetStockProperties
+     */
+    public function testGetStockProperties(array $actualData, bool $expectedInStock, bool $expectedManageStock, int $expectedQuantity)
+    {
+        $this->initApiConnection();
+        $productImport = new ProductImport();
+
+        $productData = new Dot();
+        $productData->set('flat_product.product.type', $actualData[0]);
+        $productData->set('flat_product.product.product_stock.in_stock', $actualData[1]);
+        $productData->set('flat_product.product.product_stock.unlimited', $actualData[2]);
+        $productData->set('flat_product.product.product_stock.value', $actualData[3]);
+        if ($actualData[4]) {
+            $productData->set('orderable_stock_value', $actualData[4]);
+        }
+
+        [$in_stock, $manage_stock, $stock_quantity] = $productImport->getStockProperties($productData);
+
+        $this->assertEquals($expectedInStock, $in_stock, 'Should match expected in stock status');
+        $this->assertEquals($expectedManageStock, $manage_stock, 'Should match manage stock status');
+        $this->assertEquals($expectedQuantity, $stock_quantity, 'Should match stock quantity');
     }
 
     /**

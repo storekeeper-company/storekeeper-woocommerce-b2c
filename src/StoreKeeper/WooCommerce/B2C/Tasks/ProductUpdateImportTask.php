@@ -2,14 +2,13 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tasks;
 
-use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductUpdateImport;
 
 class ProductUpdateImportTask extends AbstractTask
 {
     public function run(array $task_options = []): void
     {
-        if ( $this->taskMetaExists('storekeeper_id')) {
+        if ($this->taskMetaExists('storekeeper_id')) {
             $storekeeperId = $this->getTaskMeta('storekeeper_id');
             $scope = $this->getTaskMeta('scope') ?? '';
             $product = new ProductUpdateImport(
@@ -23,7 +22,7 @@ class ProductUpdateImportTask extends AbstractTask
             $product->setTaskHandler($this->getTaskHandler());
             $product->run();
         } else {
-            $this->logger->notice("No storekeeper_id -> nothing to process");
+            $this->logger->notice('No storekeeper_id -> nothing to process');
         }
     }
 }

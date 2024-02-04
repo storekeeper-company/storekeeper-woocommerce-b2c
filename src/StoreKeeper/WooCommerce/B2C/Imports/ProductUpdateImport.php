@@ -55,17 +55,17 @@ class ProductUpdateImport extends ProductImport
             false === self::getProductByProductData($dotObject)
         ) {
             $this->logger->debug(
-                "Update product scope is empty or no product is found, runnign full import",
+                'Update product scope is empty or no product is found, runnign full import',
                 ['scope' => $scope]
             );
+
             return parent::processSimpleAndConfigurableProduct($dotObject, $log_data, $options, $importProductType);
         }
 
         $this->logger->debug(
-            "Update product from scope",
+            'Update product from scope',
             ['scope' => $scope]
         );
-
 
         // Get the product entity
         $newProduct = $this->ensureWooCommerceProduct($dotObject, $importProductType);

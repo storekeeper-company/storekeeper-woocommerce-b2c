@@ -59,19 +59,20 @@ class Media
 
         return current($attachments);
     }
+
     public static function getAttachmentId($original_url): ?int
     {
         $attachments = get_posts(
             [
                 'post_type' => 'attachment',
                 'posts_per_page' => 1,
-                'fields'         => 'ids',
+                'fields' => 'ids',
                 'meta_key' => 'original_url',
                 'meta_value' => $original_url,
                 'post_status' => ['publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit'],
             ]
         );
-        if(!empty($attachments)){
+        if (!empty($attachments)) {
             return $attachments[0];
         }
 
@@ -80,7 +81,7 @@ class Media
 
     public static function getAttachmentIdsByUrls(array $original_urls): array
     {
-        if( empty($original_urls) ){
+        if (empty($original_urls)) {
             return [];
         }
         global $wpdb;
@@ -100,11 +101,13 @@ class Media
         $results = $wpdb->get_results($query);
 
         $byUrl = [];
-        foreach ($results as $obj){
+        foreach ($results as $obj) {
             $byUrl[$obj->meta_value] = (int) $obj->ID;
         }
+
         return $byUrl;
     }
+
     public static function getAttachmentByCdnUrl($cdnUrl)
     {
         $attachments = get_posts(

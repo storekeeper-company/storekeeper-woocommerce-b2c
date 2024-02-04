@@ -206,7 +206,7 @@ abstract class AbstractProductImport extends AbstractImport
         return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::NOTIFY_ON_BACKORDER, 'no') ? 'notify' : 'yes';
     }
 
-    protected function getStockProperties(
+    public function getStockProperties(
         Dot $dot,
         string $shop_product_path = '',
         string $stock_path = 'flat_product.product.product_stock'
@@ -229,9 +229,18 @@ abstract class AbstractProductImport extends AbstractImport
             $in_stock = $stock_quantity > 0;
         }
         if (!$in_stock) {
-            $manage_stock = true;
+            $importProductType = $dot->get('flat_product.product.type');
+            if ('configurable' === $importProductType) {
+                // Configurable product stock is not managed since variations are ordered on their own
+                $in_stock = true;
+                $manage_stock = false;
+            } else {
+                $manage_stock = true;
+            }
+
             $stock_quantity = 0;
         }
+
         $dateUpdated = $dot->get($this->cleanDotPath($stock_path.'.date_updated'));
 
         return [$in_stock, $manage_stock, $stock_quantity, $dateUpdated];
@@ -253,7 +262,7 @@ abstract class AbstractProductImport extends AbstractImport
         try {
             $woocommerceProductId = $this->doProcessProductItem($dotObject, $options);
 
-            $this->logger->debug("Processed product", [
+            $this->logger->debug('Processed product', [
                 'shop_product_id' => $shopProductId,
                 'product_id' => $woocommerceProductId,
             ]);

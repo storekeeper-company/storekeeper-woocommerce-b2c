@@ -72,6 +72,7 @@ class ProductAttributes implements LoggerAwareInterface
                 $newProduct->delete_meta_data($meta_key);
             }
         }
+
         return $barcode_was_set;
     }
 
@@ -110,7 +111,7 @@ class ProductAttributes implements LoggerAwareInterface
                         $contentVar->get('value_label'),
                         $contentVar->get('attribute_option_image_url', null),
                         $contentVar->get('attribute_option_order', 0),
-                    )
+                    ),
                 ];
                 $attribute = wc_get_attribute($attribute_id);
                 $attribute_name = $attribute->slug;
@@ -228,6 +229,7 @@ class ProductAttributes implements LoggerAwareInterface
 
         $newProduct->set_attributes($options);
     }
+
     public static function getSortedAttributes($attributes)
     {
         usort($attributes, function ($a, $b) {

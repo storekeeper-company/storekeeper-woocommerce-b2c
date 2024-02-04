@@ -96,14 +96,14 @@ class CustomerFinder
         $email = $order->get_billing_email('edit');
 
         $initialEmailWasValid = self::isValidEmail($email);
-        if( !$initialEmailWasValid){
+        if (!$initialEmailWasValid) {
             $email = self::convertToNoEmail($email);
         }
         try {
             // Check if the customer already exists
             $relationDataId = self::findCustomerRelationDataIdByEmail($email);
         } catch (EmailIsAdminUserException $exception) {
-            if( $initialEmailWasValid ){
+            if ($initialEmailWasValid) {
                 $email = self::convertToNoEmail($email);
                 $relationDataId = self::findCustomerRelationDataIdByEmail($email);
             } else {
@@ -275,15 +275,17 @@ class CustomerFinder
     {
         $storeUrlParts = wp_parse_url(home_url());
         $storeBaseUrl = $storeUrlParts['host'];
-        $email = 'nomail+' . crc32($email ?? '') . '@' . $storeBaseUrl;
+        $email = 'nomail+'.crc32($email ?? '').'@'.$storeBaseUrl;
+
         return $email;
     }
 
     public static function isValidEmail(?string $email): bool
     {
-        if( !empty($email) ){
+        if (!empty($email)) {
             return filter_var($email, FILTER_VALIDATE_EMAIL);
         }
+
         return false;
     }
 }
