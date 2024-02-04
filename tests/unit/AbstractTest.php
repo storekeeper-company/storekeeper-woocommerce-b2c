@@ -748,15 +748,10 @@ abstract class AbstractTest extends WP_UnitTestCase
         }
     }
 
-    protected function isProductConfigurableAndHasOrderableValue(WC_Product $wc_product, Dot $original_product)
-    {
-        return self::WC_TYPE_CONFIGURABLE === $wc_product->get_type() && $original_product->has('orderable_stock_value');
-    }
-
     protected function assertProductStock(Dot $original_product, WC_Product $wc_product, string $sku): void
     {
         // Stock
-        if ($this->isProductConfigurableAndHasOrderableValue($wc_product, $original_product)) {
+        if (self::WC_TYPE_CONFIGURABLE === $wc_product->get_type() && $original_product->has('orderable_stock_value')) {
             // Configurable is in stock if orderable value is more than
             $expected_in_stock = $original_product->get('orderable_stock_value') > 0;
         } else {
@@ -808,7 +803,7 @@ abstract class AbstractTest extends WP_UnitTestCase
             // Manage stock is always set to true when product is out of stock
             $expected_manage_stock = true;
 
-            if ($this->isProductConfigurableAndHasOrderableValue($wc_product, $original_product)) {
+            if (self::WC_TYPE_CONFIGURABLE === $wc_product->get_type()) {
                 // We don't manage if it's configurable and out of stock
                 $expected_manage_stock = false;
             }
@@ -829,10 +824,7 @@ abstract class AbstractTest extends WP_UnitTestCase
 
             // Stock status
             $expected_stock_status = self::WC_STATUS_OUTOFSTOCK;
-
-            if ($this->isProductConfigurableAndHasOrderableValue($wc_product, $original_product)) {
-                $expected_stock_status = self::WC_STATUS_INSTOCK;
-            }
+            // WooCommerce also set status to out_of_stock when unlimited/manage = false
 
             $this->assertEquals(
                 $expected_stock_status,
