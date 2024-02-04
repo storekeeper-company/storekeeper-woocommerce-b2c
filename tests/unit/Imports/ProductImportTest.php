@@ -163,121 +163,155 @@ class ProductImportTest extends AbstractTest
 
         $tests['simple or configurable assign product in stock, limited, has positive orderable value'] = [
             [
-                'simple',
-                true,
-                false,
-                5,
-                10,
+                'type' => 'simple',
+                'product_stock' => [
+                    'in_stock' => true,
+                    'unlimited' => false,
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => 10,
             ],
-            true,
-            true,
-            10,
+            [
+                'in_stock' => true,
+                'manage_stock' => true,
+                'quantity' => 10,
+            ],
         ];
 
         $tests['simple or configurable assign product in stock, limited, has negative orderable value'] = [
             [
-                'simple',
-                true,
-                false,
-                5,
-                -10,
+                'type' => 'simple',
+                'product_stock' => [
+                    'in_stock' => true,
+                    'unlimited' => false,
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => -10,
             ],
-            false,
-            true,
-            0,
+            [
+                'in_stock' => false,
+                'manage_stock' => true,
+                'quantity' => 0,
+            ],
         ];
 
         $tests['simple or configurable assign product in stock, limited, has no orderable value'] = [
             [
-                'configurable_assign',
-                true,
-                false,
-                5,
-                null,
+                'type' => 'configurable_assign',
+                'product_stock' => [
+                    'in_stock' => true,
+                    'unlimited' => false,
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => null,
             ],
-            true,
-            true,
-            5,
+            [
+                'in_stock' => true,
+                'manage_stock' => true,
+                'quantity' => 5,
+            ],
         ];
 
         $tests['simple or configurable assign product out stock, limited, has orderable value'] = [
             [
-                'simple',
-                false,
-                false,
-                5, // Ignored cause in_stock is false
-                10, // Ignored cause in_stock is false
+                'type' => 'simple',
+                'product_stock' => [
+                    'in_stock' => false,
+                    'unlimited' => false,
+                    'value' => 5, // Ignored cause in_stock is false
+                ],
+                'orderable_stock_value' => 10, // Ignored cause in_stock is false
             ],
-            false,
-            true,
-            0,
+            [
+                'in_stock' => false,
+                'manage_stock' => true,
+                'quantity' => 0,
+            ],
         ];
 
         $tests['simple or configurable assign product out stock, unlimited, has orderable value'] = [
             [
-                'simple',
-                false,
-                true, // Ignored cause in_stock is false
-                5,
-                10, // Ignored cause in_stock is false
+                'type' => 'simple',
+                'product_stock' => [
+                    'in_stock' => false,
+                    'unlimited' => true, // Ignored cause in_stock is false
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => 10, // Ignored cause in_stock is false
             ],
-            false,
-            true,
-            0,
+            [
+                'in_stock' => false,
+                'manage_stock' => true,
+                'quantity' => 0,
+            ],
         ];
 
         $tests['configurable product in stock, limited, has positive orderable value'] = [
             [
-                'configurable',
-                true,
-                false,
-                5,
-                10,
+                'type' => 'configurable',
+                'product_stock' => [
+                    'in_stock' => true,
+                    'unlimited' => false,
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => 10,
             ],
-            true,
-            true,
-            10,
+            [
+                'in_stock' => true,
+                'manage_stock' => true,
+                'quantity' => 10,
+            ],
         ];
 
         // Configurable products are forced to be in stock and unlimited if orderable value is < 0, otherwise it will show out of stock
         // in shop https://app.clickup.com/t/8693q167z, it should then depend on the variations if they can be ordered or not
         $tests['configurable product in stock, limited, has negative orderable value'] = [
             [
-                'configurable',
-                true,
-                false,
-                5,
-                -10,
+                'type' => 'configurable',
+                'product_stock' => [
+                    'in_stock' => true,
+                    'unlimited' => false,
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => -10,
             ],
-            true,
-            false,
-            0,
+            [
+                'in_stock' => true,
+                'manage_stock' => false,
+                'quantity' => 0,
+            ],
         ];
 
         $tests['configurable product in stock, limited, has no orderable value'] = [
             [
-                'configurable',
-                true,
-                false,
-                5,
-                false,
+                'type' => 'configurable',
+                'product_stock' => [
+                    'in_stock' => true,
+                    'unlimited' => false,
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => false,
             ],
-            true,
-            true,
-            5,
+            [
+                'in_stock' => true,
+                'manage_stock' => true,
+                'quantity' => 5,
+            ],
         ];
 
         $tests['configurable product out of stock, limited, has no orderable value'] = [
             [
-                'configurable',
-                false,
-                false,
-                -5,
-                false,
+                'type' => 'configurable',
+                'product_stock' => ['in_stock' => false,
+                'unlimited' => false,
+                'value' => -5, ],
+                'orderable_stock_value' => false,
             ],
-            true,
-            false,
-            0,
+            [
+                'in_stock' => true,
+                'manage_stock' => false,
+                'quantity' => 0,
+            ],
         ];
 
         return $tests;
@@ -286,18 +320,22 @@ class ProductImportTest extends AbstractTest
     /**
      * @dataProvider dataProviderTestGetStockProperties
      */
-    public function testGetStockProperties(array $actualData, bool $expectedInStock, bool $expectedManageStock, int $expectedQuantity)
+    public function testGetStockProperties(array $actualData, array $expectedData)
     {
         $this->initApiConnection();
         $productImport = new ProductImport();
 
+        $expectedInStock = $expectedData['in_stock'];
+        $expectedManageStock = $expectedData['manage_stock'];
+        $expectedQuantity = $expectedData['quantity'];
+
         $productData = new Dot();
-        $productData->set('flat_product.product.type', $actualData[0]);
-        $productData->set('flat_product.product.product_stock.in_stock', $actualData[1]);
-        $productData->set('flat_product.product.product_stock.unlimited', $actualData[2]);
-        $productData->set('flat_product.product.product_stock.value', $actualData[3]);
-        if ($actualData[4]) {
-            $productData->set('orderable_stock_value', $actualData[4]);
+        $productData->set('flat_product.product.type', $actualData['type']);
+        $productData->set('flat_product.product.product_stock.in_stock', $actualData['product_stock']['in_stock']);
+        $productData->set('flat_product.product.product_stock.unlimited', $actualData['product_stock']['unlimited']);
+        $productData->set('flat_product.product.product_stock.value', $actualData['product_stock']['value']);
+        if ($actualData['orderable_stock_value']) {
+            $productData->set('orderable_stock_value', $actualData['orderable_stock_value']);
         }
 
         [$in_stock, $manage_stock, $stock_quantity] = $productImport->getStockProperties($productData);
