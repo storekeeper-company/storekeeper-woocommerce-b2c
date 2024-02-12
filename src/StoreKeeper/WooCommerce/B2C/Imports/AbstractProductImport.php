@@ -244,7 +244,7 @@ abstract class AbstractProductImport extends AbstractImport
         $manage_stock = true;
         if ($unlimited_stock || 'configurable' === $importProductType) {
             // Configurable product stock is not managed since variations are ordered on their own.
-            // WooCommerce also seems to handle the stock status
+            // WooCommerce also seems to handle the stock status in WC_Product_Variable::validate_props()
             $manage_stock = false;
             $stock_quantity = null;
         }
