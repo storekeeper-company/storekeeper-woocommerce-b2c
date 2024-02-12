@@ -220,25 +220,33 @@ abstract class AbstractProductImport extends AbstractImport
             throw new \Exception("No stock_path=$stock_path path found to get stock properties");
         }
         $in_stock = $dot->get($this->cleanDotPath($stock_path.'.in_stock'));
-        $manage_stock = !$dot->get($this->cleanDotPath($stock_path.'.unlimited'));
-        $stock_quantity = $manage_stock ? $dot->get($this->cleanDotPath($stock_path.'.value'), 9999) : 1;
-        $orderable_stock_path = $this->cleanDotPath($shop_product_path.'.orderable_stock_value');
-        if ($in_stock && $manage_stock && $dot->has($orderable_stock_path)) {
-            // set stock based on orderable stock instead
-            $stock_quantity = $dot->get($orderable_stock_path);
-            $in_stock = $stock_quantity > 0;
-        }
-        if (!$in_stock) {
-            $importProductType = $dot->get('flat_product.product.type');
-            if ('configurable' === $importProductType) {
-                // Configurable product stock is not managed since variations are ordered on their own
-                $in_stock = true;
-                $manage_stock = false;
-            } else {
-                $manage_stock = true;
-            }
+        $stock_quantity = $dot->get($this->cleanDotPath($stock_path.'.value'), 9999);
+        $unlimited_stock = $dot->get($this->cleanDotPath($stock_path.'.unlimited'));
 
+        $orderable_stock_path = $this->cleanDotPath($shop_product_path.'.orderable_stock_value');
+
+        if ($dot->has($orderable_stock_path) && !is_null($dot->get($orderable_stock_path))) {
+            // Set stock based on orderable stock instead
+            $orderable_stock_quantity = $dot->get($orderable_stock_path);
+            $in_stock = $orderable_stock_quantity > 0;
+            $stock_quantity = $orderable_stock_quantity;
+        }
+
+        if ($stock_quantity < 0) {
             $stock_quantity = 0;
+        }
+
+        if ($in_stock && 0 === $stock_quantity && !$unlimited_stock) {
+            $in_stock = false;
+        }
+
+        $importProductType = $dot->get('flat_product.product.type');
+        $manage_stock = true;
+        if ($unlimited_stock || 'configurable' === $importProductType) {
+            // Configurable product stock is not managed since variations are ordered on their own.
+            // WooCommerce also seems to handle the stock status
+            $manage_stock = false;
+            $stock_quantity = null;
         }
 
         $dateUpdated = $dot->get($this->cleanDotPath($stock_path.'.date_updated'));

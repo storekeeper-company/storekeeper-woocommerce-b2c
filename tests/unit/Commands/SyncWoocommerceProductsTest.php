@@ -227,11 +227,13 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $wooCommerceProducts = wc_get_products(['type' => self::WC_TYPE_CONFIGURABLE]);
 
         $this->assertCount(1, $wooCommerceProducts, 'Error in test, multiple products imported');
+        /** @var \WC_Product_Variable $wooCommerceProduct */
         $wooCommerceProduct = $wooCommerceProducts[0];
+        $wooCommerceProduct->validate_props();
         $expected = [
             'sku' => 'MWVR2OCONFIG',
-            'manage_stock' => true,
-            'stock_quantity' => 75,
+            'manage_stock' => false, // Configurable stocks are not being managed
+            'stock_quantity' => null,
             'stock_status' => 'instock',
         ];
         $actual = [
