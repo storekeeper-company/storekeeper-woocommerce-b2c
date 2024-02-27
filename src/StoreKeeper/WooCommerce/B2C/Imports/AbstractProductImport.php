@@ -218,11 +218,11 @@ abstract class AbstractProductImport extends AbstractImport
         $unlimited_stock = $dot->get($this->cleanDotPath($stock_path.'.unlimited'));
         $orderable_stock_quantity = $dot->get($this->cleanDotPath($shop_product_path.'.orderable_stock_value'));
 
-        $in_stock = $orderable_stock_quantity === null ||  $orderable_stock_quantity > 0;
+        $in_stock = null === $orderable_stock_quantity || $orderable_stock_quantity > 0;
         $manage_stock = !$unlimited_stock;
         $stock_quantity = $manage_stock ? $orderable_stock_quantity : null;
 
-        if( !is_null($stock_quantity) && $stock_quantity < 0 ){
+        if (!is_null($stock_quantity) && $stock_quantity < 0) {
             $stock_quantity = 0;
         }
 

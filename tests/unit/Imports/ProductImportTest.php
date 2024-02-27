@@ -658,7 +658,7 @@ class ProductImportTest extends AbstractTest
         $got['manage_stock'] = $newProduct->get_manage_stock();
         $got['quantity'] = $newProduct->get_stock_quantity();
 
-        $this->assertSame($expect, $got,  'Assert stock');
+        $this->assertSame($expect, $got, 'Assert stock');
     }
 
     private function createVariableProductWithAttribute(): WC_Product_Variable
