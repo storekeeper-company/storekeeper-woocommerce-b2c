@@ -232,8 +232,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $wooCommerceProduct->validate_props();
         $expected = [
             'sku' => 'MWVR2OCONFIG',
-            'manage_stock' => false, // Configurable stocks are not being managed
-            'stock_quantity' => null,
+            'manage_stock' => true,
+            'stock_quantity' => 75,
             'stock_status' => 'instock',
         ];
         $actual = [
