@@ -172,7 +172,7 @@ abstract class AbstractProductImport extends AbstractImport
         return false;
     }
 
-    protected function setProductStock(WC_Product $product, Dot $dot, array $log_data): array
+    public function setProductStock(WC_Product $product, Dot $dot, array $log_data): array
     {
         list($in_stock, $manage_stock, $stock_quantity) = $this->getStockProperties($dot);
 
@@ -191,7 +191,7 @@ abstract class AbstractProductImport extends AbstractImport
         return $log_data;
     }
 
-    protected function setProductBackorder(WC_Product $product, Dot $dot): void
+    public function setProductBackorder(WC_Product $product, Dot $dot): void
     {
         $trueValue = $this->getBackorderTrueValue();
         $backorder_string = $dot->get('backorder_enabled', false) ? $trueValue : 'no';
@@ -206,7 +206,7 @@ abstract class AbstractProductImport extends AbstractImport
         return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::NOTIFY_ON_BACKORDER, 'no') ? 'notify' : 'yes';
     }
 
-    public function getStockProperties(
+    protected function getStockProperties(
         Dot $dot,
         string $shop_product_path = '',
         string $stock_path = 'flat_product.product.product_stock'
