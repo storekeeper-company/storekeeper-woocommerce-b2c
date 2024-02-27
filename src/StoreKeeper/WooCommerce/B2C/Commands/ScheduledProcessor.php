@@ -17,6 +17,7 @@ class ScheduledProcessor extends ProcessAllTasks
     {
         return ProcessAllTasks::class;
     }
+
     /**
      * {@inheritDoc}
      */

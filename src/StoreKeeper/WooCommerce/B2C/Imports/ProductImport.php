@@ -816,7 +816,6 @@ SQL;
             'parent_post_id' => $productCheck instanceof \WP_Post ? $productCheck->post_parent : null,
         ]);
 
-
         // Schedule a task to calculate the current parent
         $this->getTaskHandler()->rescheduleTask(
             TaskHandler::PARENT_PRODUCT_RECALCULATION,
@@ -1404,15 +1403,14 @@ SQL;
         $this->debug('Saved variation attributes', [
             'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
             'parent_post_id' => $parentProduct->get_id(),
-            'props' => $props
+            'props' => $props,
         ]);
-
 
         $barcode_was_set = $productAttributes->setBarcodeMeta($variationProduct, $assignedProductData);
 
         $this->debug('Saved barcode', [
             'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
-            'barcode_was_set' => $barcode_was_set
+            'barcode_was_set' => $barcode_was_set,
         ]);
 
         $post_id = $variationProduct->save();

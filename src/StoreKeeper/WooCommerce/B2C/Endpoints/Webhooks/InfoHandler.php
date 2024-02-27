@@ -156,7 +156,7 @@ class InfoHandler
             ['status = :status AND type_group != :type_group'],
             [
                 'status' => TaskHandler::STATUS_FAILED,
-                'type_group' =>  TaskHandler::REPORT_ERROR_TYPE_GROUP
+                'type_group' => TaskHandler::REPORT_ERROR_TYPE_GROUP,
             ]
         );
 
@@ -220,6 +220,7 @@ class InfoHandler
             $unsynchronizedOrders,
             static function (WC_Order $order) {
                 $status = $order->get_status();
+
                 return OrderExport::STATUS_CANCELLED !== $status
                     && OrderExport::STATUS_REFUNDED !== $status;
             }

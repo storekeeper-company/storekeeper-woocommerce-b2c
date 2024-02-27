@@ -145,6 +145,7 @@ abstract class AbstractImport
     {
         $lockClass = $this->getLockClass();
         $this->lock = new MySqlLock($lockClass);
+
         return $this->lock->lock();
     }
 
@@ -298,9 +299,9 @@ abstract class AbstractImport
                         ++$this->processedItemCount;
                         $this->debug("Processed {$count}/{$response['count']} items");
 
-                        if( $this instanceof ProductImport ){
+                        if ($this instanceof ProductImport) {
                             // this is bad, but lots of rewriting needed otherwise
-                            if(! $this->isSkipBroken() ){
+                            if (!$this->isSkipBroken()) {
                                 throw $exception;
                             }
                         }

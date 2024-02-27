@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\Options;
 
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
-use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockTimeoutException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
@@ -64,7 +63,7 @@ class CronOptions extends AbstractOptions
 
     public static function updateFailedExecution(\Throwable $throwable): void
     {
-        if( $throwable instanceof LockTimeoutException ){
+        if ($throwable instanceof LockTimeoutException) {
             // do not save the lock exceptions as failed
         } else {
             self::set(self::LAST_EXECUTION_STATUS, CronRegistrar::STATUS_FAILED);

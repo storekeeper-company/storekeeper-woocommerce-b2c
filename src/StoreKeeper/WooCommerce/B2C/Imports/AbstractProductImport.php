@@ -253,7 +253,7 @@ abstract class AbstractProductImport extends AbstractImport
         try {
             $woocommerceProductId = $this->doProcessProductItem($dotObject, $options);
 
-            $this->logger->debug("Processed product", [
+            $this->logger->debug('Processed product', [
                 'shop_product_id' => $shopProductId,
                 'product_id' => $woocommerceProductId,
             ]);

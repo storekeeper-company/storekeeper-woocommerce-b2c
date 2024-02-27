@@ -111,9 +111,9 @@ class Attributes implements LoggerAwareInterface
     {
         $option_sk_to_wc = $this->getAttributeOptionsIfInSync($sk_options, $attribute_sk_to_wc);
 
-        if( is_null($option_sk_to_wc) ){
-            $this->logger->debug("Attribute options not in sync ", [
-                'sk_option_ids' => array_map(fn($option) => $option['id']  , $sk_options),
+        if (is_null($option_sk_to_wc)) {
+            $this->logger->debug('Attribute options not in sync ', [
+                'sk_option_ids' => array_map(fn ($option) => $option['id'], $sk_options),
             ]);
 
             $option_sk_to_wc = [];
@@ -130,7 +130,7 @@ class Attributes implements LoggerAwareInterface
                 );
             }
         } else {
-            $this->logger->debug("Attribute options are in sync ", [
+            $this->logger->debug('Attribute options are in sync ', [
                 'option_sk_to_wc' => $option_sk_to_wc,
             ]);
         }
@@ -369,13 +369,13 @@ class Attributes implements LoggerAwareInterface
         ?string $option_image = null,
         int $option_order = 0
     ): int {
-        $this->logger->debug("Importing attribute option", [
+        $this->logger->debug('Importing attribute option', [
             'attribute_id' => $attribute_id,
             'sk_attribute_option_id' => $sk_attribute_option_id,
             'option_alias' => $option_alias,
             'option_name' => $option_name,
             'option_image' => $option_image,
-            'option_order' => $option_order
+            'option_order' => $option_order,
         ]);
         $wc_attribute = wc_get_attribute($attribute_id);
         self::registerAttributeTemporary($wc_attribute->slug, $wc_attribute->name);
@@ -418,11 +418,11 @@ class Attributes implements LoggerAwareInterface
                 'taxonomy' => $wc_attribute->slug,
             ]);
 
-            $this->logger->debug("Insert new attribute option", [
+            $this->logger->debug('Insert new attribute option', [
                 'sk_attribute_option_id' => $sk_attribute_option_id,
                 'wc_attribute->slug' => $wc_attribute->slug,
                 'option_name' => $option_name,
-                'slug' => $option_alias
+                'slug' => $option_alias,
             ]);
             $term = WordpressExceptionThrower::throwExceptionOnWpError(
                 wp_insert_term(
@@ -435,12 +435,12 @@ class Attributes implements LoggerAwareInterface
             );
             $term_id = $term['term_id'];
         } else {
-            $this->logger->debug("Found existing attribute option -> updating", [
+            $this->logger->debug('Found existing attribute option -> updating', [
                 'sk_attribute_option_id' => $sk_attribute_option_id,
                 'term_id' => $term_id,
                 'wc_attribute->slug' => $wc_attribute->slug,
                 'name' => $option_name,
-                'by_meta' => $by_meta
+                'by_meta' => $by_meta,
             ]);
             WordpressExceptionThrower::throwExceptionOnWpError(
                 wp_update_term(
@@ -455,7 +455,7 @@ class Attributes implements LoggerAwareInterface
 
         update_term_meta($term_id, 'order', $option_order);
 
-        $this->logger->debug("Update attribute option image", [
+        $this->logger->debug('Update attribute option image', [
             'sk_attribute_option_id' => $sk_attribute_option_id,
             'term_id' => $term_id,
             'option_image' => $option_image,
@@ -474,8 +474,6 @@ class Attributes implements LoggerAwareInterface
             $option_alias
         );
 
-
-
         if ($by_meta) {
             // clean the old way of getting the option <7.4.0
             delete_term_meta(
@@ -484,7 +482,7 @@ class Attributes implements LoggerAwareInterface
             );
         }
 
-        $this->logger->debug("Done processing attribute option", [
+        $this->logger->debug('Done processing attribute option', [
             'sk_attribute_option_id' => $sk_attribute_option_id,
             'term_id' => $term_id,
         ]);
@@ -502,7 +500,7 @@ class Attributes implements LoggerAwareInterface
         string $alias,
         string $title
     ): int {
-        $this->logger->debug("Importing attribute", [
+        $this->logger->debug('Importing attribute', [
             'id' => $storekeeper_id,
             'alias' => $alias,
             'title' => $title,
@@ -534,7 +532,7 @@ class Attributes implements LoggerAwareInterface
                 wc_create_attribute($update_arguments)
             );
 
-            $this->logger->debug("Created new  attribute", [
+            $this->logger->debug('Created new  attribute', [
                 'id' => $storekeeper_id,
                 'attribute_id' => $attribute_id,
                 'data' => $update_arguments,
@@ -555,7 +553,7 @@ class Attributes implements LoggerAwareInterface
                 wc_update_attribute($existingAttribute->id, $update_arguments)
             );
 
-            $this->logger->debug("Updated existing attribute", [
+            $this->logger->debug('Updated existing attribute', [
                 'id' => $storekeeper_id,
                 'attribute_id' => $attribute_id,
                 'data' => $update_arguments,
@@ -571,7 +569,7 @@ class Attributes implements LoggerAwareInterface
             $attribute_id, $storekeeper_id, $alias
         );
 
-        $this->logger->debug("Done importing attribute", [
+        $this->logger->debug('Done importing attribute', [
             'id' => $storekeeper_id,
             'attribute_id' => $attribute_id,
         ]);
@@ -610,15 +608,16 @@ class Attributes implements LoggerAwareInterface
 
         return $clean_slug;
     }
+
     /**
      * @param array $sk_options options from storekeeper
-     * @param array $attribute_sk_to_wc
+     *
      * @return array|null {storekeeper_option_id => term_id}, if not in sync returns null
      */
     public function getAttributeOptionsIfInSync(array $sk_options, array $attribute_sk_to_wc): ?array
     {
         $option_sk_to_wc = [];
-        if( empty($sk_options)){
+        if (empty($sk_options)) {
             return $option_sk_to_wc;
         }
 
@@ -631,15 +630,16 @@ class Attributes implements LoggerAwareInterface
             $option_sk_to_wc[$sk_option['id']] = $term_id;
 
             if (is_null($term_id)) {
-                $this->logger->debug("Attribute option is not in sync no term found", [
-                    'sk_option' => $sk_option
+                $this->logger->debug('Attribute option is not in sync no term found', [
+                    'sk_option' => $sk_option,
                 ]);
+
                 return null;
             }
         }
 
-        $this->logger->debug("All attribute option have terms", [
-            'option_sk_to_wc' => $option_sk_to_wc
+        $this->logger->debug('All attribute option have terms', [
+            'option_sk_to_wc' => $option_sk_to_wc,
         ]);
 
         $expect_term_ids = array_values($option_sk_to_wc);
@@ -648,16 +648,17 @@ class Attributes implements LoggerAwareInterface
             $expect_term_ids,
             array_keys($termById),
         );
-        if( !empty($not_found)){
-            $this->logger->debug("Attribute option: Not all term ids ware found", [
+        if (!empty($not_found)) {
+            $this->logger->debug('Attribute option: Not all term ids ware found', [
                 'not_found_ids' => $not_found,
                 'expect_term_ids' => $expect_term_ids,
             ]);
+
             return null;
         }
 
-        $this->logger->debug("All attribute option terms exists", [
-            'option_sk_to_wc' => $option_sk_to_wc
+        $this->logger->debug('All attribute option terms exists', [
+            'option_sk_to_wc' => $option_sk_to_wc,
         ]);
 
         foreach ($sk_options as $sk_option) {
@@ -665,35 +666,37 @@ class Attributes implements LoggerAwareInterface
             $term = $termById[$term_id];
             $option_name = $this->formatOptionName($sk_option['label']);
             /* @var $term \WP_Term */
-            if( $term->name !== $option_name) {
-                $this->logger->debug("Attribute option is not in sync -> name difference", [
+            if ($term->name !== $option_name) {
+                $this->logger->debug('Attribute option is not in sync -> name difference', [
                     'sk_option' => $sk_option,
                     'option_name' => $option_name,
                     '$term->name' => $term->name,
                     'term_id' => $term_id,
                 ]);
+
                 return null;
             }
         }
 
-        $this->logger->debug("All attribute option terms name sare correct", [
-            'option_sk_to_wc' => $option_sk_to_wc
+        $this->logger->debug('All attribute option terms name sare correct', [
+            'option_sk_to_wc' => $option_sk_to_wc,
         ]);
-        $term_meta = $this->getTermsMetaValues($expect_term_ids, ['product_attribute_image','order']);
-        $this->logger->debug("All attribute option terms meta is loaded", [
-            'option_sk_to_wc' => $option_sk_to_wc
+        $term_meta = $this->getTermsMetaValues($expect_term_ids, ['product_attribute_image', 'order']);
+        $this->logger->debug('All attribute option terms meta is loaded', [
+            'option_sk_to_wc' => $option_sk_to_wc,
         ]);
         foreach ($sk_options as $sk_option) {
             $term_id = $option_sk_to_wc[$sk_option['id']];
             $order = $sk_option['order'] ?? 0;
-            $term_order = (int)($term_meta[$term_id]['order'] ?? 0);
+            $term_order = (int) ($term_meta[$term_id]['order'] ?? 0);
             if ($term_order !== $order) {
-                $this->logger->debug("Attribute option is not in sync -> order difference", [
+                $this->logger->debug('Attribute option is not in sync -> order difference', [
                     'sk_option' => $sk_option,
                     '$order' => $order,
                     '$term_order' => $term_order,
                     'term_id' => $term_id,
                 ]);
+
                 return null;
             }
         }
@@ -701,7 +704,7 @@ class Attributes implements LoggerAwareInterface
         if (self::isAttributeImageEnabled()) {
             $original_urls = [];
             foreach ($sk_options as $sk_option) {
-                if( !empty($sk_option['image_url'])){
+                if (!empty($sk_option['image_url'])) {
                     $original_urls[] = $sk_option['image_url'];
                 }
             }
@@ -709,40 +712,44 @@ class Attributes implements LoggerAwareInterface
             foreach ($sk_options as $sk_option) {
                 $term_id = $option_sk_to_wc[$sk_option['id']];
                 $image_url = $sk_option['image_url'] ?? null;
-                $term_image_id = (int)($term_meta[$term_id]['product_attribute_image'] ?? 0);
+                $term_image_id = (int) ($term_meta[$term_id]['product_attribute_image'] ?? 0);
                 if (!empty($image_url)) {
                     $attachment_id = $byUrl[$image_url] ?? null;
                     if ($term_image_id !== $attachment_id) {
-                        $this->logger->debug("Attribute option is not in sync -> image difference", [
+                        $this->logger->debug('Attribute option is not in sync -> image difference', [
                             'sk_option' => $sk_option,
                             '$image_url' => $image_url,
                             'term_product_attribute_image' => $term_image_id,
                             'term_id' => $term_id,
                             '$attachment->ID' => $attachment_id,
                         ]);
+
                         return null;
                     }
-                } else if (!empty($term_image_id)) {
-                    $this->logger->debug("Attribute option is not in sync -> image should not be on option", [
+                } elseif (!empty($term_image_id)) {
+                    $this->logger->debug('Attribute option is not in sync -> image should not be on option', [
                         'sk_option' => $sk_option,
                         '$image_url' => $image_url,
                         '$term_image_id' => $term_image_id,
                         'term_id' => $term_id,
                     ]);
+
                     return null;
                 }
             }
 
-            $this->logger->debug("All attribute images are correct", [
-                'option_sk_to_wc' => $option_sk_to_wc
+            $this->logger->debug('All attribute images are correct', [
+                'option_sk_to_wc' => $option_sk_to_wc,
             ]);
         }
+
         return $option_sk_to_wc;
     }
 
     protected function formatOptionName(string $option_name): string
     {
         $option_name = substr(trim($option_name), 0, self::MAX_NAME_LENGTH);
+
         return $option_name;
     }
 
@@ -756,6 +763,7 @@ class Attributes implements LoggerAwareInterface
         foreach ($terms as $term) {
             $termById[$term->term_id] = $term;
         }
+
         return $termById;
     }
 
@@ -775,7 +783,7 @@ class Attributes implements LoggerAwareInterface
         foreach ($results as $row) {
             $term_meta[$row->term_id][$row->meta_key] = $row->meta_value;
         }
+
         return $term_meta;
     }
-
 }

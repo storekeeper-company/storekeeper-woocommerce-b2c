@@ -267,7 +267,7 @@ HTML;
                 if (isset($errorOutput['plugin-version'])) {
                     echo esc_html__('StoreKeeper plugin version', I18N::DOMAIN).': '.esc_html($errorOutput['plugin-version']);
 
-                    if( version_compare($errorOutput['plugin-version'], STOREKEEPER_WOOCOMMERCE_B2C_VERSION, '<') ){
+                    if (version_compare($errorOutput['plugin-version'], STOREKEEPER_WOOCOMMERCE_B2C_VERSION, '<')) {
                         echo ' <small style="color:darkred">('.esc_html__('this task was run with older version', I18N::DOMAIN).')</small>';
                     }
                     echo '<br>';
