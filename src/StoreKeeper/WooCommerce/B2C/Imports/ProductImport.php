@@ -983,9 +983,6 @@ SQL;
         $log_data['short_description'] = $shortDescription;
         $this->debug('Set short_description on product', $log_data);
 
-        /* Backorder */
-        $this->setProductBackorder($newProduct, $dotObject);
-
         /* Categories */
         $this->setCategories($newProduct, $dotObject);
         $this->debug('Set Categories on product', $log_data);
@@ -1614,13 +1611,13 @@ SQL;
         WC_Product_Variation $variationProduct,
         Dot $assignedProductData
     ) {
-        list($in_stock, $manage_stock, $stock_quantity) = $this->getStockProperties(
+        [$manage_stock, $stock_quantity, $stock_status] = $this->getStockProperties(
             $assignedProductData,
         );
         if ($variationProduct->get_manage_stock(self::EDIT_CONTEXT) != $manage_stock) {
             $props['manage_stock'] = $manage_stock;
         }
-        $stock_status = $in_stock ? self::STOCK_STATUS_IN_STOCK : self::STOCK_STATUS_OUT_OF_STOCK;
+
         if ($variationProduct->get_manage_stock() !== $manage_stock) {
             $props['manage_stock'] = $manage_stock;
         }

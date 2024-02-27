@@ -290,8 +290,8 @@ class ProductImportTest extends AbstractTest
             ],
             [
                 'in_stock' => false,
-                'manage_stock' => false,
-                'quantity' => null,
+                'manage_stock' => true,
+                'quantity' => 0,
             ],
         ];
 
@@ -307,8 +307,8 @@ class ProductImportTest extends AbstractTest
             ],
             [
                 'in_stock' => true,
-                'manage_stock' => false,
-                'quantity' => null,
+                'manage_stock' => true,
+                'quantity' => 5,
             ],
         ];
 
@@ -324,8 +324,8 @@ class ProductImportTest extends AbstractTest
             ],
             [
                 'in_stock' => false,
-                'manage_stock' => false,
-                'quantity' => null,
+                'manage_stock' => true,
+                'quantity' => 0,
             ],
         ];
 
@@ -346,42 +346,84 @@ class ProductImportTest extends AbstractTest
             ],
         ];
 
-        // With backorder checking
+//         With backorder checking
         $tests['simple, value negative or 0, unlimited, backorder enabled'] = [
             [
                 'type' => 'simple',
                 'product_stock' => [
                     'in_stock' => false,
                     'unlimited' => true,
-                    'value' => -5,
+                    'value' => 0,
                 ],
-                'orderable_stock_value' => -5,
+                'orderable_stock_value' => 0,
                 'backorder_enabled' => true,
+            ],
+            [
+                'in_stock' => true,
+                'manage_stock' => false,
+                'quantity' => null,
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_ON_BACKORDER,
+            ],
+        ];
+
+        $tests['simple, value negative or 0, unlimited, backorder disabled'] = [
+            [
+                'type' => 'simple',
+                'product_stock' => [
+                    'in_stock' => false,
+                    'unlimited' => true,
+                    'value' => 0,
+                ],
+                'orderable_stock_value' => 0,
+                'backorder_enabled' => false,
             ],
             [
                 'in_stock' => false,
                 'manage_stock' => false,
                 'quantity' => null,
-                'backorders' => 'no', // backorder_enabled is ignored because it's unlimited so backorders are always no
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_OUT_OF_STOCK,
             ],
         ];
 
-        $tests['simple, value negative or 0, limited, backorder enabled'] = [
+        $tests['simple, value positive, unlimited, backorder disabled'] = [
+            [
+                'type' => 'simple',
+                'product_stock' => [
+                    'in_stock' => false,
+                    'unlimited' => true,
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => 5,
+                'backorder_enabled' => false,
+            ],
+            [
+                'in_stock' => true,
+                'manage_stock' => false,
+                'quantity' => null,
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_IN_STOCK,
+            ],
+        ];
+
+        $tests['simple, value positive, limited, backorder disabled'] = [
             [
                 'type' => 'simple',
                 'product_stock' => [
                     'in_stock' => false,
                     'unlimited' => false,
-                    'value' => -5,
+                    'value' => 7,
                 ],
-                'orderable_stock_value' => -5,
-                'backorder_enabled' => true,
+                'orderable_stock_value' => 7,
+                'backorder_enabled' => false,
             ],
             [
-                'in_stock' => true, // always in stock because backorders are allowed
+                'in_stock' => true,
                 'manage_stock' => true,
-                'quantity' => 0,
-                'backorders' => 'yes',
+                'quantity' => 7,
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_IN_STOCK,
             ],
         ];
 
@@ -391,9 +433,9 @@ class ProductImportTest extends AbstractTest
                 'product_stock' => [
                     'in_stock' => false,
                     'unlimited' => false,
-                    'value' => -5,
+                    'value' => 0,
                 ],
-                'orderable_stock_value' => -5,
+                'orderable_stock_value' => 0,
                 'backorder_enabled' => false,
             ],
             [
@@ -401,44 +443,27 @@ class ProductImportTest extends AbstractTest
                 'manage_stock' => true,
                 'quantity' => 0,
                 'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_OUT_OF_STOCK,
             ],
         ];
 
-        $tests['simple, value positive, unlimited, backorder enabled'] = [
-            [
-                'type' => 'simple',
-                'product_stock' => [
-                    'in_stock' => false,
-                    'unlimited' => true,
-                    'value' => 5,
-                ],
-                'orderable_stock_value' => 5,
-                'backorder_enabled' => true,
-            ],
-            [
-                'in_stock' => true,
-                'manage_stock' => false,
-                'quantity' => null,
-                'backorders' => 'no', // backorder_enabled is ignored because it's unlimited so backorders are always no
-            ],
-        ];
-
-        $tests['simple, value positive, limited, backorder enabled'] = [
+        $tests['simple, value negative or 0, limited, backorder enabled'] = [
             [
                 'type' => 'simple',
                 'product_stock' => [
                     'in_stock' => false,
                     'unlimited' => false,
-                    'value' => 5,
+                    'value' => 0,
                 ],
-                'orderable_stock_value' => 5,
+                'orderable_stock_value' => 0,
                 'backorder_enabled' => true,
             ],
             [
-                'in_stock' => true, // always in stock because backorders are allowed
+                'in_stock' => true,
                 'manage_stock' => true,
-                'quantity' => 5,
+                'quantity' => 0,
                 'backorders' => 'yes',
+                'stock_status' => ProductImport::STOCK_STATUS_ON_BACKORDER,
             ],
         ];
 
@@ -448,16 +473,97 @@ class ProductImportTest extends AbstractTest
                 'product_stock' => [
                     'in_stock' => false,
                     'unlimited' => true,
-                    'value' => -5,
+                    'value' => 0,
                 ],
-                'orderable_stock_value' => -5,
+                'orderable_stock_value' => 0,
                 'backorder_enabled' => true,
+            ],
+            [
+                'in_stock' => true,
+                'manage_stock' => false,
+                'quantity' => null,
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_ON_BACKORDER,
+            ],
+        ];
+
+        $tests['configurable, value negative or 0, unlimited, backorder disabled'] = [
+            [
+                'type' => 'configurable',
+                'product_stock' => [
+                    'in_stock' => false,
+                    'unlimited' => true,
+                    'value' => 0,
+                ],
+                'orderable_stock_value' => 0,
+                'backorder_enabled' => false,
             ],
             [
                 'in_stock' => false,
                 'manage_stock' => false,
                 'quantity' => null,
-                'backorders' => 'no', // backorder_enabled is ignored because it's unlimited so backorders are always no
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_OUT_OF_STOCK,
+            ],
+        ];
+
+        $tests['configurable, value positive, unlimited, backorder disabled'] = [
+            [
+                'type' => 'configurable',
+                'product_stock' => [
+                    'in_stock' => false,
+                    'unlimited' => true,
+                    'value' => 5,
+                ],
+                'orderable_stock_value' => 5,
+                'backorder_enabled' => false,
+            ],
+            [
+                'in_stock' => true,
+                'manage_stock' => false,
+                'quantity' => null,
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_IN_STOCK,
+            ],
+        ];
+
+        $tests['configurable, value positive, limited, backorder disabled'] = [
+            [
+                'type' => 'configurable',
+                'product_stock' => [
+                    'in_stock' => false,
+                    'unlimited' => false,
+                    'value' => 7,
+                ],
+                'orderable_stock_value' => 7,
+                'backorder_enabled' => false,
+            ],
+            [
+                'in_stock' => true,
+                'manage_stock' => true,
+                'quantity' => 7,
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_IN_STOCK,
+            ],
+        ];
+
+        $tests['configurable, value negative or 0, limited, backorder disabled'] = [
+            [
+                'type' => 'configurable',
+                'product_stock' => [
+                    'in_stock' => false,
+                    'unlimited' => false,
+                    'value' => 0,
+                ],
+                'orderable_stock_value' => 0,
+                'backorder_enabled' => false,
+            ],
+            [
+                'in_stock' => false,
+                'manage_stock' => true,
+                'quantity' => 0,
+                'backorders' => 'no',
+                'stock_status' => ProductImport::STOCK_STATUS_OUT_OF_STOCK,
             ],
         ];
 
@@ -467,54 +573,17 @@ class ProductImportTest extends AbstractTest
                 'product_stock' => [
                     'in_stock' => false,
                     'unlimited' => false,
-                    'value' => -5,
+                    'value' => 0,
                 ],
-                'orderable_stock_value' => -5,
-                'backorder_enabled' => true,
-            ],
-            [
-                'in_stock' => true, // always in stock because backorders are allowed in variation
-                'manage_stock' => false, // always false not managed since it's configurable
-                'quantity' => null,
-                'backorders' => 'no', // backorder_enabled is ignored because it's unlimited so backorders are always no
-            ],
-        ];
-
-        $tests['configurable, value positive, unlimited, backorder enabled'] = [
-            [
-                'type' => 'configurable',
-                'product_stock' => [
-                    'in_stock' => false,
-                    'unlimited' => true,
-                    'value' => 5,
-                ],
-                'orderable_stock_value' => 5,
+                'orderable_stock_value' => 0,
                 'backorder_enabled' => true,
             ],
             [
                 'in_stock' => true,
-                'manage_stock' => false,
-                'quantity' => null,
-                'backorders' => 'no', // backorder_enabled is ignored because it's unlimited so backorders are always no
-            ],
-        ];
-
-        $tests['configurable, value positive, limited, backorder enabled'] = [
-            [
-                'type' => 'configurable',
-                'product_stock' => [
-                    'in_stock' => false,
-                    'unlimited' => false,
-                    'value' => 5,
-                ],
-                'orderable_stock_value' => 5,
-                'backorder_enabled' => true,
-            ],
-            [
-                'in_stock' => true, // always in stock because backorders are allowed in variation
-                'manage_stock' => false, // always false not managed since it's configurable
-                'quantity' => null,
-                'backorders' => 'no', // backorder_enabled is ignored because it's unlimited so backorders are always no
+                'manage_stock' => true,
+                'quantity' => 0,
+                'backorders' => 'yes',
+                'stock_status' => ProductImport::STOCK_STATUS_ON_BACKORDER,
             ],
         ];
 
@@ -537,6 +606,12 @@ class ProductImportTest extends AbstractTest
         if (isset($expectedData['backorders'])) {
             $shouldAssertBackorder = true;
             $expectedBackorder = $expectedData['backorders'];
+        }
+
+        $shouldAssertStockStatus = false;
+        if (isset($expectedData['stock_status'])) {
+            $shouldAssertStockStatus = true;
+            $expectedStockStatus = $expectedData['stock_status'];
         }
 
         $productData = new Dot();
@@ -573,22 +648,23 @@ class ProductImportTest extends AbstractTest
             $variationProduct->set_parent_id($variableProductId);
             $variationProduct->set_attributes(['size' => sanitize_title('blue')]);
 
-            if ($shouldAssertBackorder) {
-                $productImport->setProductBackorder($variationProduct, $productData);
-            }
-
             $variationProduct->save();
         }
 
-        $productImport->setProductBackorder($newProduct, $productData);
         $newProduct->save();
 
+        if ($shouldAssertBackorder) {
+            // get_backorders == 'Allow' || 'Allow, but notify'
+            // in_stock == Orderable in front/checkout page
+            $this->assertSame($expectedBackorder, $newProduct->get_backorders(), 'Should match backorder status');
+        }
+
+        if ($shouldAssertStockStatus) {
+            $this->assertSame($expectedStockStatus, $newProduct->get_stock_status(), 'Should match stock status');
+        }
         $this->assertEquals($expectedInStock, $newProduct->is_in_stock(), 'Should match expected in stock status');
         $this->assertEquals($expectedManageStock, $newProduct->get_manage_stock(), 'Should match manage stock status');
         $this->assertSame($expectedQuantity, $newProduct->get_stock_quantity(), 'Should match stock quantity');
-        if ($shouldAssertBackorder) {
-            $this->assertSame($expectedBackorder, $newProduct->get_backorders(), 'Should match on backorder status');
-        }
     }
 
     private function createVariableProductWithAttribute(): WC_Product_Variable

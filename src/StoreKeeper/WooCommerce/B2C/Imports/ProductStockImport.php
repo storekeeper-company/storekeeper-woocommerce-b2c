@@ -29,7 +29,6 @@ class ProductStockImport extends AbstractProductImport
             } else {
                 // Else we just process the task.
                 $log_data = $this->setProductStock($product, $dotObject, $log_data);
-                $this->setProductBackorder($product, $dotObject);
 
                 $post_id = $product->save();
                 $log_data['post_id'] = $post_id;

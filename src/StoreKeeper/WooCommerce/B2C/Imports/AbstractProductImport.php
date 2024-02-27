@@ -15,6 +15,7 @@ abstract class AbstractProductImport extends AbstractImport
 {
     const STOCK_STATUS_IN_STOCK = 'instock';
     const STOCK_STATUS_OUT_OF_STOCK = 'outofstock';
+    const STOCK_STATUS_ON_BACKORDER = 'onbackorder';
 
     const SYNC_STATUS_PENDING = 'pending';
     const SYNC_STATUS_SUCCESS = 'success';
@@ -174,15 +175,12 @@ abstract class AbstractProductImport extends AbstractImport
 
     public function setProductStock(WC_Product $product, Dot $dot, array $log_data): array
     {
-        list($in_stock, $manage_stock, $stock_quantity) = $this->getStockProperties($dot);
+        $this->setProductBackorder($product, $dot);
+        [$manage_stock, $stock_quantity, $stock_status] = $this->getStockProperties($dot);
 
         $product->set_manage_stock($manage_stock);
         $product->set_stock_quantity($stock_quantity);
-        $product->set_stock_status(
-            $in_stock
-            ? self::STOCK_STATUS_IN_STOCK : self::STOCK_STATUS_OUT_OF_STOCK
-        );
-        $log_data['in_stock'] = $in_stock;
+        $product->set_stock_status($stock_status);
         $log_data['manage_stock'] = $product->get_manage_stock();
         $log_data['stock_quantity'] = $product->get_stock_quantity();
         $log_data['stock_status'] = $product->get_stock_status();
@@ -219,39 +217,44 @@ abstract class AbstractProductImport extends AbstractImport
         if (!empty($stock_path) && !$dot->has($stock_path)) {
             throw new \Exception("No stock_path=$stock_path path found to get stock properties");
         }
-        $in_stock = $dot->get($this->cleanDotPath($stock_path.'.in_stock'));
-        $stock_quantity = $dot->get($this->cleanDotPath($stock_path.'.value'), 9999);
+        $backorder_enabled = $dot->get('backorder_enabled', false);
         $unlimited_stock = $dot->get($this->cleanDotPath($stock_path.'.unlimited'));
 
         $orderable_stock_path = $this->cleanDotPath($shop_product_path.'.orderable_stock_value');
 
-        if ($dot->has($orderable_stock_path) && !is_null($dot->get($orderable_stock_path))) {
+        if (!is_null($dot->get($orderable_stock_path))) {
             // Set stock based on orderable stock instead
             $orderable_stock_quantity = $dot->get($orderable_stock_path);
             $in_stock = $orderable_stock_quantity > 0;
             $stock_quantity = $orderable_stock_quantity;
+        } else {
+            $in_stock = true;
         }
 
         if ($stock_quantity < 0) {
             $stock_quantity = 0;
         }
 
-        if ($in_stock && 0 === $stock_quantity && !$unlimited_stock) {
+        if ($in_stock && 0 === $stock_quantity) {
             $in_stock = false;
         }
 
-        $importProductType = $dot->get('flat_product.product.type');
         $manage_stock = true;
-        if ($unlimited_stock || 'configurable' === $importProductType) {
-            // Configurable product stock is not managed since variations are ordered on their own.
-            // WooCommerce also seems to handle the stock status in WC_Product_Variable::validate_props()
+        if ($unlimited_stock) {
             $manage_stock = false;
             $stock_quantity = null;
         }
 
-        $dateUpdated = $dot->get($this->cleanDotPath($stock_path.'.date_updated'));
+        $stock_status = self::STOCK_STATUS_IN_STOCK;
+        if (!$in_stock) {
+            if ($backorder_enabled && !$manage_stock) {
+                $stock_status = self::STOCK_STATUS_ON_BACKORDER;
+            } else {
+                $stock_status = self::STOCK_STATUS_OUT_OF_STOCK;
+            }
+        }
 
-        return [$in_stock, $manage_stock, $stock_quantity, $dateUpdated];
+        return [$manage_stock, $stock_quantity, $stock_status];
     }
 
     protected function cleanDotPath(string $shop_product_path): string
