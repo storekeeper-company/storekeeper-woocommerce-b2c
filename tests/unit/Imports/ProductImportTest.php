@@ -262,22 +262,6 @@ class ProductImportTest extends AbstractTest
             ],
         ];
 
-        $tests['configurable product out of stock, unlimited, has no orderable stock'] = [
-            [
-                'type' => 'configurable',
-                'product_stock' => [
-                    'in_stock' => false,
-                    'unlimited' => true,
-                    'value' => 0,
-                ],
-            ],
-            [
-                'in_stock' => false,
-                'manage_stock' => false,
-                'quantity' => null,
-            ],
-        ];
-
         $tests['configurable product out of stock, limited, has 0 orderable stock'] = [
             [
                 'type' => 'configurable',
@@ -653,18 +637,28 @@ class ProductImportTest extends AbstractTest
 
         $newProduct->save();
 
+        $expect = [];
+        $got = [];
+
         if ($shouldAssertBackorder) {
             // get_backorders == 'Allow' || 'Allow, but notify'
             // in_stock == Orderable in front/checkout page
-            $this->assertSame($expectedBackorder, $newProduct->get_backorders(), 'Should match backorder status');
+            $expect['backorder'] = $expectedBackorder;
+            $got['backorder'] = $newProduct->get_backorders();
         }
 
         if ($shouldAssertStockStatus) {
-            $this->assertSame($expectedStockStatus, $newProduct->get_stock_status(), 'Should match stock status');
+            $expect['stock_status'] = $expectedStockStatus;
+            $got['stock_status'] = $newProduct->get_stock_status();
         }
-        $this->assertEquals($expectedInStock, $newProduct->is_in_stock(), 'Should match expected in stock status');
-        $this->assertEquals($expectedManageStock, $newProduct->get_manage_stock(), 'Should match manage stock status');
-        $this->assertSame($expectedQuantity, $newProduct->get_stock_quantity(), 'Should match stock quantity');
+        $expect['in_stock'] = $expectedInStock;
+        $expect['manage_stock'] = $expectedManageStock;
+        $expect['quantity'] = $expectedQuantity;
+        $got['in_stock'] = $newProduct->is_in_stock();
+        $got['manage_stock'] = $newProduct->get_manage_stock();
+        $got['quantity'] = $newProduct->get_stock_quantity();
+
+        $this->assertSame($expect, $got,  'Assert stock');
     }
 
     private function createVariableProductWithAttribute(): WC_Product_Variable

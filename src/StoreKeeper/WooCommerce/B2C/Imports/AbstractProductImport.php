@@ -175,7 +175,10 @@ abstract class AbstractProductImport extends AbstractImport
 
     public function setProductStock(WC_Product $product, Dot $dot, array $log_data): array
     {
-        $this->setProductBackorder($product, $dot);
+        $trueValue = $this->getBackorderTrueValue();
+        $backorder_string = $dot->get('backorder_enabled', false) ? $trueValue : 'no';
+        $product->set_backorders($backorder_string);
+
         [$manage_stock, $stock_quantity, $stock_status] = $this->getStockProperties($dot);
 
         $product->set_manage_stock($manage_stock);
@@ -187,13 +190,6 @@ abstract class AbstractProductImport extends AbstractImport
         $this->debug('Set stock on product', $log_data);
 
         return $log_data;
-    }
-
-    public function setProductBackorder(WC_Product $product, Dot $dot): void
-    {
-        $trueValue = $this->getBackorderTrueValue();
-        $backorder_string = $dot->get('backorder_enabled', false) ? $trueValue : 'no';
-        $product->set_backorders($backorder_string);
     }
 
     /**
@@ -217,32 +213,17 @@ abstract class AbstractProductImport extends AbstractImport
         if (!empty($stock_path) && !$dot->has($stock_path)) {
             throw new \Exception("No stock_path=$stock_path path found to get stock properties");
         }
+
         $backorder_enabled = $dot->get('backorder_enabled', false);
         $unlimited_stock = $dot->get($this->cleanDotPath($stock_path.'.unlimited'));
+        $orderable_stock_quantity = $dot->get($this->cleanDotPath($shop_product_path.'.orderable_stock_value'));
 
-        $orderable_stock_path = $this->cleanDotPath($shop_product_path.'.orderable_stock_value');
+        $in_stock = $orderable_stock_quantity === null ||  $orderable_stock_quantity > 0;
+        $manage_stock = !$unlimited_stock;
+        $stock_quantity = $manage_stock ? $orderable_stock_quantity : null;
 
-        if (!is_null($dot->get($orderable_stock_path))) {
-            // Set stock based on orderable stock instead
-            $orderable_stock_quantity = $dot->get($orderable_stock_path);
-            $in_stock = $orderable_stock_quantity > 0;
-            $stock_quantity = $orderable_stock_quantity;
-        } else {
-            $in_stock = true;
-        }
-
-        if ($stock_quantity < 0) {
+        if( !is_null($stock_quantity) && $stock_quantity < 0 ){
             $stock_quantity = 0;
-        }
-
-        if ($in_stock && 0 === $stock_quantity) {
-            $in_stock = false;
-        }
-
-        $manage_stock = true;
-        if ($unlimited_stock) {
-            $manage_stock = false;
-            $stock_quantity = null;
         }
 
         $stock_status = self::STOCK_STATUS_IN_STOCK;
