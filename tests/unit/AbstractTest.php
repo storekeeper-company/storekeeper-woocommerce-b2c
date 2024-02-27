@@ -751,7 +751,12 @@ abstract class AbstractTest extends WP_UnitTestCase
     protected function assertProductStock(Dot $original_product, WC_Product $wc_product, string $sku): void
     {
         // Stock
-        $expected_in_stock = $original_product->get('flat_product.product.product_stock.in_stock');
+        if (self::WC_TYPE_CONFIGURABLE === $wc_product->get_type() && $original_product->has('orderable_stock_value')) {
+            // Configurable is in stock if orderable value is more than
+            $expected_in_stock = $original_product->get('orderable_stock_value') > 0;
+        } else {
+            $expected_in_stock = $original_product->get('flat_product.product.product_stock.in_stock');
+        }
         if ($expected_in_stock) {
             // Manage stock is based on stock unlimited. unlimited equals no stock management
             $expected_manage_stock = !$original_product->get('flat_product.product.product_stock.unlimited');
@@ -797,6 +802,12 @@ abstract class AbstractTest extends WP_UnitTestCase
         } else {
             // Manage stock is always set to true when product is out of stock
             $expected_manage_stock = true;
+
+            if (self::WC_TYPE_CONFIGURABLE === $wc_product->get_type()) {
+                // We don't manage if it's configurable and out of stock
+                $expected_manage_stock = false;
+            }
+
             $this->assertEquals(
                 $expected_manage_stock,
                 $wc_product->get_manage_stock(self::WC_CONTEXT_EDIT),
@@ -813,6 +824,8 @@ abstract class AbstractTest extends WP_UnitTestCase
 
             // Stock status
             $expected_stock_status = self::WC_STATUS_OUTOFSTOCK;
+            // WooCommerce also set status to out_of_stock when unlimited/manage = false
+
             $this->assertEquals(
                 $expected_stock_status,
                 $wc_product->get_stock_status(),

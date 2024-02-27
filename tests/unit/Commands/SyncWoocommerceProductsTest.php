@@ -227,7 +227,9 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $wooCommerceProducts = wc_get_products(['type' => self::WC_TYPE_CONFIGURABLE]);
 
         $this->assertCount(1, $wooCommerceProducts, 'Error in test, multiple products imported');
+        /** @var \WC_Product_Variable $wooCommerceProduct */
         $wooCommerceProduct = $wooCommerceProducts[0];
+        $wooCommerceProduct->validate_props();
         $expected = [
             'sku' => 'MWVR2OCONFIG',
             'manage_stock' => true,
@@ -334,11 +336,11 @@ class SyncWoocommerceProductsTest extends AbstractTest
     {
         $this->initializeTest();
 
-        $original_product_data = $this->getReturnData();
+        $return_product_data = $this->getReturnData();
 
         // Get the configurable products from the data dump
         $original_product_data = $this->getProductsByTypeFromDataDump(
-            $original_product_data,
+            $return_product_data,
             self::SK_TYPE_CONFIGURABLE
         );
 
