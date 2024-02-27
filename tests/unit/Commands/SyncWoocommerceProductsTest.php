@@ -336,11 +336,11 @@ class SyncWoocommerceProductsTest extends AbstractTest
     {
         $this->initializeTest();
 
-        $original_product_data = $this->getReturnData();
+        $return_product_data = $this->getReturnData();
 
         // Get the configurable products from the data dump
         $original_product_data = $this->getProductsByTypeFromDataDump(
-            $original_product_data,
+            $return_product_data,
             self::SK_TYPE_CONFIGURABLE
         );
 
