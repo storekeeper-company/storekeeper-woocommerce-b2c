@@ -17,20 +17,20 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
 {
     use ConsoleProgressBarTrait;
 
-    const SHIPPING_ZONE_NAME_PREFIX = 'SK_';
-    const SHIPPING_LOCATION_TYPE = 'country';
+    public const SHIPPING_ZONE_NAME_PREFIX = 'SK_';
+    public const SHIPPING_LOCATION_TYPE = 'country';
 
-    const SHIPPING_CLASS_FLAT_RATE = 'flat_rate';
-    const SHIPPING_CLASS_FREE_SHIPPING = 'free_shipping';
-    const SHIPPING_CLASS_LOCAL_PICKUP = 'local_pickup';
+    public const SHIPPING_CLASS_FLAT_RATE = 'flat_rate';
+    public const SHIPPING_CLASS_FREE_SHIPPING = 'free_shipping';
+    public const SHIPPING_CLASS_LOCAL_PICKUP = 'local_pickup';
 
-    const FREE_SHIPPING_REQUIRES = 'min_amount';
+    public const FREE_SHIPPING_REQUIRES = 'min_amount';
 
-    const SK_SHIPPING_TYPE_ALIAS_PARCEL = 'Parcel';
-    const SK_SHIPPING_TYPE_ALIAS_TRUCK_DELIVERY = 'TruckDelivery';
-    const SK_SHIPPING_TYPE_ALIAS_PICKUP_AT_STORE = 'PickupAtStore';
+    public const SK_SHIPPING_TYPE_ALIAS_PARCEL = 'Parcel';
+    public const SK_SHIPPING_TYPE_ALIAS_TRUCK_DELIVERY = 'TruckDelivery';
+    public const SK_SHIPPING_TYPE_ALIAS_PICKUP_AT_STORE = 'PickupAtStore';
 
-    const SK_SHIPPING_TYPE_MODULE = 'ShippingModule';
+    public const SK_SHIPPING_TYPE_MODULE = 'ShippingModule';
 
     private int $storekeeper_id = 0;
 

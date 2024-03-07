@@ -9,7 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\Language;
 
 class AttributeFileExport extends AbstractCSVFileExport
 {
-    const ATTRIBUTE_SET_DEFAULT_ALIAS = 'default';
+    public const ATTRIBUTE_SET_DEFAULT_ALIAS = 'default';
 
     public function getType(): string
     {
@@ -35,7 +35,7 @@ class AttributeFileExport extends AbstractCSVFileExport
     /**
      * Runs the export, once done it returns the path to the exported file.
      */
-    public function runExport(string $exportLanguage = null): string
+    public function runExport(?string $exportLanguage = null): string
     {
         $exportLanguage = $exportLanguage ?? Language::getSiteLanguageIso2();
         $attributes = AttributeExport::getAllNonFeaturedAttributes();

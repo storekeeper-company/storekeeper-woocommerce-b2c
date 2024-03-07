@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
@@ -35,7 +34,7 @@ class ProcessSingleTask extends AbstractCommand
     /**
      * @return mixed|void
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
@@ -48,7 +47,7 @@ class ProcessSingleTask extends AbstractCommand
         $this->logger->info('Got task', ['task_id' => $task_id]);
 
         if (null === $task) {
-            throw new Exception("Could not find task with id '{$task_id}'");
+            throw new \Exception("Could not find task with id '{$task_id}'");
         }
 
         $handler = new TaskHandler();

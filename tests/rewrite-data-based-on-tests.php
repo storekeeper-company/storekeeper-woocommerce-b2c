@@ -106,15 +106,13 @@ function getJsonFilesFromDir(string $realpath): array
     return array_filter(
         $files,
         function ($v) use ($realpath) {
-            return is_file($realpath.'/'.$v) &&
-                strpos($v, '.json') === strlen($v) - 5;
+            return is_file($realpath.'/'.$v)
+                && strpos($v, '.json') === strlen($v) - 5;
         }
     );
 }
 
 /**
- * @param $filename
- *
  * @throws \Exception
  */
 function rewriteFile(DumpFile\Reader $reader, string $dir, $filename, Logger $logger): void

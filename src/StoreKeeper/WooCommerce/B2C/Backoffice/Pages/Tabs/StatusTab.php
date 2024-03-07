@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages\Tabs;
 
-use ReflectionClass;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\TableRenderer;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractTab;
@@ -17,19 +16,18 @@ use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
-use WC_REST_System_Status_V2_Controller;
 
 class StatusTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const TABLES_IN_INNODB = [
+    public const TABLES_IN_INNODB = [
         'terms',
     ];
 
-    const ACTION_SET_INNO_DB = 'set-inno-db';
+    public const ACTION_SET_INNO_DB = 'set-inno-db';
 
-    const DEVELOPER_OPTIONS = [
+    public const DEVELOPER_OPTIONS = [
         StoreKeeperOptions::GUEST_AUTH,
         StoreKeeperOptions::SYNC_AUTH,
         WooCommerceOptions::WOOCOMMERCE_TOKEN,
@@ -173,7 +171,7 @@ class StatusTab extends AbstractTab
     {
         $data = [];
 
-        $reflection = new ReflectionClass($classPath);
+        $reflection = new \ReflectionClass($classPath);
         foreach ($reflection->getConstants() as $constant) {
             if (!Core::isDebug() && in_array($constant, self::DEVELOPER_OPTIONS)) {
                 continue;
@@ -197,7 +195,7 @@ class StatusTab extends AbstractTab
         global $wpdb;
 
         $data = [];
-        $database = (new WC_REST_System_Status_V2_Controller())->get_database_info();
+        $database = (new \WC_REST_System_Status_V2_Controller())->get_database_info();
 
         $data[] = [
             'title' => __('StoreKeeper database version', I18N::DOMAIN),

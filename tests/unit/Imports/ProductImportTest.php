@@ -10,7 +10,6 @@ use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\AbstractTest;
-use Throwable;
 use WC_Product_Variable;
 
 class ProductImportTest extends AbstractTest
@@ -53,7 +52,7 @@ class ProductImportTest extends AbstractTest
     /**
      * @dataProvider dataProviderTestImportWithStatusReporting
      *
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function testImportWithStatusReporting(
         string $dumpHookFile,
@@ -330,7 +329,7 @@ class ProductImportTest extends AbstractTest
             ],
         ];
 
-//         With backorder checking
+        //         With backorder checking
         $tests['simple, value negative or 0, unlimited, backorder enabled'] = [
             [
                 'type' => 'simple',
@@ -661,7 +660,7 @@ class ProductImportTest extends AbstractTest
         $this->assertSame($expect, $got, 'Assert stock');
     }
 
-    private function createVariableProductWithAttribute(): WC_Product_Variable
+    private function createVariableProductWithAttribute(): \WC_Product_Variable
     {
         $variableProduct = new \WC_Product_Variable();
 
@@ -681,7 +680,7 @@ class ProductImportTest extends AbstractTest
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     protected function handleHookRequest(
         string $dataDumpDirectory,

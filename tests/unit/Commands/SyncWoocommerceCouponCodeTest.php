@@ -5,12 +5,11 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Commands;
 use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCouponCodes;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
-use WC_Coupon;
 
 class SyncWoocommerceCouponCodeTest extends AbstractTest
 {
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-coupon-codes';
-    const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listCouponCodesForHook.success.602c86cc5cf0f.json';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-coupon-codes';
+    public const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listCouponCodesForHook.success.602c86cc5cf0f.json';
 
     public function testRun()
     {
@@ -39,7 +38,7 @@ class SyncWoocommerceCouponCodeTest extends AbstractTest
         }
     }
 
-    protected function getCouponByStoreKeeperID($storekeeper_id): ?WC_Coupon
+    protected function getCouponByStoreKeeperID($storekeeper_id): ?\WC_Coupon
     {
         $posts = WordpressExceptionThrower::throwExceptionOnWpError(
             get_posts(
@@ -54,15 +53,12 @@ class SyncWoocommerceCouponCodeTest extends AbstractTest
         if (1 === count($posts)) {
             $post = current($posts);
 
-            return new WC_Coupon($post->ID);
+            return new \WC_Coupon($post->ID);
         }
 
         return null;
     }
 
-    /**
-     * @return mixed
-     */
     protected function getOriginalData()
     {
         $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_FILE);
@@ -84,7 +80,7 @@ class SyncWoocommerceCouponCodeTest extends AbstractTest
         );
     }
 
-    protected function getCoupon(Dot $original): ?WC_Coupon
+    protected function getCoupon(Dot $original): ?\WC_Coupon
     {
         $storekeeperId = $original->get('id');
 

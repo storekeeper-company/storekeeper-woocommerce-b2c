@@ -52,10 +52,10 @@ class StoreKeeperSeoPages implements WithHooksInterface
             $attributes += ['disabled' => 'disabled'];
         }
         $this->renderCategoryEditTextField(
-                StoreKeeperSeo::SEO_TITLE,
-                __('Seo title', I18N::DOMAIN),
-                $seo[StoreKeeperSeo::SEO_TITLE],
-                $attributes
+            StoreKeeperSeo::SEO_TITLE,
+            __('Seo title', I18N::DOMAIN),
+            $seo[StoreKeeperSeo::SEO_TITLE],
+            $attributes
         );
         $this->renderCategoryEditTextField(
             StoreKeeperSeo::SEO_KEYWORDS,
@@ -65,10 +65,10 @@ class StoreKeeperSeoPages implements WithHooksInterface
         );
 
         $this->renderCategoryEditTextArea(
-                StoreKeeperSeo::SEO_DESCRIPTION,
-                __('Seo description', I18N::DOMAIN),
-                $seo[StoreKeeperSeo::SEO_DESCRIPTION],
-                $attributes
+            StoreKeeperSeo::SEO_DESCRIPTION,
+            __('Seo description', I18N::DOMAIN),
+            $seo[StoreKeeperSeo::SEO_DESCRIPTION],
+            $attributes
         );
     }
 
@@ -110,35 +110,35 @@ class StoreKeeperSeoPages implements WithHooksInterface
                 echo '</p>';
             }
         woocommerce_wp_text_input(
-                [
-                    'id' => StoreKeeperSeo::SEO_TITLE,
-                    'label' => __('Title', I18N::DOMAIN),
-                    'value' => $seo[StoreKeeperSeo::SEO_TITLE],
-                    'description' => $description,
-                    'desc_tip' => true,
-                    'custom_attributes' => $attributes,
-                ]
-            );
+            [
+                'id' => StoreKeeperSeo::SEO_TITLE,
+                'label' => __('Title', I18N::DOMAIN),
+                'value' => $seo[StoreKeeperSeo::SEO_TITLE],
+                'description' => $description,
+                'desc_tip' => true,
+                'custom_attributes' => $attributes,
+            ]
+        );
         woocommerce_wp_text_input(
-                [
-                    'id' => StoreKeeperSeo::SEO_KEYWORDS,
-                    'label' => __('Keywords', I18N::DOMAIN),
-                    'value' => $seo[StoreKeeperSeo::SEO_KEYWORDS],
-                    'description' => $description,
-                    'desc_tip' => true,
-                    'custom_attributes' => $attributes,
-                ]
-            );
+            [
+                'id' => StoreKeeperSeo::SEO_KEYWORDS,
+                'label' => __('Keywords', I18N::DOMAIN),
+                'value' => $seo[StoreKeeperSeo::SEO_KEYWORDS],
+                'description' => $description,
+                'desc_tip' => true,
+                'custom_attributes' => $attributes,
+            ]
+        );
         woocommerce_wp_textarea_input(
-                [
-                    'id' => StoreKeeperSeo::SEO_DESCRIPTION,
-                    'label' => __('Description', I18N::DOMAIN),
-                    'value' => $seo[StoreKeeperSeo::SEO_DESCRIPTION],
-                    'description' => $description,
-                    'desc_tip' => true,
-                    'custom_attributes' => $attributes,
-                ]
-            ); ?>
+            [
+                'id' => StoreKeeperSeo::SEO_DESCRIPTION,
+                'label' => __('Description', I18N::DOMAIN),
+                'value' => $seo[StoreKeeperSeo::SEO_DESCRIPTION],
+                'description' => $description,
+                'desc_tip' => true,
+                'custom_attributes' => $attributes,
+            ]
+        ); ?>
         </div>
         <?php
     }

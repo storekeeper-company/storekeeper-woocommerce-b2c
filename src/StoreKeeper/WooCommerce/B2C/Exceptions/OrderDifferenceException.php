@@ -12,7 +12,7 @@ class OrderDifferenceException extends BaseException
         array $shopExtras = [],
         array $backofficeExtras = [],
         int $code = 0,
-        \Throwable $previous = null
+        ?\Throwable $previous = null
     ) {
         $this->setShopExtras($shopExtras);
         $this->setBackofficeExtras($backofficeExtras);

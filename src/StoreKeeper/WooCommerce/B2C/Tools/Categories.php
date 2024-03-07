@@ -6,12 +6,10 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 
 class Categories
 {
-    const TAXONOMY_PRODUCT_CATEGORY = 'product_cat';
+    public const TAXONOMY_PRODUCT_CATEGORY = 'product_cat';
 
     /**
      * Getting the category term by slug.
-     *
-     * @param $slug
      *
      * @return array|false|\WP_Term
      */
@@ -23,7 +21,6 @@ class Categories
     /**
      * Getting the category term by Backoffice category_id.
      *
-     * @param $category_id
      * @param string $slug Is not required, But could yield more stable results
      *
      * @return array|bool|\WP_Error|\WP_Term|null
@@ -61,8 +58,6 @@ class Categories
     }
 
     /**
-     * @param $term_id
-     *
      * @return bool
      *
      * @throws WordpressException

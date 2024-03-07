@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
-use Exception;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockTimeoutException;
@@ -12,7 +11,6 @@ use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
-use WC_Order;
 
 class OrderImport extends AbstractImport
 {
@@ -24,7 +22,7 @@ class OrderImport extends AbstractImport
     /**
      * OrderImport constructor.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(array $settings = [])
     {
@@ -36,7 +34,7 @@ class OrderImport extends AbstractImport
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function run(array $options = []): void
     {
@@ -57,7 +55,7 @@ class OrderImport extends AbstractImport
     /**
      * @param Dot $dotObject
      *
-     * @throws Exception
+     * @throws \Exception
      * @throws NonExistentObjectException
      */
     protected function processItem($dotObject, array $options = []): ?int
@@ -70,7 +68,7 @@ class OrderImport extends AbstractImport
         }
 
         if (true === $order) {
-            throw new Exception('Fount more orders with id: '.$this->storekeeper_id);
+            throw new \Exception('Fount more orders with id: '.$this->storekeeper_id);
         }
 
         /** Set the ignore order id to prevent an update loop (wc > backend > wc > etc) */
@@ -112,9 +110,7 @@ class OrderImport extends AbstractImport
     }
 
     /**
-     * @param $storekeeper_id
-     *
-     * @return bool|WC_Order
+     * @return bool|\WC_Order
      */
     private function getItem($storekeeper_id)
     {
@@ -134,7 +130,7 @@ SQL;
         $response = $wpdb->get_row($safe_sql);
 
         if (isset($response->ID)) {
-            return new WC_Order($response->ID);
+            return new \WC_Order($response->ID);
         }
 
         return false;
@@ -167,9 +163,6 @@ SQL;
     }
 
     /**
-     * @param $current_status
-     * @param $new_status
-     *
      * @return bool
      */
     private function canUpdateStatus($current_status, $new_status)
@@ -217,7 +210,7 @@ SQL;
         return __('orders', I18N::DOMAIN);
     }
 
-    public static function ensureOrderStatusUrl(WC_Order $order, int $storekeeperId): ?string
+    public static function ensureOrderStatusUrl(\WC_Order $order, int $storekeeperId): ?string
     {
         $apiWrapper = StoreKeeperApi::getApiByAuthName();
         $shopModule = $apiWrapper->getModule('ShopModule');
@@ -235,9 +228,9 @@ SQL;
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
-    public static function fetchOrderStatusUrl(WC_Order $order, int $storekeeperId): ?string
+    public static function fetchOrderStatusUrl(\WC_Order $order, int $storekeeperId): ?string
     {
         $apiWrapper = StoreKeeperApi::getApiByAuthName();
         $shopModule = $apiWrapper->getModule('ShopModule');

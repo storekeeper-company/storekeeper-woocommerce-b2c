@@ -2,19 +2,16 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
-use Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use stdClass;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeModel;
 use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
-use function wc_create_attribute;
-use function wc_get_attribute;
+
 use function wc_update_attribute;
 
 class Attributes implements LoggerAwareInterface
@@ -28,9 +25,9 @@ class Attributes implements LoggerAwareInterface
 
     public const TYPE_DEFAULT = self::TYPE_SELECT;
 
-    const DEFAULT_ARCHIVED_SETTING = true;
-    const MAX_NAME_LENGTH = 200;
-    const TAXONOMY_MAX_LENGTH = 25; // 28 - 3 (pa_ prefix)
+    public const DEFAULT_ARCHIVED_SETTING = true;
+    public const MAX_NAME_LENGTH = 200;
+    public const TAXONOMY_MAX_LENGTH = 25; // 28 - 3 (pa_ prefix)
 
     public function __construct(?LoggerInterface $logger = null)
     {
@@ -73,7 +70,7 @@ class Attributes implements LoggerAwareInterface
         $unmatched_attributes = [];
         foreach ($attributes as $attribute) {
             if (in_array($attribute->attribute_id, $sk_attribute_ids)) {
-                continue; //already matched
+                continue; // already matched
             }
             $unmatched_attributes[] = $attribute;
         }
@@ -182,11 +179,9 @@ class Attributes implements LoggerAwareInterface
     }
 
     /**
-     * @param $exceptions
-     *
      * @return bool
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected static function throwExceptionArray($exceptions)
     {
@@ -195,24 +190,22 @@ class Attributes implements LoggerAwareInterface
         }
 
         $issues = array_map(
-            function (Exception $exception) {
+            function (\Exception $exception) {
                 return $exception->getMessage()."\r\n".$exception->getTraceAsString();
             },
             $exceptions
         );
 
-        throw new Exception(join("\r\n", $issues));
+        throw new \Exception(join("\r\n", $issues));
     }
 
-    public static function getAttribute($storekeeper_id): ?stdClass
+    public static function getAttribute($storekeeper_id): ?\stdClass
     {
         return AttributeModel::getAttributeByStoreKeeperId($storekeeper_id);
     }
 
     /**
-     * @param $slug
-     *
-     * @return bool|stdClass|null
+     * @return bool|\stdClass|null
      */
     protected static function findMatchingAttributeOption(
         string $attribute_alias,
@@ -268,7 +261,7 @@ class Attributes implements LoggerAwareInterface
     protected static function findMatchingAttribute(
         string $alias,
         string $title
-    ): ?stdClass {
+    ): ?\stdClass {
         $attribute_id = null;
         $unmatched_attributes = self::getUnmatchedAttributes();
         // match by alias
@@ -300,7 +293,7 @@ class Attributes implements LoggerAwareInterface
         }
 
         if (!empty($attribute_id)) {
-            return wc_get_attribute($attribute_id);
+            return \wc_get_attribute($attribute_id);
         }
 
         return null;
@@ -332,10 +325,6 @@ class Attributes implements LoggerAwareInterface
         );
     }
 
-    /**
-     * @param $term_id
-     * @param $image_url
-     */
     protected static function setAttributeOptionImage($term_id, $image_url)
     {
         // Import the image if the Swatches plugin is enabled
@@ -351,9 +340,6 @@ class Attributes implements LoggerAwareInterface
         }
     }
 
-    /**
-     * @param $term_id
-     */
     protected static function unsetAttributeOptionImage($term_id)
     {
         if (PluginStatus::isWoocommerceVariationSwatchesEnabled() || PluginStatus::isStoreKeeperSwatchesEnabled()) {
@@ -377,7 +363,7 @@ class Attributes implements LoggerAwareInterface
             'option_image' => $option_image,
             'option_order' => $option_order,
         ]);
-        $wc_attribute = wc_get_attribute($attribute_id);
+        $wc_attribute = \wc_get_attribute($attribute_id);
         self::registerAttributeTemporary($wc_attribute->slug, $wc_attribute->name);
 
         $term_id = AttributeOptionModel::getTermIdByStorekeeperId(
@@ -529,7 +515,7 @@ class Attributes implements LoggerAwareInterface
             $update_arguments['slug'] = self::prepareNewAttributeSlug($alias);
             $update_arguments['has_archives'] = self::DEFAULT_ARCHIVED_SETTING;
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
-                wc_create_attribute($update_arguments)
+                \wc_create_attribute($update_arguments)
             );
 
             $this->logger->debug('Created new  attribute', [
@@ -539,7 +525,7 @@ class Attributes implements LoggerAwareInterface
             ]);
 
             $wcAttribute = WordpressExceptionThrower::throwExceptionOnWpError(
-                wc_get_attribute($attribute_id)
+                \wc_get_attribute($attribute_id)
             );
 
             self::registerAttributeTemporary(CommonAttributeName::cleanAttributeTermPrefix($wcAttribute->slug), $wcAttribute->name);
@@ -550,7 +536,7 @@ class Attributes implements LoggerAwareInterface
             $update_arguments['has_archives'] = $existingAttribute->has_archives;
 
             $attribute_id = WordpressExceptionThrower::throwExceptionOnWpError(
-                wc_update_attribute($existingAttribute->id, $update_arguments)
+                \wc_update_attribute($existingAttribute->id, $update_arguments)
             );
 
             $this->logger->debug('Updated existing attribute', [
@@ -577,7 +563,7 @@ class Attributes implements LoggerAwareInterface
         return $attribute_id;
     }
 
-    protected static function updateAttributeType(stdClass $existingAttribute): bool
+    protected static function updateAttributeType(\stdClass $existingAttribute): bool
     {
         global $wpdb;
 
@@ -597,8 +583,8 @@ class Attributes implements LoggerAwareInterface
         $i = 1;
         $clean_slug = $clean_slug_base;
         while (
-            wc_check_if_attribute_name_is_reserved($clean_slug) ||
-            taxonomy_exists($clean_slug) // taxonomy exists
+            wc_check_if_attribute_name_is_reserved($clean_slug)
+            || taxonomy_exists($clean_slug) // taxonomy exists
         ) {
             $suffix = '_'.$i;
             $len = self::TAXONOMY_MAX_LENGTH - strlen($suffix);

@@ -8,7 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\LockInterface;
 
 class MySqlLock implements LockInterface
 {
-    const HASH = 'sha256';
+    public const HASH = 'sha256';
     public static $database;
 
     protected string $lock;

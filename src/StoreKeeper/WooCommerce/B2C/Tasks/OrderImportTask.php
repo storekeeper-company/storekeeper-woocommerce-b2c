@@ -12,9 +12,9 @@ class OrderImportTask extends AbstractTask
     public function run(array $task_options = []): void
     {
         if (
-            $this->taskMetaExists('storekeeper_id') &&
-            $this->taskMetaExists('order') &&
-            $this->taskMetaExists('old_order')
+            $this->taskMetaExists('storekeeper_id')
+            && $this->taskMetaExists('order')
+            && $this->taskMetaExists('old_order')
         ) {
             $new_order = $this->getTaskMeta('order');
             $old_order = $this->getTaskMeta('old_order');

@@ -9,10 +9,10 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class TaskLogsTab extends AbstractLogsTab
 {
-    const DO_SINGLE_ACTION = 'do-single-action';
-    const DO_MULTIPLE_ACTIONS = 'do-multiple-actions';
-    const RETRY_ACTION = 'retry';
-    const MARK_ACTION = 'mark';
+    public const DO_SINGLE_ACTION = 'do-single-action';
+    public const DO_MULTIPLE_ACTIONS = 'do-multiple-actions';
+    public const RETRY_ACTION = 'retry';
+    public const MARK_ACTION = 'mark';
 
     public function __construct(string $title, string $slug = '')
     {

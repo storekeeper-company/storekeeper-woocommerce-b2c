@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
-use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExport;
@@ -27,7 +26,7 @@ abstract class AbstractFileExport implements IFileExport
         $export_dir = self::getExportDir();
         if (!file_exists($export_dir)) {
             if (!mkdir($export_dir, 0777, true)) {
-                throw new Exception('Failed to create export dir @ '.$export_dir);
+                throw new \Exception('Failed to create export dir @ '.$export_dir);
             }
         }
 
@@ -48,7 +47,7 @@ abstract class AbstractFileExport implements IFileExport
     /**
      * AbstractFileExport constructor.
      */
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(?LoggerInterface $logger = null)
     {
         $this->logger = $logger ?? new NullLogger();
         $this->setFilePath();

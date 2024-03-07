@@ -29,7 +29,7 @@ class TaskChecker implements SyncIssueCheckerInterface
 
     public function isSuccess(): bool
     {
-        return 0 === count($this->failed_tasks); //return success
+        return 0 === count($this->failed_tasks); // return success
     }
 
     public function getReportTextOutput(): string
@@ -114,8 +114,6 @@ $failedTasks_links";
     }
 
     /**
-     * @param $failedTasks
-     *
      * @return array
      */
     private function formatFailedTasks($failedTasks)

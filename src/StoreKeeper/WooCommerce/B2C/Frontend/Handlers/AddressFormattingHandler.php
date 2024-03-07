@@ -2,8 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
-use Exception;
-
 class AddressFormattingHandler
 {
     /**
@@ -29,7 +27,7 @@ class AddressFormattingHandler
     /**
      * Add house number to raw address.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function addCustomAddressArguments(array $address, int $customerId, string $addressType): array
     {
@@ -49,7 +47,7 @@ class AddressFormattingHandler
     /**
      * Add house number to raw address when displaying on order.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function addCustomAddressArgumentsForOrder(array $address, string $addressType, \WC_Order $order): array
     {

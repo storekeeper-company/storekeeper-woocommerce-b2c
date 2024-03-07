@@ -63,8 +63,6 @@ class WC_Helper_Coupon
     /**
      * Delete a coupon.
      *
-     * @param $coupon_id
-     *
      * @return bool
      */
     public static function delete_coupon($coupon_id)
@@ -98,8 +96,6 @@ class WC_Helper_Coupon
 
     /**
      * Unregister custom coupon type.
-     *
-     * @param $coupon_type
      */
     public static function unregister_custom_type($coupon_type)
     {

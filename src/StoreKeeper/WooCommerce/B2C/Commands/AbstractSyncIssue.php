@@ -8,9 +8,6 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 abstract class AbstractSyncIssue extends AbstractCommand
 {
     /**
-     * @param $fileName
-     * @param $data
-     *
      * @throws BaseException
      */
     protected function writeToReportFile($fileName, $data)
@@ -25,8 +22,6 @@ abstract class AbstractSyncIssue extends AbstractCommand
     }
 
     /**
-     * @param $fileName
-     *
      * @return false|string
      */
     protected function readFromReportFile($fileName)

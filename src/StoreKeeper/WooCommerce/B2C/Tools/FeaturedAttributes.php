@@ -46,17 +46,17 @@ class FeaturedAttributes
 
     public static function isBoolAttribute(string $featured_alias)
     {
-        return self::ALIAS_NEEDS_WEIGHT_ON_KASSA === $featured_alias ||
-            self::ALIAS_NEEDS_DESCRIPTION_ON_KASSA === $featured_alias;
+        return self::ALIAS_NEEDS_WEIGHT_ON_KASSA === $featured_alias
+            || self::ALIAS_NEEDS_DESCRIPTION_ON_KASSA === $featured_alias;
     }
 
     public static function isIntAttribute(string $featured_alias)
     {
-        return self::ALIAS_UNIT_WEIGHT_IN_G === $featured_alias ||
-            self::ALIAS_MINIMAL_ORDER_QTY === $featured_alias ||
-            self::ALIAS_IN_PACKAGE_QTY === $featured_alias ||
-            self::ALIAS_IN_BOX_QTY === $featured_alias ||
-            self::ALIAS_IN_OUTER_QTY === $featured_alias;
+        return self::ALIAS_UNIT_WEIGHT_IN_G === $featured_alias
+            || self::ALIAS_MINIMAL_ORDER_QTY === $featured_alias
+            || self::ALIAS_IN_PACKAGE_QTY === $featured_alias
+            || self::ALIAS_IN_BOX_QTY === $featured_alias
+            || self::ALIAS_IN_OUTER_QTY === $featured_alias;
     }
 
     public static function getAliasName($alias)

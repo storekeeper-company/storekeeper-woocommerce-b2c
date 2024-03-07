@@ -8,25 +8,16 @@ class FeaturedAttributeOptions extends AbstractOptions
 {
     private const FEATURED_PREFIX = 'featured_attribute_id';
 
-    /**
-     * @param $alias
-     */
     private static function getOptionName($alias): string
     {
         return self::FEATURED_PREFIX.'-'.$alias;
     }
 
-    /**
-     * @param $alias
-     */
     public static function deleteAttribute($alias)
     {
         self::delete(self::getOptionName($alias));
     }
 
-    /**
-     * @param $alias
-     */
     public static function setAttribute($alias, $attribute_id, $name)
     {
         self::set(

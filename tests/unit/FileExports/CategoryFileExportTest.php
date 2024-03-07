@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
 use StoreKeeper\WooCommerce\B2C\FileExport\CategoryFileExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
-use WP_Term;
 
 class CategoryFileExportTest extends AbstractFileExportTest
 {
@@ -53,7 +52,7 @@ class CategoryFileExportTest extends AbstractFileExportTest
         );
     }
 
-    private function assertCategory(array $expected, WP_Term $category, array $mappedFirstRow, string $type): void
+    private function assertCategory(array $expected, \WP_Term $category, array $mappedFirstRow, string $type): void
     {
         $expected += [
             'lang' => $mappedFirstRow['translatable.lang'],

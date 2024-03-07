@@ -40,13 +40,13 @@ class WordPressHelpers extends ProcessHelpers
 
     public static function isStoreKeeperConnected()
     {
-        return \StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions::isConnected();
+        return StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions::isConnected();
     }
 
     public static function setTaskPostStatusToNew($task_post_id)
     {
         if (null !== get_post($task_post_id)) {
-            update_post_meta($task_post_id, 'status', \StoreKeeper\WooCommerce\B2C\Tools\TaskHandler::STATUS_NEW);
+            update_post_meta($task_post_id, 'status', StoreKeeper\WooCommerce\B2C\Tools\TaskHandler::STATUS_NEW);
 
             return true;
         }
@@ -60,7 +60,7 @@ class WordPressHelpers extends ProcessHelpers
             update_post_meta(
                 $task_post_id,
                 'status',
-                \StoreKeeper\WooCommerce\B2C\Tools\TaskHandler::STATUS_PROCESSING
+                StoreKeeper\WooCommerce\B2C\Tools\TaskHandler::STATUS_PROCESSING
             );
 
             return true;
@@ -72,7 +72,7 @@ class WordPressHelpers extends ProcessHelpers
     public static function setTaskPostStatusToFailed($task_post_id)
     {
         if (null !== get_post($task_post_id)) {
-            update_post_meta($task_post_id, 'status', \StoreKeeper\WooCommerce\B2C\Tools\TaskHandler::STATUS_FAILED);
+            update_post_meta($task_post_id, 'status', StoreKeeper\WooCommerce\B2C\Tools\TaskHandler::STATUS_FAILED);
 
             return true;
         }

@@ -13,8 +13,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\Media;
 class SyncWoocommerceAttributeOptionsTest extends AbstractTest
 {
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-attribute-options';
-    const DATADUMP_SOURCE_FILE = '20200326_120239.moduleFunction.BlogModule::listTranslatedAttributeOptions.success.5e7c99df99430.json';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-attribute-options';
+    public const DATADUMP_SOURCE_FILE = '20200326_120239.moduleFunction.BlogModule::listTranslatedAttributeOptions.success.5e7c99df99430.json';
 
     public function testRun()
     {

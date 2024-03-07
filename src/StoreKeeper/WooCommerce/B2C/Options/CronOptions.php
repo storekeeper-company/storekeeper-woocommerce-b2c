@@ -9,28 +9,28 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class CronOptions extends AbstractOptions
 {
-    const RUNNER = 'cron-runner';
-    const LAST_EXECUTION_STATUS = 'cron-last-execution-status';
-    const LAST_EXECUTION_RUNNER = 'cron-last-execution-runner';
-    const LAST_PRE_EXECUTION_DATE = 'cron-last-pre-execution-date';
-    const LAST_EXECUTION_HAS_PROCESSED = 'cron-last-has-processed';
-    const LAST_POST_EXECUTION_STATUS = 'cron-last-post-execution-status';
-    const LAST_POST_EXECUTION_ERROR = 'cron-last-post-execution-error';
-    const LAST_POST_EXECUTION_ERROR_CLASS = 'cron-last-post-execution-error-class';
+    public const RUNNER = 'cron-runner';
+    public const LAST_EXECUTION_STATUS = 'cron-last-execution-status';
+    public const LAST_EXECUTION_RUNNER = 'cron-last-execution-runner';
+    public const LAST_PRE_EXECUTION_DATE = 'cron-last-pre-execution-date';
+    public const LAST_EXECUTION_HAS_PROCESSED = 'cron-last-has-processed';
+    public const LAST_POST_EXECUTION_STATUS = 'cron-last-post-execution-status';
+    public const LAST_POST_EXECUTION_ERROR = 'cron-last-post-execution-error';
+    public const LAST_POST_EXECUTION_ERROR_CLASS = 'cron-last-post-execution-error-class';
 
-    const INVALID_PREFIX = 'cron-invalid-run-';
-    const WPCRON_INVALID_RUN_TIMESTAMP = self::INVALID_PREFIX.CronRegistrar::RUNNER_WPCRON;
-    const CLI_INVALID_RUN_TIMESTAMP = self::INVALID_PREFIX.CronRegistrar::RUNNER_CRONTAB_CLI;
-    const API_INVALID_RUN_TIMESTAMP = self::INVALID_PREFIX.CronRegistrar::RUNNER_CRONTAB_API;
-    const INVALID_TIMESTAMPS = [
+    public const INVALID_PREFIX = 'cron-invalid-run-';
+    public const WPCRON_INVALID_RUN_TIMESTAMP = self::INVALID_PREFIX.CronRegistrar::RUNNER_WPCRON;
+    public const CLI_INVALID_RUN_TIMESTAMP = self::INVALID_PREFIX.CronRegistrar::RUNNER_CRONTAB_CLI;
+    public const API_INVALID_RUN_TIMESTAMP = self::INVALID_PREFIX.CronRegistrar::RUNNER_CRONTAB_API;
+    public const INVALID_TIMESTAMPS = [
         self::WPCRON_INVALID_RUN_TIMESTAMP => CronRegistrar::RUNNER_WPCRON,
         self::CLI_INVALID_RUN_TIMESTAMP => CronRegistrar::RUNNER_CRONTAB_CLI,
         self::API_INVALID_RUN_TIMESTAMP => CronRegistrar::RUNNER_CRONTAB_API,
     ];
 
-    const HAS_PROCESSED_YES = 'yes';
-    const HAS_PROCESSED_WAITING = 'waiting';
-    const HAS_PROCESSED_NO = 'no';
+    public const HAS_PROCESSED_YES = 'yes';
+    public const HAS_PROCESSED_WAITING = 'waiting';
+    public const HAS_PROCESSED_NO = 'no';
 
     public static function resetLastExecutionData(): void
     {

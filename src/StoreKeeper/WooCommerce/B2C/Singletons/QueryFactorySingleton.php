@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\Singletons;
 
 use Aura\SqlQuery\QueryFactory;
 use Aura\SqlQuery\QueryInterface;
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 
 /**
@@ -13,7 +12,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
  */
 class QueryFactorySingleton extends QueryFactory
 {
-    private static $instance = null;
+    private static $instance;
 
     public static function getInstance(): self
     {
@@ -56,7 +55,7 @@ class QueryFactorySingleton extends QueryFactory
         preg_match_all('/:(\w+)/m', $statement, $matches, PREG_PATTERN_ORDER);
 
         if (2 !== count($matches) || count(array_unique($matches[1])) !== count($bindValues)) {
-            throw new Exception('The statement does not match the bind values');
+            throw new \Exception('The statement does not match the bind values');
         }
 
         return $matches[1];

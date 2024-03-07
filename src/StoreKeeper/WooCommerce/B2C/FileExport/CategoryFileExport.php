@@ -40,7 +40,7 @@ class CategoryFileExport extends AbstractCSVFileExport
     /**
      * Runs the export, once done it returns the path to the exported file.
      */
-    public function runExport(string $exportLanguage = null): string
+    public function runExport(?string $exportLanguage = null): string
     {
         $exportLanguage = $exportLanguage ?? Language::getSiteLanguageIso2();
         $arguments = [
@@ -89,7 +89,7 @@ class CategoryFileExport extends AbstractCSVFileExport
         return $this->filePath;
     }
 
-    private function exportSEO(array $lineData, WP_Term $category): array
+    private function exportSEO(array $lineData, \WP_Term $category): array
     {
         if (YoastSeo::isSelectedHandler()) {
             $lineData['seo_title'] = YoastSeo::getCategoryTitle($category->term_id);

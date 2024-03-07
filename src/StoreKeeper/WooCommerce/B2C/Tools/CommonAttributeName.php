@@ -4,12 +4,12 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 class CommonAttributeName
 {
-    const TYPE_CUSTOM_ATTRIBUTE = 'custom';
-    const TYPE_SYSTEM_ATTRIBUTE = 'system';
+    public const TYPE_CUSTOM_ATTRIBUTE = 'custom';
+    public const TYPE_SYSTEM_ATTRIBUTE = 'system';
 
-    const SYSTEM_ATTR_PREFIX = 'sa_';
-    const CUSTOM_ATTRIBUTE_PREFIX = 'ca_';
-    const ATTRIBUTE_TERM_PREFIX = 'pa_';
+    public const SYSTEM_ATTR_PREFIX = 'sa_';
+    public const CUSTOM_ATTRIBUTE_PREFIX = 'ca_';
+    public const ATTRIBUTE_TERM_PREFIX = 'pa_';
 
     private static function getPrefix(string $type): string
     {

@@ -86,11 +86,6 @@ class SyncWoocommerceProductPage extends AbstractSyncCommand
 
     /**
      * re check product type bacause woocommerce doesnt return it correctly after saving.
-     *
-     * @param $some_false_variable
-     * @param $product_id
-     *
-     * @return mixed
      */
     public function recheckType($some_false_variable, $product_id)
     {

@@ -9,7 +9,6 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
-use WC_Helper_Product;
 
 class MenuItemTest extends AbstractTest
 {
@@ -30,31 +29,31 @@ class MenuItemTest extends AbstractTest
     /**
      * Create.
      */
-    const CREATE_DUMP_DIR = 'events/createMenuItem';
-    const CREATE_DUMP_FILE = 'moduleFunction.ShopModule::listMenuItemsForHooks.success.json';
-    const CREATE_DUMP_HOOK = 'events/hook.events.createMenuItem.json';
+    public const CREATE_DUMP_DIR = 'events/createMenuItem';
+    public const CREATE_DUMP_FILE = 'moduleFunction.ShopModule::listMenuItemsForHooks.success.json';
+    public const CREATE_DUMP_HOOK = 'events/hook.events.createMenuItem.json';
 
     /**
      * Delete.
      */
-    const DELETE_DUMP_HOOK = 'events/hook.events.deleteMenuItem.json';
+    public const DELETE_DUMP_HOOK = 'events/hook.events.deleteMenuItem.json';
 
     /**
      * Update.
      *
      * @note: Update Hook file and moduleFunction file are in: <DUMP_DIR>/<TYPE>/<FILE>
      */
-    const UPDATE_DUMP_DIR = 'events/updateMenuItem';
-    const UPDATE_DUMP_HOOK = 'hook.events.updateMenuItem.json';
-    const UPDATE_DUMP_FILE = 'moduleFunction.ShopModule::listMenuItemsForHooks.success.json';
+    public const UPDATE_DUMP_DIR = 'events/updateMenuItem';
+    public const UPDATE_DUMP_HOOK = 'hook.events.updateMenuItem.json';
+    public const UPDATE_DUMP_FILE = 'moduleFunction.ShopModule::listMenuItemsForHooks.success.json';
 
     /**
      * Update types.
      */
-    const UPDATE_TYPE_CATEGORY = 'category';
-    const UPDATE_TYPE_LINK = 'link';
-    const UPDATE_TYPE_PRODUCT = 'product';
-    const UPDATE_TYPE_SPACER = 'spacer';
+    public const UPDATE_TYPE_CATEGORY = 'category';
+    public const UPDATE_TYPE_LINK = 'link';
+    public const UPDATE_TYPE_PRODUCT = 'product';
+    public const UPDATE_TYPE_SPACER = 'spacer';
 
     public function testCreate()
     {
@@ -271,13 +270,13 @@ class MenuItemTest extends AbstractTest
         $vars = MenuItemImport::processItemVars($menuItem['menu_item_vars']);
         switch ($type) {
             case self::UPDATE_TYPE_PRODUCT:
-                $product = WC_Helper_Product::create_simple_product(true);
+                $product = \WC_Helper_Product::create_simple_product(true);
                 update_post_meta($product->get_id(), 'storekeeper_id', $vars['shop_product_id']);
                 break;
             case self::UPDATE_TYPE_LINK:
                 break;
             case self::UPDATE_TYPE_CATEGORY:
-                $category = WC_Helper_Product::create_product_category();
+                $category = \WC_Helper_Product::create_product_category();
                 update_term_meta($category->term_id, 'storekeeper_id', $vars['category_id']);
                 break;
             case self::UPDATE_TYPE_SPACER:

@@ -4,16 +4,16 @@ namespace StoreKeeper\WooCommerce\B2C\Options;
 
 class WooCommerceOptions extends AbstractOptions
 {
-    const API_KEY = 'api-key';
-    const WOOCOMMERCE_TOKEN = 'woocommerce-token';
-    const WOOCOMMERCE_UUID = 'woocommerce-uuid';
-    const WOOCOMMERCE_INFO_TOKEN = 'woocommerce-info-token';
+    public const API_KEY = 'api-key';
+    public const WOOCOMMERCE_TOKEN = 'woocommerce-token';
+    public const WOOCOMMERCE_UUID = 'woocommerce-uuid';
+    public const WOOCOMMERCE_INFO_TOKEN = 'woocommerce-info-token';
 
-    const LAST_SYNC_RUN = 'last-sync-run';
-    const SUCCESS_SYNC_RUN = 'success-sync-run';
-    const ORDER_PREFIX = 'order-prefix';
+    public const LAST_SYNC_RUN = 'last-sync-run';
+    public const SUCCESS_SYNC_RUN = 'success-sync-run';
+    public const ORDER_PREFIX = 'order-prefix';
 
-    public static function getApiKey(string $siteUrl = null)
+    public static function getApiKey(?string $siteUrl = null)
     {
         if (empty($siteUrl)) {
             $siteUrl = site_url();
@@ -26,7 +26,7 @@ class WooCommerceOptions extends AbstractOptions
         return base64_encode($json);
     }
 
-    public static function getWebhookUrl(string $siteUrl = null): string
+    public static function getWebhookUrl(?string $siteUrl = null): string
     {
         if (empty($siteUrl)) {
             $siteUrl = site_url();

@@ -8,8 +8,8 @@ use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\AbstractTest;
 
 class OutOfSyncAttributeOptionsTest extends AbstractTest
 {
-    const DATADUMP_DIRECTORY = 'regression/out-of-sync-attribute-options';
-    const HOOK_FILE = '20200527_050939.hook.events.success.5ecdf6137a671.json';
+    public const DATADUMP_DIRECTORY = 'regression/out-of-sync-attribute-options';
+    public const HOOK_FILE = '20200527_050939.hook.events.success.5ecdf6137a671.json';
 
     public function testOutOfSyncOptions()
     {

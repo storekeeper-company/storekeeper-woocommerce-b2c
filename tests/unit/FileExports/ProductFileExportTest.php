@@ -9,13 +9,11 @@ use StoreKeeper\WooCommerce\B2C\Tools\Base36Coder;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use WC_Product;
-use WC_Product_Simple;
-use WC_Product_Variable;
 use WC_Product_Variation;
 
 class ProductFileExportTest extends AbstractFileExportTest
 {
-    const BASE_COUNTRY = 'NL';
+    public const BASE_COUNTRY = 'NL';
 
     public function getFileExportClass(): string
     {
@@ -28,8 +26,8 @@ class ProductFileExportTest extends AbstractFileExportTest
         update_option('woocommerce_default_country', self::BASE_COUNTRY);
 
         /**
-         * @var WC_Product_Variable $variableProduct
-         * @var WC_Product_Simple   $simpleProduct
+         * @var \WC_Product_Variable $variableProduct
+         * @var \WC_Product_Simple   $simpleProduct
          */
         [$simpleProduct, $variableProduct, $noImageProduct] = $this->setupTests();
         $noImageSeo = [
@@ -85,7 +83,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         $WC_Product_Variations = @$variableProduct->get_available_variations();
         foreach ($WC_Product_Variations as $index => $variationProductData) {
             /* @var WC_Product_Variation $variationProduct */
-            $variationProduct = new WC_Product_Variation($variationProductData['variation_id']);
+            $variationProduct = new \WC_Product_Variation($variationProductData['variation_id']);
 
             $this->assertArrayHasKey(
                 $variationProduct->get_sku(),
@@ -102,7 +100,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         }
     }
 
-    private function getProductTitle(WC_Product $product): string
+    private function getProductTitle(\WC_Product $product): string
     {
         if (self::WC_TYPE_ASSIGNED === $product->get_type()) {
             $values = array_map(
@@ -118,7 +116,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         return $product->get_title();
     }
 
-    private function assertProductExportRow(WC_Product $product, array $productRow, string $type, ?WC_Product $parentProduct = null, array $seo = [])
+    private function assertProductExportRow(\WC_Product $product, array $productRow, string $type, ?\WC_Product $parentProduct = null, array $seo = [])
     {
         $this->assertEquals(
             $this->getProductTitle($product),
@@ -270,7 +268,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         }
     }
 
-    private function assertAssignedAttributes(WC_Product_Variation $product, array $productRow, string $type)
+    private function assertAssignedAttributes(\WC_Product_Variation $product, array $productRow, string $type)
     {
         $parentProduct = wc_get_product($product->get_parent_id());
         $parentAttributes = $parentProduct->get_attributes();
@@ -293,7 +291,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         }
     }
 
-    private function assertAttributes(WC_Product $product, array $productRow, string $type)
+    private function assertAttributes(\WC_Product $product, array $productRow, string $type)
     {
         foreach ($product->get_attributes() as $alias => $attribute) {
             $name = AttributeExport::getProductAttributeKey($attribute);

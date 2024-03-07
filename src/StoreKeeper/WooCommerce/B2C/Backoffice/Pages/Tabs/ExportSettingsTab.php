@@ -14,10 +14,10 @@ class ExportSettingsTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const SLUG = 'export-settings';
-    const SAVE_OPTIONS_ACTION = 'save-options-action';
+    public const SLUG = 'export-settings';
+    public const SAVE_OPTIONS_ACTION = 'save-options-action';
 
-    const FEATURED_ATTRIBUTES_ALIASES = FeaturedAttributes::ALL_FEATURED_ALIASES;
+    public const FEATURED_ATTRIBUTES_ALIASES = FeaturedAttributes::ALL_FEATURED_ALIASES;
 
     public function __construct(string $title, string $slug = '')
     {

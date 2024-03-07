@@ -18,12 +18,12 @@ class SyncWoocommerceAttributesTest extends AbstractTest
      */
 
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-attributes';
-    const DATADUMP_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.633cdd60f6610605a1bbef88a9c0415dc5576d8177a3e73793ebbaf9f7fd6342.json';
-    const DATADUMP_RESERVED_DIRECTORY = 'commands/sync-woocommerce-reserved-attributes';
-    const DATADUMP_RESERVED_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.reserved.json';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-attributes';
+    public const DATADUMP_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.633cdd60f6610605a1bbef88a9c0415dc5576d8177a3e73793ebbaf9f7fd6342.json';
+    public const DATADUMP_RESERVED_DIRECTORY = 'commands/sync-woocommerce-reserved-attributes';
+    public const DATADUMP_RESERVED_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.reserved.json';
 
-    const MAX_LENGTH_ATTRIBUTE_LABEL = Attributes::MAX_NAME_LENGTH;
+    public const MAX_LENGTH_ATTRIBUTE_LABEL = Attributes::MAX_NAME_LENGTH;
 
     public function testInit()
     {
@@ -127,8 +127,6 @@ class SyncWoocommerceAttributesTest extends AbstractTest
     /**
      * Fetch the Woocommerce attribute object based on the slug.
      *
-     * @param $slug
-     *
      * @return bool|mixed
      */
     protected function fetchWCAttributeBySlug($slug)
@@ -149,9 +147,6 @@ class SyncWoocommerceAttributesTest extends AbstractTest
         return AttributeModel::getAttributeStoreKeeperId($attribute_id);
     }
 
-    /**
-     * @param $original_attribute_data
-     */
     public function assertReservedAttributes($original_attribute_data, string $message): object
     {
         // Check if the amount of attributes matches the amount from the data dump

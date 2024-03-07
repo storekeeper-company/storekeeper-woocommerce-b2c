@@ -9,19 +9,18 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
-use WC_Product;
 
 abstract class AbstractProductImport extends AbstractImport
 {
-    const STOCK_STATUS_IN_STOCK = 'instock';
-    const STOCK_STATUS_OUT_OF_STOCK = 'outofstock';
-    const STOCK_STATUS_ON_BACKORDER = 'onbackorder';
+    public const STOCK_STATUS_IN_STOCK = 'instock';
+    public const STOCK_STATUS_OUT_OF_STOCK = 'outofstock';
+    public const STOCK_STATUS_ON_BACKORDER = 'onbackorder';
 
-    const SYNC_STATUS_PENDING = 'pending';
-    const SYNC_STATUS_SUCCESS = 'success';
-    const SYNC_STATUS_FAILED = 'failed';
+    public const SYNC_STATUS_PENDING = 'pending';
+    public const SYNC_STATUS_SUCCESS = 'success';
+    public const SYNC_STATUS_FAILED = 'failed';
 
-    protected $woocommerceProductId = null;
+    protected $woocommerceProductId;
 
     protected function getModule()
     {
@@ -98,9 +97,7 @@ abstract class AbstractProductImport extends AbstractImport
     }
 
     /**
-     * @param $sku
-     *
-     * @return WC_Product|bool
+     * @return \WC_Product|bool
      *
      * @throws WordpressException
      */
@@ -132,7 +129,7 @@ abstract class AbstractProductImport extends AbstractImport
 
     protected static function getItemByCustomSku($sku)
     {
-        $skuWithDashes = trim((str_replace(' ', '-', $sku)));
+        $skuWithDashes = trim(str_replace(' ', '-', $sku));
         $products = WordpressExceptionThrower::throwExceptionOnWpError(
             get_posts(
                 [
@@ -151,7 +148,7 @@ abstract class AbstractProductImport extends AbstractImport
         }
 
         if (0 === count($products)) {
-            $skuWithUnderscores = trim((str_replace(' ', '_', $sku)));
+            $skuWithUnderscores = trim(str_replace(' ', '_', $sku));
             $products = WordpressExceptionThrower::throwExceptionOnWpError(
                 get_posts(
                     [
@@ -173,7 +170,7 @@ abstract class AbstractProductImport extends AbstractImport
         return false;
     }
 
-    public function setProductStock(WC_Product $product, Dot $dot, array $log_data): array
+    public function setProductStock(\WC_Product $product, Dot $dot, array $log_data): array
     {
         $trueValue = $this->getBackorderTrueValue();
         $backorder_string = $dot->get('backorder_enabled', false) ? $trueValue : 'no';

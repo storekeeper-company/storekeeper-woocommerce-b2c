@@ -10,20 +10,19 @@ use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use WC_Order_Item_Product;
-use WC_Product_Factory;
 
 class StoreKeeperBaseGateway extends \WC_Payment_Gateway
 {
     // https://woocommerce.com/document/managing-orders/#order-statuses
-    const ORDER_STATUS_PENDING = 'pending'; // Order received, no payment initiated. Awaiting payment (unpaid).
-    const ORDER_STATUS_PROCESSING = 'processing'; //  Payment received (paid) and stock has been reduced;
-    const ORDER_STATUS_ON_HOLD = 'on-hold'; //  waiting payment – stock is reduced, but you need to confirm payment.
+    public const ORDER_STATUS_PENDING = 'pending'; // Order received, no payment initiated. Awaiting payment (unpaid).
+    public const ORDER_STATUS_PROCESSING = 'processing'; //  Payment received (paid) and stock has been reduced;
+    public const ORDER_STATUS_ON_HOLD = 'on-hold'; //  waiting payment – stock is reduced, but you need to confirm payment.
     private $provider_method_id;
 
     /**
      * @var \Throwable|null
      */
-    private $lastError = null;
+    private $lastError;
 
     public function __construct(string $id, string $title, int $provider_method_id, string $icon_url)
     {
@@ -77,9 +76,6 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         return $this->lastError;
     }
 
-    /**
-     * @param \Throwable|null $lastError
-     */
     public function clearLastError(): void
     {
         $this->lastError = null;
@@ -100,7 +96,7 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         }
 
         $products = [];
-        $productFactory = new WC_Product_Factory();
+        $productFactory = new \WC_Product_Factory();
 
         /* @var WC_Order_Item_Product $orderProduct */
         foreach ($order->get_items() as $index => $orderProduct) {
@@ -144,7 +140,7 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
             ]
         );
 
-        //we insert the order id with payment id here so on the detail page later on we can check
+        // we insert the order id with payment id here so on the detail page later on we can check
         PaymentModel::addPayment($order->get_id(), $payment['id'], $order->get_total(), false, $payment['trx']);
 
         // Make a note about the current payment after creation
@@ -175,17 +171,11 @@ class StoreKeeperBaseGateway extends \WC_Payment_Gateway
         return $url;
     }
 
-    /**
-     * @return mixed
-     */
     private function getUserIp()
     {
         return $_SERVER['REMOTE_ADDR'];
     }
 
-    /**
-     * @param string $icon_url
-     */
     protected function setIconUrl(?string $icon_url): void
     {
         $this->icon = StoreKeeperApi::getResourceUrl($icon_url);

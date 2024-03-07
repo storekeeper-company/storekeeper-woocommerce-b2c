@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 class RedirectHandler
 {
-    const DATATABLE_NAME = 'storekeeper_redirects';
+    public const DATATABLE_NAME = 'storekeeper_redirects';
 
     /**
      * @return string
@@ -154,8 +154,6 @@ SQL;
     }
 
     /**
-     * @param $currentUrl
-     *
      * @return bool|array
      */
     public static function checkRedirect($currentUrl)

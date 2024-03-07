@@ -10,9 +10,9 @@ use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractProductTest;
 
 class FeaturedAttributeTest extends AbstractProductTest
 {
-    const CREATE_DATADUMP_HOOK = 'events/hook.events.activateFeaturedAttribute.json';
+    public const CREATE_DATADUMP_HOOK = 'events/hook.events.activateFeaturedAttribute.json';
 
-    const FEATURED_ATTRIBUTE_PREFIX = 'storekeeper-woocommerce-b2c_featured_attribute_id-';
+    public const FEATURED_ATTRIBUTE_PREFIX = 'storekeeper-woocommerce-b2c_featured_attribute_id-';
 
     public function testCreateFeaturedAttribute()
     {

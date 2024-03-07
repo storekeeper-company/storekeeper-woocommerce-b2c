@@ -13,12 +13,10 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class LoggerFactory
 {
-    const LOG_DIRECTORY = 'sk-log';
+    public const LOG_DIRECTORY = 'sk-log';
 
     /**
      * @param string $suffix
-     *
-     * @return string
      */
     public static function getWpLogDirectory($suffix = ''): ?string
     {
@@ -62,8 +60,6 @@ class LoggerFactory
     }
 
     /**
-     * @param $type
-     *
      * @throws \Exception
      */
     public static function create($type): Logger
@@ -83,8 +79,6 @@ class LoggerFactory
     }
 
     /**
-     * @param $type
-     *
      * @return Logger
      *
      * @throws \Exception
@@ -131,9 +125,6 @@ class LoggerFactory
         );
     }
 
-    /**
-     * @param $custom_metadata
-     */
     public static function generateMetadata(string $key, \Throwable $exception, array $customMetadata): array
     {
         $traceAsString = $exception->getTraceAsString();

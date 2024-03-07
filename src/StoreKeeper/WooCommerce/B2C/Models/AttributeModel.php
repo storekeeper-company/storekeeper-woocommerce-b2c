@@ -7,8 +7,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 
 class AttributeModel extends AbstractModel implements IModelPurge
 {
-    const FK_ATTRIBUTE_ID = 'attribute_id_fk';
-    const TABLE_NAME = 'storekeeper_attributes';
+    public const FK_ATTRIBUTE_ID = 'attribute_id_fk';
+    public const TABLE_NAME = 'storekeeper_attributes';
 
     public static function getFieldsWithRequired(): array
     {
@@ -24,7 +24,7 @@ class AttributeModel extends AbstractModel implements IModelPurge
     }
 
     public static function setAttributeTaxonomy(\stdClass $taxonomy, int $storekeper_id,
-                                                ?string $storekeper_alias = null)
+        ?string $storekeper_alias = null)
     {
         $select = self::getSelectHelper()
             ->cols(['*'])

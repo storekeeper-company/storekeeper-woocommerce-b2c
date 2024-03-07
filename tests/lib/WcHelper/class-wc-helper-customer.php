@@ -109,8 +109,6 @@ class WC_Helper_Customer
 
     /**
      * Set the the current customer's billing details in the session.
-     *
-     * @param string $default_shipping_method Shipping Method slug
      */
     public static function set_customer_details($customer_details)
     {
@@ -119,8 +117,6 @@ class WC_Helper_Customer
 
     /**
      * Set the user's chosen shipping method.
-     *
-     * @param string $chosen_shipping_method Shipping Method slug
      */
     public static function set_chosen_shipping_methods($chosen_shipping_methods)
     {

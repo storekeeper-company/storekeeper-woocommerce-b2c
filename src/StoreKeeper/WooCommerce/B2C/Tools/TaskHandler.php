@@ -36,7 +36,6 @@ use StoreKeeper\WooCommerce\B2C\Tasks\ShippingMethodImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TagDeleteTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TagImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TriggerVariationSaveActionTask;
-use Throwable;
 
 class TaskHandler
 {
@@ -46,67 +45,67 @@ class TaskHandler
      * NOTE: When adding an constant here related to a new task/import type make sure you also add it to
      * const TASKS_BY_PRIORITY_ASC in this file to prioritize it.
      */
-    const FULL_IMPORT = 'full-import';
-    const ATTRIBUTE_IMPORT = 'attribute-import';
-    const CATEGORY_IMPORT = 'category-import';
-    const PRODUCT_IMPORT = 'product-import';
-    const PRODUCT_UPDATE = 'product-update';
-    const PRODUCT_STOCK_UPDATE = 'product-stock-update';
-    const TAG_IMPORT = 'tag-import';
-    const COUPON_CODE_IMPORT = 'coupon-code-import';
+    public const FULL_IMPORT = 'full-import';
+    public const ATTRIBUTE_IMPORT = 'attribute-import';
+    public const CATEGORY_IMPORT = 'category-import';
+    public const PRODUCT_IMPORT = 'product-import';
+    public const PRODUCT_UPDATE = 'product-update';
+    public const PRODUCT_STOCK_UPDATE = 'product-stock-update';
+    public const TAG_IMPORT = 'tag-import';
+    public const COUPON_CODE_IMPORT = 'coupon-code-import';
 
-    const MENU_ITEM_IMPORT = 'menu-item-import';
-    const MENU_ITEM_DELETE = 'menu-item-delete';
+    public const MENU_ITEM_IMPORT = 'menu-item-import';
+    public const MENU_ITEM_DELETE = 'menu-item-delete';
 
-    const REDIRECT_IMPORT = 'redirect-import';
-    const REDIRECT_DELETE = 'redirect-delete';
+    public const REDIRECT_IMPORT = 'redirect-import';
+    public const REDIRECT_DELETE = 'redirect-delete';
 
-    const CATEGORY_DELETE = 'category-delete';
-    const PRODUCT_DELETE = 'product-delete';
-    const PRODUCT_DEACTIVATED = 'product-deactivated';
-    const PRODUCT_ACTIVATED = 'product-activated';
+    public const CATEGORY_DELETE = 'category-delete';
+    public const PRODUCT_DELETE = 'product-delete';
+    public const PRODUCT_DEACTIVATED = 'product-deactivated';
+    public const PRODUCT_ACTIVATED = 'product-activated';
 
-    const TAG_DELETE = 'tag-delete';
-    const COUPON_CODE_DELETE = 'coupon-code-delete';
+    public const TAG_DELETE = 'tag-delete';
+    public const COUPON_CODE_DELETE = 'coupon-code-delete';
 
-    const ORDERS_EXPORT = 'orders-export';
-    const ORDERS_IMPORT = 'orders-import';
-    const ORDERS_DELETE = 'orders-delete';
-    const SHIPPING_METHOD_IMPORT = 'shipping-method-import';
-    const SHIPPING_METHOD_DELETE = 'shipping-method-delete';
+    public const ORDERS_EXPORT = 'orders-export';
+    public const ORDERS_IMPORT = 'orders-import';
+    public const ORDERS_DELETE = 'orders-delete';
+    public const SHIPPING_METHOD_IMPORT = 'shipping-method-import';
+    public const SHIPPING_METHOD_DELETE = 'shipping-method-delete';
 
-    const STATUS_NEW = 'status-new';
-    const STATUS_PROCESSING = 'status-processing';
-    const STATUS_FAILED = 'status-failed';
-    const STATUS_SUCCESS = 'status-success';
+    public const STATUS_NEW = 'status-new';
+    public const STATUS_PROCESSING = 'status-processing';
+    public const STATUS_FAILED = 'status-failed';
+    public const STATUS_SUCCESS = 'status-success';
 
-    const STATUSES = [
+    public const STATUSES = [
         self::STATUS_NEW,
         self::STATUS_PROCESSING,
         self::STATUS_FAILED,
         self::STATUS_SUCCESS,
     ];
 
-    const TRIGGER_VARIATION_SAVE_ACTION = 'trigger-variation-save-action';
-    const PARENT_PRODUCT_RECALCULATION = 'parent-product-recalculation';
+    public const TRIGGER_VARIATION_SAVE_ACTION = 'trigger-variation-save-action';
+    public const PARENT_PRODUCT_RECALCULATION = 'parent-product-recalculation';
 
-    const REPORT_ERROR = 'report-error';
+    public const REPORT_ERROR = 'report-error';
 
-    const OTHER_TYPE_GROUP = 'other';
-    const PRODUCT_TYPE_GROUP = 'product';
-    const CATEGORY_TYPE_GROUP = 'category';
-    const PRODUCT_STOCK_TYPE_GROUP = 'product-stock';
-    const TAG_TYPE_GROUP = 'tag';
-    const COUPON_CODE_TYPE_GROUP = 'coupon-code';
-    const MENU_ITEM_TYPE_GROUP = 'menu-item';
-    const REDIRECT_TYPE_GROUP = 'redirect';
-    const ORDER_TYPE_GROUP = 'order';
-    const TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP = 'trigger-variation-save-action';
-    const PARENT_PRODUCT_RECALCULATION_TYPE_GROUP = 'parent-product-recalculation';
-    const SHIPPING_METHOD_GROUP = 'shipping-method';
-    const REPORT_ERROR_TYPE_GROUP = 'report-error';
+    public const OTHER_TYPE_GROUP = 'other';
+    public const PRODUCT_TYPE_GROUP = 'product';
+    public const CATEGORY_TYPE_GROUP = 'category';
+    public const PRODUCT_STOCK_TYPE_GROUP = 'product-stock';
+    public const TAG_TYPE_GROUP = 'tag';
+    public const COUPON_CODE_TYPE_GROUP = 'coupon-code';
+    public const MENU_ITEM_TYPE_GROUP = 'menu-item';
+    public const REDIRECT_TYPE_GROUP = 'redirect';
+    public const ORDER_TYPE_GROUP = 'order';
+    public const TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP = 'trigger-variation-save-action';
+    public const PARENT_PRODUCT_RECALCULATION_TYPE_GROUP = 'parent-product-recalculation';
+    public const SHIPPING_METHOD_GROUP = 'shipping-method';
+    public const REPORT_ERROR_TYPE_GROUP = 'report-error';
 
-    const TYPE_GROUPS = [
+    public const TYPE_GROUPS = [
         self::OTHER_TYPE_GROUP,
         self::PRODUCT_TYPE_GROUP,
         self::CATEGORY_TYPE_GROUP,
@@ -143,10 +142,7 @@ class TaskHandler
     }
 
     /**
-     * @param $type
      * @param int $id
-     *
-     * @return mixed
      */
     public static function getScheduledTask($type, $id = 0)
     {
@@ -368,13 +364,10 @@ class TaskHandler
     }
 
     /**
-     * @param $type
      * @param int    $storekeeper_id
      * @param array  $meta_data
      * @param bool   $force_add
      * @param string $task_status
-     *
-     * @return mixed
      */
     public static function scheduleTask(
         $type,
@@ -407,13 +400,12 @@ class TaskHandler
     }
 
     /**
-     * @param $typeName
      * @param array $task_options
      *
      * @return array|bool
      *
-     * @throws Exception
-     * @throws Throwable
+     * @throws \Exception
+     * @throws \Throwable
      */
     public function handleTask(int $task_id, string $typeName, $task_options = [])
     {
@@ -519,7 +511,7 @@ class TaskHandler
             case self::REPORT_ERROR:
                 return; // nothing to handle
             default:
-                throw new Exception("$type not found");
+                throw new \Exception("$type not found");
         }
 
         $import->setLogger($this->logger);
@@ -570,7 +562,7 @@ class TaskHandler
                 ]
             );
 
-            //Recount categories because WP cant
+            // Recount categories because WP cant
             _wc_term_recount(
                 get_terms(
                     'product_cat',
@@ -581,7 +573,7 @@ class TaskHandler
                 false
             );
 
-            //Recount Labels because WP cant
+            // Recount Labels because WP cant
             _wc_term_recount(
                 get_terms('product_tag', ['hide_empty' => false, 'fields' => 'id=>parent']),
                 get_taxonomy('product_tag'),
@@ -602,7 +594,7 @@ class TaskHandler
 
             $this->reportFailedTask($task_id, $exception);
             throw $exception;
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // If the task failed, report it
             $this->reportFailedTask($task_id, $e);
             $this->logger->error("Failed to run the task (id=$task_id)");
@@ -635,8 +627,8 @@ class TaskHandler
     /**
      * Reports a failed task.
      *
-     * @param int       $task_id   Task id of the task that failed
-     * @param Exception $exception The exception that occurred
+     * @param int        $task_id   Task id of the task that failed
+     * @param \Exception $exception The exception that occurred
      *
      * @throws WordpressException
      */

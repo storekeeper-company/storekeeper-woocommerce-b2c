@@ -9,8 +9,8 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class SyncWoocommerceShippingMethodsTest extends AbstractTest
 {
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-shipping-methods';
-    const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-shipping-methods';
+    public const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
 
     public function setUpRunner()
     {

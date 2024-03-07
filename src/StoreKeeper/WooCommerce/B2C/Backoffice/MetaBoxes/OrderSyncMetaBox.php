@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 
-use Exception;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
@@ -12,7 +11,7 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class OrderSyncMetaBox extends AbstractPostSyncMetaBox
 {
-    const ACTION_NAME = 'sk_sync_order';
+    public const ACTION_NAME = 'sk_sync_order';
 
     final public function register(): void
     {
@@ -100,7 +99,7 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox
     /**
      * Function to sync order from wordpress to storekeeper backoffice.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     final public function doSync(int $postId): void
     {
@@ -110,7 +109,7 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox
             wp_redirect(
                 get_edit_post_link($postId, 'url').'&sk_sync_error='.urlencode($message)
             );
-            exit();
+            exit;
         }
 
         if (wc_get_order($postId)) {
@@ -131,7 +130,7 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox
                 wp_redirect(
                     get_edit_post_link($postId, 'url').'&sk_sync_error='.urlencode($error)
                 );
-                exit();
+                exit;
             }
         }
 
@@ -139,6 +138,6 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox
         wp_redirect(
             get_edit_post_link($postId, 'url').'&sk_sync_success='.urlencode($successMessage)
         );
-        exit();
+        exit;
     }
 }

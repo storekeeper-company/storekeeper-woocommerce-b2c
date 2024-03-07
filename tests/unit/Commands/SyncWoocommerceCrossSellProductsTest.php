@@ -8,7 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProducts;
 class SyncWoocommerceCrossSellProductsTest extends AbstractTest
 {
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-cross-sell-products';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-cross-sell-products';
 
     public function testInit()
     {

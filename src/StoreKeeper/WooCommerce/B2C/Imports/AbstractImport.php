@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
-use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\ApiWrapper;
@@ -19,14 +18,13 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Traits\TaskHandlerTrait;
-use Throwable;
 
 abstract class AbstractImport
 {
     use LoggerAwareTrait;
     use TaskHandlerTrait;
 
-    const EDIT_CONTEXT = 'edit';
+    public const EDIT_CONTEXT = 'edit';
 
     /**
      * @var int
@@ -51,7 +49,7 @@ abstract class AbstractImport
     /**
      * @var ApiWrapper
      */
-    protected $storekeeper_api = null;
+    protected $storekeeper_api;
 
     protected $processedItemCount = 0;
 
@@ -77,7 +75,7 @@ abstract class AbstractImport
     /**
      * AbstractImport constructor.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(array $settings = [])
     {
@@ -89,7 +87,6 @@ abstract class AbstractImport
     }
 
     /**
-     * @param $message
      * @param array $data
      */
     protected function debug($message, $data = [])
@@ -156,7 +153,7 @@ abstract class AbstractImport
 
     /**
      * @throws LockTimeoutException
-     * @throws LockException|Throwable
+     * @throws LockException|\Throwable
      */
     public function run(array $options = []): void
     {
@@ -305,7 +302,7 @@ abstract class AbstractImport
                                 throw $exception;
                             }
                         }
-                    } catch (Throwable $exception) {
+                    } catch (\Throwable $exception) {
                         $errorMessage = $exception->getMessage();
                         $data = [
                             'item' => $item,
@@ -370,7 +367,6 @@ abstract class AbstractImport
 
     /**
      * @param $dotObject Dot
-     * @param $options
      */
     abstract protected function processItem(Dot $dotObject, array $options = []): ?int;
 

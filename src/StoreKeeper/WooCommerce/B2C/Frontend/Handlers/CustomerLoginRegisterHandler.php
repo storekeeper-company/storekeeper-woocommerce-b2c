@@ -6,12 +6,9 @@ use StoreKeeper\WooCommerce\B2C\Objects\GOCustomer;
 
 class CustomerLoginRegisterHandler
 {
-    const CONTEXT = 'edit';
+    public const CONTEXT = 'edit';
 
     /**
-     * @param $user_login
-     * @param $user
-     *
      * @throws \Exception
      */
     public function loginBackendSync($user_login, $user)
@@ -27,8 +24,6 @@ class CustomerLoginRegisterHandler
     }
 
     /**
-     * @param $user_id
-     *
      * @throws \Exception
      */
     public function registerBackendSync($user_id)

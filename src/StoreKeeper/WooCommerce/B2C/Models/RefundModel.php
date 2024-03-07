@@ -9,7 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
  */
 class RefundModel extends AbstractModel implements IModelPurge
 {
-    const TABLE_NAME = 'storekeeper_pay_orders_refunds';
+    public const TABLE_NAME = 'storekeeper_pay_orders_refunds';
 
     public static function getFieldsWithRequired(): array
     {

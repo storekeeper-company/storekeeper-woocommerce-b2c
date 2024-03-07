@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
@@ -19,7 +18,7 @@ class MenuItemImport extends AbstractImport
     /**
      * AttributeOptionImport constructor.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(array $settings = [])
     {
@@ -71,7 +70,7 @@ class MenuItemImport extends AbstractImport
     /**
      * @param Dot $dotObject
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function processItem($dotObject, array $options = []): ?int
     {
@@ -111,7 +110,7 @@ class MenuItemImport extends AbstractImport
      *
      * @return int|void
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function ensureMenu($menuAlias, $menuId)
     {
@@ -121,7 +120,7 @@ class MenuItemImport extends AbstractImport
             $this->debug("Creating menu with title $menuAlias");
             $createdMenuId = $this->createMenu($menuAlias, $menuId);
             if (!is_int($createdMenuId)) {
-                throw new Exception('Error creating menu.');
+                throw new \Exception('Error creating menu.');
             }
             $termId = $createdMenuId;
         }
@@ -134,7 +133,7 @@ class MenuItemImport extends AbstractImport
      *
      * @return array
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public static function getMenuItemConfig($deebObjectItem)
     {
@@ -161,10 +160,10 @@ class MenuItemImport extends AbstractImport
                         // Set the url to the term link
                         $config['menu-item-url'] = get_term_link($term);
                     } else {
-                        throw new Exception("Term link could not be found for the category id $categoryId (is it synced yet?)");
+                        throw new \Exception("Term link could not be found for the category id $categoryId (is it synced yet?)");
                     }
                 } else {
-                    throw new Exception("$title has type BlogModule::Category but is missing \"category_id\" item variable.");
+                    throw new \Exception("$title has type BlogModule::Category but is missing \"category_id\" item variable.");
                 }
                 break;
             case 'BlogModule::Link':
@@ -173,7 +172,7 @@ class MenuItemImport extends AbstractImport
                     // Set the url to the given item url
                     $config['menu-item-url'] = $url;
                 } else {
-                    throw new Exception("$title has type BlogModule::Link but is missing \"url\" item variable.");
+                    throw new \Exception("$title has type BlogModule::Link but is missing \"url\" item variable.");
                 }
                 break;
             case 'ShopModule::ShopProduct':
@@ -185,10 +184,10 @@ class MenuItemImport extends AbstractImport
                         // Set the link to found permalink
                         $config['menu-item-url'] = $permalink;
                     } else {
-                        throw new Exception("Permalink of product $shopProductId not found.");
+                        throw new \Exception("Permalink of product $shopProductId not found.");
                     }
                 } else {
-                    throw new Exception("$title has type ShopModule::ShopProduct but is missing \"shop_product_id\" item variable.");
+                    throw new \Exception("$title has type ShopModule::ShopProduct but is missing \"shop_product_id\" item variable.");
                 }
                 break;
             case 'ShopModule::ManagedWebShopPage':
@@ -203,10 +202,10 @@ class MenuItemImport extends AbstractImport
                         // Set the link to found permalink of the page
                         $config['menu-item-url'] = $permalink;
                     } else {
-                        throw new Exception("Permalink of page $contentId not found.");
+                        throw new \Exception("Permalink of page $contentId not found.");
                     }
                 } else {
-                    throw new Exception("$title has type ShopModule::ManagedWebShopPage but is missing \"content_id\" item variable.");
+                    throw new \Exception("$title has type ShopModule::ManagedWebShopPage but is missing \"content_id\" item variable.");
                 }
                 break;
             default:
@@ -235,7 +234,7 @@ class MenuItemImport extends AbstractImport
                 [
                     'key' => 'menu_storekeeper_id',
                     'value' => strval($storekeeper_id),
-                    'compare' => '=', //compare
+                    'compare' => '=', // compare
                 ],
             ],
         ];
@@ -246,8 +245,6 @@ class MenuItemImport extends AbstractImport
     }
 
     /**
-     * @param $storekeeper_id
-     *
      * @return \WP_Term|null
      *
      * @throws WordpressException
@@ -263,7 +260,7 @@ class MenuItemImport extends AbstractImport
                         [
                             'key' => 'menu_storekeeper_id',
                             'value' => strval($storekeeper_id),
-                            'compare' => '=', //compare
+                            'compare' => '=', // compare
                         ],
                     ],
                 ]
@@ -290,7 +287,7 @@ class MenuItemImport extends AbstractImport
                     [
                         'key' => 'menu_item_storekeeper_id',
                         'value' => strval($storekeeper_id),
-                        'compare' => '=', //compare
+                        'compare' => '=', // compare
                     ],
                 ],
             ]
@@ -301,8 +298,6 @@ class MenuItemImport extends AbstractImport
     }
 
     /**
-     * @param $storekeeper_id
-     *
      * @return \WP_Post|null
      *
      * @throws WordpressException
@@ -317,7 +312,7 @@ class MenuItemImport extends AbstractImport
                         [
                             'key' => 'menu_item_storekeeper_id',
                             'value' => strval($storekeeper_id),
-                            'compare' => '=', //compare
+                            'compare' => '=', // compare
                         ],
                     ],
                 ]
@@ -330,12 +325,9 @@ class MenuItemImport extends AbstractImport
     }
 
     /**
-     * @param $menuAlias
-     * @param $menuId
-     *
      * @return int|void
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function createMenu($menuAlias, $menuId)
     {
@@ -358,7 +350,7 @@ class MenuItemImport extends AbstractImport
      *
      * @return string
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected static function getPermalinkById($contentId, $postType)
     {
@@ -369,18 +361,18 @@ class MenuItemImport extends AbstractImport
                 [
                     'key' => 'storekeeper_id',
                     'value' => $contentId,
-                    'compare' => '=', //compare
+                    'compare' => '=', // compare
                 ],
             ],
         ];
         $posts = get_posts($args);
         if (sizeof($posts) < 1) {
-            throw new Exception("No post meta could be found for post $contentId with post type $postType.");
+            throw new \Exception("No post meta could be found for post $contentId with post type $postType.");
         }
         $postId = $posts[0]->ID;
         $permalink = get_permalink((int) $postId);
         if (!$permalink) {
-            throw new Exception("No permalink could be found for post $contentId with post type $postType.");
+            throw new \Exception("No permalink could be found for post $contentId with post type $postType.");
         }
 
         return $permalink;
@@ -407,8 +399,8 @@ class MenuItemImport extends AbstractImport
     protected static function getMenuItemType($dotObject)
     {
         $parsedType = $dotObject->get('menu_item_type.module_name').'::'.$dotObject->get(
-                'menu_item_type.alias'
-            );
+            'menu_item_type.alias'
+        );
 
         return $parsedType;
     }

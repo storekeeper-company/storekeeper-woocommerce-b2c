@@ -14,11 +14,11 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
     // https://github.com/testdouble/contributing-tests/wiki/Arrange-Act-Assert
 
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-categories';
-    const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.5e79a1f00b651.json';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-categories';
+    public const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.5e79a1f00b651.json';
 
-    const MARKDOWN_PREFIX = '[sk_markdown]';
-    const MARKDOWN_SUFFIX = '[/sk_markdown]';
+    public const MARKDOWN_PREFIX = '[sk_markdown]';
+    public const MARKDOWN_SUFFIX = '[/sk_markdown]';
 
     public function testRun()
     {
@@ -189,8 +189,6 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
     }
 
     /**
-     * @param $storekeeper_id
-     *
      * @return array|bool|\WP_Error|\WP_Term|null
      *
      * @throws WordpressException

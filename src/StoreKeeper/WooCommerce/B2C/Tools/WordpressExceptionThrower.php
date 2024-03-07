@@ -14,10 +14,7 @@ class WordpressExceptionThrower
     /**
      * This function is here to throw errors if the value is an WP_Error.
      *
-     * @param mixed $maybe_wp_error
-     * @param bool  $check_for_false if set to true, it will throw also an error
-     *
-     * @return mixed
+     * @param bool $check_for_false if set to true, it will throw also an error
      *
      * @throws WordpressException
      */

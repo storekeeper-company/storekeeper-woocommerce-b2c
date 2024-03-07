@@ -7,7 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 
 class PaymentModel extends AbstractModel implements IModelPurge
 {
-    const TABLE_NAME = 'storekeeper_pay_orders_payments';
+    public const TABLE_NAME = 'storekeeper_pay_orders_payments';
 
     public static function getFieldsWithRequired(): array
     {
@@ -81,7 +81,7 @@ class PaymentModel extends AbstractModel implements IModelPurge
     /**
      * @return bool if it was needed to mark it
      *
-     * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\TableOperationSqlException
+     * @throws TableOperationSqlException
      */
     public static function markPaymentAsSynced(array $payment): bool
     {
@@ -142,7 +142,7 @@ class PaymentModel extends AbstractModel implements IModelPurge
         return $result;
     }
 
-    public static function addPayment(int $order_id, int $payment_id, string $amount, bool $is_paid, string $trx = null)
+    public static function addPayment(int $order_id, int $payment_id, string $amount, bool $is_paid, ?string $trx = null)
     {
         return PaymentModel::create(
             [

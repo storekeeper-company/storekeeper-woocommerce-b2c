@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceSingleProduct;
 use StoreKeeper\WooCommerce\B2C\Commands\WebCommandRunner;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
@@ -14,8 +13,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class ProductSyncMetaBox extends AbstractPostSyncMetaBox
 {
-    const ACTION_NAME = 'sk_sync_product';
-    const POST_TYPE = 'product';
+    public const ACTION_NAME = 'sk_sync_product';
+    public const POST_TYPE = 'product';
 
     final public function register(): void
     {
@@ -85,7 +84,7 @@ class ProductSyncMetaBox extends AbstractPostSyncMetaBox
     /**
      * Function to sync product from storekeeper backoffice to wordpress.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     final public function doSync(int $postId): void
     {
@@ -122,14 +121,14 @@ class ProductSyncMetaBox extends AbstractPostSyncMetaBox
                     wp_redirect(
                         get_edit_post_link($postId, 'url').'&sk_sync_error='.urlencode($message)
                     );
-                    exit();
+                    exit;
                 }
 
                 $successMessage = __('Product was synced successfully.', I18N::DOMAIN);
                 wp_redirect(
                     get_edit_post_link($postId, 'url').'&sk_sync_success='.urlencode($successMessage)
                 );
-                exit();
+                exit;
             }
         }
 
@@ -138,7 +137,7 @@ class ProductSyncMetaBox extends AbstractPostSyncMetaBox
         wp_redirect(
             get_edit_post_link($postId, 'url').'&sk_sync_error='.urlencode($message)
         );
-        exit();
+        exit;
     }
 
     private function getTasks(int $storekeeperId): array

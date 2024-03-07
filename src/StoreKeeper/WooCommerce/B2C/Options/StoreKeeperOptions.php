@@ -79,9 +79,9 @@ class StoreKeeperOptions extends AbstractOptions
     public static function isConnected()
     {
         if (
-            self::exists(self::API_URL) &&
-            self::exists(self::GUEST_AUTH) &&
-            self::exists(self::SYNC_AUTH)
+            self::exists(self::API_URL)
+            && self::exists(self::GUEST_AUTH)
+            && self::exists(self::SYNC_AUTH)
         ) {
             return true;
         }

@@ -67,9 +67,9 @@ use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 
 class Core
 {
-    const HIGH_PRIORITY = 9001;
+    public const HIGH_PRIORITY = 9001;
 
-    const COMMANDS = [
+    public const COMMANDS = [
         ScheduledProcessor::class,
         SyncWoocommerceShopInfo::class,
         SyncWoocommerceFullSync::class,
@@ -120,7 +120,7 @@ class Core
         TaskPurgeOld::class,
     ];
 
-    const HOOKS = [
+    public const HOOKS = [
         PrepareProductCategorySummaryFilter::class,
         OrderTrackingMessage::class,
     ];
@@ -226,10 +226,10 @@ class Core
 
     public static function isDebug(): bool
     {
-        return (defined('WP_DEBUG') && WP_DEBUG) ||
-            (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG) ||
-            !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-            ;
+        return (defined('WP_DEBUG') && WP_DEBUG)
+            || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
+            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
+        ;
     }
 
     public static function isDataDump(): bool
@@ -260,7 +260,7 @@ class Core
     private function registerPaymentGateway(): void
     {
         if ($this->isPaymentGatewayActivated()) {
-            //activated the payment gateway and backend is connected, which is required for this feature.
+            // activated the payment gateway and backend is connected, which is required for this feature.
             $PaymentGateway = new PaymentGateway();
             $this->loader->add_action('woocommerce_thankyou', $PaymentGateway, 'checkPayment');
             $this->loader->add_filter('woocommerce_payment_gateways', $PaymentGateway, 'addGatewayClasses');
@@ -283,8 +283,8 @@ class Core
 
     private function isPaymentGatewayActivated(): bool
     {
-        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes') &&
-            StoreKeeperOptions::isConnected();
+        return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes')
+            && StoreKeeperOptions::isConnected();
     }
 
     private function registerAddressFormatting(): void
@@ -460,8 +460,8 @@ HTML;
     public static function getPossibleTmpDirs(): array
     {
         $dirs = [];
-        if (function_exists('posix_getpwuid') &&
-            function_exists('posix_geteuid')
+        if (function_exists('posix_getpwuid')
+            && function_exists('posix_geteuid')
         ) {
             $processUser = posix_getpwuid(posix_geteuid());
             $user = $processUser['name'];

@@ -43,6 +43,7 @@ class AddressSearchEndpoint extends AbstractEndpoint
     {
         $api = StoreKeeperApi::getApiByAuthName();
         $module = $api->getModule('RelationsModule');
+
         // Only works with NL country
         return $module->searchAddressByZipcode($postCode, $houseNumber, self::DEFAULT_COUNTRY_ISO);
     }

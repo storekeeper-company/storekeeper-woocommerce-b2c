@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
@@ -12,7 +11,7 @@ class SyncWoocommerceSingleProduct extends SyncWoocommerceProductPage
     /**
      * @return mixed|void
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
@@ -26,7 +25,7 @@ class SyncWoocommerceSingleProduct extends SyncWoocommerceProductPage
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function runSync($assoc_arguments): void
     {

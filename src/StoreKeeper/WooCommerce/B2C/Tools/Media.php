@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceShopInfo;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
@@ -41,8 +40,6 @@ class Media
     }
 
     /**
-     * @param $original_url
-     *
      * @return \WP_Post|false;
      */
     public static function getAttachment($original_url)
@@ -138,7 +135,7 @@ class Media
 
         $wp_upload_dir = wp_upload_dir();
         if (!wp_is_writable($wp_upload_dir['basedir'])) {
-            throw new Exception('Failed creating attachment, upload directory "'.$wp_upload_dir['basedir'].'" is not writeable.');
+            throw new \Exception('Failed creating attachment, upload directory "'.$wp_upload_dir['basedir'].'" is not writeable.');
         }
 
         if (!class_exists('WP_Http')) {
@@ -154,7 +151,7 @@ class Media
         );
 
         if (!isset($upload['file'])) {
-            throw new Exception('Failed moving downloaded file to uploads directory: '.$wp_upload_dir['path']);
+            throw new \Exception('Failed moving downloaded file to uploads directory: '.$wp_upload_dir['path']);
         }
 
         $file_path = $upload['file'];
@@ -249,7 +246,7 @@ class Media
     public static function createImageMeta(string $fullImageSizeUrl, string $placeholderUrl): array
     {
         $fullImageSize = wp_getimagesize($fullImageSizeUrl);
-        [ $fullImageWidth, $fullImageHeight ] = $fullImageSize;
+        [$fullImageWidth, $fullImageHeight] = $fullImageSize;
 
         // Default image meta.
         $imageMeta = [
@@ -278,7 +275,7 @@ class Media
     /**
      * Returns the variant name compatible for CDN.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public static function getImageScaleVariantString($width = null, $height = null): string
     {
@@ -310,8 +307,6 @@ class Media
     }
 
     /**
-     * @param $url
-     *
      * @return mixed
      *
      * @throws BaseException
@@ -356,10 +351,6 @@ class Media
     }
 
     /**
-     * @param $url
-     *
-     * @return mixed
-     *
      * @throws BaseException
      * @throws WordpressException
      */
@@ -374,7 +365,7 @@ class Media
                 );
 
                 if (200 !== $response['response']['code']) {
-                    throw new Exception('Failed downloading file from "'.$url.'" with status code: '.$response['response']['code']);
+                    throw new \Exception('Failed downloading file from "'.$url.'" with status code: '.$response['response']['code']);
                 }
                 break;
             } catch (\Throwable $error) {
@@ -411,7 +402,7 @@ class Media
      */
     public function getAttachmentImageSource($attachmentImage, $attachmentId, $attachmentSize, $isAttachmentIcon)
     {
-        [ $attachmentUrl, $attachmentWidth, $attachmentHeight ] = $attachmentImage;
+        [$attachmentUrl, $attachmentWidth, $attachmentHeight] = $attachmentImage;
 
         // Only change the url of attachment if it has upload directory
         // as correct URL is already being set during import. This is an edge case

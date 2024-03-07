@@ -49,11 +49,11 @@ foreach ($results as $result) {
 
 // Checking if the ids are found / set
 if ($exclude_from_catalog_id <= 0) {
-    throw new \Exception('Could not find exclude_from_catalog_id: '.$exclude_from_catalog_id);
+    throw new Exception('Could not find exclude_from_catalog_id: '.$exclude_from_catalog_id);
 }
 
 if ($exclude_from_search_id <= 0) {
-    throw new \Exception('Could not find exclude_from_search_id: '.$exclude_from_search_id);
+    throw new Exception('Could not find exclude_from_search_id: '.$exclude_from_search_id);
 }
 
 // Display items when $process_items is false
@@ -77,12 +77,12 @@ SQL;
         );
 
         echo '['.date(
-                'Y-m-d H:i:s'
-            ).'] '."[$current_pos/$count] post_id:$post_id - $prod_name ($prod_sku)".' '.json_encode(
-                $results
-            ).PHP_EOL;
+            'Y-m-d H:i:s'
+        ).'] '."[$current_pos/$count] post_id:$post_id - $prod_name ($prod_sku)".' '.json_encode(
+            $results
+        ).PHP_EOL;
     }
-    // Process items when $process_items is true
+// Process items when $process_items is true
 } else {
     foreach ($products as $index => $product) {
         $post_id = $product['ID'];

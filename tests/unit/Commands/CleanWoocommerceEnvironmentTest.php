@@ -6,12 +6,10 @@ use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFullSync;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Models\WebhookLogModel;
-use WC_Helper_Coupon;
-use WC_Helper_Order;
 
 class CleanWoocommerceEnvironmentTest extends AbstractTest
 {
-    const FULL_SYNC_DIR = 'commands/full-sync';
+    public const FULL_SYNC_DIR = 'commands/full-sync';
 
     public function testProductsOnlyCleaning()
     {
@@ -67,16 +65,16 @@ class CleanWoocommerceEnvironmentTest extends AbstractTest
         $this->mockApiCallsFromCommonDirectory();
 
         // Create 5 orders
-        WC_Helper_Order::create_order();
-        WC_Helper_Order::create_order();
-        WC_Helper_Order::create_order();
-        WC_Helper_Order::create_order();
-        WC_Helper_Order::create_order();
+        \WC_Helper_Order::create_order();
+        \WC_Helper_Order::create_order();
+        \WC_Helper_Order::create_order();
+        \WC_Helper_Order::create_order();
+        \WC_Helper_Order::create_order();
 
         // Create 3 coupons because they are not in the fullSync data
-        WC_Helper_Coupon::create_coupon();
-        WC_Helper_Coupon::create_coupon();
-        WC_Helper_Coupon::create_coupon();
+        \WC_Helper_Coupon::create_coupon();
+        \WC_Helper_Coupon::create_coupon();
+        \WC_Helper_Coupon::create_coupon();
 
         $this->runner->execute(SyncWoocommerceFullSync::getCommandName());
     }

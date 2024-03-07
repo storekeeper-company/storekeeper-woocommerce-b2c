@@ -8,8 +8,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 
 class OverlayRenderer
 {
-    const ACTION_REDIRECT = 'action-redirect';
-    const ACTION_BACK = 'action-back';
+    public const ACTION_REDIRECT = 'action-redirect';
+    public const ACTION_BACK = 'action-back';
 
     private $active = false;
     private $commandName;
@@ -64,8 +64,8 @@ class OverlayRenderer
                     $error = error_get_last();
                     if (null !== $error) {
                         if (
-                            preg_match('/Allowed memory size of \d+ bytes exhausted/', $error['message']) ||
-                            str_contains(strtolower($error['message']), 'out of memory')
+                            preg_match('/Allowed memory size of \d+ bytes exhausted/', $error['message'])
+                            || str_contains(strtolower($error['message']), 'out of memory')
                         ) {
                             $this->renderMemoryExhaustError(
                                 $error['message'],
@@ -116,8 +116,8 @@ HTML;
         $firstExplanationText = esc_html(__('Your allowed memory size has been exhausted.', I18N::DOMAIN));
         $secondExplanationText = wp_kses(
             sprintf(
-            __('Current memory limit configured: %s'),
-            '<strong>'.IniHelper::getIni('memory_limit').'</strong>'
+                __('Current memory limit configured: %s'),
+                '<strong>'.IniHelper::getIni('memory_limit').'</strong>'
             ),
             HtmlEscape::ALLOWED_COMMON
         );
@@ -194,7 +194,7 @@ HTML;
 $counter. $message
 <br/>
 HTML,
-            HtmlEscape::ALLOWED_COMMON);
+                HtmlEscape::ALLOWED_COMMON);
 
             foreach ($bullets as $bullet) {
                 $instructionsHtml .= wp_kses(

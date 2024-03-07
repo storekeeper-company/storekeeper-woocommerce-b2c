@@ -77,7 +77,7 @@ class SyncIssueFixer extends AbstractSyncIssue
                 $failed_tasks,
                 $missing_active_product_in_woocommerce,
                 $products_that_need_deactivation
-                ) = $this->readFromReport();
+            ) = $this->readFromReport();
 
             if ($missing_active_product_in_woocommerce['amount'] > 0) {
                 // Get all assigned products ids and get the parent/configurable product of those.

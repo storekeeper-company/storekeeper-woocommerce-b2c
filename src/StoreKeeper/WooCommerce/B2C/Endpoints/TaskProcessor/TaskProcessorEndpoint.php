@@ -12,8 +12,8 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\WpRestException;
 
 class TaskProcessorEndpoint extends AbstractEndpoint
 {
-    const ROUTE = 'process-tasks';
-    const TASK_LIMIT = 100;
+    public const ROUTE = 'process-tasks';
+    public const TASK_LIMIT = 100;
 
     /**
      * @throws WpRestException

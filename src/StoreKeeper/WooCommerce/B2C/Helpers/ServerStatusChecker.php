@@ -7,7 +7,7 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class ServerStatusChecker
 {
-    const REQUIRED_PHP_EXTENSION = [
+    public const REQUIRED_PHP_EXTENSION = [
         'bcmath',
         'json',
         'mbstring',
@@ -16,7 +16,7 @@ class ServerStatusChecker
         'zip',
     ];
 
-    const OPTIONAL_PHP_EXTENSION = [
+    public const OPTIONAL_PHP_EXTENSION = [
         'posix',
     ];
 

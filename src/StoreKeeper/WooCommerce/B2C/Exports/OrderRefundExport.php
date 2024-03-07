@@ -2,9 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Exports;
 
-use Exception;
-use WC_Order;
-
 class OrderRefundExport extends OrderExport
 {
     protected function getFunctionMultiple()
@@ -18,9 +15,9 @@ class OrderRefundExport extends OrderExport
     }
 
     /**
-     * @param WC_Order $order
+     * @param \WC_Order $order
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function processItem($order): void
     {

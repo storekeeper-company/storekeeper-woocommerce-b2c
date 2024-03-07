@@ -21,10 +21,10 @@ class PaymentGatewaySettings extends AbstractCommand
                 if (!StoreKeeperOptions::isConnected()) {
                     new NotConnectedException();
                 }
-                //activate
+                // activate
                 StoreKeeperOptions::set(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes');
             } else {
-                //deactivate
+                // deactivate
                 StoreKeeperOptions::set(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'no');
             }
         } else {

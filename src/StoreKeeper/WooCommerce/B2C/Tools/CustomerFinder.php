@@ -9,11 +9,9 @@ use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 
 class CustomerFinder
 {
-    const EDIT_CONTEXT = 'edit';
+    public const EDIT_CONTEXT = 'edit';
 
     /**
-     * @param $email
-     *
      * @return bool
      */
     public static function customerEmailIsKnownInBackend($email)
@@ -57,8 +55,6 @@ class CustomerFinder
     }
 
     /**
-     * @param $email
-     *
      * @return bool|int
      *
      * @throws EmailIsAdminUserException

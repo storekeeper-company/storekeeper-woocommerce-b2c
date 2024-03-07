@@ -27,28 +27,27 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\WebCommandRunner;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
-use Throwable;
 
 class SynCheckTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const SYNC_ACTION = 'sync-action';
+    public const SYNC_ACTION = 'sync-action';
 
-    const FULL_TYPE = 'full';
-    const SHOP_INFO_TYPE = 'shop-info';
-    const COUPON_CODES_TYPE = 'coupon-codes';
-    const CATEGORIES_TYPE = 'categories';
-    const TAGS_TYPE = 'tags';
-    const ATTRIBUTES_TYPE = 'attributes';
-    const FEATURED_ATTRIBUTES_TYPE = 'featured-attributes';
-    const ATTRIBUTE_OPTIONS_TYPE = 'attribute-options';
-    const PRODUCTS_TYPE = 'products';
-    const UP_SELL_PRODUCTS_TYPE = 'up-sell-products';
-    const CROSS_SELL_PRODUCTS_TYPE = 'cross-sell-products';
-    const SHIPPING_METHODS_TYPE = 'shipping-methods';
+    public const FULL_TYPE = 'full';
+    public const SHOP_INFO_TYPE = 'shop-info';
+    public const COUPON_CODES_TYPE = 'coupon-codes';
+    public const CATEGORIES_TYPE = 'categories';
+    public const TAGS_TYPE = 'tags';
+    public const ATTRIBUTES_TYPE = 'attributes';
+    public const FEATURED_ATTRIBUTES_TYPE = 'featured-attributes';
+    public const ATTRIBUTE_OPTIONS_TYPE = 'attribute-options';
+    public const PRODUCTS_TYPE = 'products';
+    public const UP_SELL_PRODUCTS_TYPE = 'up-sell-products';
+    public const CROSS_SELL_PRODUCTS_TYPE = 'cross-sell-products';
+    public const SHIPPING_METHODS_TYPE = 'shipping-methods';
 
-    const SYNC_TYPES = [
+    public const SYNC_TYPES = [
         self::FULL_TYPE => SyncWoocommerceFullSync::class,
         self::SHOP_INFO_TYPE => SyncWoocommerceShopInfo::class,
         self::COUPON_CODES_TYPE => SyncWoocommerceCouponCodes::class,
@@ -63,7 +62,7 @@ class SynCheckTab extends AbstractTab
         self::SHIPPING_METHODS_TYPE => SyncWoocommerceShippingMethods::class,
     ];
 
-    const OTHER_COMMANDS = [
+    public const OTHER_COMMANDS = [
         SyncWoocommerceAttributeOptionPage::class,
         SyncWoocommerceCrossSellProductPage::class,
         SyncWoocommerceUpsellProductPage::class,
@@ -183,7 +182,7 @@ class SynCheckTab extends AbstractTab
                 $url = remove_query_arg(['action', 'type']);
                 $url = add_query_arg('success-message', $successMessage, $url);
                 $overlay->endWithRedirect($url);
-            } catch (Throwable $throwable) {
+            } catch (\Throwable $throwable) {
                 $overlay->renderError(
                     $throwable->getMessage(),
                     $throwable->getTraceAsString()

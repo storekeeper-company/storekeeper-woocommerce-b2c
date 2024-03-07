@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 
 trait FormElementTrait
 {
-    final protected function renderFormStart(string $method = 'get', string $action = null): void
+    final protected function renderFormStart(string $method = 'get', ?string $action = null): void
     {
         $action = esc_url($action ?? add_query_arg([]));
         $method = esc_attr($method);

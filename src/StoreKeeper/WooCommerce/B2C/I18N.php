@@ -9,7 +9,7 @@ namespace StoreKeeper\WooCommerce\B2C;
  */
 class I18N
 {
-    const DOMAIN = 'storekeeper-for-woocommerce';
+    public const DOMAIN = 'storekeeper-for-woocommerce';
 
     /**
      * Load the plugin text domain for translation.

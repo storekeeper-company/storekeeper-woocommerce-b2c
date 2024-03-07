@@ -9,7 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class TaskModel extends AbstractModel implements IModelPurge
 {
-    const TABLE_NAME = 'storekeeper_tasks';
+    public const TABLE_NAME = 'storekeeper_tasks';
 
     public static function getFieldsWithRequired(): array
     {

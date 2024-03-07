@@ -2,10 +2,8 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
-use ReflectionClass;
 use StoreKeeper\ApiWrapper\ApiWrapper;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Database\MySqlLock;
@@ -25,7 +23,7 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
     use LoggerAwareTrait;
     use ConsoleProgressBarTrait;
 
-    const AMOUNT = 100;
+    public const AMOUNT = 100;
 
     /**
      * @var ApiWrapper
@@ -50,7 +48,7 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
 
     /**
      * @throws LockActiveException
-     * @throws Exception
+     * @throws \Exception
      */
     public function lock(): bool
     {
@@ -82,12 +80,9 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
         return $exampleBuilder;
     }
 
-    /**
-     * @param AbstractCommand $command
-     */
     public static function getCommandName(): string
     {
-        $reflect = new ReflectionClass(get_called_class());
+        $reflect = new \ReflectionClass(get_called_class());
         $className = $reflect->getShortName();
         // Changes CamelCase to snake-case
         preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $className, $matches);
@@ -113,8 +108,6 @@ abstract class AbstractCommand implements CommandInterface, WithConsoleProgressB
     }
 
     /**
-     * @param $name
-     *
      * @throws BaseException
      */
     protected function executeSubCommand(

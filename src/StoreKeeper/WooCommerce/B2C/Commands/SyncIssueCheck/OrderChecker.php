@@ -15,29 +15,14 @@ class OrderChecker implements SyncIssueCheckerInterface
      */
     protected $api;
 
-    /**
-     * @var
-     */
     protected $backend_paid_order_ids;
 
-    /**
-     * @var
-     */
     protected $woocommerce_paid_orders;
 
-    /**
-     * @var
-     */
     protected $woocommerce_order_post_ids_missing_backend_order_id;
 
-    /**
-     * @var
-     */
     protected $report_text_output;
 
-    /**
-     * @var
-     */
     protected $report_data;
 
     /**
@@ -120,13 +105,10 @@ post_ids: $woocommerce_order_post_ids_missing_backend_order_id_post_ids
     {
         $data = $this->getReportData();
 
-        return 0 === $data['orders_paid_in_woocommerce_not_paid_in_backend']['amount'] &&
-            0 === $data['woocommerce_order_post_ids_missing_backend_order_id']['amount'];
+        return 0 === $data['orders_paid_in_woocommerce_not_paid_in_backend']['amount']
+            && 0 === $data['woocommerce_order_post_ids_missing_backend_order_id']['amount'];
     }
 
-    /**
-     * @return mixed
-     */
     private function fetchBackendPaidOrderIds()
     {
         $this->logger->debug('- Fetching Backend paid order ids');

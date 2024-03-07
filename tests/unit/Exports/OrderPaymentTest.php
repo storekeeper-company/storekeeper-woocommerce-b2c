@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Exports;
 
 use Adbar\Dot;
-use Exception;
 use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
@@ -16,20 +15,20 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class OrderPaymentTest extends AbstractOrderExportTest
 {
-    const DATA_DUMP_FOLDER_NEW_ORDER = 'exports/orderExports/newOrder';
-    const DATA_DUMP_FILE_FETCH_PRODUCTS = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.70cd1894eb5198a400f7b3ef90247685742de16d06a4ac86ba12632daa3d1179.json';
+    public const DATA_DUMP_FOLDER_NEW_ORDER = 'exports/orderExports/newOrder';
+    public const DATA_DUMP_FILE_FETCH_PRODUCTS = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.70cd1894eb5198a400f7b3ef90247685742de16d06a4ac86ba12632daa3d1179.json';
 
-    const HAPPY_FLOW_STOREKEEPER_PAYMENT_FOLDER = 'exports/orderStoreKeeperPayments/normal';
-    const HAPPY_FLOW_STOREKEEPER_PAYMENT_FILE_NEW = 'moduleFunction.ShopModule::newWebShopPaymentWithReturn.success.5e6ed30d4850d.json';
-    const HAPPY_FLOW_STOREKEEPER_PAYMENT_FILE_SYNC = 'moduleFunction.ShopModule::syncWebShopPaymentWithReturn.success.5e6ed3419aaf7.json';
+    public const HAPPY_FLOW_STOREKEEPER_PAYMENT_FOLDER = 'exports/orderStoreKeeperPayments/normal';
+    public const HAPPY_FLOW_STOREKEEPER_PAYMENT_FILE_NEW = 'moduleFunction.ShopModule::newWebShopPaymentWithReturn.success.5e6ed30d4850d.json';
+    public const HAPPY_FLOW_STOREKEEPER_PAYMENT_FILE_SYNC = 'moduleFunction.ShopModule::syncWebShopPaymentWithReturn.success.5e6ed3419aaf7.json';
 
-    const CANCELLED_STOREKEEPER_PAYMENT_FOLDER = 'exports/orderStoreKeeperPayments/cancelledPayment';
-    const CANCELLED_STOREKEEPER_PAYMENT_FILE_CANCELLED_NEW = 'cancelled.moduleFunction.ShopModule::newWebShopPaymentWithReturn.success.5e828ed36afac.json';
-    const CANCELLED_STOREKEEPER_PAYMENT_FILE_CANCELLED_SYNC = 'cancelled.moduleFunction.ShopModule::syncWebShopPaymentWithReturn.success.5e828edb43663.json';
-    const CANCELLED_STOREKEEPER_PAYMENT_FILE_PAID_NEW = 'paid.moduleFunction.ShopModule::newWebShopPaymentWithReturn.success.5e828ee6bbc6f.json';
-    const CANCELLED_STOREKEEPER_PAYMENT_FILE_PAID_SYNC = 'paid.moduleFunction.ShopModule::syncWebShopPaymentWithReturn.success.5e828f0e8aeea.json';
+    public const CANCELLED_STOREKEEPER_PAYMENT_FOLDER = 'exports/orderStoreKeeperPayments/cancelledPayment';
+    public const CANCELLED_STOREKEEPER_PAYMENT_FILE_CANCELLED_NEW = 'cancelled.moduleFunction.ShopModule::newWebShopPaymentWithReturn.success.5e828ed36afac.json';
+    public const CANCELLED_STOREKEEPER_PAYMENT_FILE_CANCELLED_SYNC = 'cancelled.moduleFunction.ShopModule::syncWebShopPaymentWithReturn.success.5e828edb43663.json';
+    public const CANCELLED_STOREKEEPER_PAYMENT_FILE_PAID_NEW = 'paid.moduleFunction.ShopModule::newWebShopPaymentWithReturn.success.5e828ee6bbc6f.json';
+    public const CANCELLED_STOREKEEPER_PAYMENT_FILE_PAID_SYNC = 'paid.moduleFunction.ShopModule::syncWebShopPaymentWithReturn.success.5e828f0e8aeea.json';
 
-    const GET_CONTEXT = 'edit';
+    public const GET_CONTEXT = 'edit';
 
     /**
      * @var \StoreKeeper\ApiWrapper\ApiWrapper
@@ -110,7 +109,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
                                         $filename = self::CANCELLED_STOREKEEPER_PAYMENT_FILE_PAID_NEW;
                                         $paymentId = $sk_paid_payment_id;
                                     } else {
-                                        throw new Exception("Unknown method id=$methodId");
+                                        throw new \Exception("Unknown method id=$methodId");
                                     }
                                 }
 
@@ -145,7 +144,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
                                         // Paid payment
                                         $filename = self::CANCELLED_STOREKEEPER_PAYMENT_FILE_PAID_SYNC;
                                     } else {
-                                        throw new Exception("Unknown payment id=$paymentId");
+                                        throw new \Exception("Unknown payment id=$paymentId");
                                     }
                                 }
 
@@ -784,9 +783,6 @@ class OrderPaymentTest extends AbstractOrderExportTest
         }
     }
 
-    /**
-     * @param bool $order_paid
-     */
     public function createPaymentForMethodId(int $sk_provider_method_id, \WC_Order $order, string $message): void
     {
         $gateway = new StoreKeeperBaseGateway(
@@ -812,7 +808,7 @@ class OrderPaymentTest extends AbstractOrderExportTest
         $taskMetaData = $task['meta_data'] ?? [];
         if (array_key_exists('exception-message', $taskMetaData)) {
             $message = $taskMetaData['exception-message'];
-            throw new Exception("Report error task found with message: $message");
+            throw new \Exception("Report error task found with message: $message");
         }
     }
 }

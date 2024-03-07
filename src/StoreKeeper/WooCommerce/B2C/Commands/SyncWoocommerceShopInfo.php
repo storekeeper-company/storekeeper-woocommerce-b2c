@@ -34,12 +34,12 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
 
             if ($shopData->has('relation_data.contact_address.flatnumber')) {
                 $addressContact = $shopData->get('relation_data.contact_address.street').' '.$shopData->get(
-                        'relation_data.contact_address.streetnumber'
-                    ).' '.$shopData->get('relation_data.contact_address.flatnumber');
+                    'relation_data.contact_address.streetnumber'
+                ).' '.$shopData->get('relation_data.contact_address.flatnumber');
             } else {
                 $addressContact = $shopData->get('relation_data.contact_address.street').' '.$shopData->get(
-                        'relation_data.contact_address.streetnumber'
-                    );
+                    'relation_data.contact_address.streetnumber'
+                );
             }
 
             $city = $shopData->get('relation_data.contact_address.city');

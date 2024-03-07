@@ -9,18 +9,18 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 class StoreKeeperSeo
 {
     public const META_PREFIX = 'skseo_';
-    const META_TITLE = self::META_PREFIX.'title';
-    const META_DESCRIPTION = self::META_PREFIX.'desc';
-    const META_KEYWORDS = self::META_PREFIX.'kw';
+    public const META_TITLE = self::META_PREFIX.'title';
+    public const META_DESCRIPTION = self::META_PREFIX.'desc';
+    public const META_KEYWORDS = self::META_PREFIX.'kw';
 
-    const ALL_META_KEYS = [
+    public const ALL_META_KEYS = [
         self::SEO_TITLE => self::META_TITLE,
         self::SEO_DESCRIPTION => self::META_DESCRIPTION,
         self::SEO_KEYWORDS => self::META_KEYWORDS,
     ];
-    const SEO_TITLE = 'seo_title';
-    const SEO_DESCRIPTION = 'seo_description';
-    const SEO_KEYWORDS = 'seo_keywords';
+    public const SEO_TITLE = 'seo_title';
+    public const SEO_DESCRIPTION = 'seo_description';
+    public const SEO_KEYWORDS = 'seo_keywords';
 
     public static function isSelectedHandler(): bool
     {

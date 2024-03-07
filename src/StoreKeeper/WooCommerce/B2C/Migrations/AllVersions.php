@@ -25,8 +25,8 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20231204152300ShippingMetho
 
 class AllVersions implements VersionsInterface
 {
-    const VERSION_REGEX = '/\\V(?<date>\d{8})(?<time>\d{6})(\D\w*)$/';
-    const VERSION = [
+    public const VERSION_REGEX = '/\\V(?<date>\d{8})(?<time>\d{6})(\D\w*)$/';
+    public const VERSION = [
         V20230312154000webhook::class,
         V20230312154010task::class,
         V20230312154020attribute::class,

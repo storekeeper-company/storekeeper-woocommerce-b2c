@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Helpers\Seo\RankMathSeo;
@@ -18,7 +17,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\ParseDown;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
-use WP_Term;
 
 class CategoryImport extends AbstractImport implements WithConsoleProgressBarInterface
 {
@@ -32,7 +30,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
     /**
      * @var int|null
      */
-    private $level = null;
+    private $level;
 
     /**
      * @var bool
@@ -42,7 +40,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
     /**
      * CategoryImport constructor.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(array $settings = [])
     {
@@ -102,8 +100,8 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         }
 
         if (StoreKeeperOptions::exists(StoreKeeperOptions::MAIN_CATEGORY_ID) && StoreKeeperOptions::get(
-                StoreKeeperOptions::MAIN_CATEGORY_ID
-            ) > 0) {
+            StoreKeeperOptions::MAIN_CATEGORY_ID
+        ) > 0) {
             $f[] = [
                 'name' => 'category_tree/path__overlap',
                 'multi_val' => [StoreKeeperOptions::get(StoreKeeperOptions::MAIN_CATEGORY_ID)],
@@ -116,8 +114,8 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
     public function run(array $options = []): void
     {
         if (StoreKeeperOptions::exists(StoreKeeperOptions::MAIN_CATEGORY_ID) && StoreKeeperOptions::get(
-                StoreKeeperOptions::MAIN_CATEGORY_ID
-            ) > 0) {
+            StoreKeeperOptions::MAIN_CATEGORY_ID
+        ) > 0) {
             $this->importMainCategory(StoreKeeperOptions::get(StoreKeeperOptions::MAIN_CATEGORY_ID));
         }
 
@@ -180,7 +178,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
 
                     $count = $index + 1;
                     $this->debug("Processed {$count}/{$response['count']} items");
-                } catch (Exception $exception) {
+                } catch (\Exception $exception) {
                     $this->debug('Caught an exception');
 
                     $errorMessage = $exception->getMessage();
@@ -216,7 +214,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         $summary = $this->getTranslationIfRequired($dotObject, 'summary');
 
         if ('' === trim($title)) {
-            throw new Exception('No title set for category id='.$storekeeperId.' slug='.$slug);
+            throw new \Exception('No title set for category id='.$storekeeperId.' slug='.$slug);
         }
 
         $args = [
@@ -312,8 +310,8 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
         }
 
         if (
-            $dotObject->has('category_tree.direct_children') &&
-            count($dotObject->get('category_tree.direct_children')) > 0
+            $dotObject->has('category_tree.direct_children')
+            && count($dotObject->get('category_tree.direct_children')) > 0
         ) {
             $child_ids = $dotObject->get('category_tree.direct_children');
             foreach ($child_ids as $child_id) {
@@ -336,7 +334,7 @@ class CategoryImport extends AbstractImport implements WithConsoleProgressBarInt
     /**
      * @throws WordpressException
      */
-    protected function processSeo(WP_Term $term, Dot $dotObject): void
+    protected function processSeo(\WP_Term $term, Dot $dotObject): void
     {
         $seoTitle = null;
         $seoDescription = null;

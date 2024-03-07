@@ -2,30 +2,27 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Helpers;
 
-use DateTime;
-use DateTimeZone;
-use Exception;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 class DateTimeHelper
 {
-    const MYSQL_DATETIME_FORMAT = 'Y-m-d H:i:s';
-    const MYSQL_DATE_FORMAT = 'Y-m-d';
-    const WORDPRESS_DATE_FORMAT_OPTION = 'date_format';
-    const WORDPRESS_TIME_FORMAT_OPTION = 'time_format';
+    public const MYSQL_DATETIME_FORMAT = 'Y-m-d H:i:s';
+    public const MYSQL_DATE_FORMAT = 'Y-m-d';
+    public const WORDPRESS_DATE_FORMAT_OPTION = 'date_format';
+    public const WORDPRESS_TIME_FORMAT_OPTION = 'time_format';
 
     /**
      * Get current date and time
      * Don't use non-GMT time, unless you know the difference and really need to.
      *
-     * @throws Exception
+     * @throws \Exception
      */
-    public static function currentDateTime(): DateTime
+    public static function currentDateTime(): \DateTime
     {
-        return new DateTime('now', new DateTimeZone('UTC'));
+        return new \DateTime('now', new \DateTimeZone('UTC'));
     }
 
-    public static function formatForStorekeeperApi(?DateTime $dateTime = null): string
+    public static function formatForStorekeeperApi(?\DateTime $dateTime = null): string
     {
         if (is_null($dateTime)) {
             $dateTime = self::currentDateTime();
@@ -34,7 +31,7 @@ class DateTimeHelper
         return $dateTime->setTimezone(wp_timezone())->format('c');
     }
 
-    public static function formatForDisplay(?DateTime $dateTime = null): string
+    public static function formatForDisplay(?\DateTime $dateTime = null): string
     {
         if (is_null($dateTime)) {
             return '-';
@@ -54,7 +51,7 @@ class DateTimeHelper
         return $dateTime->setTimezone(wp_timezone())->format("$dateFormat $timeFormat");
     }
 
-    public static function dateDiff(DateTime $datetime1, $maximumInactiveMinutes = 15)
+    public static function dateDiff(\DateTime $datetime1, $maximumInactiveMinutes = 15)
     {
         $mydate = date(DATE_RFC2822);
 

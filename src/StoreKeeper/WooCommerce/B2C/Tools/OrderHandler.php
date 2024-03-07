@@ -5,16 +5,13 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use WC_Order;
-use WP_Post;
 
 class OrderHandler
 {
-    const SHOP_PRODUCT_ID_MAP = 'shop_product_id_map';
-    const TO_BE_SYNCHRONIZED_META_KEY = 'to_be_synchronized';
+    public const SHOP_PRODUCT_ID_MAP = 'shop_product_id_map';
+    public const TO_BE_SYNCHRONIZED_META_KEY = 'to_be_synchronized';
 
     /**
-     * @param $order_id
-     *
      * @hook $this->loader->add_action('woocommerce_checkout_order_processed', $orderHandler, 'create', self::HIGH_PRIORITY);
      *
      * @throws \Exception
@@ -34,7 +31,7 @@ class OrderHandler
         );
     }
 
-    public function addToBeSynchronizedMetadata(int $orderId, WC_Order $order): void
+    public function addToBeSynchronizedMetadata(int $orderId, \WC_Order $order): void
     {
         if ($this->isSyncAllowed($orderId)) {
             $order->add_meta_data(self::TO_BE_SYNCHRONIZED_META_KEY, 'yes');
@@ -68,8 +65,8 @@ class OrderHandler
         return null;
     }
 
-    /* @deprecated  */
-    public function delete($order_id): WP_Post
+    /* @deprecated */
+    public function delete($order_id): \WP_Post
     {
         $meta_data = [];
         if (!empty(get_post_meta($order_id, 'storekeeper_id', true))) {
@@ -87,7 +84,6 @@ class OrderHandler
 
     /**
      * @param $order WC_Order
-     * @param $data
      */
     public function addShopProductIdsToMetaData($order, $data)
     {
@@ -115,7 +111,7 @@ class OrderHandler
     protected function isSyncAllowed(int $orderId): bool
     {
         if (StoreKeeperOptions::isOrderSyncEnabled()) {
-            $order = new WC_Order($orderId);
+            $order = new \WC_Order($orderId);
             $orderCreatedDate = $order->get_date_created();
 
             if (is_null($orderCreatedDate)) {
@@ -134,8 +130,8 @@ class OrderHandler
             );
 
             if (
-                $orderSyncFromDate &&
-                strtotime($orderSyncFromDate->format('Y-m-d')) <= strtotime($orderCreatedDateUTC->format('Y-m-d'))
+                $orderSyncFromDate
+                && strtotime($orderSyncFromDate->format('Y-m-d')) <= strtotime($orderCreatedDateUTC->format('Y-m-d'))
             ) {
                 return true;
             }

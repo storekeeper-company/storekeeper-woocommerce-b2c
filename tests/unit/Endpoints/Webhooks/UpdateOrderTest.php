@@ -12,8 +12,6 @@ use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
-use WC_Helper_Order;
-use WC_Order;
 
 class UpdateOrderTest extends AbstractTest
 {
@@ -34,14 +32,12 @@ class UpdateOrderTest extends AbstractTest
     public function createWooCommerceOrder(): int
     {
         // see https://github.com/woocommerce/woocommerce/blob/master/tests/framework/helpers/class-wc-helper-order.php as example
-        $order = WC_Helper_Order::create_order();
+        $order = \WC_Helper_Order::create_order();
 
         return $order->save();
     }
 
     /**
-     * @param $dumpFile
-     *
      * @return Dot
      */
     protected function getLastEventFromDumpfile($dumpFile)
@@ -153,7 +149,7 @@ class UpdateOrderTest extends AbstractTest
         $this->assertFalse(PaymentGateway::$refundedBySkStatus, 'Should be false after import');
 
         // Assert the status
-        $wooCommerceOrder = new WC_Order($wooCommmerceOrderId);
+        $wooCommerceOrder = new \WC_Order($wooCommmerceOrderId);
         $wooCommerceStatus = $wooCommerceOrder->get_status('edit');
 
         // get last storekeeper order
@@ -242,7 +238,7 @@ class UpdateOrderTest extends AbstractTest
         $this->runner->execute(ProcessAllTasks::getCommandName());
 
         // Assert the status
-        $wc_order = new WC_Order($wc_order_id);
+        $wc_order = new \WC_Order($wc_order_id);
         $wc_status = $wc_order->get_status('edit');
 
         // get last storekeeper order

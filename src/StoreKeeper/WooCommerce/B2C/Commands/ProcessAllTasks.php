@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ConnectionTimedOutException;
@@ -13,20 +12,19 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Query\CronQueryBuilder;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
-use Throwable;
 
 /**
  * Processes all tasks on queue.
  */
 class ProcessAllTasks extends AbstractCommand
 {
-    const ARG_FAIL_ON_ERROR = 'fail-on-error';
-    const HAS_ERROR_TRANSIENT_KEY = 'process_has_error';
-    const MASSAGE_TASK_FAILED = 'Task failed';
+    public const ARG_FAIL_ON_ERROR = 'fail-on-error';
+    public const HAS_ERROR_TRANSIENT_KEY = 'process_has_error';
+    public const MASSAGE_TASK_FAILED = 'Task failed';
     /**
      * @var \Throwable|null
      */
-    private $lastError = null;
+    private $lastError;
     /**
      * @var DatabaseConnection
      */
@@ -68,7 +66,7 @@ class ProcessAllTasks extends AbstractCommand
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
@@ -199,12 +197,9 @@ class ProcessAllTasks extends AbstractCommand
     }
 
     /**
-     * @param $task_id
-     * @param $e
-     *
-     * @throws Exception
+     * @throws \Exception
      */
-    protected function reportTaskError($task_id, Throwable $e, array $log_context): void
+    protected function reportTaskError($task_id, \Throwable $e, array $log_context): void
     {
         $this->lastError = $e;
 
@@ -408,7 +403,7 @@ class ProcessAllTasks extends AbstractCommand
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      * @throws ConnectionTimedOutException
      * @throws BaseException
      * @throws LockException
@@ -489,7 +484,7 @@ class ProcessAllTasks extends AbstractCommand
                         throw $exception;
                     }
                 }
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $this->reportTaskError($task_id, $e, $log_context);
 
                 if ($rethrow) {

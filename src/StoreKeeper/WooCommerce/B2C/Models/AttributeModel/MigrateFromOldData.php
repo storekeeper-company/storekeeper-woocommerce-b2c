@@ -8,7 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
 class MigrateFromOldData
 {
-    const ATTRIBUTE_TABLE = 'storekeeper_woocommerce_attribute_metadata';
+    public const ATTRIBUTE_TABLE = 'storekeeper_woocommerce_attribute_metadata';
 
     public function run()
     {

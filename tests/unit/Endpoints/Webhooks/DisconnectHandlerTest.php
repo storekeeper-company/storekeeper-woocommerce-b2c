@@ -4,12 +4,11 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\Webhooks;
 
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
-use Throwable;
 
 class DisconnectHandlerTest extends AbstractTest
 {
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function testHandleDisconnect(): void
     {
@@ -21,7 +20,7 @@ class DisconnectHandlerTest extends AbstractTest
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     protected function handleDisconnectRequest(): void
     {

@@ -22,7 +22,7 @@ class ExportTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const ACTION_GENERATE_SKU_FROM_TITLE = 'generate-sku-from-title';
+    public const ACTION_GENERATE_SKU_FROM_TITLE = 'generate-sku-from-title';
 
     public function __construct(string $title, string $slug = '')
     {
@@ -42,21 +42,21 @@ class ExportTab extends AbstractTab
         wp_enqueue_script('exportSweetalertScript', plugin_dir_url(__FILE__).'../../static/vendors/sweetalert2/sweetalert.min.js');
         // So we can pass values to javascript file
         wp_localize_script('exportScript', 'exportSettings',
-        [
-            'url' => rest_url(EndpointLoader::getFullNamespace().'/'.ExportEndpoint::ROUTE),
-            'translations' => [
-                'Your file has been generated' => esc_html__('Your file has been generated', I18N::DOMAIN),
-                'Your download will start in a few seconds. If not, you can download the file manually using the link below' => esc_html__('Your download will start in a few seconds. If not, you can download the file manually using the link below', I18N::DOMAIN),
-                'Please wait and keep the page and popup window open while we are preparing your export' => esc_html__('Please wait and keep the page and popup window open while we are preparing your export', I18N::DOMAIN),
-                'Preparing export' => esc_html__('Preparing export', I18N::DOMAIN),
-                'Stop exporting' => esc_html__('Stop exporting', I18N::DOMAIN),
-                'Size' => esc_html__('Size', I18N::DOMAIN),
-                'Export failed' => esc_html__('Export failed', I18N::DOMAIN),
-                'Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?' => esc_html__('Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?', I18N::DOMAIN),
-                'No, thanks' => esc_html__('No, thanks', I18N::DOMAIN),
-                'Yes, please' => esc_html__('Yes, please', I18N::DOMAIN),
-            ],
-        ]);
+            [
+                'url' => rest_url(EndpointLoader::getFullNamespace().'/'.ExportEndpoint::ROUTE),
+                'translations' => [
+                    'Your file has been generated' => esc_html__('Your file has been generated', I18N::DOMAIN),
+                    'Your download will start in a few seconds. If not, you can download the file manually using the link below' => esc_html__('Your download will start in a few seconds. If not, you can download the file manually using the link below', I18N::DOMAIN),
+                    'Please wait and keep the page and popup window open while we are preparing your export' => esc_html__('Please wait and keep the page and popup window open while we are preparing your export', I18N::DOMAIN),
+                    'Preparing export' => esc_html__('Preparing export', I18N::DOMAIN),
+                    'Stop exporting' => esc_html__('Stop exporting', I18N::DOMAIN),
+                    'Size' => esc_html__('Size', I18N::DOMAIN),
+                    'Export failed' => esc_html__('Export failed', I18N::DOMAIN),
+                    'Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?' => esc_html__('Something went wrong during export or server timed out. You can try manual export via command line, do you want to read the guide?', I18N::DOMAIN),
+                    'No, thanks' => esc_html__('No, thanks', I18N::DOMAIN),
+                    'Yes, please' => esc_html__('Yes, please', I18N::DOMAIN),
+                ],
+            ]);
     }
 
     protected function generateSkuFromTitleAction(): void
@@ -72,10 +72,10 @@ class ExportTab extends AbstractTab
 
             $failed = $generator->getFailedIds();
             $backButton = $this->getFormLink(
-                    remove_query_arg(['type', 'action', 'lang']),
-                    __('Back to export', I18N::DOMAIN),
-                    'button button-link'
-                );
+                remove_query_arg(['type', 'action', 'lang']),
+                __('Back to export', I18N::DOMAIN),
+                'button button-link'
+            );
             if (empty($failed)) {
                 echo '<div class="notice notice-success">';
                 $title = esc_html__('All skus was generated successfully', I18N::DOMAIN);
@@ -142,16 +142,16 @@ class ExportTab extends AbstractTab
 
             if (FileExportTypeHelper::TAG === $type) {
                 $input .= '<br><div class="mt-1">'.$this->getFormCheckbox(FileExportTypeHelper::TAG.'-skip-empty-tags').' '.__(
-                        'Skip empty tags (tags with no products attached)',
-                        I18N::DOMAIN
-                    ).'</div>';
+                    'Skip empty tags (tags with no products attached)',
+                    I18N::DOMAIN
+                ).'</div>';
             }
 
             if (FileExportTypeHelper::PRODUCT === $type) {
                 $input .= '<br><div class="mt-1">'.$this->getFormCheckbox($type.'-all-products').' '.__(
-                        'Include all not active products',
-                        I18N::DOMAIN
-                    ).'</div>';
+                    'Include all not active products',
+                    I18N::DOMAIN
+                ).'</div>';
             }
 
             $this->renderFormGroup($label, $input);
@@ -341,9 +341,9 @@ class ExportTab extends AbstractTab
 
         if (!array_key_exists($siteLanguageIso2, $options)) {
             $options[$siteLanguageIso2] = sprintf(
-                    __('Site language (%s)', I18N::DOMAIN),
-                    $siteLanguageIso2
-                );
+                __('Site language (%s)', I18N::DOMAIN),
+                $siteLanguageIso2
+            );
         }
         $this->renderFormGroup(
             __('Export language', I18N::DOMAIN),

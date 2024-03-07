@@ -3,33 +3,28 @@
 namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 use Adbar\Dot;
-use DateTime;
-use DateTimeInterface;
-use Exception;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
 use WC_Coupon;
-use WP_Post;
-use WP_Term;
 
 class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarInterface
 {
     use ConsoleProgressBarTrait;
-    const SK_COUPON_TYPE_PERCENTAGE = 'percent';
-    const SK_COUPON_TYPE_FIXED_ORDER = 'fixed_order';
+    public const SK_COUPON_TYPE_PERCENTAGE = 'percent';
+    public const SK_COUPON_TYPE_FIXED_ORDER = 'fixed_order';
 
-    const WC_COUPON_TYPE_FIXED_CARD = 'fixed_cart';
-    const WC_COUPON_TYPE_PERCENT = 'percent';
+    public const WC_COUPON_TYPE_FIXED_CARD = 'fixed_cart';
+    public const WC_COUPON_TYPE_PERCENT = 'percent';
 
-    const SK_TO_WC_TYPE_MAP = [
+    public const SK_TO_WC_TYPE_MAP = [
         self::SK_COUPON_TYPE_FIXED_ORDER => self::WC_COUPON_TYPE_FIXED_CARD,
         self::SK_COUPON_TYPE_PERCENTAGE => self::WC_COUPON_TYPE_PERCENT,
     ];
 
-    const WC_POST_TYPE_COUPON_CODE = 'shop_coupon';
+    public const WC_POST_TYPE_COUPON_CODE = 'shop_coupon';
 
     /**
      * @var int
@@ -39,12 +34,12 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
     /**
      * @var string
      */
-    protected $code = null;
+    protected $code;
 
     /**
      * CouponCodeImport constructor.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(array $settings = [])
     {
@@ -55,9 +50,9 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         parent::__construct($settings);
     }
 
-    public static function getCouponCodeDateFormatted(?DateTime $date): ?string
+    public static function getCouponCodeDateFormatted(?\DateTime $date): ?string
     {
-        return $date instanceof DateTimeInterface ? date_format($date, 'Y-m-d') : null;
+        return $date instanceof \DateTimeInterface ? date_format($date, 'Y-m-d') : null;
     }
 
     protected function getModule(): string
@@ -92,7 +87,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         return null;
     }
 
-    public static function getCouponCodeByStorekeeperId($storekeeperId): ?WP_Post
+    public static function getCouponCodeByStorekeeperId($storekeeperId): ?\WP_Post
     {
         $couponCodes = get_posts(
             [
@@ -132,7 +127,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
     protected function createCouponCode(Dot $dotObject)
     {
         if (true === $dotObject->get('active')) {
-            $coupon = new WC_Coupon();
+            $coupon = new \WC_Coupon();
 
             $this->applyCouponProperties($coupon, $dotObject);
 
@@ -142,7 +137,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         }
     }
 
-    protected function updateCouponCode(WP_Post $couponCode, Dot $dotObject)
+    protected function updateCouponCode(\WP_Post $couponCode, Dot $dotObject)
     {
         if (isset($couponCode->ID)) {
             $couponId = $couponCode->ID;
@@ -150,7 +145,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
             if (false === $dotObject->get('active')) {
                 wp_trash_post($couponId);
             } else {
-                $coupon = new WC_Coupon($couponId);
+                $coupon = new \WC_Coupon($couponId);
 
                 $this->applyCouponProperties($coupon, $dotObject);
 
@@ -159,7 +154,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         }
     }
 
-    protected function applyCouponProperties(WC_Coupon &$coupon, Dot $data)
+    protected function applyCouponProperties(\WC_Coupon &$coupon, Dot $data)
     {
         // Default
         $coupon->set_code($data->get('code'));
@@ -185,31 +180,31 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         $coupon->set_usage_limit_per_user($data->get('times_per_customer_per_shop'));
     }
 
-    protected function applyType(WC_Coupon &$coupon, Dot $data): void
+    protected function applyType(\WC_Coupon &$coupon, Dot $data): void
     {
         $wcType = self::getCouponType($data);
         $coupon->set_discount_type($wcType);
     }
 
-    protected function applyAmount(WC_Coupon &$coupon, Dot $data): void
+    protected function applyAmount(\WC_Coupon &$coupon, Dot $data): void
     {
         $amount = self::getCouponAmount($data);
         $coupon->set_amount($amount);
     }
 
-    protected function applyIncludedCategories(WC_Coupon &$coupon, Dot $data): void
+    protected function applyIncludedCategories(\WC_Coupon &$coupon, Dot $data): void
     {
         $categoryIds = self::getCouponIncludedCategoryIds($data);
         $coupon->set_product_categories($categoryIds);
     }
 
-    protected function applyExcludedCategories(WC_Coupon &$coupon, Dot $data): void
+    protected function applyExcludedCategories(\WC_Coupon &$coupon, Dot $data): void
     {
         $categoryIds = self::getCouponExcludedCategoryIds($data);
         $coupon->set_excluded_product_categories($categoryIds);
     }
 
-    protected function applyExpireDate(WC_Coupon &$coupon, Dot $data): void
+    protected function applyExpireDate(\WC_Coupon &$coupon, Dot $data): void
     {
         $date = self::getCouponExpireDate($data);
         $coupon->set_date_expires($date);
@@ -221,7 +216,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
 
         foreach ($skCategoryIds as $id) {
             $term = Categories::getCategoryById($id);
-            if ($term instanceof WP_Term) {
+            if ($term instanceof \WP_Term) {
                 $categoryIds[] = $term->term_id;
             }
         }
@@ -233,7 +228,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
     {
         $dateString = $data->get('date_expires_excl');
         if ($dateString) {
-            $date = new DateTime($dateString);
+            $date = new \DateTime($dateString);
 
             return self::getCouponCodeDateFormatted($date);
         }
@@ -277,7 +272,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         $skType = $data->get('type');
         $wcType = self::SK_TO_WC_TYPE_MAP[$skType];
         if (empty($wcType)) {
-            throw new Exception("Unknown StoreKeeper discount type: $skType");
+            throw new \Exception("Unknown StoreKeeper discount type: $skType");
         }
 
         return $wcType;
@@ -292,10 +287,10 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
     protected function makeMissingCouponPrivate(): void
     {
         if ($this->storekeeper_id > 0 && 0 === $this->total_fetched) {
-            $coupon = new WC_Coupon($this->code);
+            $coupon = new \WC_Coupon($this->code);
             if ($coupon) {
                 $post = get_post($coupon->get_id());
-                if ($post instanceof WP_Post) {
+                if ($post instanceof \WP_Post) {
                     $post->post_status = 'private';
                 }
             }

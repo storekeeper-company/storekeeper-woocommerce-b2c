@@ -4,7 +4,7 @@ if ('cli' == php_sapi_name()) {
     // Checking if all variables are set
     if (empty($argv[1]) || empty($argv[2])) {
         $file = basename(__FILE__).'.php';
-        throw new \Exception("Usage: php ./$file <version> <plugin_entry_path>");
+        throw new Exception("Usage: php ./$file <version> <plugin_entry_path>");
     }
 
     // Setting variables
@@ -22,11 +22,11 @@ if ('cli' == php_sapi_name()) {
     $lines = preg_replace('/^([\s\*]*Stable Tag:\s*)([\d\.]+)\s*$/m', '${1}'.$build, $lines);
 
     if (empty($lines)) {
-        throw new \Exception('Plugin entry file is empty is empty');
+        throw new Exception('Plugin entry file is empty is empty');
     }
 
     // Updating file
     file_put_contents($file, $lines);
 } else {
-    throw new \Exception('This script can only be run from command line');
+    throw new Exception('This script can only be run from command line');
 }

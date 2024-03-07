@@ -29,7 +29,7 @@ class AdminNotices
             $this->StoreKeeperProductAttributeCheck();
             $this->StoreKeeperProductAttributeTermCheck();
             $this->StoreKeeperOrderCheck();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             AdminNotices::showError(
                 sprintf(__('Failed to build notices: %s.', I18N::DOMAIN), $e->getMessage()),
                 $e->getTraceAsString()
@@ -277,15 +277,15 @@ class AdminNotices
 
     private function isProductCategoryPage(): bool
     {
-        return isset($_GET['taxonomy']) &&
-            'product_cat' === $_GET['taxonomy']
+        return isset($_GET['taxonomy'])
+            && 'product_cat' === $_GET['taxonomy']
             && isset($_GET['tag_ID']);
     }
 
     private function isProductTagPage(): bool
     {
-        return isset($_GET['taxonomy']) &&
-            'product_tag' === $_GET['taxonomy']
+        return isset($_GET['taxonomy'])
+            && 'product_tag' === $_GET['taxonomy']
             && isset($_GET['tag_ID']);
     }
 
@@ -301,8 +301,8 @@ class AdminNotices
 
     private function isStorekeeperProductAttributePage(): bool
     {
-        return isset($_GET['taxonomy']) &&
-            StringFunctions::startsWith($_GET['taxonomy'], 'pa_')
+        return isset($_GET['taxonomy'])
+            && StringFunctions::startsWith($_GET['taxonomy'], 'pa_')
             && isset($_GET['tag_ID']);
     }
 

@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
-use Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
@@ -11,15 +10,6 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractTest;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Interfaces\IFileExportTest;
-use WC_Customer;
-use WC_Helper_Customer;
-use WC_Helper_Product;
-use WC_Product;
-use WC_Product_Attribute;
-use WC_Product_Simple;
-use WC_Product_Variable;
-use WC_Product_Variation;
-use WC_Tax;
 
 abstract class AbstractFileExportTest extends AbstractTest implements IFileExportTest
 {
@@ -73,7 +63,7 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
         }
 
         if (null === $foundRow) {
-            throw new Exception("Row with index ($rowNumber) not found");
+            throw new \Exception("Row with index ($rowNumber) not found");
         }
 
         return $foundRow;
@@ -169,7 +159,7 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
             'tax_rate_shipping' => '0',
             'tax_rate_order' => '1',
         ];
-        $taxRate21Id = WC_Tax::_insert_tax_rate($taxRate);
+        $taxRate21Id = \WC_Tax::_insert_tax_rate($taxRate);
 
         $taxRate = [
             'tax_rate_country' => 'BE',
@@ -181,7 +171,7 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
             'tax_rate_shipping' => '0',
             'tax_rate_order' => '1',
         ];
-        $taxRate21BeId = WC_Tax::_insert_tax_rate($taxRate);
+        $taxRate21BeId = \WC_Tax::_insert_tax_rate($taxRate);
 
         $taxRate = [
             'tax_rate_country' => 'NL',
@@ -194,21 +184,21 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
             'tax_rate_order' => '1',
             'tax_rate_class' => 'reduced-rate',
         ];
-        $taxRate9Id = WC_Tax::_insert_tax_rate($taxRate);
+        $taxRate9Id = \WC_Tax::_insert_tax_rate($taxRate);
 
-        $taxRate21 = WC_Tax::_get_tax_rate($taxRate21Id, OBJECT);
-        $taxRate9 = WC_Tax::_get_tax_rate($taxRate9Id, OBJECT);
-        $taxRate21Be = WC_Tax::_get_tax_rate($taxRate21BeId, OBJECT);
+        $taxRate21 = \WC_Tax::_get_tax_rate($taxRate21Id, OBJECT);
+        $taxRate9 = \WC_Tax::_get_tax_rate($taxRate9Id, OBJECT);
+        $taxRate21Be = \WC_Tax::_get_tax_rate($taxRate21BeId, OBJECT);
 
         return [$taxRate21, $taxRate9, $taxRate21Be];
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     protected function createSimpleProductWithTagAndCategory($taxRateObject = null, $status = 'publish')
     {
-        $product = new WC_Product_Simple();
+        $product = new \WC_Product_Simple();
         $taxRateObject ? $product->set_tax_class($taxRateObject->tax_rate_class) : null;
         $unique = sanitize_title(uniqid('', true));
         $product->set_props(
@@ -229,8 +219,8 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
 
         $product->set_status($status);
 
-        $attribute = new WC_Product_Attribute();
-        $attribute_data = WC_Helper_Product::create_attribute('size', ['small', 'large', 'huge']);
+        $attribute = new \WC_Product_Attribute();
+        $attribute_data = \WC_Helper_Product::create_attribute('size', ['small', 'large', 'huge']);
         $attribute->set_id($attribute_data['attribute_id']);
         $attribute->set_name($attribute_data['attribute_taxonomy']);
         $attribute->set_options($attribute_data['term_ids']);
@@ -250,11 +240,11 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     protected function createSimpleProduct(string $name, $taxRateObject = null, $status = 'publish')
     {
-        $product = new WC_Product_Simple();
+        $product = new \WC_Product_Simple();
         $taxRateObject ? $product->set_tax_class($taxRateObject->tax_rate_class) : null;
         $unique = sanitize_title(uniqid('', true));
         $product->set_props(
@@ -275,8 +265,8 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
 
         $product->set_status($status);
 
-        $attribute = new WC_Product_Attribute();
-        $attribute_data = WC_Helper_Product::create_attribute('size', ['small', 'large', 'huge']);
+        $attribute = new \WC_Product_Attribute();
+        $attribute_data = \WC_Helper_Product::create_attribute('size', ['small', 'large', 'huge']);
         $attribute->set_id($attribute_data['attribute_id']);
         $attribute->set_name($attribute_data['attribute_taxonomy']);
         $attribute->set_options($attribute_data['term_ids']);
@@ -290,7 +280,7 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
         return wc_get_product($product->get_id());
     }
 
-    protected function addImageToProduct(WC_Product $product)
+    protected function addImageToProduct(\WC_Product $product)
     {
         $product->set_image_id($this->createAttachment($product->get_id()));
         $product->save();
@@ -312,9 +302,9 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
         );
     }
 
-    protected function createVariableProduct($taxRateObject = null): WC_Product_Variable
+    protected function createVariableProduct($taxRateObject = null): \WC_Product_Variable
     {
-        $product = new WC_Product_Variable();
+        $product = new \WC_Product_Variable();
         $taxRateObject ? $product->set_tax_class($taxRateObject->tax_rate_class) : null;
         $unique = sanitize_title(uniqid('', true));
         $product->set_props(
@@ -331,8 +321,8 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
             ]
         );
 
-        $attribute = new WC_Product_Attribute();
-        $attribute_data = WC_Helper_Product::create_attribute('Size', ['small', 'large', 'huge']);
+        $attribute = new \WC_Product_Attribute();
+        $attribute_data = \WC_Helper_Product::create_attribute('Size', ['small', 'large', 'huge']);
         $attribute->set_id($attribute_data['attribute_id']);
         $attribute->set_name($attribute_data['attribute_taxonomy']);
         $attribute->set_options($attribute_data['term_ids']);
@@ -344,7 +334,7 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
         $product->set_attributes($attributes);
         $product->save();
 
-        $variation_1 = new WC_Product_Variation();
+        $variation_1 = new \WC_Product_Variation();
         $variation_1->set_props(
             [
                 'parent_id' => $product->get_id(),
@@ -357,7 +347,7 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
         $variation_1->set_attributes(['pa_size' => 'small']);
         $variation_1->save();
 
-        $variation_2 = new WC_Product_Variation();
+        $variation_2 = new \WC_Product_Variation();
         $variation_2->set_props(
             [
                 'parent_id' => $product->get_id(),
@@ -375,9 +365,9 @@ abstract class AbstractFileExportTest extends AbstractTest implements IFileExpor
         return wc_get_product($product->get_id());
     }
 
-    protected function createCustomer(): WC_Customer
+    protected function createCustomer(): \WC_Customer
     {
-        $customer = WC_Helper_Customer::create_customer();
+        $customer = \WC_Helper_Customer::create_customer();
         $customer->set_last_name('Dank');
         $customer->set_billing_phone('04 123 456 78');
         $customer->set_billing_company('tmp.dev');

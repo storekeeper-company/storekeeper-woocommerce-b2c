@@ -15,7 +15,7 @@ class PluginConflictChecker
      * Example:         We want to mark all WooCommerce version before 5 as conflicting, We add the following line.
      *                  'woocommerce/woocommerce.php' => '<5.0.0'.
      */
-    const CONFLICTS = [
+    public const CONFLICTS = [
         'woocommerce/woocommerce.php' => '<4.1.0',
         'woocommerce-product-search/woocommerce-product-search.php' => '*',
     ];

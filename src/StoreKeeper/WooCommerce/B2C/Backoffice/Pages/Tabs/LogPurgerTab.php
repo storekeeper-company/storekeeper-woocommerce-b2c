@@ -15,8 +15,8 @@ class LogPurgerTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const PURGE_TASKS_ACTION = 'purge-tasks';
-    const PURGE_WEBHOOKS_ACTION = 'purge-webhooks';
+    public const PURGE_TASKS_ACTION = 'purge-tasks';
+    public const PURGE_WEBHOOKS_ACTION = 'purge-webhooks';
 
     public function __construct(string $title, string $slug = '')
     {

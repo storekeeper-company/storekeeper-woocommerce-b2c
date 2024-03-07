@@ -2,17 +2,15 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
-use Throwable;
 
 abstract class AbstractMarkTasksAs extends AbstractCommand
 {
-    const ALLOWED_TASK_STATUSES = [TaskHandler::STATUS_PROCESSING, TaskHandler::STATUS_FAILED, TaskHandler::STATUS_NEW];
+    public const ALLOWED_TASK_STATUSES = [TaskHandler::STATUS_PROCESSING, TaskHandler::STATUS_FAILED, TaskHandler::STATUS_NEW];
     /**
      * @var DatabaseConnection
      */
@@ -43,7 +41,7 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
     /**
      * @return void
      *
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
@@ -65,7 +63,7 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
             $select_type = $assoc_arguments['select_type'] ?? null;
 
             if ($select_status === $desired_status) {
-                throw new Exception('Selected status is same as desired status');
+                throw new \Exception('Selected status is same as desired status');
             }
 
             $task_ids = $this->getTaskIds($select_status, $select_type);
@@ -97,14 +95,14 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
     /**
      * @return int[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function getTaskIds(
         string $status,
-        string $type = null
+        ?string $type = null
     ): array {
         if (!in_array($status, self::ALLOWED_TASK_STATUSES)) {
-            throw new Exception('Only allowed statuses are '.implode(', ', self::ALLOWED_TASK_STATUSES));
+            throw new \Exception('Only allowed statuses are '.implode(', ', self::ALLOWED_TASK_STATUSES));
         }
 
         $select = TaskModel::getSelectHelper()
@@ -113,7 +111,7 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
             ->bindValue('status', $status);
         if (!is_null($type)) {
             if (!in_array($type, TaskHandler::TYPE_GROUPS)) {
-                throw new Exception('type should be one of '.implode(',', TaskHandler::TYPE_GROUPS));
+                throw new \Exception('type should be one of '.implode(',', TaskHandler::TYPE_GROUPS));
             }
             $select
                 ->where('type_group = :type_group')

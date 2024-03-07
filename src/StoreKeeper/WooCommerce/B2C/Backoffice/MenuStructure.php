@@ -14,7 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 
 class MenuStructure
 {
-    const CAPABILITY_ADMIN = 'storekeeper_admin_capability';
+    public const CAPABILITY_ADMIN = 'storekeeper_admin_capability';
 
     public function registerCapability()
     {
@@ -114,7 +114,7 @@ class MenuStructure
     public static function getPages(): array
     {
         $dashboardPage = new DashboardPage(
-            __('Dashboard', I18n::DOMAIN),
+            __('Dashboard', I18N::DOMAIN),
             'dashboard'
         );
         $pages = [
