@@ -56,6 +56,29 @@ class InfoHandler
     const SHIPPING_METHOD_SYNC_OPTION = 'shipping-method-sync';
     const SK_PAYMENTS_OPTION = 'sk-payments';
 
+    protected static function getUnsynchronizedOrders()
+    {
+        $orderQuery = new \WC_Order_Query([
+            'meta_key' => OrderHandler::TO_BE_SYNCHRONIZED_META_KEY,
+            'meta_value' => 'yes',
+            'meta_compare' => '=',
+            'orderby' => 'date_created',
+            'order' => 'ASC',
+        ]);
+        $unsynchronizedOrders = $orderQuery->get_orders();
+        // Order query by multiple status don't work so we have to filter manually
+        $unsynchronizedOrders = array_filter(
+            $unsynchronizedOrders,
+            static function (WC_Order $order) {
+                $status = $order->get_status();
+
+                return OrderExport::STATUS_CANCELLED !== $status
+                    && OrderExport::STATUS_REFUNDED !== $status;
+            }
+        );
+        return $unsynchronizedOrders;
+    }
+
     public function run(): array
     {
         $data = self::gatherInformation();

@@ -2,7 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Exports;
 
-use Exception;
+use Automattic\WooCommerce\Utilities\NumberUtil;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
@@ -14,41 +14,39 @@ use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
-use Throwable;
 use WC_Meta_Data;
 use WC_Order;
 use WC_Order_Item_Product;
-use WC_Product;
-use WC_Product_Factory;
 
 class OrderExport extends AbstractExport
 {
-    const EMBALLAGE_TAX_RATE_ID_META_KEY = 'sk_emballage_tax_id';
-    const IS_EMBALLAGE_FEE_KEY = 'sk_emballage_fee';
-    const TAX_RATE_ID_FEE_KEY = 'sk_tax_rate_id';
-    const CONTEXT = 'edit';
-    const ROW_SHIPPING_METHOD_TYPE = 'shipping_method';
-    const ROW_FEE_TYPE = 'fee';
-    const ROW_PRODUCT_TYPE = 'product';
+    public const EMBALLAGE_TAX_RATE_ID_META_KEY = 'sk_emballage_tax_id';
+    public const IS_EMBALLAGE_FEE_KEY = 'sk_emballage_fee';
+    public const TAX_RATE_ID_FEE_KEY = 'sk_tax_rate_id';
+    public const CONTEXT = 'edit';
+    public const ROW_SHIPPING_METHOD_TYPE = 'shipping_method';
+    public const ROW_FEE_TYPE = 'fee';
+    public const ROW_PRODUCT_TYPE = 'product';
+    public const ROW_PRODUCT_DIFF_TYPE = 'product_diff';
 
-    const STATUS_NEW = 'new';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_ON_HOLD = 'on_hold';
-    const STATUS_COMPLETE = 'complete';
-    const STATUS_REFUNDED = 'refunded';
-    const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_NEW = 'new';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_ON_HOLD = 'on_hold';
+    public const STATUS_COMPLETE = 'complete';
+    public const STATUS_REFUNDED = 'refunded';
+    public const STATUS_CANCELLED = 'cancelled';
 
-    const EXTRA_ROW_ID_KEY = 'wp_row_id';
-    const EXTRA_ROW_MD5_KEY = 'wp_row_md5';
-    const EXTRA_ROW_TYPE = 'wp_row_type';
+    public const EXTRA_ROW_ID_KEY = 'wp_row_id';
+    public const EXTRA_ROW_MD5_KEY = 'wp_row_md5';
+    public const EXTRA_ROW_TYPE = 'wp_row_type';
 
-    const KNOWN_EXTRAS_KEY = [
+    public const KNOWN_EXTRAS_KEY = [
         self::EXTRA_ROW_MD5_KEY,
         self::EXTRA_ROW_ID_KEY,
         self::EXTRA_ROW_TYPE,
     ];
 
-    const MAXIMUM_DUPLICATE_COUNT = 3;
+    public const MAXIMUM_DUPLICATE_COUNT = 3;
 
     private ?int $shopOrderId = null;
 
@@ -77,9 +75,9 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param WC_Order $order
+     * @param \WC_Order $order
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function processItem($order): void
     {
@@ -87,11 +85,11 @@ class OrderExport extends AbstractExport
         $this->debug('Exporting order with id '.$shopOrderId);
         if ('eur' !== strtolower(get_woocommerce_currency())) {
             $iso = get_woocommerce_currency();
-            throw new Exception("Orders with woocommerce with currency_iso3 '$iso' are not supported");
+            throw new \Exception("Orders with woocommerce with currency_iso3 '$iso' are not supported");
         }
 
         if ($shopOrderId <= 0) {
-            throw new Exception("Order with id {$shopOrderId} does not exists.");
+            throw new \Exception("Order with id {$shopOrderId} does not exists.");
         }
 
         $isUpdate = $this->already_exported();
@@ -203,8 +201,8 @@ class OrderExport extends AbstractExport
                 'city' => $order->get_billing_city(self::CONTEXT),
                 'zipcode' => $order->get_billing_postcode(self::CONTEXT),
                 'street' => trim($order->get_billing_address_1(self::CONTEXT)).' '.trim(
-                        $order->get_billing_address_2(self::CONTEXT)
-                    ),
+                    $order->get_billing_address_2(self::CONTEXT)
+                ),
                 'country_iso2' => $order->get_billing_country(self::CONTEXT),
                 'name' => $order->get_formatted_billing_full_name(),
             ],
@@ -252,8 +250,8 @@ class OrderExport extends AbstractExport
                     'city' => $order->get_shipping_city(self::CONTEXT),
                     'zipcode' => $order->get_shipping_postcode(self::CONTEXT),
                     'street' => trim($order->get_shipping_address_1(self::CONTEXT)).' '.trim(
-                            $order->get_shipping_address_2(self::CONTEXT)
-                        ),
+                        $order->get_shipping_address_2(self::CONTEXT)
+                    ),
                     'country_iso2' => $order->get_shipping_country(self::CONTEXT),
                     'name' => $order->get_formatted_shipping_full_name(),
                 ],
@@ -374,8 +372,6 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param $wc_order_status
-     *
      * @return string
      */
     public static function convertWooCommerceToStorekeeperOrderStatus($wc_order_status)
@@ -399,12 +395,12 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param WC_Order $databaseOrder - Order items to compare from
-     * @param $backofficeOrder - Order items to compare to
+     * @param \WC_Order $databaseOrder   - Order items to compare from
+     * @param           $backofficeOrder - Order items to compare to
      *
      * @throws OrderDifferenceException
      */
-    public function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): void
+    public function checkOrderDifference(\WC_Order $databaseOrder, $backofficeOrder): void
     {
         $databaseOrderItems = $this->getOrderItems($databaseOrder);
         $backofficeOrderItems = $backofficeOrder['order_items'];
@@ -430,7 +426,7 @@ class OrderExport extends AbstractExport
         }
 
         // In case order items are the same but prices have changed. e.g payment gateway fee
-        if (round(((float) $databaseOrder->get_total()), 2) !== round($backofficeOrder['value_wt'], 2)) {
+        if (round((float) $databaseOrder->get_total(), 2) !== round($backofficeOrder['value_wt'], 2)) {
             $databaseTotal = (float) $databaseOrder->get_total();
             $backofficeTotal = (float) round($backofficeOrder['value_wt'], 2);
             $this->debug('Order has difference in prices', [
@@ -467,7 +463,7 @@ class OrderExport extends AbstractExport
     /**
      * @throws OrderDifferenceException
      */
-    public function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems, WC_Order $wcOrder): void
+    public function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems, \WC_Order $wcOrder): void
     {
         $databaseOrderItemExtras = array_column($databaseOrderItems, 'extra');
         $backofficeOrderItemExtras = array_column($backofficeOrderItems, 'extra');
@@ -629,15 +625,15 @@ class OrderExport extends AbstractExport
         } else {
             // The following checks are taken from the Backend (modules/ShopModule/libs/Order/OrderManager.php:678, the update function)
             if (
-                self::STATUS_REFUNDED === $storekeeper_status ||
-                self::STATUS_CANCELLED === $storekeeper_status
+                self::STATUS_REFUNDED === $storekeeper_status
+                || self::STATUS_CANCELLED === $storekeeper_status
             ) {
                 return false;
             }
 
             if (
-                self::STATUS_COMPLETE === $storekeeper_status &&
-                self::STATUS_REFUNDED !== $woocommerce_status
+                self::STATUS_COMPLETE === $storekeeper_status
+                && self::STATUS_REFUNDED !== $woocommerce_status
             ) {
                 return false;
             }
@@ -649,13 +645,13 @@ class OrderExport extends AbstractExport
     /**
      * @param $order WC_Order
      *
-     * @throws Exception
+     * @throws \Exception
      */
-    private function getOrderItems(WC_Order $order): array
+    private function getOrderItems(\WC_Order $order): array
     {
         $orderItems = [];
         $this->debug('Adding product items');
-        $productFactory = new WC_Product_Factory();
+        $productFactory = new \WC_Product_Factory();
 
         $orderMetadata = $order->get_meta_data();
 
@@ -677,16 +673,18 @@ class OrderExport extends AbstractExport
                 'quantity' => $orderItemProduct->get_quantity(),
             ]);
 
+            $diff_product = null;
             $currentProduct = $this->getProductForOrderLine($orderItemProduct, $productFactory);
 
+            $quantity = $orderItemProduct->get_quantity(self::CONTEXT);
             if (is_null($currentProduct)) {
                 $data = [
                     'isSkipped' => true,
-                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'quantity' => $quantity,
                     'name' => $orderItemProduct->get_name(self::CONTEXT),
                 ];
                 $this->debug($index.' Woocommerce product object can\'t be found, it may have been deleted and this will be skipped during checking', [
-                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'quantity' => $quantity,
                     'name' => $orderItemProduct->get_name(self::CONTEXT),
                 ]);
             } else {
@@ -719,13 +717,30 @@ class OrderExport extends AbstractExport
 
                 $this->debug('Got product', $currentProduct);
 
+                $ppu_wt = $order->get_item_total($orderItemProduct, true, false);
+                $rounded_ppu_wt = NumberUtil::round($ppu_wt, wc_get_price_decimals());
+                if ($rounded_ppu_wt !== $ppu_wt) {
+                    // StoreKeeper backend does not accept the prices which are rounded to 2 digits
+                    // to make the sum right we will add and extra product, so the total order it correct
+                    $total_diff = ($quantity * $ppu_wt) - ($quantity * $rounded_ppu_wt);
+                    $total_diff = NumberUtil::round($total_diff, wc_get_price_decimals());
+                    $diff_product = [
+                        'ppu_wt' => $total_diff,
+                        'quantity' => 1,
+                    ];
+                    if ($total_diff < 0) {
+                        $diff_product['is_discount'] = true;
+                    } else {
+                        $diff_product['is_payment'] = true;
+                    }
+                }
                 $data = [
                     'sku' => $currentProduct ?
                         $currentProduct->get_sku(self::CONTEXT) :
                         $orderItemProduct->get_name(self::CONTEXT),
-                    'ppu_wt' => $order->get_item_total($orderItemProduct, true, false), //get price with discount
-                    'before_discount_ppu_wt' => $order->get_item_subtotal($orderItemProduct, true, false), //get without discount
-                    'quantity' => $orderItemProduct->get_quantity(self::CONTEXT),
+                    'ppu_wt' => $rounded_ppu_wt, // get price with discount
+                    'before_discount_ppu_wt' => $order->get_item_subtotal($orderItemProduct, true, false), // get without discount
+                    'quantity' => $quantity,
                     'name' => $orderItemProduct->get_name(self::CONTEXT),
                     'description' => $description,
                     'shop_product_id' => $shopProductId,
@@ -752,10 +767,21 @@ class OrderExport extends AbstractExport
 
             $orderItems[] = $data;
 
-            $this->debug($index.' Added product item');
+            $this->debug($index.' Added product item', $data);
+
+            if (!is_null($diff_product)) {
+                $diff_product['name'] = $data['name'];
+                $diff_product['shop_product_id'] = $data['shop_product_id'];
+                $diff_product['extra'] = [
+                    self::EXTRA_ROW_ID_KEY => $orderItemProduct->get_id(),
+                    self::EXTRA_ROW_TYPE => self::ROW_PRODUCT_DIFF_TYPE,
+                ];
+                $orderItems[] = $diff_product;
+                $this->debug($index.' Added diff product item', $diff_product);
+            }
         }
 
-        $this->debug('Added product items');
+        $this->debug('Added product items', ['count' => count($orderItems)]);
 
         /**
          * @var $fee \WC_Order_Item_Fee
@@ -780,9 +806,9 @@ class OrderExport extends AbstractExport
 
             $data['extra'] = $extra;
             $orderItems[] = $data;
-        }
 
-        $this->debug('Added fee items');
+            $this->debug('Added fee item', $data);
+        }
 
         $shippingMethodOrderItems = $this->getShippingOrderItems($order);
         $orderItems = array_merge($orderItems, $shippingMethodOrderItems);
@@ -791,7 +817,7 @@ class OrderExport extends AbstractExport
         return $orderItems;
     }
 
-    public function getShippingOrderItems(WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
+    public function getShippingOrderItems(\WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
     {
         $orderItems = [];
         /**
@@ -825,7 +851,7 @@ class OrderExport extends AbstractExport
         return $orderItems;
     }
 
-    private function fetchShopProductId(WC_Product $product): ?int
+    private function fetchShopProductId(\WC_Product $product): ?int
     {
         $postId = $product->get_id();
         $storekeeperId = get_post_meta($postId, 'storekeeper_id', true) ?? null;
@@ -870,7 +896,7 @@ class OrderExport extends AbstractExport
         return null;
     }
 
-    protected function convertKnownGeneralException(GeneralException $throwable): Throwable
+    protected function convertKnownGeneralException(GeneralException $throwable): \Throwable
     {
         if ('ShopModule::OrderDuplicateNumber' === $throwable->getApiExceptionClass()) {
             return new ExportException(
@@ -883,7 +909,7 @@ class OrderExport extends AbstractExport
         return parent::convertKnownGeneralException($throwable);
     }
 
-    protected function processPaymentsAndRefunds(WC_Order $WpObject, int $storekeeper_id): void
+    protected function processPaymentsAndRefunds(\WC_Order $WpObject, int $storekeeper_id): void
     {
         $shopModule = $this->storekeeper_api->getModule('ShopModule');
         $storekeeper_order = $shopModule->getOrder($storekeeper_id, null);
@@ -893,7 +919,7 @@ class OrderExport extends AbstractExport
         $this->processRefunds($woocommerceOrderId, $storekeeper_id);
     }
 
-    protected function processPayments(WC_Order $WpObject, int $storekeeper_id, array $storekeeperOrder): void
+    protected function processPayments(\WC_Order $WpObject, int $storekeeper_id, array $storekeeperOrder): void
     {
         $isPaidInBackoffice = (bool) $storekeeperOrder['is_paid'];
         $order_id = $WpObject->get_id();
@@ -945,7 +971,7 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     protected function processRefunds($woocommerceOrderId, $storekeeperId): void
     {
@@ -971,7 +997,7 @@ class OrderExport extends AbstractExport
             foreach ($unsyncedRefundsWithoutIds as $unsyncedRefundsWithoutId) {
                 try {
                     $this->doProcessRefundsWithoutIds($unsyncedRefundsWithoutId, $woocommerceOrderId, $storekeeperId);
-                } catch (Throwable $exception) {
+                } catch (\Throwable $exception) {
                     $this->debug('Failed to refund order', [
                         'order_id' => $storekeeperId,
                         'error' => $exception->getMessage(),
@@ -985,11 +1011,7 @@ class OrderExport extends AbstractExport
     }
 
     /**
-     * @param $unsyncedRefundsWithoutId
-     * @param $woocommerceOrderId
-     * @param $storekeeperId
-     *
-     * @throws Throwable
+     * @throws \Throwable
      */
     protected function doProcessRefundsWithoutIds($unsyncedRefundsWithoutId, $woocommerceOrderId, $storekeeperId): void
     {
@@ -1069,7 +1091,7 @@ class OrderExport extends AbstractExport
         ];
     }
 
-    protected function getProductForOrderLine(\WC_Order_Item $orderItemProduct, WC_Product_Factory $productFactory): ?WC_Product
+    protected function getProductForOrderLine(\WC_Order_Item $orderItemProduct, \WC_Product_Factory $productFactory): ?\WC_Product
     {
         $variationProductId = $orderItemProduct->get_variation_id();
         $isVariation = $variationProductId > 0; // Variation_id is 0 by default, if it is any other, its a variation products;
@@ -1114,7 +1136,7 @@ class OrderExport extends AbstractExport
             if (!$this->isAlreadyLinkedError($generalException)) {
                 throw $generalException;
             }
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->debug('Failed to attach payment to order', [
                 'order_id' => $storekeeperOrderId,
                 'payment_id' => $storekeeperPaymentId,
@@ -1125,7 +1147,7 @@ class OrderExport extends AbstractExport
         }
     }
 
-    protected function newSkPaymentForWcPayment(WC_Order $WpObject): int
+    protected function newSkPaymentForWcPayment(\WC_Order $WpObject): int
     {
         $PaymentModule = $this->storekeeper_api->getModule('PaymentModule');
 
@@ -1151,8 +1173,6 @@ class OrderExport extends AbstractExport
 
     /**
      * get first paid payment, if no payment found it will take any payment.
-     *
-     * @param $woocommerceOrderId
      *
      * @return mixed|null
      */
