@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
-use StoreKeeper\WooCommerce\B2C\Backoffice\MenuStructure;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\ConnectBackend;
@@ -330,17 +329,7 @@ HTML;
     private function setUpdateCheck()
     {
         $updator = new Updator();
-
-        // Check for updates upon loading WordPress pages
-        $this->loader->add_action('load-plugins.php', $updator, 'updateAction');
-        $this->loader->add_action('load-plugin-install.php', $updator, 'updateAction');
-        $this->loader->add_action('upgrader_process_complete', $updator, 'onProcessComplete', 0, 2);
-
-        // Check for updates upon loading StoreKeeper pages
-        list($pages) = MenuStructure::getPages();
-        foreach ($pages as $page) {
-            $this->loader->add_action($page->getActionName(), $updator, 'updateAction');
-        }
+        $updator->registerHooks();
     }
 
     private function setLocale()

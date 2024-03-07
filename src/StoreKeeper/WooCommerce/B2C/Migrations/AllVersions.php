@@ -22,6 +22,7 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20231010192200CreateWebshop
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20231110095200TaskIndexTimesRan;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20231126172100ShippingZones;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20231204152300ShippingMethods;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20240307192301RetryTasks;
 
 class AllVersions implements VersionsInterface
 {
@@ -46,6 +47,7 @@ class AllVersions implements VersionsInterface
         V20231010192200CreateWebshopManagerRole::class,
         V20231126172100ShippingZones::class,
         V20231204152300ShippingMethods::class,
+        V20240307192301RetryTasks::class,
     ];
 
     public function getVersionId(string $class): int

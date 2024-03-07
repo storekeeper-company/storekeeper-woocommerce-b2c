@@ -346,6 +346,33 @@ You can find the new version in `wp_storekeeper_migration_versions` table after 
 When adding  migration versions keep in mind that [MySQL has autocommit](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html) 
 on some changes. Make sure you place those in separate versions so the migrations remain atomic.
 
+For retrying failed tasks on upgrade create new migration extending `StoreKeeper\WooCommerce\B2C\Migrations\AbstractTaskRetryMigration`
+```php
+<?php
+
+namespace StoreKeeper\WooCommerce\B2C\Migrations\Versions;
+
+use StoreKeeper\WooCommerce\B2C\Migrations\AbstractTaskRetryMigration;
+
+class V20240307192300RetryTasks extends AbstractTaskRetryMigration
+{
+}
+```
+
+If you only need some types of the tasks overwrite `getTaskIdsForMigration` function and get different ids.
+```php
+    /**
+     * Overwrite this function to get different tasks for retry.
+     *
+     * @throws \Exception
+     */
+    protected function getTaskIdsForMigration(DatabaseConnection $connection): array
+    {
+        return $this->getTaskIds($connection, TaskHandler::STATUS_FAILED);
+    }
+```
+
+After migration is run check the `log` column in `wp_storekeeper_migration_versions` for the task ids which ware changed.
 
 <!-- DEVELOPMENT NOTES -->
 ## Development notes
