@@ -719,19 +719,24 @@ class OrderExport extends AbstractExport
 
                 $ppu_wt = $order->get_item_total($orderItemProduct, true, false);
                 $rounded_ppu_wt = NumberUtil::round($ppu_wt, wc_get_price_decimals());
-                if ($rounded_ppu_wt !== $ppu_wt) {
+                if ($rounded_ppu_wt != $ppu_wt) {
                     // StoreKeeper backend does not accept the prices which are rounded to 2 digits
                     // to make the sum right we will add and extra product, so the total order it correct
                     $total_diff = ($quantity * $ppu_wt) - ($quantity * $rounded_ppu_wt);
                     $total_diff = NumberUtil::round($total_diff, wc_get_price_decimals());
-                    $diff_product = [
-                        'ppu_wt' => $total_diff,
-                        'quantity' => 1,
-                    ];
+
                     if ($total_diff < 0) {
-                        $diff_product['is_discount'] = true;
-                    } else {
-                        $diff_product['is_payment'] = true;
+                        $diff_product = [
+                            'ppu_wt' => $total_diff,
+                            'quantity' => 1,
+                            'is_discount' => true,
+                        ];
+                    } elseif ($total_diff > 0) {
+                        $diff_product = [
+                            'ppu_wt' => $total_diff,
+                            'quantity' => 1,
+                            'is_payment' => true,
+                        ];
                     }
                 }
                 $data = [
@@ -771,6 +776,7 @@ class OrderExport extends AbstractExport
 
             if (!is_null($diff_product)) {
                 $diff_product['name'] = $data['name'];
+                $diff_product['sku'] = $data['sku'];
                 $diff_product['shop_product_id'] = $data['shop_product_id'];
                 $diff_product['extra'] = [
                     self::EXTRA_ROW_ID_KEY => $orderItemProduct->get_id(),
