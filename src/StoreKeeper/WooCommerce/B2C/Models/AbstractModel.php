@@ -258,6 +258,12 @@ WHERE
         $affectedRows = $wpdb->query($query);
 
         if (false === $affectedRows) {
+            file_put_contents(
+                '/home/lukishop/tmp/model-query.sql',
+                "\n\n\n$query;\n",
+                FILE_APPEND
+            );
+
             throw new TableOperationSqlException($wpdb->last_error, static::getTableName(), __FUNCTION__, $query);
         }
 

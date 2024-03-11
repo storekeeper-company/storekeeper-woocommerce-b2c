@@ -17,7 +17,7 @@ abstract class AbstractTaskRetryMigration extends AbstractMigration
         if (!empty($task_ids)) {
             $this->markTasks($connection, $task_ids, TaskHandler::STATUS_NEW);
 
-            return 'Task id: '. implode(',', $task_ids);
+            return 'Task id: '.implode(',', $task_ids);
         }
 
         return null;
