@@ -31,7 +31,7 @@ class OrderHandler
         );
     }
 
-    public function addToBeSynchronizedMetadata(int $orderId, \WC_Order $order): void
+    public function addToBeSynchronizedMetadata(int $orderId, WC_Order $order): void
     {
         if ($this->isSyncAllowed($orderId)) {
             $order->add_meta_data(self::TO_BE_SYNCHRONIZED_META_KEY, 'yes');

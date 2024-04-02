@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\PaymentGateway;
 
-use Automattic\WooCommerce\Blocks\Package;
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 use Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry;
 use Monolog\Logger;
@@ -34,12 +33,12 @@ class PaymentGateway implements WithHooksInterface
     public function registerHooks(): void
     {
         $activated = StoreKeeperOptions::isPaymentGatewayActive();
-        if( $activated ){
+        if ($activated) {
             add_action('woocommerce_thankyou', [$this, 'checkPayment']);
             add_filter('woocommerce_payment_gateways', [$this, 'addGatewayClasses']);
             add_filter('woocommerce_api_backoffice_pay_gateway_return', [$this, 'onReturn']);
             add_filter('init', [$this, 'registerCheckoutFlash']);
-            add_action( 'woocommerce_blocks_loaded', [$this, 'addBlockSupport'] );
+            add_action('woocommerce_blocks_loaded', [$this, 'addBlockSupport']);
         }
         if (Core::isTest() || $activated) {
             add_action('woocommerce_create_refund', [$this, 'createWooCommerceRefund'], 10, 2);
@@ -50,13 +49,13 @@ class PaymentGateway implements WithHooksInterface
 
     public function addBlockSupport(): void
     {
-        if ( class_exists( AbstractPaymentMethodType::class ) ) {
+        if (class_exists(AbstractPaymentMethodType::class)) {
             add_action(
                 'woocommerce_blocks_payment_method_type_registration',
-                function( PaymentMethodRegistry $payment_method_registry ) {
+                function (PaymentMethodRegistry $payment_method_registry) {
                     $methods = $this->getSkMethods();
 
-                    foreach ($methods as $method){
+                    foreach ($methods as $method) {
                         $payment_method_registry->register(
                             new BlockSupport($method)
                         );
@@ -66,6 +65,7 @@ class PaymentGateway implements WithHooksInterface
             );
         }
     }
+
     protected static function querySql(string $sql): bool
     {
         global $wpdb;
@@ -447,24 +447,24 @@ SQL;
      */
     public function addGatewayClasses($default_gateway_classes)
     {
-            $methods = $this->getSkMethods();
-            $gateway_classes = [];
-            foreach ($methods as $method) {
-                $imageUrl = array_key_exists('image_url', $method) ? $method['image_url'] : '';
-                $gateway = new StoreKeeperBaseGateway(
+        $methods = $this->getSkMethods();
+        $gateway_classes = [];
+        foreach ($methods as $method) {
+            $imageUrl = array_key_exists('image_url', $method) ? $method['image_url'] : '';
+            $gateway = new StoreKeeperBaseGateway(
                     "sk_pay_id_{$method['id']}", $method['title'], (int) $method['id'],
                     $imageUrl
                 );
-                $gateway_classes[] = $gateway;
+            $gateway_classes[] = $gateway;
 
-                // force enable it (the method's here are always available)
-                update_option(
+            // force enable it (the method's here are always available)
+            update_option(
                     'woocommerce_'.$gateway->getId().'_settings',
                     [
                         'enabled' => 'yes',
                     ]
                 );
-            }
+        }
 
         return array_merge($default_gateway_classes, $gateway_classes);
     }
@@ -537,7 +537,7 @@ SQL;
 
     protected function getSkMethods(): array
     {
-        if( is_null($this->methods)){
+        if (is_null($this->methods)) {
             try {
                 $api = StoreKeeperApi::getApiByAuthName();
                 $ShopModule = $api->getModule('ShopModule');
@@ -556,17 +556,18 @@ SQL;
                     ]
                 )['data'];
             } catch (AuthException $e) {
-                self::getCheckOutLogger()->error(__CLASS__.':'.__FUNCTION__.' AuthException '. $e->getMessage());
+                self::getCheckOutLogger()->error(__CLASS__.':'.__FUNCTION__.' AuthException '.$e->getMessage());
                 LoggerFactory::createErrorTask('add-storeKeeper-gateway-auth', $e);
 
                 return [];
             } catch (\Throwable $e) {
-                self::getCheckOutLogger()->error(__CLASS__.':'.__FUNCTION__.' Throwable '. $e->getMessage());
+                self::getCheckOutLogger()->error(__CLASS__.':'.__FUNCTION__.' Throwable '.$e->getMessage());
                 LoggerFactory::createErrorTask('add-storeKeeper-gateway-exception', $e);
 
                 return [];
             }
         }
+
         return $this->methods;
     }
 }

@@ -20,7 +20,7 @@ class DatabaseConnection
     /**
      * Get the mysqli connection.
      */
-    public function getConnection(): \mysqli
+    public function getConnection(): mysqli
     {
         if (null == $this->connection) {
             // Set up the connection to the database if it does not exist already
@@ -35,7 +35,7 @@ class DatabaseConnection
      *
      * @throws \Exception
      */
-    private function createConnection(): \mysqli
+    private function createConnection(): mysqli
     {
         if (Core::isTest()) {
             // for tests we need to reuse the current db

@@ -133,12 +133,16 @@ class Core
      */
     protected $loader;
 
-    public static function plugin_url() {
-        return untrailingslashit( plugins_url( '/', STOREKEEPER_WOOCOMMERCE_FILE ) );
+    public static function plugin_url()
+    {
+        return untrailingslashit(plugins_url('/', STOREKEEPER_WOOCOMMERCE_FILE));
     }
-    public static function plugin_abspath() {
-        return trailingslashit( plugin_dir_path( __FILE__ ) );
+
+    public static function plugin_abspath()
+    {
+        return trailingslashit(plugin_dir_path(__FILE__));
     }
+
     /**
      * Core constructor.
      */

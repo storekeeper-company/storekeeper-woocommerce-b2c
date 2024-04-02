@@ -89,7 +89,7 @@ class CategoryFileExport extends AbstractCSVFileExport
         return $this->filePath;
     }
 
-    private function exportSEO(array $lineData, \WP_Term $category): array
+    private function exportSEO(array $lineData, WP_Term $category): array
     {
         if (YoastSeo::isSelectedHandler()) {
             $lineData['seo_title'] = YoastSeo::getCategoryTitle($category->term_id);

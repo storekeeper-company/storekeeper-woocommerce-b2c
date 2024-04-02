@@ -100,7 +100,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         }
     }
 
-    private function getProductTitle(\WC_Product $product): string
+    private function getProductTitle(WC_Product $product): string
     {
         if (self::WC_TYPE_ASSIGNED === $product->get_type()) {
             $values = array_map(
@@ -116,7 +116,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         return $product->get_title();
     }
 
-    private function assertProductExportRow(\WC_Product $product, array $productRow, string $type, ?\WC_Product $parentProduct = null, array $seo = [])
+    private function assertProductExportRow(WC_Product $product, array $productRow, string $type, ?WC_Product $parentProduct = null, array $seo = [])
     {
         $this->assertEquals(
             $this->getProductTitle($product),
@@ -268,7 +268,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         }
     }
 
-    private function assertAssignedAttributes(\WC_Product_Variation $product, array $productRow, string $type)
+    private function assertAssignedAttributes(WC_Product_Variation $product, array $productRow, string $type)
     {
         $parentProduct = wc_get_product($product->get_parent_id());
         $parentAttributes = $parentProduct->get_attributes();
@@ -291,7 +291,7 @@ class ProductFileExportTest extends AbstractFileExportTest
         }
     }
 
-    private function assertAttributes(\WC_Product $product, array $productRow, string $type)
+    private function assertAttributes(WC_Product $product, array $productRow, string $type)
     {
         foreach ($product->get_attributes() as $alias => $attribute) {
             $name = AttributeExport::getProductAttributeKey($attribute);

@@ -368,7 +368,7 @@ SQL;
         return false;
     }
 
-    protected function setImage(\WC_Product $newProduct, $product)
+    protected function setImage(WC_Product $newProduct, $product)
     {
         if ($product->has('flat_product.main_image')) {
             $oldAttachmentId = (int) $newProduct->get_image_id();
@@ -1345,7 +1345,7 @@ SQL;
      *
      * @throws WordpressException
      */
-    protected function updateAssignedProduct($assignedProductPost, \WC_Product_Variable $parentProduct, $assignedProductData, $configObject)
+    protected function updateAssignedProduct($assignedProductPost, WC_Product_Variable $parentProduct, $assignedProductData, $configObject)
     {
         $this->debug('Update assigned product', [
             'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
@@ -1589,7 +1589,7 @@ SQL;
 
     private function applyStockToProps(
         array &$props,
-        \WC_Product_Variation $variationProduct,
+        WC_Product_Variation $variationProduct,
         Dot $assignedProductData
     ) {
         [$manage_stock, $stock_quantity, $stock_status] = $this->getStockProperties(
