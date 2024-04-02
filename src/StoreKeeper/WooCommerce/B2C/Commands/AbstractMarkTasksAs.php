@@ -2,17 +2,16 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
 use StoreKeeper\WooCommerce\B2C\I18N;
-use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
-use Throwable;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskMarkingTrait;
 
 abstract class AbstractMarkTasksAs extends AbstractCommand
 {
-    const ALLOWED_TASK_STATUSES = [TaskHandler::STATUS_PROCESSING, TaskHandler::STATUS_FAILED, TaskHandler::STATUS_NEW];
+    use TaskMarkingTrait;
+    public const ALLOWED_TASK_STATUSES = [TaskHandler::STATUS_PROCESSING, TaskHandler::STATUS_FAILED, TaskHandler::STATUS_NEW];
     /**
      * @var DatabaseConnection
      */
@@ -43,7 +42,7 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
     /**
      * @return void
      *
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
@@ -65,10 +64,10 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
             $select_type = $assoc_arguments['select_type'] ?? null;
 
             if ($select_status === $desired_status) {
-                throw new Exception('Selected status is same as desired status');
+                throw new \Exception('Selected status is same as desired status');
             }
 
-            $task_ids = $this->getTaskIds($select_status, $select_type);
+            $task_ids = $this->getTaskIdsForDB($select_status, $select_type);
             $task_quantity = count($task_ids);
             $this->logger->info(
                 'Tasks count to mark as '.$desired_status,
@@ -82,7 +81,7 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
             if ($task_quantity > 0) {
                 \WP_CLI::confirm("Are you sure you want to mark {$task_quantity} tasks as $desired_status?");
 
-                $this->markTasks($task_ids, $desired_status);
+                $this->markTasks($this->db, $task_ids, $desired_status);
 
                 \WP_CLI::success("Marked {$task_quantity} tasks as $desired_status");
             } else {
@@ -97,50 +96,18 @@ abstract class AbstractMarkTasksAs extends AbstractCommand
     /**
      * @return int[]
      *
-     * @throws Exception
+     * @throws \Exception
      */
-    protected function getTaskIds(
+    protected function getTaskIdsForDB(
         string $status,
-        string $type = null
+        ?string $type = null
     ): array {
         if (!in_array($status, self::ALLOWED_TASK_STATUSES)) {
-            throw new Exception('Only allowed statuses are '.implode(', ', self::ALLOWED_TASK_STATUSES));
+            throw new \Exception('Only allowed statuses are '.implode(', ', self::ALLOWED_TASK_STATUSES));
         }
 
-        $select = TaskModel::getSelectHelper()
-            ->cols(['id'])
-            ->where('status = :status')
-            ->bindValue('status', $status);
-        if (!is_null($type)) {
-            if (!in_array($type, TaskHandler::TYPE_GROUPS)) {
-                throw new Exception('type should be one of '.implode(',', TaskHandler::TYPE_GROUPS));
-            }
-            $select
-                ->where('type_group = :type_group')
-                ->bindValue('type_group', $type);
-        }
-
-        $query = $this->db->prepare($select);
-        $results = $this->db->querySql($query)->fetch_all();
-
-        $taskIds = [];
-        foreach ($results as $result) {
-            $taskIds[] = intval(current($result));
-        }
-
-        return $taskIds;
+        return $this->getTaskIds($this->db, $status, $type);
     }
 
     abstract protected function getDesiredStatus();
-
-    protected function markTasks(array $task_ids, string $desired_status): void
-    {
-        $in = "'".implode("','", $task_ids)."'";
-        $update = TaskModel::getUpdateHelper()
-            ->cols(['status' => $desired_status])
-            ->where("id IN ($in)");
-
-        $query = $this->db->prepare($update);
-        $this->db->querySql($query);
-    }
 }

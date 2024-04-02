@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C;
 
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
-use StoreKeeper\WooCommerce\B2C\Backoffice\MenuStructure;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\ConnectBackend;
@@ -59,7 +58,6 @@ use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
-use StoreKeeper\WooCommerce\B2C\Helpers\RoleHelper;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -68,9 +66,9 @@ use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 
 class Core
 {
-    const HIGH_PRIORITY = 9001;
+    public const HIGH_PRIORITY = 9001;
 
-    const COMMANDS = [
+    public const COMMANDS = [
         ScheduledProcessor::class,
         SyncWoocommerceShopInfo::class,
         SyncWoocommerceFullSync::class,
@@ -121,7 +119,7 @@ class Core
         TaskPurgeOld::class,
     ];
 
-    const HOOKS = [
+    public const HOOKS = [
         PrepareProductCategorySummaryFilter::class,
         OrderTrackingMessage::class,
     ];
@@ -177,7 +175,6 @@ class Core
             $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
-
     }
 
     private function prepareCron()
@@ -237,10 +234,10 @@ class Core
 
     public static function isDebug(): bool
     {
-        return (defined('WP_DEBUG') && WP_DEBUG) ||
-            (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG) ||
-            !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-            ;
+        return (defined('WP_DEBUG') && WP_DEBUG)
+            || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
+            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
+        ;
     }
 
     public static function isDataDump(): bool
@@ -311,17 +308,7 @@ HTML;
     private function setUpdateCheck()
     {
         $updator = new Updator();
-
-        // Check for updates upon loading WordPress pages
-        $this->loader->add_action('load-plugins.php', $updator, 'updateAction');
-        $this->loader->add_action('load-plugin-install.php', $updator, 'updateAction');
-        $this->loader->add_action('upgrader_process_complete', $updator, 'onProcessComplete', 0, 2);
-
-        // Check for updates upon loading StoreKeeper pages
-        list($pages) = MenuStructure::getPages();
-        foreach ($pages as $page) {
-            $this->loader->add_action($page->getActionName(), $updator, 'updateAction');
-        }
+        $updator->registerHooks();
     }
 
     private function setLocale()
@@ -441,8 +428,8 @@ HTML;
     public static function getPossibleTmpDirs(): array
     {
         $dirs = [];
-        if (function_exists('posix_getpwuid') &&
-            function_exists('posix_geteuid')
+        if (function_exists('posix_getpwuid')
+            && function_exists('posix_geteuid')
         ) {
             $processUser = posix_getpwuid(posix_geteuid());
             $user = $processUser['name'];

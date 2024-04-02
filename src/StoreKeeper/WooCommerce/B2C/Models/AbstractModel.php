@@ -7,7 +7,6 @@ use Aura\SqlQuery\Common\InsertInterface;
 use Aura\SqlQuery\Common\SelectInterface;
 use Aura\SqlQuery\Common\UpdateInterface;
 use Aura\SqlQuery\QueryInterface;
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\SqlException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
@@ -26,9 +25,9 @@ abstract class AbstractModel implements IModel
     public const FIELD_DATE_CREATED = 'date_created';
     public const FIELD_DATE_UPDATED = 'date_updated';
     public const MAX_FOREIGN_KEY_LENGTH = 63;
-    const PRIMARY_KEY = 'id';
+    public const PRIMARY_KEY = 'id';
 
-    const TABLE_NAME = 'storekeeper_abstract';
+    public const TABLE_NAME = 'storekeeper_abstract';
 
     public static function getWpPrefix(): string
     {
@@ -59,7 +58,7 @@ abstract class AbstractModel implements IModel
         if ($isUpdate) {
             if (empty($data[static::PRIMARY_KEY])) {
                 $stringData = json_encode($data);
-                throw new Exception('Update: Object is missing ID: '.$stringData);
+                throw new \Exception('Update: Object is missing ID: '.$stringData);
             }
             foreach (static::getFieldsWithRequired() as $key => $required) {
                 if (
@@ -68,7 +67,7 @@ abstract class AbstractModel implements IModel
                     && array_key_exists($key, $data)
                     && is_null($data[$key])
                 ) {
-                    throw new Exception("Update: Key $key not in object: ".json_encode($data));
+                    throw new \Exception("Update: Key $key not in object: ".json_encode($data));
                 }
             }
         } else {
@@ -78,7 +77,7 @@ abstract class AbstractModel implements IModel
                     && $required
                     && !isset($data[$key])
                 ) {
-                    throw new Exception("Create: Key $key not in object: ".json_encode($data));
+                    throw new \Exception("Create: Key $key not in object: ".json_encode($data));
                 }
             }
         }
@@ -222,9 +221,9 @@ WHERE
 
         try {
             static::validateData($row, true);
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             $name = static::getTableName();
-            throw new Exception("Got invalid data from the \"$name\" database.", null, $exception);
+            throw new \Exception("Got invalid data from the \"$name\" database.", null, $exception);
         }
 
         return $row;
@@ -331,10 +330,10 @@ WHERE
     {
         global $wpdb;
         if (false === $affectedRows || is_null($affectedRows)) {
-            throw new Exception('Error during last transaction: '.$wpdb->last_error);
+            throw new \Exception('Error during last transaction: '.$wpdb->last_error);
         }
         if ($checkRowAmount && $affectedRows <= 0) {
-            throw new Exception('No rows where affected.');
+            throw new \Exception('No rows where affected.');
         }
     }
 
@@ -416,7 +415,7 @@ WHERE
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public static function getValidForeignFieldKey(string $foreignKey, string $tableName): string
     {

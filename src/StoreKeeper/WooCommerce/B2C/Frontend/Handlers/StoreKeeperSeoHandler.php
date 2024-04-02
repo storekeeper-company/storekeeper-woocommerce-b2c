@@ -159,11 +159,6 @@ class StoreKeeperSeoHandler implements WithHooksInterface
         echo '<script type="application/ld+json">'.wc_esc_json(wp_json_encode($data), true).'</script>';
     }
 
-    /**
-     * @param $markdown
-     * @param $product
-     * @param array $featured_attrs
-     */
     protected function applyBarcode(&$markdown, $product)
     {
         $barcode_name = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BARCODE);
@@ -205,11 +200,6 @@ class StoreKeeperSeoHandler implements WithHooksInterface
         return 'mpn';
     }
 
-    /**
-     * @param $markdown
-     * @param $product
-     * @param array $featured_attrs
-     */
     protected function applyBrand(&$markdown, $product)
     {
         $brand_name = FeaturedAttributeOptions::getWooCommerceAttributeName(FeaturedAttributes::ALIAS_BRAND);

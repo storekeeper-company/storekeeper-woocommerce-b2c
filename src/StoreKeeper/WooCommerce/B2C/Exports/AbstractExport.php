@@ -15,17 +15,17 @@ abstract class AbstractExport
     /**
      * @var null
      */
-    protected $id = null;
+    protected $id;
 
     /**
      * @var ApiWrapper
      */
-    protected $storekeeper_api = null;
+    protected $storekeeper_api;
 
     /**
      * @var int
      */
-    protected $storekeeper_id = null;
+    protected $storekeeper_id;
     protected bool $debug;
 
     /**
@@ -65,10 +65,10 @@ abstract class AbstractExport
         if ($this->debug) {
             echo esc_html('['.date('Y-m-d H:i:s').'] '.$message.' '.json_encode($data).PHP_EOL);
             echo sprintf(
-                    'Memory usage: %.2f MB, peak: %.2f MB.',
-                    (memory_get_usage() / 1024 / 1024),
-                    (memory_get_peak_usage() / 1024 / 1024)
-                ).PHP_EOL.PHP_EOL;
+                'Memory usage: %.2f MB, peak: %.2f MB.',
+                memory_get_usage() / 1024 / 1024,
+                memory_get_peak_usage() / 1024 / 1024
+            ).PHP_EOL.PHP_EOL;
         }
     }
 
@@ -131,9 +131,6 @@ abstract class AbstractExport
         return $throwable;
     }
 
-    /**
-     * @param $order
-     */
     abstract protected function processItem($order): void;
 
     protected function buildPluginDisconnectedException($e): PluginDisconnectedException

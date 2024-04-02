@@ -168,10 +168,10 @@ class AddressFormHandler
             }
 
             if (
-                isset($_POST[self::SHIPPING_HOUSE_NUMBER_KEY], $_POST[self::BILLING_HOUSE_NUMBER_KEY]) &&
-                $isShippingSubmitted &&
-                empty(sanitize_text_field($_POST[self::SHIPPING_HOUSE_NUMBER_KEY])) &&
-                !empty(sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]))
+                isset($_POST[self::SHIPPING_HOUSE_NUMBER_KEY], $_POST[self::BILLING_HOUSE_NUMBER_KEY])
+                && $isShippingSubmitted
+                && empty(sanitize_text_field($_POST[self::SHIPPING_HOUSE_NUMBER_KEY]))
+                && !empty(sanitize_text_field($_POST[self::BILLING_HOUSE_NUMBER_KEY]))
             ) {
                 WC()->session->set($shippingHouseNumberKey, sanitize_text_field($_POST[$billingHouseNumberKey]));
             }

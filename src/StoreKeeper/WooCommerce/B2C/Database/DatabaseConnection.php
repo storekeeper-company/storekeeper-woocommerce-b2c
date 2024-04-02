@@ -3,7 +3,6 @@
 namespace StoreKeeper\WooCommerce\B2C\Database;
 
 use Aura\SqlQuery\QueryInterface;
-use Exception;
 use mysqli;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BaseException;
@@ -14,14 +13,14 @@ use StoreKeeper\WooCommerce\B2C\Singletons\QueryFactorySingleton;
 class DatabaseConnection
 {
     /**
-     * @var mysqli
+     * @var \mysqli
      */
     protected $connection;
 
     /**
      * Get the mysqli connection.
      */
-    public function getConnection(): mysqli
+    public function getConnection(): \mysqli
     {
         if (null == $this->connection) {
             // Set up the connection to the database if it does not exist already
@@ -34,21 +33,21 @@ class DatabaseConnection
     /**
      * Sets up the right connection to the database.
      *
-     * @throws Exception
+     * @throws \Exception
      */
-    private function createConnection(): mysqli
+    private function createConnection(): \mysqli
     {
         if (Core::isTest()) {
             // for tests we need to reuse the current db
             // because it has already existing transaction
             global $wpdb;
-            if (!empty($wpdb) && $wpdb->dbh instanceof mysqli) {
+            if (!empty($wpdb) && $wpdb->dbh instanceof \mysqli) {
                 return $wpdb->dbh;
             } else {
-                throw new Exception('Failed to copy database connection from $wpdb');
+                throw new \Exception('Failed to copy database connection from $wpdb');
             }
         } else {
-            $connection = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+            $connection = new \mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
             if (!$connection) {
                 throw new BaseException('No DB connection made');
             }
@@ -60,11 +59,9 @@ class DatabaseConnection
     /**
      * Query sql in the connected database.
      *
-     * @param $sql
-     *
      * @return \mysqli_result|bool
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function querySql(string $sql)
     {

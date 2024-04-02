@@ -10,41 +10,38 @@ use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractProductTest;
-use Throwable;
-use WC_Helper_Product;
-use WC_Product;
 
 class ProductHandlerTest extends AbstractProductTest
 {
-    const MEDIA_DATADUMP_DIRECTORY = 'events/products/media';
+    public const MEDIA_DATADUMP_DIRECTORY = 'events/products/media';
 
-    const CREATE_DATADUMP_DIRECTORY = 'events/products/createProduct';
-    const CREATE_DATADUMP_HOOK = 'events/hook.events.createProduct.json';
-    const CREATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
+    public const CREATE_DATADUMP_DIRECTORY = 'events/products/createProduct';
+    public const CREATE_DATADUMP_HOOK = 'events/hook.events.createProduct.json';
+    public const CREATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
 
-    const CREATE_TAG_DATADUMP_DIRECTORY = 'events/products/createTag';
-    const CREATE_TAG_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.json';
+    public const CREATE_TAG_DATADUMP_DIRECTORY = 'events/products/createTag';
+    public const CREATE_TAG_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.json';
 
-    const CREATE_CATEGORY_DATADUMP_DIRECTORY = 'events/products/createCategory';
-    const CREATE_CATEGORY_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.json';
+    public const CREATE_CATEGORY_DATADUMP_DIRECTORY = 'events/products/createCategory';
+    public const CREATE_CATEGORY_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.json';
 
-    const UPDATE_DATADUMP_DIRECTORY = 'events/products/updateProduct';
-    const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateProduct.json';
-    const UPDATE_PRICES_DATADUMP_HOOK = 'events/hook.events.updateProductPrices.json';
-    const UPDATE_STOCK_DATADUMP_HOOK = 'events/hook.events.updateProductStock.json';
-    const UPDATE_CROSS_SELL_DATADUMP_HOOK = 'events/hook.events.updateProductCrossSell.json';
-    const UPDATE_UP_SELL_DATADUMP_HOOK = 'events/hook.events.updateProductUpSell.json';
-    const UPDATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
+    public const UPDATE_DATADUMP_DIRECTORY = 'events/products/updateProduct';
+    public const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateProduct.json';
+    public const UPDATE_PRICES_DATADUMP_HOOK = 'events/hook.events.updateProductPrices.json';
+    public const UPDATE_STOCK_DATADUMP_HOOK = 'events/hook.events.updateProductStock.json';
+    public const UPDATE_CROSS_SELL_DATADUMP_HOOK = 'events/hook.events.updateProductCrossSell.json';
+    public const UPDATE_UP_SELL_DATADUMP_HOOK = 'events/hook.events.updateProductUpSell.json';
+    public const UPDATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
 
-    const DEACTIVATE_DATADUMP_DIRECTORY = 'events/products/deactivateProduct';
-    const DEACTIVATE_DATADUMP_HOOK = 'events/hook.events.deactivateProduct.json';
-    const DEACTIVATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
+    public const DEACTIVATE_DATADUMP_DIRECTORY = 'events/products/deactivateProduct';
+    public const DEACTIVATE_DATADUMP_HOOK = 'events/hook.events.deactivateProduct.json';
+    public const DEACTIVATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
 
-    const ACTIVATE_DATADUMP_DIRECTORY = 'events/products/activateProduct';
-    const ACTIVATE_DATADUMP_HOOK = 'events/hook.events.activateProduct.json';
-    const ACTIVATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
+    public const ACTIVATE_DATADUMP_DIRECTORY = 'events/products/activateProduct';
+    public const ACTIVATE_DATADUMP_HOOK = 'events/hook.events.activateProduct.json';
+    public const ACTIVATE_DATADUMP_PRODUCT = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.bd9e4c8829238df3a0f78246f8df8690ca1c8cdd31bcb1b44a19132c10feee96.json';
 
-    const POST_STATUS_TRASHED = 'trash';
+    public const POST_STATUS_TRASHED = 'trash';
 
     public function testCreateProductWithCategoriesAndTags()
     {
@@ -388,7 +385,7 @@ class ProductHandlerTest extends AbstractProductTest
     {
         $this->assertProductCount(0, 'Environment not empty');
         $sku = 'MD826ZM/A2';
-        $product = WC_Helper_Product::create_simple_product(false);
+        $product = \WC_Helper_Product::create_simple_product(false);
         $product->set_sku($sku);
         $product->set_stock_quantity(null);
         $product->set_manage_stock(false);
@@ -612,7 +609,7 @@ class ProductHandlerTest extends AbstractProductTest
     }
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     protected function handle_hook_request(
         string $datadump_dir,
@@ -659,7 +656,7 @@ class ProductHandlerTest extends AbstractProductTest
         return $original_options;
     }
 
-    protected function mockCreateProductRequestWithTest(): WC_Product
+    protected function mockCreateProductRequestWithTest(): \WC_Product
     {
         $this->mockApiCallsFromCommonDirectory();
         // Handle the product creation hook event
@@ -687,7 +684,7 @@ class ProductHandlerTest extends AbstractProductTest
         return $products[0];
     }
 
-    protected function mockUpdateProductRequestWithTest(string $dataDumpHook = self::UPDATE_DATADUMP_HOOK): WC_Product
+    protected function mockUpdateProductRequestWithTest(string $dataDumpHook = self::UPDATE_DATADUMP_HOOK): \WC_Product
     {
         // Handle the product update hook event
         $updateOptions = $this->handle_hook_request(

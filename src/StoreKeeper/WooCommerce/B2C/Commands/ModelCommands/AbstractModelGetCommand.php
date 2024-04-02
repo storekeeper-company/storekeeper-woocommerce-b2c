@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands\ModelCommands;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 abstract class AbstractModelGetCommand extends AbstractModelCommand
@@ -24,7 +23,7 @@ abstract class AbstractModelGetCommand extends AbstractModelCommand
         global $wpdb;
 
         if (empty($arguments[0])) {
-            throw new Exception('Please give an id as its first parameters');
+            throw new \Exception('Please give an id as its first parameters');
         }
 
         $Model = $this->getModel();

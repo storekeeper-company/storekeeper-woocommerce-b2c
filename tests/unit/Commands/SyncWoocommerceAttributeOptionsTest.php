@@ -13,8 +13,8 @@ use StoreKeeper\WooCommerce\B2C\Tools\Media;
 class SyncWoocommerceAttributeOptionsTest extends AbstractTest
 {
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-attribute-options';
-    const DATADUMP_SOURCE_FILE = '20200326_120239.moduleFunction.BlogModule::listTranslatedAttributeOptions.success.5e7c99df99430.json';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-attribute-options';
+    public const DATADUMP_SOURCE_FILE = '20200326_120239.moduleFunction.BlogModule::listTranslatedAttributeOptions.success.5e7c99df99430.json';
 
     public function testRun()
     {
@@ -25,10 +25,10 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
-        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY . '/media');
+        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
 
         // Read the original data from the data dump
-        $file = $this->getDataDump(self::DATADUMP_DIRECTORY . '/' . self::DATADUMP_SOURCE_FILE);
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_SOURCE_FILE);
         $return = $file->getReturn();
         $original_options = $return['data'];
 
@@ -118,6 +118,7 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
             );
         }
     }
+
     public function testOptionInSync()
     {
         $this->initApiConnection();
@@ -132,9 +133,8 @@ class SyncWoocommerceAttributeOptionsTest extends AbstractTest
         $this->assertNotEmpty($original_options, 'Sk options are not empty');
         $this->runner->execute(SyncWoocommerceAttributeOptions::getCommandName());
 
-
         $attribute_sk_to_wc = [];
-        foreach ($original_options as $option){
+        foreach ($original_options as $option) {
             $attribute = AttributeModel::getAttributeByStoreKeeperId($option['attribute_id']);
             $attribute_sk_to_wc[$option['attribute_id']] = $attribute->id;
         }

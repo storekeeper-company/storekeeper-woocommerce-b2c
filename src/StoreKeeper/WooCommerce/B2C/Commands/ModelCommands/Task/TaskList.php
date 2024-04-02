@@ -9,7 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class TaskList extends AbstractModelListCommand
 {
-    const AVAILABLE_STATUSES = [
+    public const AVAILABLE_STATUSES = [
         TaskHandler::STATUS_NEW,
         TaskHandler::STATUS_FAILED,
         TaskHandler::STATUS_PROCESSING,

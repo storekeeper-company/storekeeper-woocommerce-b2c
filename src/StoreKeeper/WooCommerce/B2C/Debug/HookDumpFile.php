@@ -7,16 +7,10 @@ use StoreKeeper\ApiWrapperDev\DumpFile\Context;
 
 class HookDumpFile extends DumpFile
 {
-    const HOOK_TYPE = 'hook';
+    public const HOOK_TYPE = 'hook';
 
     protected $hook_action;
-    /**
-     * @var
-     */
     protected $request;
-    /**
-     * @var
-     */
     protected $body;
 
     protected function setDataForType(string $type, array $data): void
@@ -29,9 +23,6 @@ class HookDumpFile extends DumpFile
         }
     }
 
-    /**
-     * @return mixed
-     */
     public function getHookAction()
     {
         return $this->hook_action;
@@ -46,7 +37,7 @@ class HookDumpFile extends DumpFile
         return parent::getFilenamePartForType($type, $context);
     }
 
-    public function getRestRequest(callable $finetune = null): \WP_REST_Request
+    public function getRestRequest(?callable $finetune = null): \WP_REST_Request
     {
         $rest = new \WP_REST_Request();
         foreach ($this->request as $k => $v) {
@@ -78,9 +69,6 @@ class HookDumpFile extends DumpFile
         }
     }
 
-    /**
-     * @return mixed
-     */
     public function getBody()
     {
         if (is_null($this->body) && !empty($this->request['body'])) {

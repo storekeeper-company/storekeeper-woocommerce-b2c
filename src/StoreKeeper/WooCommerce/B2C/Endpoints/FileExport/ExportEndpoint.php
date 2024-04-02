@@ -10,7 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\IniHelper;
 
 class ExportEndpoint extends AbstractEndpoint
 {
-    const ROUTE = 'export';
+    public const ROUTE = 'export';
 
     public function handle()
     {

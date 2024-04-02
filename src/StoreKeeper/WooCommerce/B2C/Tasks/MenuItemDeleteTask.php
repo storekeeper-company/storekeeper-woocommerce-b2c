@@ -39,7 +39,7 @@ class MenuItemDeleteTask extends AbstractTask
                     [
                         'key' => 'menu_item_storekeeper_id',
                         'value' => strval($storekeeper_id),
-                        'compare' => '=', //compare
+                        'compare' => '=', // compare
                     ],
                 ],
             ]

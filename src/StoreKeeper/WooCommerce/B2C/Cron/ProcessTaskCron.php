@@ -2,18 +2,16 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Cron;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Core;
-use Throwable;
 
 class ProcessTaskCron
 {
     public const TASK_LIMIT = 100;
 
     /**
-     * @throws Exception|Throwable
+     * @throws \Exception|\Throwable
      */
     public function execute(): void
     {

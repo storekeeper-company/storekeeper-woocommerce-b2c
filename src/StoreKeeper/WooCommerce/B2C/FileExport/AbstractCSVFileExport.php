@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
-use Exception;
 use Psr\Log\LoggerInterface;
 use StoreKeeper\WooCommerce\B2C\Interfaces\IFileExportSpreadSheet;
 
@@ -22,7 +21,7 @@ abstract class AbstractCSVFileExport extends AbstractFileExport implements IFile
     {
         $this->file = fopen($this->filePath, 'w');
         if (!$this->file) {
-            throw new Exception('Unable to open file: '.$this->filePath);
+            throw new \Exception('Unable to open file: '.$this->filePath);
         }
     }
 
@@ -43,9 +42,9 @@ abstract class AbstractCSVFileExport extends AbstractFileExport implements IFile
     /**
      * AbstractCSVFileExport constructor.
      *
-     * @throws Exception
+     * @throws \Exception
      */
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(?LoggerInterface $logger = null)
     {
         parent::__construct($logger);
         $this->setFile();
@@ -80,14 +79,14 @@ abstract class AbstractCSVFileExport extends AbstractFileExport implements IFile
             $keyString = join(', ', $keys);
             $values = array_values($diff);
             $valueString = join(', ', $values);
-            throw new Exception("There where left over keys: $keyString ($valueString)");
+            throw new \Exception("There where left over keys: $keyString ($valueString)");
         }
     }
 
     private function writeFieldsToCsv(array $fields)
     {
         if (!fputcsv($this->file, $this->parseFields($fields))) {
-            throw new Exception('Unable to write to file '.$this->filePath);
+            throw new \Exception('Unable to write to file '.$this->filePath);
         }
     }
 

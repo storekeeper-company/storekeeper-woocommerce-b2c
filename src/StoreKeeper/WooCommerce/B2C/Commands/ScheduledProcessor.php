@@ -17,9 +17,7 @@ class ScheduledProcessor extends ProcessAllTasks
     {
         return ProcessAllTasks::class;
     }
-    /**
-     * {@inheritDoc}
-     */
+
     public function execute(array $arguments, array $assoc_arguments)
     {
         CommandRunner::withCronCheck(CronRegistrar::RUNNER_CRONTAB_CLI, function () use ($arguments, $assoc_arguments) {

@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 class SkuLogFormatter extends \StoreKeeper\WooCommerce\B2C\Factories\WpAdminFormatter
 {
-    protected $last_product_id = null;
+    protected $last_product_id;
 
     protected function getOutputHtml(array $record): string
     {

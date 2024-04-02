@@ -19,7 +19,7 @@ use StoreKeeper\WooCommerce\B2C\I18N;
  */
 class FormShortCode extends AbstractShortCode
 {
-    const ID = 'b2c-subscription';
+    public const ID = 'b2c-subscription';
 
     private static function getMessageByState($state = 'error')
     {
@@ -76,6 +76,6 @@ HTML;
     }
 }
 
-//"You are now subscribed."
-//"An error occurred!"
-//"You are already subscribed."
+// "You are now subscribed."
+// "An error occurred!"
+// "You are already subscribed."

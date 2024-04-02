@@ -14,7 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
 class SyncWoocommerceFullSyncTest extends AbstractTest
 {
-    const SYNC_DIR = 'commands/full-sync';
+    public const SYNC_DIR = 'commands/full-sync';
 
     public function testFull()
     {

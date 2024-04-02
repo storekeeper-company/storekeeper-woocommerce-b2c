@@ -26,16 +26,16 @@ class SiteRedirectTest extends AbstractTest
         $this->tearDownRunner();
     }
 
-    const CREATE_DATADUMP_DIRECTORY = 'events/createRedirect';
-    const CREATE_DATADUMP_HOOK = 'events/hook.events.createRedirect.json';
-    const CREATE_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listSiteRedirectsForHooks.success.json';
+    public const CREATE_DATADUMP_DIRECTORY = 'events/createRedirect';
+    public const CREATE_DATADUMP_HOOK = 'events/hook.events.createRedirect.json';
+    public const CREATE_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listSiteRedirectsForHooks.success.json';
 
-    const UPDATE_DATADUMP_DIRECTORY = 'events/updateRedirect';
-    const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateRedirect.json';
-    const UPDATE_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listSiteRedirectsForHooks.success.json';
+    public const UPDATE_DATADUMP_DIRECTORY = 'events/updateRedirect';
+    public const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateRedirect.json';
+    public const UPDATE_DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listSiteRedirectsForHooks.success.json';
 
-    const DELETE_DATADUMP_DIRECTORY = 'events/deleteRedirect';
-    const DELETE_DATADUMP_HOOK = 'events/hook.events.deleteRedirect.json';
+    public const DELETE_DATADUMP_DIRECTORY = 'events/deleteRedirect';
+    public const DELETE_DATADUMP_HOOK = 'events/hook.events.deleteRedirect.json';
 
     public function testCreate()
     {

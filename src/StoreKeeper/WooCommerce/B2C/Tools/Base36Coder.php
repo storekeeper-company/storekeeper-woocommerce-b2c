@@ -5,8 +5,6 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 class Base36Coder
 {
     /**
-     * @param $string
-     *
      * @return string
      */
     public static function encode($string, string $prefix = '')
@@ -15,8 +13,6 @@ class Base36Coder
     }
 
     /**
-     * @param $string
-     *
      * @return string
      */
     public static function decode($string, string $prefix = '')
@@ -25,7 +21,6 @@ class Base36Coder
     }
 
     /**
-     * @param $str
      * @param int $frombase
      * @param int $tobase
      *

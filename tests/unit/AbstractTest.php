@@ -3,11 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest;
 
 use Adbar\Dot;
-use DateTime;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use RuntimeException;
 use StoreKeeper\ApiWrapperDev\DumpFile;
 use StoreKeeper\ApiWrapperDev\DumpFile\Reader;
 use StoreKeeper\ApiWrapperDev\Wrapper\MockAdapter;
@@ -27,41 +23,33 @@ use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
-use WC_Coupon;
-use WC_Email_Customer_Processing_Order;
-use WC_Email_New_Order;
-use WC_Emails;
-use WC_Product;
-use WP_REST_Request;
-use WP_REST_Response;
-use WP_UnitTestCase;
 
-abstract class AbstractTest extends WP_UnitTestCase
+abstract class AbstractTest extends \WP_UnitTestCase
 {
     use ArraySubsetAsserts;
 
     // Markdown related constants
-    const MARKDOWN_PREFIX = '[sk_markdown]';
-    const MARKDOWN_SUFFIX = '[/sk_markdown]';
+    public const MARKDOWN_PREFIX = '[sk_markdown]';
+    public const MARKDOWN_SUFFIX = '[/sk_markdown]';
 
     // WC product related constants
-    const WC_TYPE_SIMPLE = 'simple';
-    const WC_TYPE_CONFIGURABLE = 'variable';
-    const WC_TYPE_ASSIGNED = 'variation';
-    const WC_STATUS_INSTOCK = 'instock';
-    const WC_STATUS_OUTOFSTOCK = 'outofstock';
-    const WC_BACKORDER_TRUE = 'yes';
-    const WC_BACKORDER_NOTIFY = 'notify';
-    const WC_BACKORDER_FALSE = 'no';
-    const WC_MANAGE_STOCK_PARENT = 'parent';
-    const WC_ATTR_OPTION_PREFIX = 'sk__';
-    const WC_CONTEXT_EDIT = 'edit';
+    public const WC_TYPE_SIMPLE = 'simple';
+    public const WC_TYPE_CONFIGURABLE = 'variable';
+    public const WC_TYPE_ASSIGNED = 'variation';
+    public const WC_STATUS_INSTOCK = 'instock';
+    public const WC_STATUS_OUTOFSTOCK = 'outofstock';
+    public const WC_BACKORDER_TRUE = 'yes';
+    public const WC_BACKORDER_NOTIFY = 'notify';
+    public const WC_BACKORDER_FALSE = 'no';
+    public const WC_MANAGE_STOCK_PARENT = 'parent';
+    public const WC_ATTR_OPTION_PREFIX = 'sk__';
+    public const WC_CONTEXT_EDIT = 'edit';
 
     // StoreKeeper product related constants
-    const SK_TYPE_SIMPLE = 'simple';
-    const SK_TYPE_CONFIGURABLE = 'configurable';
-    const SK_TYPE_ASSIGNED = 'configurable_assign';
-    const WOOCOMMERCE_PLUGIN_PATH = 'woocommerce/woocommerce.php';
+    public const SK_TYPE_SIMPLE = 'simple';
+    public const SK_TYPE_CONFIGURABLE = 'configurable';
+    public const SK_TYPE_ASSIGNED = 'configurable_assign';
+    public const WOOCOMMERCE_PLUGIN_PATH = 'woocommerce/woocommerce.php';
 
     /**
      * @var Reader
@@ -120,11 +108,11 @@ abstract class AbstractTest extends WP_UnitTestCase
         // Remove broken emailing actions
         remove_action(
             'woocommerce_order_status_pending_to_processing_notification',
-            [WC_Email_Customer_Processing_Order::class, 'trigger']
+            [\WC_Email_Customer_Processing_Order::class, 'trigger']
         );
         remove_action(
             'woocommerce_order_status_pending_to_processing_notification',
-            [WC_Email_New_Order::class, 'trigger']
+            [\WC_Email_New_Order::class, 'trigger']
         );
 
         $actions = [
@@ -153,8 +141,8 @@ abstract class AbstractTest extends WP_UnitTestCase
         ];
 
         foreach ($actions as $action) {
-            remove_action($action, [WC_Emails::class, 'queue_transactional_email']);
-            remove_action($action, [WC_Emails::class, 'send_transactional_email']);
+            remove_action($action, [\WC_Emails::class, 'queue_transactional_email']);
+            remove_action($action, [\WC_Emails::class, 'send_transactional_email']);
         }
     }
 
@@ -205,9 +193,6 @@ abstract class AbstractTest extends WP_UnitTestCase
         return __DIR__.'/../data/';
     }
 
-    /**
-     * @param $filename
-     */
     public function getHookDataDump($filename): HookDumpFile
     {
         $dir = $this->getDataDir();
@@ -216,7 +201,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         return $reader->read($dir.$filename);
     }
 
-    protected function handleRequest(WP_REST_Request $rest): WP_REST_Response
+    protected function handleRequest(\WP_REST_Request $rest): \WP_REST_Response
     {
         $endpoint = new WebhookPostEndpoint();
         $result = $endpoint->handleRequest($rest);
@@ -245,7 +230,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         StoreKeeperOptions::set(StoreKeeperOptions::SYNC_MODE, $syncMode);
     }
 
-    protected function getRestWithToken(HookDumpFile $file): WP_REST_Request
+    protected function getRestWithToken(HookDumpFile $file): \WP_REST_Request
     {
         $shopToken = WooCommerceOptions::get(WooCommerceOptions::WOOCOMMERCE_TOKEN);
         if (empty($shopToken)) {
@@ -264,9 +249,6 @@ abstract class AbstractTest extends WP_UnitTestCase
         );
     }
 
-    /**
-     * @param $filename
-     */
     public function getDataDump($filename): DumpFile
     {
         $dir = $this->getDataDir();
@@ -281,12 +263,12 @@ abstract class AbstractTest extends WP_UnitTestCase
     protected function clearWPUploadsDirectory()
     {
         // https://stackoverflow.com/a/3349792 : Copied option two and added a is_dir check.
-        $dir = __DIR__.'/../../../../uploads/'.(new DateTime())->format('Y');
+        $dir = __DIR__.'/../../../../uploads/'.(new \DateTime())->format('Y');
         if (is_dir($dir)) {
-            $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
-            $files = new RecursiveIteratorIterator(
+            $it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+            $files = new \RecursiveIteratorIterator(
                 $it,
-                RecursiveIteratorIterator::CHILD_FIRST
+                \RecursiveIteratorIterator::CHILD_FIRST
             );
             foreach ($files as $file) {
                 if ($file->isDir()) {
@@ -350,33 +332,25 @@ abstract class AbstractTest extends WP_UnitTestCase
         }
     }
 
-    /**
-     * @param $file_url
-     */
     private function getUrlBasename($file_url): string
     {
         return basename(parse_url($file_url)['path']);
     }
 
     /**
-     * @param $file_url
-     *
      * @return false|string
      */
     private function getUrlMd5($file_url)
     {
         $file = Media::downloadFile($file_url);
         if (false === $file) {
-            throw new RuntimeException("Unable to get from from\n-Url:$file_url");
+            throw new \RuntimeException("Unable to get from from\n-Url:$file_url");
         }
 
         return md5($file['body']);
     }
 
     /**
-     * @param $original_product_data
-     * @param $product_type
-     *
      * @return array
      */
     protected function getProductsByTypeFromDataDump($original_product_data, $product_type)
@@ -389,7 +363,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         );
     }
 
-    protected function assertCouponCode(Dot $expected, WC_Coupon $actual)
+    protected function assertCouponCode(Dot $expected, \WC_Coupon $actual)
     {
         $this->assertEquals(
             $expected->get('code'),
@@ -484,7 +458,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         );
     }
 
-    public function assertProduct(Dot $original_product, WC_Product $wc_product)
+    public function assertProduct(Dot $original_product, \WC_Product $wc_product)
     {
         $sku = $wc_product->get_sku();
 
@@ -559,8 +533,8 @@ abstract class AbstractTest extends WP_UnitTestCase
         $expected_backorder = $original_product->get('backorder_enabled') ?
             self::WC_BACKORDER_TRUE : self::WC_BACKORDER_FALSE;
         // When backorder is enabled and the notify on backorder is set, the status should be 'notify'
-        if (StoreKeeperOptions::get(StoreKeeperOptions::NOTIFY_ON_BACKORDER, false) &&
-            $original_product->get('backorder_enabled')) {
+        if (StoreKeeperOptions::get(StoreKeeperOptions::NOTIFY_ON_BACKORDER, false)
+            && $original_product->get('backorder_enabled')) {
             $expected_backorder = self::WC_BACKORDER_NOTIFY;
         }
         $this->assertEquals(
@@ -681,8 +655,6 @@ abstract class AbstractTest extends WP_UnitTestCase
     }
 
     /**
-     * @param $expected
-     * @param $actual
      * @param string $message This value will be appended with the path taken to a certain value. So you can easily see what value does not equals.
      */
     public function assertDeepArray($expected, $actual, string $message = '')
@@ -725,7 +697,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         );
     }
 
-    protected function assertProductPrices(Dot $original_product, WC_Product $wc_product, string $sku): void
+    protected function assertProductPrices(Dot $original_product, \WC_Product $wc_product, string $sku): void
     {
         // Regular price (not applicable for configurable products)
         if (self::WC_TYPE_CONFIGURABLE !== $wc_product->get_type()) {
@@ -748,10 +720,15 @@ abstract class AbstractTest extends WP_UnitTestCase
         }
     }
 
-    protected function assertProductStock(Dot $original_product, WC_Product $wc_product, string $sku): void
+    protected function assertProductStock(Dot $original_product, \WC_Product $wc_product, string $sku): void
     {
         // Stock
-        $expected_in_stock = $original_product->get('flat_product.product.product_stock.in_stock');
+        if (self::WC_TYPE_CONFIGURABLE === $wc_product->get_type() && $original_product->has('orderable_stock_value')) {
+            // Configurable is in stock if orderable value is more than
+            $expected_in_stock = $original_product->get('orderable_stock_value') > 0;
+        } else {
+            $expected_in_stock = $original_product->get('flat_product.product.product_stock.in_stock');
+        }
         if ($expected_in_stock) {
             // Manage stock is based on stock unlimited. unlimited equals no stock management
             $expected_manage_stock = !$original_product->get('flat_product.product.product_stock.unlimited');
@@ -797,6 +774,12 @@ abstract class AbstractTest extends WP_UnitTestCase
         } else {
             // Manage stock is always set to true when product is out of stock
             $expected_manage_stock = true;
+
+            if (self::WC_TYPE_CONFIGURABLE === $wc_product->get_type()) {
+                // We don't manage if it's configurable and out of stock
+                $expected_manage_stock = false;
+            }
+
             $this->assertEquals(
                 $expected_manage_stock,
                 $wc_product->get_manage_stock(self::WC_CONTEXT_EDIT),
@@ -813,6 +796,8 @@ abstract class AbstractTest extends WP_UnitTestCase
 
             // Stock status
             $expected_stock_status = self::WC_STATUS_OUTOFSTOCK;
+            // WooCommerce also set status to out_of_stock when unlimited/manage = false
+
             $this->assertEquals(
                 $expected_stock_status,
                 $wc_product->get_stock_status(),
@@ -821,7 +806,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         }
     }
 
-    protected function assertProductCrossSell(WC_Product $wc_product, string $sku): void
+    protected function assertProductCrossSell(\WC_Product $wc_product, string $sku): void
     {
         $crossSellIds = $wc_product->get_cross_sell_ids();
         $this->assertNotEmpty(
@@ -830,7 +815,7 @@ abstract class AbstractTest extends WP_UnitTestCase
         );
     }
 
-    protected function assertProductUpSell(WC_Product $wc_product, string $sku): void
+    protected function assertProductUpSell(\WC_Product $wc_product, string $sku): void
     {
         $upSellIds = $wc_product->get_upsell_ids();
         $this->assertNotEmpty(

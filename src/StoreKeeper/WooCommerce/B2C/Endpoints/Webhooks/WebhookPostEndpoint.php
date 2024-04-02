@@ -8,7 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\EndpointRequestValidator;
 
 class WebhookPostEndpoint extends AbstractEndpoint
 {
-    const ROUTE = 'webhook';
+    public const ROUTE = 'webhook';
 
     public function handle()
     {

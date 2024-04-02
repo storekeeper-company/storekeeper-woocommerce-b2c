@@ -6,8 +6,8 @@ use StoreKeeper\WooCommerce\B2C\Helpers\ServerStatusChecker;
 
 abstract class AbstractPageLike
 {
-    const REQUIRED_PHP_EXTENSION = ServerStatusChecker::REQUIRED_PHP_EXTENSION;
-    const OPTIONAL_PHP_EXTENSION = ServerStatusChecker::OPTIONAL_PHP_EXTENSION;
+    public const REQUIRED_PHP_EXTENSION = ServerStatusChecker::REQUIRED_PHP_EXTENSION;
+    public const OPTIONAL_PHP_EXTENSION = ServerStatusChecker::OPTIONAL_PHP_EXTENSION;
 
     public function register(): void
     {

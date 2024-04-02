@@ -22,7 +22,7 @@ WordPressHelpers::setupAndRequireWordpress();
 echo 'Started WordPress'.PHP_EOL;
 
 if (!StoreKeeperOptions::isConnected()) {
-    exit();
+    exit;
 }
 
 $wpQuery = new WP_Query(
@@ -46,15 +46,15 @@ while ($wpQuery->have_posts()) {
     $product_id_with_empty_skus = getChildrenWithEmptySkus($product->get_id());
 
     echo 'Searched '.$product->get_title().' for empty childen, found '.count(
-            $product_id_with_empty_skus
-        ).PHP_EOL;
+        $product_id_with_empty_skus
+    ).PHP_EOL;
 
     if (count($product_id_with_empty_skus) > 0) {
         // Trying to get the shop_product_id using the product data;
         $shop_product_id = getShopProductId($product);
         if ($shop_product_id) {
             echo 'Found product with sku: '.$product->get_sku().' Title: '.$product->get_title(
-                ).' and post_id: '.$product->get_id().PHP_EOL;
+            ).' and post_id: '.$product->get_id().PHP_EOL;
 
             $ShopModule = $storekeeper_api->getModule('ShopModule');
             $configurable_options_data = $ShopModule->getConfigurableShopProductOptions($shop_product_id, null);
@@ -101,8 +101,8 @@ while ($wpQuery->have_posts()) {
                                 $product_variation->save();
                             } catch (WC_Data_Exception $WC_Data_Exception) {
                                 if (
-                                    'Ongeldige of dubbele SKU.' === $WC_Data_Exception->getMessage() ||
-                                    'Invalid or duplicated SKU.' === $WC_Data_Exception->getMessage()
+                                    'Ongeldige of dubbele SKU.' === $WC_Data_Exception->getMessage()
+                                    || 'Invalid or duplicated SKU.' === $WC_Data_Exception->getMessage()
                                 ) {
                                     echo "Found duplicate sku: ({$product_data['sku']})".PHP_EOL;
 
@@ -121,8 +121,8 @@ while ($wpQuery->have_posts()) {
                                 }
                             }
                             echo 'Updated product '.$product->get_title(
-                                ).' with sku: '.$product_data['sku'].' and shop_product_id: '.$product_data['id'].' against post id: '.$product_variation->get_id(
-                                ).PHP_EOL.PHP_EOL;
+                            ).' with sku: '.$product_data['sku'].' and shop_product_id: '.$product_data['id'].' against post id: '.$product_variation->get_id(
+                            ).PHP_EOL.PHP_EOL;
                         } else {
                             echo "Could not find product data with option id: ($attribute_option_id)".PHP_EOL;
                         }
@@ -136,17 +136,15 @@ while ($wpQuery->have_posts()) {
         } else {
             $shop_product_id = get_post_meta($product->get_id(), 'storekeeper_id', true);
             echo 'Could not find product with sku: '.$product->get_sku().' Title: '.$product->get_title(
-                ).' OR shop_product_id: '.$shop_product_id.PHP_EOL;
+            ).' OR shop_product_id: '.$shop_product_id.PHP_EOL;
         }
     }
 }
 
 /**
- * @param $sku
- *
  * @return bool
  *
- * @throws \StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException
+ * @throws StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException
  */
 function getProductVariationBySku($sku)
 {
@@ -205,7 +203,7 @@ function getShopProductId($product)
     $shop_product_id = get_post_meta($product->get_id(), 'storekeeper_id', true);
     if (!empty($shop_product_id)) {
         echo 'Found shop_product_id in meta data of product '.$product->get_title(
-            ).' ('.$shop_product_id.')'.PHP_EOL;
+        ).' ('.$shop_product_id.')'.PHP_EOL;
 
         return $shop_product_id;
     }

@@ -105,22 +105,14 @@ abstract class AbstractEndpoint
         return $response;
     }
 
-    /**
-     * @return mixed
-     */
     abstract protected function handle();
 
-    /**
-     * @param $e
-     */
     protected function setLastError($e): void
     {
         $this->lastError = $e;
     }
 
     /**
-     * @param $e
-     *
      * @return \Throwable
      */
     public function getLastError()
@@ -128,9 +120,6 @@ abstract class AbstractEndpoint
         return $this->lastError;
     }
 
-    /**
-     * @param $e
-     */
     protected function logEndpointError($e, string $message): string
     {
         $details = BaseException::getAsString($e);

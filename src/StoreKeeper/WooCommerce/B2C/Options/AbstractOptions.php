@@ -6,10 +6,9 @@ use StoreKeeper\WooCommerce\B2C\Tools\StringFunctions;
 
 abstract class AbstractOptions
 {
-    const PREFIX = 'storekeeper-woocommerce-b2c';
+    public const PREFIX = 'storekeeper-woocommerce-b2c';
 
     /**
-     * @param $optionKey
      * @param null $fallback
      *
      * @return mixed|null
@@ -24,9 +23,6 @@ abstract class AbstractOptions
     }
 
     /**
-     * @param $optionKey
-     * @param $optionValue
-     *
      * @return bool
      */
     public static function set($optionKey, $optionValue)
@@ -58,9 +54,6 @@ abstract class AbstractOptions
     }
 
     /**
-     * @param $optionKey
-     * @param $optionValue
-     *
      * @return bool
      *
      * @see OptionHelper::set

@@ -19,17 +19,17 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 class SyncWoocommerceProductsTest extends AbstractTest
 {
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products';
 
-    const WITH_ERRORS_DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products/with-errors';
+    public const WITH_ERRORS_DATADUMP_DIRECTORY = 'commands/sync-woocommerce-products/with-errors';
 
-    const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.72e551759ae4651bdb99611a255078af300eb8b787c2a8b9a216b800b8818b06.json';
-    const DATADUMP_PRODUCT_21_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.613db2c03f849.json';
-    const DATADUMP_IMAGE_PRODUCT_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.62c2cdd392106.json';
-    const DATADUMP_CONFIGURABLE_OPTIONS_FILE = 'moduleFunction.ShopModule::getConfigurableShopProductOptions.5e20566c4b0dd01fa60732d6968bc565b60fbda96451d989d00e35cc6d46e04a.json';
+    public const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.72e551759ae4651bdb99611a255078af300eb8b787c2a8b9a216b800b8818b06.json';
+    public const DATADUMP_PRODUCT_21_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.613db2c03f849.json';
+    public const DATADUMP_IMAGE_PRODUCT_FILE = 'moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.62c2cdd392106.json';
+    public const DATADUMP_CONFIGURABLE_OPTIONS_FILE = 'moduleFunction.ShopModule::getConfigurableShopProductOptions.5e20566c4b0dd01fa60732d6968bc565b60fbda96451d989d00e35cc6d46e04a.json';
 
-    const MEDIA_IMAGE_JPEG_FILE = 'image_big_image.jpeg';
-    const MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE = 'cat_sample_big_image.jpg';
+    public const MEDIA_IMAGE_JPEG_FILE = 'image_big_image.jpeg';
+    public const MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE = 'cat_sample_big_image.jpg';
 
     /**
      * Initialize the tests by following these steps:
@@ -227,7 +227,9 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $wooCommerceProducts = wc_get_products(['type' => self::WC_TYPE_CONFIGURABLE]);
 
         $this->assertCount(1, $wooCommerceProducts, 'Error in test, multiple products imported');
+        /** @var \WC_Product_Variable $wooCommerceProduct */
         $wooCommerceProduct = $wooCommerceProducts[0];
+        $wooCommerceProduct->validate_props();
         $expected = [
             'sku' => 'MWVR2OCONFIG',
             'manage_stock' => true,
@@ -334,11 +336,11 @@ class SyncWoocommerceProductsTest extends AbstractTest
     {
         $this->initializeTest();
 
-        $original_product_data = $this->getReturnData();
+        $return_product_data = $this->getReturnData();
 
         // Get the configurable products from the data dump
         $original_product_data = $this->getProductsByTypeFromDataDump(
-            $original_product_data,
+            $return_product_data,
             self::SK_TYPE_CONFIGURABLE
         );
 

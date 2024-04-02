@@ -8,7 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class SyncWoocommerceUpsellProductsTest extends AbstractTest
 {
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-upsell-products';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-upsell-products';
 
     public function testInit()
     {

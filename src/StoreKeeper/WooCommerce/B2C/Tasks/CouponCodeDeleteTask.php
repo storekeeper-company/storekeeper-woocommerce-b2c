@@ -26,8 +26,6 @@ class CouponCodeDeleteTask extends AbstractTask
     }
 
     /**
-     * @param $storekeeper_id
-     *
      * @return array
      *
      * @throws WordpressException
@@ -49,7 +47,7 @@ class CouponCodeDeleteTask extends AbstractTask
         if (1 === count($coupon_codes)) {
             return $coupon_codes[0];
         } else {
-            //none found
+            // none found
             return null;
         }
     }

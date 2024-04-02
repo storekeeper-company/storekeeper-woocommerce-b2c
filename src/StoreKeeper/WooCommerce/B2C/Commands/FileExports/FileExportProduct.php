@@ -33,7 +33,7 @@ class FileExportProduct extends AbstractFileExportCommand
     }
 
     /* @var null|ProductFileExport $productFileExport */
-    protected $productFileExport = null;
+    protected $productFileExport;
 
     public function execute(array $arguments, array $assoc_arguments)
     {

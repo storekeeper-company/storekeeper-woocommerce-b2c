@@ -81,27 +81,27 @@ HTML;
     private function checkOrdersAndCustomers(): bool
     {
         return 0 === TaskModel::count(
-                [
-                    'type like "orders-%"',
-                    'status = :status',
-                ],
-                [
-                    'status' => TaskHandler::STATUS_FAILED,
-                ]
-            );
+            [
+                'type like "orders-%"',
+                'status = :status',
+            ],
+            [
+                'status' => TaskHandler::STATUS_FAILED,
+            ]
+        );
     }
 
     private function checkPromotionsAndCoupons(): bool
     {
         return 0 === TaskModel::count(
-                [
-                    'type like "coupon-code-%"',
-                    'status = :status',
-                ],
-                [
-                    'status' => TaskHandler::STATUS_FAILED,
-                ]
-            );
+            [
+                'type like "coupon-code-%"',
+                'status = :status',
+            ],
+            [
+                'status' => TaskHandler::STATUS_FAILED,
+            ]
+        );
     }
 
     private function checkPaymentsActive(): bool

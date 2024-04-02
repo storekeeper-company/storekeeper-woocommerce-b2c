@@ -6,7 +6,6 @@ use StoreKeeper\WooCommerce\B2C\FileExport\AttributeFileExport;
 use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
-use WC_Product_Attribute;
 
 class AttributeFileExportTest extends AbstractAttributeFileExportTest
 {
@@ -100,7 +99,7 @@ class AttributeFileExportTest extends AbstractAttributeFileExportTest
         );
     }
 
-    private function assertProductAttribute(WC_Product_Attribute $attribute, array $dataRow, string $type)
+    private function assertProductAttribute(\WC_Product_Attribute $attribute, array $dataRow, string $type)
     {
         $this->assertEquals(
             $attribute->get_name(),

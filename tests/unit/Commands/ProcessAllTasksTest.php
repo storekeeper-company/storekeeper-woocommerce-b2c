@@ -8,14 +8,13 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Query\CronQueryBuilder;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
-use Throwable;
 
 class ProcessAllTasksTest extends AbstractTest
 {
     use CommandRunnerTrait;
 
-    const MISSING_TASK_ERROR_DIR = 'commands/process-all-tasks/missing-task-error';
-    const GET_CONFIGURABLE_SHOP_PRODUCT_OPTIONS_FILE = '20200515_045528.moduleFunction.ShopModule::getConfigurableShopProductOptions.success.5ebe20bfe98de.json';
+    public const MISSING_TASK_ERROR_DIR = 'commands/process-all-tasks/missing-task-error';
+    public const GET_CONFIGURABLE_SHOP_PRODUCT_OPTIONS_FILE = '20200515_045528.moduleFunction.ShopModule::getConfigurableShopProductOptions.success.5ebe20bfe98de.json';
 
     public function testLastRunTimeVariableSet()
     {
@@ -28,7 +27,7 @@ class ProcessAllTasksTest extends AbstractTest
 
         try {
             $this->runner->execute(ProcessAllTasks::getCommandName());
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $this->assertTrue(true, 'Unable to run the process all command');
         }
 
@@ -48,7 +47,7 @@ class ProcessAllTasksTest extends AbstractTest
 
     /**
      * @throws WordpressException
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function testUpdateProductError()
     {
@@ -67,7 +66,7 @@ class ProcessAllTasksTest extends AbstractTest
         try {
             $this->runner->execute(ProcessAllTasks::getCommandName());
             $this->assertTrue(false, 'Exception is thrown');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $this->assertTrue(true, 'Exception is thrown');
         }
 

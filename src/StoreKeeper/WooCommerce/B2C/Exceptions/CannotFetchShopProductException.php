@@ -8,8 +8,6 @@ class CannotFetchShopProductException extends BaseException
 
     /**
      * ShopProductNotFound constructor.
-     *
-     * @param $shop_product_id
      */
     public function __construct($shop_product_id)
     {
@@ -17,9 +15,6 @@ class CannotFetchShopProductException extends BaseException
         parent::__construct('Could not fetch parent product with shop_product_id='.$shop_product_id);
     }
 
-    /**
-     * @return mixed
-     */
     public function getShopProductId()
     {
         return $this->shop_product_id;

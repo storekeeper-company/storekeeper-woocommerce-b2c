@@ -2,13 +2,12 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
 
 abstract class AbstractTest extends \StoreKeeper\WooCommerce\B2C\UnitTest\AbstractTest
 {
     use CommandRunnerTrait;
-    const COMMON_DUMP_DIR = 'common';
+    public const COMMON_DUMP_DIR = 'common';
 
     public function setUp(): void
     {
@@ -23,7 +22,7 @@ abstract class AbstractTest extends \StoreKeeper\WooCommerce\B2C\UnitTest\Abstra
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     protected function mockApiCallsFromCommonDirectory(): void
     {

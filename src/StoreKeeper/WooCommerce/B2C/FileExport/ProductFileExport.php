@@ -14,25 +14,21 @@ use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Base36Coder;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\BlueprintExport;
-use WC_Product;
-use WC_Product_Variable;
-use WC_Product_Variation;
-use WC_Tax;
 
 class ProductFileExport extends AbstractCSVFileExport implements ProductExportInterface
 {
-    const TYPE_SIMPLE = 'simple';
-    const TYPE_CONFIGURABLE = 'configurable';
-    const TYPE_ASSIGNED = 'configurable_assign';
+    public const TYPE_SIMPLE = 'simple';
+    public const TYPE_CONFIGURABLE = 'configurable';
+    public const TYPE_ASSIGNED = 'configurable_assign';
 
-    const SUPPORTED_WC_TYPES = [
+    public const SUPPORTED_WC_TYPES = [
         'simple',
         'variable',
     ];
-    const PRODUCT_SKU_FIELD = 'product.sku';
+    public const PRODUCT_SKU_FIELD = 'product.sku';
 
-    protected $tax_rate_country_iso = null;
-    protected $price_field = null;
+    protected $tax_rate_country_iso;
+    protected $price_field;
     private $shouldExportActiveProductsOnly = true;
 
     public function setShouldExportActiveProductsOnly(bool $shouldExportActiveProductsOnly): void
@@ -40,10 +36,10 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         $this->shouldExportActiveProductsOnly = $shouldExportActiveProductsOnly;
     }
 
-    public static function getTaxRate(WC_Product $product, string $country_iso): ?object
+    public static function getTaxRate(\WC_Product $product, string $country_iso): ?object
     {
         $taxRateClass = $product->get_tax_class();
-        $taxRates = WC_Tax::get_rates_for_tax_class($taxRateClass) ?? [];
+        $taxRates = \WC_Tax::get_rates_for_tax_class($taxRateClass) ?? [];
 
         foreach ($taxRates as $rate) {
             if ($rate->tax_rate_country === $country_iso) {
@@ -155,7 +151,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $count;
     }
 
-    public function runExport(string $exportLanguage = null): string
+    public function runExport(?string $exportLanguage = null): string
     {
         $next = true;
         $index = 0;
@@ -163,7 +159,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
             $product = $this->getProductAtIndex($index++);
             $next = (bool) $product;
 
-            if ($product instanceof WC_Product) {
+            if ($product instanceof \WC_Product) {
                 if (!in_array($product->get_type(), self::SUPPORTED_WC_TYPES)) {
                     continue;
                 }
@@ -180,7 +176,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
                     $lineData = $this->exportImage($lineData, $product);
                     $lineData = $this->exportAttributes($lineData, $product);
 
-                    if ($product instanceof WC_Product_Variable) {
+                    if ($product instanceof \WC_Product_Variable) {
                         $lineData = $this->exportConfigurablePrice($lineData, $product);
                         $lineData = $this->exportBlueprintField($lineData, $product);
                         $this->writeLineData($lineData);
@@ -202,7 +198,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $this->filePath;
     }
 
-    private function getProductAtIndex($index): ?WC_Product
+    private function getProductAtIndex($index): ?\WC_Product
     {
         global $wpdb;
 
@@ -219,7 +215,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return null;
     }
 
-    private function exportAssignedProducts(WC_Product_Variable $parentProduct)
+    private function exportAssignedProducts(\WC_Product_Variable $parentProduct)
     {
         $objectsToGenerate = $this->getObjectsToGenerate($parentProduct);
         foreach ($objectsToGenerate as $object) {
@@ -252,7 +248,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         }
     }
 
-    private function getSku(WC_Product $product): string
+    private function getSku(\WC_Product $product): string
     {
         $sku = $product->get_sku('edit'); // edit will retund empty sku for varaible is not set directly
         if (empty($sku)) {
@@ -262,7 +258,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $sku;
     }
 
-    private function exportTitleAndSku(array $lineData, WC_Product $product): array
+    private function exportTitleAndSku(array $lineData, \WC_Product $product): array
     {
         $lineData['title'] = $product->get_title();
         $lineData[self::PRODUCT_SKU_FIELD] = $this->getSku($product);
@@ -270,7 +266,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
-    private function exportGenericInfo(array $lineData, WC_Product $product): array
+    private function exportGenericInfo(array $lineData, \WC_Product $product): array
     {
         $lineData['summary'] = $product->get_short_description();
         $lineData['body'] = $product->get_description();
@@ -280,34 +276,34 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
-    public static function getProductType(WC_Product $product): string
+    public static function getProductType(\WC_Product $product): string
     {
-        if ($product instanceof WC_Product_Variable) {
+        if ($product instanceof \WC_Product_Variable) {
             return self::TYPE_CONFIGURABLE;
         }
 
-        if ($product instanceof WC_Product_Variation) {
+        if ($product instanceof \WC_Product_Variation) {
             return self::TYPE_ASSIGNED;
         }
 
         return self::TYPE_SIMPLE;
     }
 
-    private function exportTagsAndCategories(array $lineData, WC_Product $product): array
+    private function exportTagsAndCategories(array $lineData, \WC_Product $product): array
     {
         $lineData = $this->exportTags($lineData, $product);
 
         return $this->exportCategories($lineData, $product);
     }
 
-    private function exportTags(array $lineData, WC_Product $product): array
+    private function exportTags(array $lineData, \WC_Product $product): array
     {
         $lineData['extra_label_slugs'] = self::getTagSlugs($product);
 
         return $lineData;
     }
 
-    public static function getTagSlugs(WC_Product $product): string
+    public static function getTagSlugs(\WC_Product $product): string
     {
         $ids = $product->get_tag_ids();
         if (count($ids) <= 0) {
@@ -329,14 +325,14 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return implode('|', $slugs);
     }
 
-    private function exportCategories(array $lineData, WC_Product $product): array
+    private function exportCategories(array $lineData, \WC_Product $product): array
     {
         $lineData['extra_category_slugs'] = self::getCategorySlugs($product);
 
         return $lineData;
     }
 
-    public static function getCategorySlugs(WC_Product $product): string
+    public static function getCategorySlugs(\WC_Product $product): string
     {
         $ids = $product->get_category_ids();
         if (count($ids) <= 0) {
@@ -358,7 +354,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return implode('|', $slugs);
     }
 
-    private function exportPrice(array $lineData, WC_Product $product): array
+    private function exportPrice(array $lineData, \WC_Product $product): array
     {
         $lineData['product.product_price.currency_iso3'] = get_woocommerce_currency();
         $priceField = $this->getPriceField();
@@ -368,7 +364,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
-    private function exportConfigurablePrice(array $lineData, WC_Product_Variable $product): array
+    private function exportConfigurablePrice(array $lineData, \WC_Product_Variable $product): array
     {
         $priceField = $this->getPriceField();
         $lineData['product.product_price.currency_iso3'] = get_woocommerce_currency();
@@ -394,7 +390,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         $this->tax_rate_country_iso = $iso;
     }
 
-    private function exportVat(array $lineData, WC_Product $product): array
+    private function exportVat(array $lineData, \WC_Product $product): array
     {
         $taxRate = self::getTaxRate($product, $this->getTaxRateCountryIso());
 
@@ -409,7 +405,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
     /**
      * @throws WordpressException
      */
-    private function exportSEO(array $lineData, WC_Product $product): array
+    private function exportSEO(array $lineData, \WC_Product $product): array
     {
         if (YoastSeo::isSelectedHandler()) {
             $lineData['seo_title'] = YoastSeo::getPostTitle($product->get_id());
@@ -426,7 +422,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
-    private function exportStock(array $lineData, WC_Product $product): array
+    private function exportStock(array $lineData, \WC_Product $product): array
     {
         $stockValue = 0;
         if ($product->is_in_stock()) {
@@ -442,7 +438,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
-    private function exportImage(array $lineData, WC_Product $product): array
+    private function exportImage(array $lineData, \WC_Product $product): array
     {
         foreach ($this->getProductImageIds($product) as $index => $imageId) {
             $imageUrl = wp_get_attachment_url($imageId);
@@ -452,7 +448,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
-    private function exportAssignedImage(array $lineData, WC_Product $product, WC_Product $parentProduct): array
+    private function exportAssignedImage(array $lineData, \WC_Product $product, \WC_Product $parentProduct): array
     {
         $parentProductImageIds = $this->getProductImageIds($parentProduct);
         $assignedProductImageIds = $this->getProductImageIds($product);
@@ -465,7 +461,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
-    private function exportAttributes(array $lineData, WC_Product $product): array
+    private function exportAttributes(array $lineData, \WC_Product $product): array
     {
         foreach ($product->get_attributes() as $alias => $attribute) {
             $name = AttributeExport::getProductAttributeKey($attribute);
@@ -505,8 +501,8 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
 
     private function exportAssignedTitleAndSku(
         array $lineData,
-        WC_Product_Variation $product,
-        WC_Product_Variable $parentProduct,
+        \WC_Product_Variation $product,
+        \WC_Product_Variable $parentProduct,
         array $attributes
     ): array {
         $valueLabels = [];
@@ -553,7 +549,7 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         );
     }
 
-    private function exportBlueprintField(array $lineData, WC_Product_Variable $product): array
+    private function exportBlueprintField(array $lineData, \WC_Product_Variable $product): array
     {
         $blueprintExport = new BlueprintExport($product);
         $lineData['product.configurable_product_kind.alias'] = $blueprintExport->getAlias();
@@ -561,14 +557,14 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $lineData;
     }
 
-    private function exportConfigurableSku(array $lineData, WC_Product_Variable $parentProduct): array
+    private function exportConfigurableSku(array $lineData, \WC_Product_Variable $parentProduct): array
     {
         $lineData['product.configurable_product.sku'] = $this->getSku($parentProduct);
 
         return $lineData;
     }
 
-    private function getProductImageIds(WC_Product $product): array
+    private function getProductImageIds(\WC_Product $product): array
     {
         $galleryImages = $product->get_gallery_image_ids();
         $imageId = (int) $product->get_image_id();
@@ -593,14 +589,14 @@ class ProductFileExport extends AbstractCSVFileExport implements ProductExportIn
         return $imageIds;
     }
 
-    private function getObjectsToGenerate(WC_Product_Variable $parentProduct): array
+    private function getObjectsToGenerate(\WC_Product_Variable $parentProduct): array
     {
         $parentAttributes = $parentProduct->get_attributes();
 
         $objectsToGenerate = [];
 
         foreach ($parentProduct->get_children() as $productId) {
-            $product = new WC_Product_Variation($productId);
+            $product = new \WC_Product_Variation($productId);
             $object = [
                 'product' => $product,
                 'attributes' => [],

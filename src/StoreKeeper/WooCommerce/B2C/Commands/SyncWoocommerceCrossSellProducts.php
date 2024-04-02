@@ -8,7 +8,7 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 class SyncWoocommerceCrossSellProducts extends AbstractSyncCommand
 {
     // The amount of cross sell products to sync per page
-    const AMOUNT_PER_PAGE = 50;
+    public const AMOUNT_PER_PAGE = 50;
 
     public static function getShortDescription(): string
     {

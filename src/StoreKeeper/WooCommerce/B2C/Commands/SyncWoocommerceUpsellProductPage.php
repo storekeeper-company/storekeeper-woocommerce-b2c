@@ -85,8 +85,6 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand
     /**
      * Syncs the upsell for the given products.
      *
-     * @param $products
-     *
      * @throws WordpressException
      */
     private function syncUpsellForProducts($products)
@@ -125,8 +123,6 @@ class SyncWoocommerceUpsellProductPage extends AbstractSyncCommand
 
     /**
      * Sets the upsell for the given product.
-     *
-     * @param $product
      *
      * @throws WordpressException
      */

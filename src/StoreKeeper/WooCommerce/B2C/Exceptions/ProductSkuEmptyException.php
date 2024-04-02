@@ -2,8 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Exceptions;
 
-use Throwable;
-
 class ProductSkuEmptyException extends BaseException
 {
     /**
@@ -11,7 +9,7 @@ class ProductSkuEmptyException extends BaseException
      */
     protected $product;
 
-    public function __construct(\WC_Product $product, Throwable $previous = null)
+    public function __construct(\WC_Product $product, ?\Throwable $previous = null)
     {
         $message = sprintf(
             'Product %s [id=%s]: "%s" has empty sku',

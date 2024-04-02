@@ -23,5 +23,5 @@ if ('cli' == php_sapi_name()) {
     );
     rename($outputFile, $base_dir.'/../i18n/storekeeper-woocommerce-b2c.pot');
 } else {
-    throw new \Exception('This script can only be run from command line');
+    throw new Exception('This script can only be run from command line');
 }

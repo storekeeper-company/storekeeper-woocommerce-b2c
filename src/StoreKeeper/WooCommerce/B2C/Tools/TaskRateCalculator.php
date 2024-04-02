@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 
@@ -13,7 +12,7 @@ class TaskRateCalculator
     private $endDateTime;
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct(?\DateTime $now = null)
     {

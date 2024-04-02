@@ -53,7 +53,7 @@ if (phpversion() < STOREKEEPER_WOOCOMMERCE_B2C_PHP_VERSION) {
     $txt = sprintf(
         __(
             '%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue.',
-            \StoreKeeper\WooCommerce\B2C\I18N::DOMAIN
+            StoreKeeper\WooCommerce\B2C\I18N::DOMAIN
         ),
         STOREKEEPER_WOOCOMMERCE_B2C_NAME,
         STOREKEEPER_WOOCOMMERCE_B2C_PHP_VERSION
@@ -75,7 +75,7 @@ register_deactivation_hook(__FILE__, 'deactivate_storekeeper_woocommerce_b2c');
  */
 function activate_storekeeper_woocommerce_b2c()
 {
-    $activator = new \StoreKeeper\WooCommerce\B2C\Activator();
+    $activator = new StoreKeeper\WooCommerce\B2C\Activator();
     $activator->run();
 }
 
@@ -84,7 +84,7 @@ function activate_storekeeper_woocommerce_b2c()
  */
 function deactivate_storekeeper_woocommerce_b2c()
 {
-    $deactivator = new \StoreKeeper\WooCommerce\B2C\Deactivator();
+    $deactivator = new StoreKeeper\WooCommerce\B2C\Deactivator();
     $deactivator->run();
 }
 
@@ -99,7 +99,7 @@ function deactivate_storekeeper_woocommerce_b2c()
  */
 function storekeeper_woocommerce_b2c_run()
 {
-    $plugin = new \StoreKeeper\WooCommerce\B2C\Core();
+    $plugin = new StoreKeeper\WooCommerce\B2C\Core();
     $plugin->run();
 }
 

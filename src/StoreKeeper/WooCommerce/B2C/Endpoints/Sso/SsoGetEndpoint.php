@@ -9,7 +9,7 @@ use StoreKeeper\WooCommerce\B2C\Helpers\SsoHelper;
 
 class SsoGetEndpoint extends AbstractEndpoint
 {
-    const ROUTE = 'sso';
+    public const ROUTE = 'sso';
 
     public function handle()
     {

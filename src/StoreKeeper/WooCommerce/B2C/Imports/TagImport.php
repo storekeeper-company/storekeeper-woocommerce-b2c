@@ -13,7 +13,7 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
 {
     use ConsoleProgressBarTrait;
     private $storekeeper_id = 0;
-    const WOOCOMMERCE_PRODUCT_TAG_TAXONOMY = 'product_tag';
+    public const WOOCOMMERCE_PRODUCT_TAG_TAXONOMY = 'product_tag';
 
     /**
      * CategoryImport constructor.
@@ -61,8 +61,6 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
     }
 
     /**
-     * @param $StoreKeeperId
-     *
      * @return bool
      *
      * @throws WordpressException
@@ -89,8 +87,6 @@ class TagImport extends AbstractImport implements WithConsoleProgressBarInterfac
     }
 
     /**
-     * @param $slug
-     *
      * @return bool
      *
      * @throws WordpressException

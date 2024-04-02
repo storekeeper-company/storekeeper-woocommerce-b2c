@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
@@ -35,7 +34,7 @@ class ProcessSingleTask extends AbstractCommand
     /**
      * @return mixed|void
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
@@ -45,16 +44,16 @@ class ProcessSingleTask extends AbstractCommand
 
         $task_id = $arguments[0];
         $task = TaskModel::get($task_id);
-        $this->logger->info('Got task',['task_id' => $task_id,]);
+        $this->logger->info('Got task', ['task_id' => $task_id]);
 
         if (null === $task) {
-            throw new Exception("Could not find task with id '{$task_id}'");
+            throw new \Exception("Could not find task with id '{$task_id}'");
         }
 
         $handler = new TaskHandler();
         $handler->setLogger($this->logger);
         $taskResult = $handler->handleTask($task_id, $task['name']);
-        $this->logger->info('Task done',['id' => $task_id,'result' =>$taskResult]);
+        $this->logger->info('Task done', ['id' => $task_id, 'result' => $taskResult]);
 
         // Add the removed tasks to the current task
         $task['meta_data']['removed_task_ids'] = $handler->getTrashedTasks();

@@ -25,8 +25,6 @@ class TagDeleteTask extends AbstractTask
     }
 
     /**
-     * @param $StoreKeeperId
-     *
      * @return bool|\WP_Term
      *
      * @throws WordpressException

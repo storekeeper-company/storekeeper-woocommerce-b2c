@@ -9,8 +9,6 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
-use WC_Coupon;
-use WP_REST_Response;
 
 class CouponCodeTest extends AbstractTest
 {
@@ -28,13 +26,13 @@ class CouponCodeTest extends AbstractTest
         $this->tearDownRunner();
     }
 
-    const ROOT_DIR = 'events/couponCode';
-    const CREATE_DIR = 'create';
-    const UPDATE_DIR = 'update';
-    const DELETE_DIR = 'delete';
-    const DUMP_DIR = 'dump';
-    const WEBHOOK_FILE = 'hook.events.createCouponCode.json';
-    const LIST_COUPON_CODE_FILE = 'moduleFunction.ShopModule::listCouponCodesForHook.success.json';
+    public const ROOT_DIR = 'events/couponCode';
+    public const CREATE_DIR = 'create';
+    public const UPDATE_DIR = 'update';
+    public const DELETE_DIR = 'delete';
+    public const DUMP_DIR = 'dump';
+    public const WEBHOOK_FILE = 'hook.events.createCouponCode.json';
+    public const LIST_COUPON_CODE_FILE = 'moduleFunction.ShopModule::listCouponCodesForHook.success.json';
 
     public function testCreate()
     {
@@ -43,7 +41,7 @@ class CouponCodeTest extends AbstractTest
         list($dumpFilePath) = $this->createCouponCode();
 
         $expected = $this->getDumpFileData($dumpFilePath);
-        $actual = new WC_Coupon($expected->get('code'));
+        $actual = new \WC_Coupon($expected->get('code'));
         $this->assertCouponCode($expected, $actual);
     }
 
@@ -55,7 +53,7 @@ class CouponCodeTest extends AbstractTest
         list($dumpFilePath) = $this->updateCouponCode();
 
         $expected = $this->getDumpFileData($dumpFilePath);
-        $actual = new WC_Coupon($expected->get('code'));
+        $actual = new \WC_Coupon($expected->get('code'));
         $this->assertCouponCode($expected, $actual);
     }
 
@@ -106,7 +104,7 @@ class CouponCodeTest extends AbstractTest
         return new Dot($dumpFileData);
     }
 
-    private function executeWebhook(string $hookFile): WP_REST_Response
+    private function executeWebhook(string $hookFile): \WP_REST_Response
     {
         $dumpFile = $this->getHookDataDump($hookFile);
         $request = $this->getRestWithToken($dumpFile);
@@ -114,7 +112,7 @@ class CouponCodeTest extends AbstractTest
         return $this->handleRequest($request);
     }
 
-    private function assertWebhookResponse(string $hookFile, WP_REST_Response $response)
+    private function assertWebhookResponse(string $hookFile, \WP_REST_Response $response)
     {
         $dumpFile = $this->getHookDataDump($hookFile);
         list($webhookType) = StoreKeeperApi::extractMainTypeAndOptions($dumpFile->getEventBackref());

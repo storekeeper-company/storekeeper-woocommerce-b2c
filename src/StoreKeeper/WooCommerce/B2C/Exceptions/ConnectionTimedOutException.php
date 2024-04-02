@@ -6,7 +6,7 @@ class ConnectionTimedOutException extends BaseException
 {
     protected int $taskId;
 
-    public function __construct(int $taskId, $message = '', $code = 0, \Throwable $previous = null)
+    public function __construct(int $taskId, $message = '', $code = 0, ?\Throwable $previous = null)
     {
         $this->taskId = $taskId;
         parent::__construct($message, $code, $previous);

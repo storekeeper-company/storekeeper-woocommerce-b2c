@@ -18,21 +18,14 @@ use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\StringFunctions;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
-use WC_Helper_Order;
 
 class OrderExportTest extends AbstractOrderExportTest
 {
     use ArraySubsetAsserts;
-    const DATA_DUMP_FOLDER_CREATE = 'exports/orderExports/newOrder';
+    public const DATA_DUMP_FOLDER_CREATE = 'exports/orderExports/newOrder';
 
-    const GET_CONTEXT = 'edit';
+    public const GET_CONTEXT = 'edit';
 
-    /**
-     * @param $new_order_id
-     * @param $sk_customer_id
-     * @param $new_order
-     * @param $sk_order
-     */
     public function assertNewOrder($new_order_id, $sk_customer_id, $new_order, $sk_order)
     {
         $wc_order = WC()->order_factory->get_order($new_order_id);
@@ -82,85 +75,7 @@ class OrderExportTest extends AbstractOrderExportTest
             $this->assertEquals(9, $emballageTaxRate, 'Emballage tax rate ID does not match');
         }
 
-        $expectedBillingStreet = $new_order['billing_address_1'].' '.$new_order['billing_address_2'];
-
-        $expect_billing = [
-            'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
-            'isprivate' => empty($new_order['billing_company']),
-            'address_billing' => [
-                    'state' => $new_order['billing_state'],
-                    'city' => $new_order['billing_city'],
-                    'zipcode' => $new_order['billing_postcode'],
-                    'street' => $expectedBillingStreet,
-                    'country_iso2' => $new_order['billing_country'],
-                    'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
-                ],
-            'contact_set' => [
-                    'email' => $new_order['billing_email'],
-                    'phone' => $new_order['billing_phone'],
-                    'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
-                ],
-            'contact_person' => [
-                    'firstname' => $new_order['billing_first_name'],
-                    'familyname' => $new_order['billing_last_name'],
-                ],
-        ];
-
-        if ('NL' === $wc_order->get_billing_country()) {
-            $splitStreet = OrderExport::splitStreetNumber($new_order['billing_address_house_number'] ?? '');
-            $expect_billing['address_billing']['streetnumber'] = $splitStreet['streetnumber'];
-            $expect_billing['address_billing']['flatnumber'] = $splitStreet['flatnumber'];
-        }
-        if (!empty($new_order['billing_company'])) {
-            $expect_billing['business_data'] = [
-                'name' => $new_order['billing_company'],
-                'country_iso2' => $new_order['billing_country'],
-            ];
-        }
-
-        $expect_shipping = $expect_billing;
-        if ($wc_order->has_shipping_address()) {
-            $expectedShippingStreet = $new_order['shipping_address_1'].' '.$new_order['shipping_address_2'];
-
-            $expect_shipping = [
-                'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
-                'isprivate' => empty($new_order['shipping_company']),
-                'contact_address' => [
-                        'state' => $new_order['shipping_state'],
-                        'city' => $new_order['shipping_city'],
-                        'zipcode' => $new_order['shipping_postcode'],
-                        'street' => $expectedShippingStreet,
-                        'country_iso2' => $new_order['shipping_country'],
-                        'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
-                    ],
-                'contact_set' => [
-                        'email' => $new_order['billing_email'],
-                        'phone' => $new_order['billing_phone'],
-                        'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
-                    ],
-                'contact_person' => [
-                        'firstname' => $new_order['shipping_first_name'],
-                        'familyname' => $new_order['shipping_last_name'],
-                    ],
-            ];
-
-            if ('NL' === $wc_order->get_shipping_country()) {
-                $splitStreet = OrderExport::splitStreetNumber($new_order['shipping_address_house_number']);
-                $expect_shipping['contact_address']['streetnumber'] = $splitStreet['streetnumber'];
-                $expect_shipping['contact_address']['flatnumber'] = $splitStreet['flatnumber'];
-            }
-        }
-
-        if (!empty($new_order['shipping_company'])) {
-            $expect_shipping['business_data'] = [
-                'name' => $new_order['shipping_company'],
-                'country_iso2' => $new_order['shipping_country'],
-            ];
-        }
-
-        $this->assertDeepArray($expect_billing, $sk_order['billing_address'], 'billing_address ');
-
-        $this->assertDeepArray($expect_shipping, $sk_order['shipping_address'], 'shipping_address ');
+        $this->assertOrderBillingAndShipping($new_order, $wc_order, $sk_order);
 
         $coupons = $wc_order->get_coupons() ?? [];
         $skCoupons = $sk_order['order_coupon_codes'] ?? [];
@@ -809,6 +724,123 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->processNewOrder($newOrderId, $newOrder);
     }
 
+    public function testOrderCreateWithDiscount99Percent()
+    {
+        $this->initApiConnection();
+
+        $this->emptyEnvironment();
+
+        $new_order = $this->getOrderProps();
+        $wc_order = \WC_Helper_Order::create_order();
+        $wc_order->set_props($new_order);
+        $wc_order->remove_order_items();
+
+        $orderProduct = new \WC_Product();
+        $orderProduct->set_name('P1');
+        $orderProduct->set_price(2.49);
+        $orderProduct->set_sku('P1');
+        $orderProduct->save();
+
+        $wc_order->add_product($orderProduct, 2);
+
+        $coupon = \WC_Helper_Coupon::create_coupon();
+        $coupon->set_amount('99');
+        $coupon->set_discount_type('percent');
+        $coupon->save();
+
+        $wc_order->apply_coupon($coupon);
+
+        $wc_order->calculate_totals();
+        $wc_order->save();
+
+        $new_order_id = $wc_order->get_id();
+
+        // this is normally created when the woocommerce_checkout_order_processed hook is fired
+        // StoreKeeper\WooCommerce\B2C\Core::setOrderHooks
+        $OrderHandler = new OrderHandler();
+        $task = $OrderHandler->create($new_order_id);
+
+        // set the checker for expected result
+        $sk_order_id = mt_rand();
+        $sk_customer_id = mt_rand();
+
+        $sent_order = [];
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($sk_customer_id, $sk_order_id, $new_order, &$sent_order, $wc_order) {
+                $module->expects('newOrder')
+                    ->andReturnUsing(
+                        function ($got) use ($new_order, $sk_order_id, &$sent_order, $wc_order) {
+                            [$order] = $got;
+
+                            $this->assertOrderBillingAndShipping($new_order, $wc_order, $order);
+
+                            $sent_order = $order;
+                            $sent_order['id'] = $sk_order_id;
+                            $sent_order = $this->calculateNewOrder($sent_order);
+
+                            $this->assertEquals(
+                                0.05, // total price after discounts
+                                $sent_order['value_wt'],
+                                'Order total'
+                            );
+
+                            return $sk_order_id;
+                        }
+                    );
+
+                $module->expects('findShopCustomerBySubuserEmail')
+                    ->andReturnUsing(
+                        function ($got) use ($sk_customer_id, $new_order) {
+                            $this->assertEquals($new_order['billing_email'], $got[0]['email']);
+
+                            return [
+                                'id' => $sk_customer_id,
+                                // only this field is used
+                            ];
+                        }
+                    );
+
+                $module->expects('naturalSearchShopFlatProductForHooks')
+                    ->andReturnUsing(
+                        function () {
+                            return [
+                                'data' => [],
+                                'total' => 0,
+                                'count' => 0,
+                            ];
+                        }
+                    );
+                $module->expects('getOrder')
+                    ->andReturnUsing(
+                        function ($got) use (&$sent_order, $sk_order_id) {
+                            $this->assertEquals($sk_order_id, $got[0]);
+
+                            return $sent_order;
+                        }
+                    );
+
+                /*
+                 * Unrelated-calls for this test
+                 */
+                $module->expects('updateOrder')->andReturnUsing(
+                    function () {
+                        return null;
+                    }
+                );
+            }
+        );
+
+        // run the sync
+        $this->processTask($task);
+
+        $this->assertEquals(
+            $sk_order_id,
+            get_post_meta($new_order_id, 'storekeeper_id', true),
+            'storekeeper_id is assigned on wordpress order'
+        );
+    }
+
     public function testCancelledOrder()
     {
         $this->initApiConnection();
@@ -817,14 +849,14 @@ class OrderExportTest extends AbstractOrderExportTest
         $newOrderTimesCalled = 0;
         $orderHandler = new OrderHandler();
 
-        $syncedCancelledOrder = WC_Helper_Order::create_order();
+        $syncedCancelledOrder = \WC_Helper_Order::create_order();
         $syncedCancelledOrder->update_status(OrderExport::STATUS_CANCELLED);
         $syncedCancelledOrder->save();
 
-        $newToCancelledOrder = WC_Helper_Order::create_order();
+        $newToCancelledOrder = \WC_Helper_Order::create_order();
         $newToCancelledOrder->save();
 
-        $unsyncedCancelledOrder = WC_Helper_Order::create_order();
+        $unsyncedCancelledOrder = \WC_Helper_Order::create_order();
         $unsyncedCancelledOrder->update_status(OrderExport::STATUS_CANCELLED);
         $unsyncedCancelledOrder->save();
 
@@ -919,7 +951,7 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->initApiConnection();
         $this->emptyEnvironment();
 
-        $order = WC_Helper_Order::create_order();
+        $order = \WC_Helper_Order::create_order();
         $order->save();
 
         $sent_order = [];
@@ -1008,7 +1040,7 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->initApiConnection();
         $this->emptyEnvironment();
 
-        $order = WC_Helper_Order::create_order();
+        $order = \WC_Helper_Order::create_order();
         $order->save();
         $shopOrderId = $order->get_id();
 
@@ -1086,7 +1118,7 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->emptyEnvironment();
 
         $existingAdminEmail = 'admin@storekeeper.nl';
-        $order = WC_Helper_Order::create_order();
+        $order = \WC_Helper_Order::create_order();
         $order->set_billing_email($existingAdminEmail);
         $order->save();
 
@@ -1154,6 +1186,7 @@ class OrderExportTest extends AbstractOrderExportTest
 
         $this->processTask($task);
     }
+
     public function testCustomerEmailIsInvalid()
     {
         $this->initApiConnection();
@@ -1161,7 +1194,7 @@ class OrderExportTest extends AbstractOrderExportTest
 
         $customerEmail = 'username.@example.com'; // invalid cos '.' before @
         $expectEmail = CustomerFinder::convertToNoEmail($customerEmail);
-        $order = WC_Helper_Order::create_order();
+        $order = \WC_Helper_Order::create_order();
         $order->set_billing_email($customerEmail);
         $order->save();
 
@@ -1187,6 +1220,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             $this->assertEquals($expectEmail, $subuser['login'], 'It should noemail');
                             $this->assertEquals($expectEmail, $subuser['email'], 'It should noemail');
                             $calledFn[] = 'newShopCustomer';
+
                             return mt_rand();
                         }
                     );
@@ -1205,6 +1239,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             $sent_order['id'] = rand();
                             $sent_order = $this->calculateNewOrder($sent_order);
                             $calledFn[] = 'newOrder';
+
                             return $sent_order['id'];
                         }
                     );
@@ -1216,8 +1251,6 @@ class OrderExportTest extends AbstractOrderExportTest
                     );
 
                     $module->allows('updateOrder')->andReturnNull();
-
-
                 }
             );
 
@@ -1225,8 +1258,9 @@ class OrderExportTest extends AbstractOrderExportTest
         $task = $OrderHandler->create($order->get_id());
         $this->processTask($task);
 
-        $this->assertEquals(['newShopCustomer','newOrder'], $calledFn, 'called functions');
+        $this->assertEquals(['newShopCustomer', 'newOrder'], $calledFn, 'called functions');
     }
+
     /**
      * In some cases when the theme is broken the order gets a Variable product instead of variance
      * So far it only happen when the order has single variance.
@@ -1273,7 +1307,7 @@ class OrderExportTest extends AbstractOrderExportTest
         $variation_1->set_attributes(['pa_size' => 'small']);
         $variation_1->save();
 
-        $order = WC_Helper_Order::create_order(1, $product);
+        $order = \WC_Helper_Order::create_order(1, $product);
         $order->save();
 
         $sent_order = [];
@@ -1302,7 +1336,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             [$order] = $params;
 
                             $productLine = null;
-                            foreach ($order['order_items']  as $item) {
+                            foreach ($order['order_items'] as $item) {
                                 if (empty($item['is_shipping'])) {
                                     $productLine = $item;
                                 }
@@ -1598,5 +1632,88 @@ class OrderExportTest extends AbstractOrderExportTest
         $sent_order['value_wt'] = $total_wt;
 
         return $sent_order;
+    }
+
+    protected function assertOrderBillingAndShipping($new_order, $wc_order, $sk_order): void
+    {
+        $expectedBillingStreet = $new_order['billing_address_1'].' '.$new_order['billing_address_2'];
+
+        $expect_billing = [
+            'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
+            'isprivate' => empty($new_order['billing_company']),
+            'address_billing' => [
+                'state' => $new_order['billing_state'],
+                'city' => $new_order['billing_city'],
+                'zipcode' => $new_order['billing_postcode'],
+                'street' => $expectedBillingStreet,
+                'country_iso2' => $new_order['billing_country'],
+                'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
+            ],
+            'contact_set' => [
+                'email' => $new_order['billing_email'],
+                'phone' => $new_order['billing_phone'],
+                'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
+            ],
+            'contact_person' => [
+                'firstname' => $new_order['billing_first_name'],
+                'familyname' => $new_order['billing_last_name'],
+            ],
+        ];
+
+        if ('NL' === $wc_order->get_billing_country()) {
+            $splitStreet = OrderExport::splitStreetNumber($new_order['billing_address_house_number'] ?? '');
+            $expect_billing['address_billing']['streetnumber'] = $splitStreet['streetnumber'];
+            $expect_billing['address_billing']['flatnumber'] = $splitStreet['flatnumber'];
+        }
+        if (!empty($new_order['billing_company'])) {
+            $expect_billing['business_data'] = [
+                'name' => $new_order['billing_company'],
+                'country_iso2' => $new_order['billing_country'],
+            ];
+        }
+
+        $expect_shipping = $expect_billing;
+        if ($wc_order->has_shipping_address()) {
+            $expectedShippingStreet = $new_order['shipping_address_1'].' '.$new_order['shipping_address_2'];
+
+            $expect_shipping = [
+                'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
+                'isprivate' => empty($new_order['shipping_company']),
+                'contact_address' => [
+                    'state' => $new_order['shipping_state'],
+                    'city' => $new_order['shipping_city'],
+                    'zipcode' => $new_order['shipping_postcode'],
+                    'street' => $expectedShippingStreet,
+                    'country_iso2' => $new_order['shipping_country'],
+                    'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
+                ],
+                'contact_set' => [
+                    'email' => $new_order['billing_email'],
+                    'phone' => $new_order['billing_phone'],
+                    'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
+                ],
+                'contact_person' => [
+                    'firstname' => $new_order['shipping_first_name'],
+                    'familyname' => $new_order['shipping_last_name'],
+                ],
+            ];
+
+            if ('NL' === $wc_order->get_shipping_country()) {
+                $splitStreet = OrderExport::splitStreetNumber($new_order['shipping_address_house_number']);
+                $expect_shipping['contact_address']['streetnumber'] = $splitStreet['streetnumber'];
+                $expect_shipping['contact_address']['flatnumber'] = $splitStreet['flatnumber'];
+            }
+        }
+
+        if (!empty($new_order['shipping_company'])) {
+            $expect_shipping['business_data'] = [
+                'name' => $new_order['shipping_company'],
+                'country_iso2' => $new_order['shipping_country'],
+            ];
+        }
+
+        $this->assertDeepArray($expect_billing, $sk_order['billing_address'], 'billing_address ');
+
+        $this->assertDeepArray($expect_shipping, $sk_order['shipping_address'], 'shipping_address ');
     }
 }

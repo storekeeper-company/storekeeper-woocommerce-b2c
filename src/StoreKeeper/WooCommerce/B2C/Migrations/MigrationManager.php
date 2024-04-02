@@ -17,9 +17,6 @@ class MigrationManager
      */
     protected $versions;
 
-    /**
-     * @param DatabaseConnection $connection
-     */
     public function __construct(?VersionsInterface $versions = null)
     {
         $this->connection = new DatabaseConnection();

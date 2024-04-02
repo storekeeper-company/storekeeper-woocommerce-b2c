@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use Monolog\Logger;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -16,14 +15,13 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\SubProcessException;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Options\CronOptions;
 use Symfony\Component\Process\Process;
-use Throwable;
 
 class CommandRunner
 {
     use LoggerAwareTrait;
 
-    const BASE_CLASS = AbstractCommand::class;
-    const LOCK_EXIT = 1;
+    public const BASE_CLASS = AbstractCommand::class;
+    public const LOCK_EXIT = 1;
     /**
      * @var string[]
      */
@@ -76,23 +74,19 @@ class CommandRunner
     }
 
     /**
-     * @param $name
-     *
-     * @throws Exception
+     * @throws \Exception
      */
     public function getCommandClass($name): string
     {
         if (!array_key_exists($name, $this->commands)) {
-            throw new Exception("$name command not found");
+            throw new \Exception("$name command not found");
         }
 
         return $this->commands[$name];
     }
 
     /**
-     * @param $name
-     *
-     * @throws Exception
+     * @throws \Exception
      */
     public function execute($name, array $arguments = [], array $assoc_arguments = []): int
     {
@@ -136,8 +130,8 @@ class CommandRunner
         $this->logger->debug(
             'Vm Stats',
             [
-                'memory_usage_mb' => sprintf('%.2f MB', (memory_get_usage() / 1024 / 1024)),
-                'memory_peak_usage_mb' => sprintf('%.2f MB', (memory_get_peak_usage() / 1024 / 1024)),
+                'memory_usage_mb' => sprintf('%.2f MB', memory_get_usage() / 1024 / 1024),
+                'memory_peak_usage_mb' => sprintf('%.2f MB', memory_get_peak_usage() / 1024 / 1024),
                 'pid' => $this->getMyPid(),
             ] + $context
         );
@@ -215,7 +209,7 @@ class CommandRunner
 
     /**
      * @throws BaseException
-     * @throws Exception
+     * @throws \Exception
      */
     public static function runCommandWithInput($commands): int
     {
@@ -251,7 +245,7 @@ class CommandRunner
             } else {
                 throw $invalidRunnerException;
             }
-        } catch (Throwable $throwable) {
+        } catch (\Throwable $throwable) {
             CronOptions::updateFailedExecution($throwable);
             $catch($throwable);
         } finally {
@@ -264,7 +258,7 @@ class CommandRunner
      */
     protected function spawnSubProcess(
         array $params,
-        string $input = null,
+        ?string $input = null,
         int $timeout = 0,
         bool $isOutputEcho = false
     ): Process {
@@ -344,9 +338,6 @@ class CommandRunner
         return $cmd;
     }
 
-    /**
-     * @param $xdebug_on
-     */
     private function setXdebugEnv($xdebug_on, array $env): array
     {
         if ($xdebug_on) {
@@ -360,22 +351,22 @@ class CommandRunner
     /**
      * @param null $contents uses php://stdin for getting which command to execute if empty
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function executeFromInputJson($contents = null): int
     {
         if (empty($contents)) {
             $contents = file_get_contents('php://stdin');
             if (empty($contents)) {
-                throw new Exception('No input');
+                throw new \Exception('No input');
             }
         }
         $json = json_decode($contents, true);
         if (empty($json)) {
-            throw new Exception("Failed to decode json from contents: $contents. Error: ".json_last_error_msg());
+            throw new \Exception("Failed to decode json from contents: $contents. Error: ".json_last_error_msg());
         }
         if (empty($json['name'])) {
-            throw new Exception("Name is not set in: $contents");
+            throw new \Exception("Name is not set in: $contents");
         }
         $name = $json['name'];
 
@@ -406,9 +397,6 @@ class CommandRunner
         return $env;
     }
 
-    /**
-     * @param $xdebug_on
-     */
     protected function getSubProcessEnv($xdebug_on): array
     {
         $env = [];

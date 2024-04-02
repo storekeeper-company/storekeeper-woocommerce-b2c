@@ -12,8 +12,8 @@ class SyncWoocommerceTagsTest extends AbstractTest
     // https://github.com/testdouble/contributing-tests/wiki/Arrange-Act-Assert
 
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-tags';
-    const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.aff56e222ac75ec857627f848c9fc4906ecd4dba5cd0007e180b7c1e9efc955c.json';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-tags';
+    public const DATADUMP_SOURCE_FILE = 'moduleFunction.ShopModule::listTranslatedCategoryForHooks.aff56e222ac75ec857627f848c9fc4906ecd4dba5cd0007e180b7c1e9efc955c.json';
 
     public function testRun()
     {
@@ -93,8 +93,6 @@ class SyncWoocommerceTagsTest extends AbstractTest
     }
 
     /**
-     * @param $storekeeper_id
-     *
      * @return array|bool|\WP_Error|\WP_Term|null
      *
      * @throws WordpressException

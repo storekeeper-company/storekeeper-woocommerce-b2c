@@ -36,9 +36,6 @@ function updateStockStatus($product)
 
 /**
  * Changes the stock status of the product.
- *
- * @param $product
- * @param $status
  */
 function changeStatus($product, $status)
 {

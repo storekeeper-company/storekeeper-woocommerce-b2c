@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks;
 
-use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
@@ -16,7 +15,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressRestRequestWrapper;
-use Throwable;
 
 class EventsHandler
 {
@@ -28,49 +26,31 @@ class EventsHandler
 
     private $id;
 
-    /**
-     * @return mixed
-     */
     public function getModule()
     {
         return $this->module;
     }
 
-    /**
-     * @return mixed
-     */
     public function getBackrefData()
     {
         return $this->backref_data;
     }
 
-    /**
-     * @param mixed $backref_data
-     */
     public function setBackrefData($backref_data)
     {
         $this->backref_data = $backref_data;
     }
 
-    /**
-     * @return mixed
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @param mixed $module
-     */
     public function setModule($module)
     {
         $this->module = $module;
     }
 
-    /**
-     * @param mixed $id
-     */
     public function setId($id)
     {
         $this->id = $id;
@@ -120,8 +100,6 @@ class EventsHandler
 
     /**
      * gets backrefference based on data.
-     *
-     * @param array $data
      *
      * @return array
      */
@@ -401,7 +379,7 @@ class EventsHandler
             if (StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY === StoreKeeperOptions::getSyncMode()) {
                 $this->processProductOnlyEvents($events);
             }
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error(
                 'Failed to handle events',
                 [
@@ -413,8 +391,6 @@ class EventsHandler
     }
 
     /**
-     * @param $storekeeper_id
-     *
      * @return bool
      *
      * @throws WordpressException
@@ -455,8 +431,6 @@ class EventsHandler
     }
 
     /**
-     * @param $storekeeper_id
-     *
      * @return bool|string|null
      */
     private function getCategoryType($storekeeper_id)
@@ -466,21 +440,21 @@ class EventsHandler
             $category = $go_api->getModule('BlogModule')->getCategory($storekeeper_id, false);
             $categoryType = $category['category_type'];
             if (
-                'ProductsModule' === $categoryType['module_name'] &&
-                'Product' === $categoryType['alias']
+                'ProductsModule' === $categoryType['module_name']
+                && 'Product' === $categoryType['alias']
             ) {
                 return 'category';
             } else {
                 if (
-                    'ProductsModule' === $categoryType['module_name'] &&
-                    'Label' === $categoryType['alias']
+                    'ProductsModule' === $categoryType['module_name']
+                    && 'Label' === $categoryType['alias']
                 ) {
                     return 'label';
                 }
             }
         } catch (GeneralException $exception) {
             return false;
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             return null;
         }
 

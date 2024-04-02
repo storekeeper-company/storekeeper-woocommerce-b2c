@@ -19,7 +19,7 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 if (!WordPressHelpers::isCli()) {
-    exit();
+    exit;
 }
 
 WordPressHelpers::setupAndRequireWordpress();
@@ -98,8 +98,8 @@ function fetchBackendProducts()
     $filters = [];
 
     if (StoreKeeperOptions::exists(StoreKeeperOptions::MAIN_CATEGORY_ID) && StoreKeeperOptions::get(
-            StoreKeeperOptions::MAIN_CATEGORY_ID
-        ) > 0) {
+        StoreKeeperOptions::MAIN_CATEGORY_ID
+    ) > 0) {
         $cat_id = StoreKeeperOptions::get(StoreKeeperOptions::MAIN_CATEGORY_ID);
         $filters[] = [
             'name' => 'flat_product/category_ids__overlap',

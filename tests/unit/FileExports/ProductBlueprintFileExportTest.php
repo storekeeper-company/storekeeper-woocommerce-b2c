@@ -9,7 +9,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\BlueprintExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
-use WC_Helper_Product;
 
 class ProductBlueprintFileExportTest extends AbstractFileExportTest
 {
@@ -20,7 +19,7 @@ class ProductBlueprintFileExportTest extends AbstractFileExportTest
 
     public function testProductBlueprintExportTest()
     {
-        $productVariable = WC_Helper_Product::create_variation_product();
+        $productVariable = \WC_Helper_Product::create_variation_product();
 
         $instance = $this->getNewFileExportInstance();
         $path = $instance->runExport(Language::getSiteLanguageIso2());

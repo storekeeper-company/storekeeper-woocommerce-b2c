@@ -304,7 +304,8 @@
                 "date_updated": "2020-02-12 14:10:24+01:00",
                 "configuration_id": 1,
                 "relation_limited": false,
-                "product_default_price_id": 28
+                "product_default_price_id": 28,
+                "orderable_stock_value": 10
             },
             {
                 "product_price": {
@@ -378,9 +379,9 @@
                         "product_stock": {
                             "id": 21,
                             "product_id": 21,
-                            "value": 0,
-                            "in_stock": false,
-                            "unlimited": false,
+                            "value": 218,
+                            "in_stock": true,
+                            "unlimited": true,
                             "date_updated": "2020-02-20 14:39:20+01:00",
                             "unique_stock_items": false
                         }

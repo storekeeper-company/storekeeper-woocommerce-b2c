@@ -15,8 +15,8 @@ class TableRenderer
     public function addColumn(
         string $title,
         string $key,
-        callable $bodyFunction = null,
-        callable $headerFunction = null
+        ?callable $bodyFunction = null,
+        ?callable $headerFunction = null
     ) {
         $this->columns[] = [
             'key' => $key,
@@ -33,7 +33,7 @@ class TableRenderer
         $this->data = $data;
     }
 
-    public function render(array $data = null)
+    public function render(?array $data = null)
     {
         if (is_array($data)) {
             $this->setData($data);

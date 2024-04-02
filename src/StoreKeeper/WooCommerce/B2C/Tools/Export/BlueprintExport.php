@@ -2,19 +2,17 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools\Export;
 
-use WC_Product_Variable;
-
 class BlueprintExport
 {
     /**
-     * @var WC_Product_Variable
+     * @var \WC_Product_Variable
      */
     private $product;
 
     /**
      * BlueprintExport constructor.
      */
-    public function __construct(WC_Product_Variable $product)
+    public function __construct(\WC_Product_Variable $product)
     {
         $this->product = $product;
     }

@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks;
 
-use DateTime;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
@@ -19,11 +18,10 @@ use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskRateCalculator;
-use WC_Order;
 
 class InfoHandler
 {
-    const EXTRA_BLOG_INFO_FIELDS = [
+    public const EXTRA_BLOG_INFO_FIELDS = [
         'name',
         'description',
         'url',
@@ -37,7 +35,7 @@ class InfoHandler
         'comments_rss2_url',
     ];
 
-    const EXTRA_ACTIVE_THEME_FIELD = [
+    public const EXTRA_ACTIVE_THEME_FIELD = [
         'Name',
         'Description',
         'Author',
@@ -48,13 +46,37 @@ class InfoHandler
         'Tags',
     ];
 
-    const VENDOR = StoreKeeperOptions::VENDOR;
-    const PLATFORM_NAME = StoreKeeperOptions::PLATFORM_NAME;
-    const SOFTWARE_NAME = 'storekeeper-woocommerce-b2c';
+    public const VENDOR = StoreKeeperOptions::VENDOR;
+    public const PLATFORM_NAME = StoreKeeperOptions::PLATFORM_NAME;
+    public const SOFTWARE_NAME = 'storekeeper-woocommerce-b2c';
 
-    const IMAGE_CDN_PLUGIN_OPTION = StoreKeeperOptions::IMAGE_CDN;
-    const SHIPPING_METHOD_SYNC_OPTION = 'shipping-method-sync';
-    const SK_PAYMENTS_OPTION = 'sk-payments';
+    public const IMAGE_CDN_PLUGIN_OPTION = StoreKeeperOptions::IMAGE_CDN;
+    public const SHIPPING_METHOD_SYNC_OPTION = 'shipping-method-sync';
+    public const SK_PAYMENTS_OPTION = 'sk-payments';
+
+    protected static function getUnsynchronizedOrders()
+    {
+        $orderQuery = new \WC_Order_Query([
+            'meta_key' => OrderHandler::TO_BE_SYNCHRONIZED_META_KEY,
+            'meta_value' => 'yes',
+            'meta_compare' => '=',
+            'orderby' => 'date_created',
+            'order' => 'ASC',
+        ]);
+        $unsynchronizedOrders = $orderQuery->get_orders();
+        // Order query by multiple status don't work so we have to filter manually
+        $unsynchronizedOrders = array_filter(
+            $unsynchronizedOrders,
+            static function (\WC_Order $order) {
+                $status = $order->get_status();
+
+                return OrderExport::STATUS_CANCELLED !== $status
+                    && OrderExport::STATUS_REFUNDED !== $status;
+            }
+        );
+
+        return $unsynchronizedOrders;
+    }
 
     public function run(): array
     {
@@ -156,7 +178,7 @@ class InfoHandler
             ['status = :status AND type_group != :type_group'],
             [
                 'status' => TaskHandler::STATUS_FAILED,
-                'type_group' =>  TaskHandler::REPORT_ERROR_TYPE_GROUP
+                'type_group' => TaskHandler::REPORT_ERROR_TYPE_GROUP,
             ]
         );
 
@@ -196,10 +218,10 @@ class InfoHandler
             $failedOrders = $failedOrdersQuery->get_orders();
 
             // Order query by multiple status don't wmakork so we have to filter manually
-            $failedOrdersWithoutCancelled = array_filter($failedOrders, static function (WC_Order $order) {
+            $failedOrdersWithoutCancelled = array_filter($failedOrders, static function (\WC_Order $order) {
                 return OrderExport::STATUS_CANCELLED !== $order->get_status();
             });
-            $failedOrderIdsWithoutCancelled = array_map(static function (WC_Order $order) {
+            $failedOrderIdsWithoutCancelled = array_map(static function (\WC_Order $order) {
                 return $order->get_id();
             }, $failedOrdersWithoutCancelled);
         }
@@ -218,8 +240,9 @@ class InfoHandler
         // Order query by multiple status don't work so we have to filter manually
         $unsynchronizedOrders = array_filter(
             $unsynchronizedOrders,
-            static function (WC_Order $order) {
+            static function (\WC_Order $order) {
                 $status = $order->get_status();
+
                 return OrderExport::STATUS_CANCELLED !== $status
                     && OrderExport::STATUS_REFUNDED !== $status;
             }
@@ -228,7 +251,7 @@ class InfoHandler
         $oldestUnsynchronizedOrderDateTime = null;
         if (!empty($unsynchronizedOrders)) {
             $unsynchronizedOrderIds = array_map(
-                static function (WC_Order $order) {
+                static function (\WC_Order $order) {
                     return $order->get_id();
                 },
                 $unsynchronizedOrders
@@ -279,7 +302,7 @@ class InfoHandler
                     $xCropPosition = $sizeMetadata['crop'][0];
                     $variantGravity = $xCropPosition;
                 } elseif (2 === count($sizeMetadata['crop'])) {
-                    [ $xCropPosition, $yCropPosition ] = $sizeMetadata['crop'];
+                    [$xCropPosition, $yCropPosition] = $sizeMetadata['crop'];
                     $variantGravity = "{$yCropPosition}-$xCropPosition";
                 }
             }
@@ -300,8 +323,8 @@ class InfoHandler
     {
         $activeCapabilities = [];
         if (
-            StoreKeeperOptions::isPaymentSyncEnabled() &&
-            'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes')
+            StoreKeeperOptions::isPaymentSyncEnabled()
+            && 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::PAYMENT_GATEWAY_ACTIVATED, 'yes')
         ) {
             $activeCapabilities[] = 'b2s_payment_method';
         }
@@ -361,7 +384,7 @@ class InfoHandler
         return $wpdb->get_var(TaskModel::prepareQuery($select));
     }
 
-    public static function getLastSyncRunDate(): ?DateTime
+    public static function getLastSyncRunDate(): ?\DateTime
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::LAST_SYNC_RUN)) {
             return DatabaseConnection::formatFromDatabaseDate(
@@ -372,7 +395,7 @@ class InfoHandler
         return null;
     }
 
-    public static function getLastSuccessSyncRunDate(): ?DateTime
+    public static function getLastSuccessSyncRunDate(): ?\DateTime
     {
         if (WooCommerceOptions::exists(WooCommerceOptions::SUCCESS_SYNC_RUN)) {
             return DatabaseConnection::formatFromDatabaseDate(

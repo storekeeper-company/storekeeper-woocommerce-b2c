@@ -8,10 +8,10 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFeaturedAttributes;
 class SyncWoocommerceFeaturedAttributesTest extends AbstractTest
 {
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-featured-attributes';
-    const DATADUMP_SOURCE_FILE = 'moduleFunction.ProductsModule::listFeaturedAttributes.b27e839d4ee191490b58c0f5abe45f80d6dee9463f978f058c64c63c1cf8d437.json';
+    public const DATADUMP_DIRECTORY = 'commands/sync-woocommerce-featured-attributes';
+    public const DATADUMP_SOURCE_FILE = 'moduleFunction.ProductsModule::listFeaturedAttributes.b27e839d4ee191490b58c0f5abe45f80d6dee9463f978f058c64c63c1cf8d437.json';
 
-    const FEATURED_ATTRIBUTE_PREFIX = 'storekeeper-woocommerce-b2c_featured_attribute_id-';
+    public const FEATURED_ATTRIBUTE_PREFIX = 'storekeeper-woocommerce-b2c_featured_attribute_id-';
 
     public function testInit()
     {

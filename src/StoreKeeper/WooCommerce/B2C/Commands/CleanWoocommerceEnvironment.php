@@ -12,9 +12,9 @@ class CleanWoocommerceEnvironment extends AbstractCommand
     protected $silent = false;
     protected $productsOnly = false;
 
-    protected $productIds = null;
-    protected $productVariationIds = null;
-    protected $productAttachmentIds = null;
+    protected $productIds;
+    protected $productVariationIds;
+    protected $productAttachmentIds;
 
     /**
      * WP_CLI commands wrapper for the silent property.
@@ -385,7 +385,7 @@ class CleanWoocommerceEnvironment extends AbstractCommand
                 ]
             );
         } else {
-            //attribute_taxonomies is empty, it shouldn't search for any terms in this case as it could find any false positives
+            // attribute_taxonomies is empty, it shouldn't search for any terms in this case as it could find any false positives
             return [];
         }
     }

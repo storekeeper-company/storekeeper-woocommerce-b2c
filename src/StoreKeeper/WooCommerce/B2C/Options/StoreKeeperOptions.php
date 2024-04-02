@@ -79,9 +79,9 @@ class StoreKeeperOptions extends AbstractOptions
     public static function isConnected()
     {
         if (
-            self::exists(self::API_URL) &&
-            self::exists(self::GUEST_AUTH) &&
-            self::exists(self::SYNC_AUTH)
+            self::exists(self::API_URL)
+            && self::exists(self::GUEST_AUTH)
+            && self::exists(self::SYNC_AUTH)
         ) {
             return true;
         }
@@ -187,6 +187,7 @@ class StoreKeeperOptions extends AbstractOptions
     {
         return 'yes' === self::get(self::IMAGE_CDN, 'yes');
     }
+
     public static function isShippingMethodSyncEnabled(): bool
     {
         return 'yes' === self::get(self::SHIPPING_METHOD_ACTIVATED, 'yes');

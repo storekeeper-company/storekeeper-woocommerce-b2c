@@ -13,8 +13,8 @@ use Symfony\Component\Process\Process;
 
 class WpCliCommandRunner extends CommandRunner
 {
-    const command_prefix = 'sk';
-    const SINGLE_PROCESS = 'single-process';
+    public const command_prefix = 'sk';
+    public const SINGLE_PROCESS = 'single-process';
 
     /**
      * @throws \Exception
@@ -77,8 +77,6 @@ class WpCliCommandRunner extends CommandRunner
     }
 
     /**
-     * @param $name
-     *
      * @throws \WP_CLI\ExitException
      */
     public function execute($name, array $arguments = [], array $assoc_arguments = []): int

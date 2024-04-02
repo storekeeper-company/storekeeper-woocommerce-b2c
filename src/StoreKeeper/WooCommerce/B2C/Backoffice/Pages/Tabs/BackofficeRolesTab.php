@@ -12,7 +12,7 @@ class BackofficeRolesTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const SAVE_ACTION = 'save-action';
+    public const SAVE_ACTION = 'save-action';
 
     public function __construct(string $title, string $slug = '')
     {

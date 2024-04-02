@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 
 class FullProductImportWithSelectiveIds extends ProductImport
 {
-    protected $file_path_with_ids = null;
+    protected $file_path_with_ids;
 
     protected $shop_product_ids = [];
 
@@ -12,8 +12,6 @@ class FullProductImportWithSelectiveIds extends ProductImport
 
     /**
      * ProductImportWithSelectiveIds constructor.
-     *
-     * @param $settings
      *
      * @throws \Exception
      */

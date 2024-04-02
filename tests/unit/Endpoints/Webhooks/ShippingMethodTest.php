@@ -14,20 +14,20 @@ class ShippingMethodTest extends AbstractTest
 {
     use CommandRunnerTrait;
 
-    const CREATE_DATADUMP_DIRECTORY = 'events/shippingMethod/create';
-    const CREATE_DATADUMP_HOOK = 'events/hook.events.createShippingMethod.json';
-    const CREATE_DATADUMP_SHIPPING_METHOD = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
+    public const CREATE_DATADUMP_DIRECTORY = 'events/shippingMethod/create';
+    public const CREATE_DATADUMP_HOOK = 'events/hook.events.createShippingMethod.json';
+    public const CREATE_DATADUMP_SHIPPING_METHOD = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
 
-    const UPDATE_DATADUMP_DIRECTORY = 'events/shippingMethod/update';
-    const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateShippingMethod.json';
-    const UPDATE_DATADUMP_SHIPPING_METHOD = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
+    public const UPDATE_DATADUMP_DIRECTORY = 'events/shippingMethod/update';
+    public const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateShippingMethod.json';
+    public const UPDATE_DATADUMP_SHIPPING_METHOD = 'moduleFunction.ShopModule.listShippingMethodsForHooks.success.json';
 
-    const UPDATE_CHANGED_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedType';
-    const CREATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedUnknownType/create';
-    const UPDATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedUnknownType/update';
-    const UPDATE_DISABLED_DATADUMP_DIRECTORY = 'events/shippingMethod/updateDisabled';
+    public const UPDATE_CHANGED_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedType';
+    public const CREATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedUnknownType/create';
+    public const UPDATE_CHANGED_UNKNOWN_TYPE_DATADUMP_DIRECTORY = 'events/shippingMethod/updateChangedUnknownType/update';
+    public const UPDATE_DISABLED_DATADUMP_DIRECTORY = 'events/shippingMethod/updateDisabled';
 
-    const DELETE_DATADUMP_HOOK = 'events/hook.events.deleteShippingMethod.json';
+    public const DELETE_DATADUMP_HOOK = 'events/hook.events.deleteShippingMethod.json';
 
     public function testCreate()
     {

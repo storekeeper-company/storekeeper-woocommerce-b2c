@@ -85,8 +85,6 @@ class SyncWoocommerceCrossSellProductPage extends AbstractSyncCommand
     /**
      * Syncs the cross sell for the given products.
      *
-     * @param $products
-     *
      * @throws WordpressException
      */
     private function syncCrossSellForProducts($products)
@@ -123,8 +121,6 @@ class SyncWoocommerceCrossSellProductPage extends AbstractSyncCommand
 
     /**
      * Sets the cross sell for the given product.
-     *
-     * @param $product
      *
      * @throws WordpressException
      */

@@ -2,13 +2,11 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 
-use WP_Post;
-
 abstract class AbstractPostSyncMetaBox
 {
     abstract public function register(): void;
 
-    abstract public function renderSyncBox(WP_Post $post): void;
+    abstract public function renderSyncBox(\WP_Post $post): void;
 
     abstract public function doSync(int $postId): void;
 
@@ -36,7 +34,7 @@ abstract class AbstractPostSyncMetaBox
         }
     }
 
-    protected function getNonceSyncActionLink(WP_Post $post): string
+    protected function getNonceSyncActionLink(\WP_Post $post): string
     {
         $post_type_object = get_post_type_object($post->post_type);
         $syncLink = add_query_arg(

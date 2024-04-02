@@ -6,9 +6,9 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 
 class ShippingMethodModel extends AbstractModel implements IModelPurge
 {
-    const TABLE_NAME = 'storekeeper_shipping_methods';
-    const FK_WOOCOMMERCE_INSTANCE_ID = 'wc_instance_id_fk';
-    const FK_STOREKEEPER_ZONE_ID = 'sk_zone_id_fk';
+    public const TABLE_NAME = 'storekeeper_shipping_methods';
+    public const FK_WOOCOMMERCE_INSTANCE_ID = 'wc_instance_id_fk';
+    public const FK_STOREKEEPER_ZONE_ID = 'sk_zone_id_fk';
 
     public static function getFieldsWithRequired(): array
     {

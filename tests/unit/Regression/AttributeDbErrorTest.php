@@ -12,8 +12,8 @@ use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\AbstractTest;
 class AttributeDbErrorTest extends AbstractTest
 {
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'regression/attribute-db-error';
-    const DATADUMP_SOURCE_FILE = '20200416_092835.moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.5e982542c4622.json';
+    public const DATADUMP_DIRECTORY = 'regression/attribute-db-error';
+    public const DATADUMP_SOURCE_FILE = '20200416_092835.moduleFunction.ShopModule::naturalSearchShopFlatProductForHooks.success.5e982542c4622.json';
 
     public function testRun()
     {
@@ -27,7 +27,7 @@ class AttributeDbErrorTest extends AbstractTest
         $products = get_posts(['post_type' => 'product']);
         $this->assertCount(0, $products, 'Product was not ran in an empty environment.');
 
-        $this->runner->execute(SyncWooCommerceProducts::getCommandName());
+        $this->runner->execute(SyncWoocommerceProducts::getCommandName());
 
         $products_data = $this->getReturnData();
         $products_dump = $this->getProductsByTypeFromDataDump($products_data, self::SK_TYPE_CONFIGURABLE);

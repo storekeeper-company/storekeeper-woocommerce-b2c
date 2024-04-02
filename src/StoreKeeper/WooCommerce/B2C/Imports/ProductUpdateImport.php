@@ -5,7 +5,6 @@ namespace StoreKeeper\WooCommerce\B2C\Imports;
 use Adbar\Dot;
 use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use WC_Data_Exception;
 
 class ProductUpdateImport extends ProductImport
 {
@@ -39,9 +38,9 @@ class ProductUpdateImport extends ProductImport
     }
 
     /**
-     * @throws WC_Data_Exception
+     * @throws \WC_Data_Exception
      * @throws WordpressException
-     * @throws Exception
+     * @throws \Exception
      */
     protected function processSimpleAndConfigurableProduct(
         Dot $dotObject,
@@ -51,35 +50,35 @@ class ProductUpdateImport extends ProductImport
     ): int {
         $scope = array_intersect($this->scope, self::ALLOWED_UPDATE_SCOPES);
         if (
-            0 === count($scope) ||
-            false === self::getProductByProductData($dotObject)
+            0 === count($scope)
+            || false === self::getProductByProductData($dotObject)
         ) {
             $this->logger->debug(
-                "Update product scope is empty or no product is found, runnign full import",
+                'Update product scope is empty or no product is found, runnign full import',
                 ['scope' => $scope]
             );
+
             return parent::processSimpleAndConfigurableProduct($dotObject, $log_data, $options, $importProductType);
         }
 
         $this->logger->debug(
-            "Update product from scope",
+            'Update product from scope',
             ['scope' => $scope]
         );
-
 
         // Get the product entity
         $newProduct = $this->ensureWooCommerceProduct($dotObject, $importProductType);
 
         if (
-            in_array(self::PRODUCT_DEFAULT_PRICE_SCOPE, $scope, true) ||
-            in_array(self::PRODUCT_DISCOUNT_PRICE_SCOPE, $scope, true) ||
-            in_array(self::PRODUCT_PRICE_SCOPE, $scope, true)
+            in_array(self::PRODUCT_DEFAULT_PRICE_SCOPE, $scope, true)
+            || in_array(self::PRODUCT_DISCOUNT_PRICE_SCOPE, $scope, true)
+            || in_array(self::PRODUCT_PRICE_SCOPE, $scope, true)
         ) {
             // Product prices
             $log_data = $this->setProductPrice($newProduct, $dotObject, $log_data);
         } elseif (
-            in_array(self::PRODUCT_STOCK_SCOPE, $scope, true) ||
-            in_array(self::PRODUCT_STOCK_ORDERABLE_SCOPE, $scope, true)
+            in_array(self::PRODUCT_STOCK_SCOPE, $scope, true)
+            || in_array(self::PRODUCT_STOCK_ORDERABLE_SCOPE, $scope, true)
         ) {
             // Product stock
             $log_data = $this->setProductStock($newProduct, $dotObject, $log_data);

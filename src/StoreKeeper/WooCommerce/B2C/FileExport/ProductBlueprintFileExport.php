@@ -7,7 +7,6 @@ use StoreKeeper\WooCommerce\B2C\Query\ProductQueryBuilder;
 use StoreKeeper\WooCommerce\B2C\Tools\Base36Coder;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\AttributeExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Export\BlueprintExport;
-use WC_Product_Variable;
 
 class ProductBlueprintFileExport extends AbstractCSVFileExport
 {
@@ -49,7 +48,7 @@ class ProductBlueprintFileExport extends AbstractCSVFileExport
         return "attribute.encoded__$encodedName.is_synchronized";
     }
 
-    public function runExport(string $exportLanguage = null): string
+    public function runExport(?string $exportLanguage = null): string
     {
         $exportedBlueprintAliases = [];
 
@@ -77,7 +76,7 @@ class ProductBlueprintFileExport extends AbstractCSVFileExport
         return $this->filePath;
     }
 
-    private function getVariableProductAtIndex($index): ?WC_Product_Variable
+    private function getVariableProductAtIndex($index): ?\WC_Product_Variable
     {
         global $wpdb;
 
@@ -85,7 +84,7 @@ class ProductBlueprintFileExport extends AbstractCSVFileExport
         $results = $wpdb->get_results($query);
         $result = current($results);
         if (false !== $result) {
-            /** @var WC_Product_Variable $product */
+            /** @var \WC_Product_Variable $product */
             $product = wc_get_product($result->product_id);
             if (false !== $product) {
                 return $product;
@@ -105,7 +104,7 @@ class ProductBlueprintFileExport extends AbstractCSVFileExport
         return $lineData;
     }
 
-    private function exportAttributes(array $lineData, WC_Product_Variable $product): array
+    private function exportAttributes(array $lineData, \WC_Product_Variable $product): array
     {
         foreach ($product->get_attributes() as $attribute) {
             $name = AttributeExport::getProductAttributeKey($attribute);

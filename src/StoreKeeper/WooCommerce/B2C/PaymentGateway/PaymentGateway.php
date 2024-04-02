@@ -26,9 +26,9 @@ class PaymentGateway implements WithHooksInterface
     public const FLASH_STATUS_CANCELLED = 'CANCELED';
     public const FLASH_STATUS_ON_HOLD = 'ONHOLD';
     public const FLASH_STATUS_PENDING = 'PENDING';
-    const PAYMENT_PENDING_STATUSES = ['open', 'authorized', 'verify'];
-    const PAYMENT_PAID_STATUSES = ['paid', 'paidout',  'refunded', 'refunding', 'partial_refund'];
-    const PAYMENT_CANCELLED_STATUSES = ['cancelled', 'expired', 'error'];
+    public const PAYMENT_PENDING_STATUSES = ['open', 'authorized', 'verify'];
+    public const PAYMENT_PAID_STATUSES = ['paid', 'paidout',  'refunded', 'refunding', 'partial_refund'];
+    public const PAYMENT_CANCELLED_STATUSES = ['cancelled', 'expired', 'error'];
     public static $refundedBySkStatus = false;
 
     public function registerHooks(): void
@@ -114,11 +114,6 @@ class PaymentGateway implements WithHooksInterface
     }
 
     /**
-     * @param $orderId
-     * @param $skRefundId
-     * @param $refundId
-     * @param $amount
-     *
      * @return bool
      */
     public static function addRefund($orderId, $skRefundId, $refundId, $amount)
@@ -127,22 +122,22 @@ class PaymentGateway implements WithHooksInterface
 
         return false !== $wpdb->insert(
             // table
-                RefundModel::getTableName(),
-                // data
-                [
-                    'wc_order_id' => $orderId,
-                    'sk_refund_id' => $skRefundId,
-                    'wc_refund_id' => $refundId,
-                    'amount' => $amount,
-                ],
-                // format
-                [
-                    '%d',
-                    '%d',
-                    '%d',
-                    '%s',
-                ]
-            );
+            RefundModel::getTableName(),
+            // data
+            [
+                'wc_order_id' => $orderId,
+                'sk_refund_id' => $skRefundId,
+                'wc_refund_id' => $refundId,
+                'amount' => $amount,
+            ],
+            // format
+            [
+                '%d',
+                '%d',
+                '%d',
+                '%s',
+            ]
+        );
     }
 
     public static function updateRefund($id, $skRefundId, $amount, $isSynced = false)
@@ -151,24 +146,24 @@ class PaymentGateway implements WithHooksInterface
 
         return false !== $wpdb->update(
             // table
-                RefundModel::getTableName(),
-                // data
-                [
-                    'sk_refund_id' => $skRefundId,
-                    'is_synced' => $isSynced,
-                    'amount' => $amount,
-                ],
-                // where
-                ['id' => $id],
-                // data format
-                [
-                    '%d',
-                    '%d',
-                    '%s',
-                ],
-                // where format
-                ['%d']
-            );
+            RefundModel::getTableName(),
+            // data
+            [
+                'sk_refund_id' => $skRefundId,
+                'is_synced' => $isSynced,
+                'amount' => $amount,
+            ],
+            // where
+            ['id' => $id],
+            // data format
+            [
+                '%d',
+                '%d',
+                '%s',
+            ],
+            // where format
+            ['%d']
+        );
     }
 
     /**
@@ -240,11 +235,10 @@ class PaymentGateway implements WithHooksInterface
     }
 
     /**
-     * @param $args
-     *
      * @return void
      *
      * @throws \Exception
+     *
      * @hook $this->loader->add_action('woocommerce_create_refund', $PaymentGateway, 'createWooCommerceRefund', 10, 2);
      */
     public function createWooCommerceRefund(\WC_Order_Refund $refund, $args)
@@ -276,10 +270,8 @@ class PaymentGateway implements WithHooksInterface
     }
 
     /**
-     * @param $orderId
-     * @param $refundId
-     *
      * @throws \Exception
+     *
      * @hook $this->loader->add_action('woocommerce_order_refunded', $PaymentGateway, 'createStoreKeeperRefundPayment', 10, 2);
      * @hook $this->loader->add_action('woocommerce_order_partially_refunded', $PaymentGateway, 'createStoreKeeperRefundPayment', 10, 2);
      */
@@ -321,8 +313,6 @@ class PaymentGateway implements WithHooksInterface
 
     /**
      * All refunds that have Storekeeper refund ID but is not synced yet.
-     *
-     * @param $orderId
      */
     public static function getUnsyncedRefundsPaymentIds($orderId): array
     {
@@ -343,8 +333,6 @@ SQL;
 
     /**
      * Refunds that are not totally synced yet, and has no Storekeeper refund ID.
-     *
-     * @param $orderId
      */
     public static function getUnsyncedRefundsWithoutPaymentIds($orderId): array
     {
@@ -364,10 +352,6 @@ SQL;
     }
 
     /**
-     * @param $orderId
-     * @param $skRefundId
-     * @param $refundId
-     *
      * @return bool whenever the payment update was success or not
      */
     public static function markRefundAsSynced($orderId, $skRefundId, $refundId): bool
@@ -375,20 +359,16 @@ SQL;
         global $wpdb;
 
         return false !== $wpdb->update(
-                RefundModel::getTableName(), // table
-                ['is_synced' => true], // data
-                [
-                    'wc_order_id' => $orderId,
-                    'sk_refund_id' => $skRefundId,
-                    'wc_refund_id' => $refundId,
-                ] // where
-            );
+            RefundModel::getTableName(), // table
+            ['is_synced' => true], // data
+            [
+                'wc_order_id' => $orderId,
+                'sk_refund_id' => $skRefundId,
+                'wc_refund_id' => $refundId,
+            ] // where
+        );
     }
 
-    /**
-     * @param $orderId
-     * @param $refundId
-     */
     public static function refundExists($orderId, $refundId): bool
     {
         global $wpdb;
@@ -426,7 +406,6 @@ SQL;
     /**
      * Get backend payment id by woocommerce order id.
      *
-     * @param $order_id
      * @hook $this->loader->add_action('woocommerce_thankyou', $PaymentGateway, 'checkPayment');
      *
      * @throws \Exception
@@ -437,7 +416,7 @@ SQL;
 
         // Check if the order was not marked as completed yet.
         if (StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING !== $order->get_status()) {
-            //old orders may not have order_id and payment_id linked or orders that didn't use the Payment Gateway
+            // old orders may not have order_id and payment_id linked or orders that didn't use the Payment Gateway
             $payments = PaymentModel::findOrderPayments($order_id);
             if ($payments) {
                 $api = StoreKeeperApi::getApiByAuthName();
@@ -451,7 +430,7 @@ SQL;
                     }
 
                     if ($is_paid) {
-                        //payment in backend is marked as paid
+                        // payment in backend is marked as paid
                         PaymentModel::markPaymentIdAsPaid($payment_id);
                         $order->set_status(StoreKeeperBaseGateway::ORDER_STATUS_PROCESSING);
                         $order->save();
@@ -478,7 +457,7 @@ SQL;
                 );
                 $gateway_classes[] = $gateway;
 
-                //force enable it (the method's here are always available)
+                // force enable it (the method's here are always available)
                 update_option(
                     'woocommerce_'.$gateway->getId().'_settings',
                     [

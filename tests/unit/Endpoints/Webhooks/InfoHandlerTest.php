@@ -14,20 +14,13 @@ use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
-use Throwable;
-use WC_Helper_Product;
-use WC_Helper_Shipping;
-use WC_Order_Item_Product;
-use WC_Order_Item_Shipping;
-use WC_Shipping_Rate;
-use WC_Tax;
 
 class InfoHandlerTest extends AbstractTest
 {
-    const DATA_DUMP_FOLDER = 'endpoints/webhooks/infoHandler';
+    public const DATA_DUMP_FOLDER = 'endpoints/webhooks/infoHandler';
 
     /**
-     * @throws Throwable
+     * @throws \Throwable
      */
     public function testHandleOk()
     {
@@ -232,8 +225,8 @@ class InfoHandlerTest extends AbstractTest
      */
     protected function createWoocommerceOrder(?string $status = null): int
     {
-        $product = WC_Helper_Product::create_simple_product();
-        WC_Helper_Shipping::create_simple_flat_rate();
+        $product = \WC_Helper_Product::create_simple_product();
+        \WC_Helper_Shipping::create_simple_flat_rate();
 
         $orderData = [
             'status' => 'pending',
@@ -250,7 +243,7 @@ class InfoHandlerTest extends AbstractTest
         $order = wc_create_order($orderData);
 
         // Add order products
-        $item = new WC_Order_Item_Product();
+        $item = new \WC_Order_Item_Product();
         $item->set_props(
             [
                 'product' => $product,
@@ -276,9 +269,9 @@ class InfoHandlerTest extends AbstractTest
         $order->set_billing_phone('555-32123');
 
         // Add shipping costs
-        $shipping_taxes = WC_Tax::calc_shipping_tax('10', WC_Tax::get_shipping_tax_rates());
-        $rate = new WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
-        $item = new WC_Order_Item_Shipping();
+        $shipping_taxes = \WC_Tax::calc_shipping_tax('10', \WC_Tax::get_shipping_tax_rates());
+        $rate = new \WC_Shipping_Rate('flat_rate_shipping', 'Flat rate shipping', '10', $shipping_taxes, 'flat_rate');
+        $item = new \WC_Order_Item_Shipping();
         $item->set_props(
             [
                 'method_title' => $rate->label,
@@ -309,7 +302,7 @@ class InfoHandlerTest extends AbstractTest
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     protected function exportOrder(int $orderId): void
     {

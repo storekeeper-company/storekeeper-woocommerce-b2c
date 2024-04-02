@@ -7,9 +7,9 @@ use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeOptionName;
 
 class AttributeOptionModel extends AbstractModel implements IModelPurge
 {
-    const TABLE_NAME = 'storekeeper_attribute_options';
-    const FK_STOREKEEPER_ATTRIBUTE_ID = 'storekeeper_attribute_id_fk';
-    const FK_TERM_ID = 'term_id_fk';
+    public const TABLE_NAME = 'storekeeper_attribute_options';
+    public const FK_STOREKEEPER_ATTRIBUTE_ID = 'storekeeper_attribute_id_fk';
+    public const FK_TERM_ID = 'term_id_fk';
 
     public static function getFieldsWithRequired(): array
     {

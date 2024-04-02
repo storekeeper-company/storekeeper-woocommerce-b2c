@@ -57,7 +57,7 @@
     "symfony/dotenv": "^5",
     "fzaninotto/faker": "^1.9",
     "phpoffice/phpspreadsheet": "^1.15",
-    "friendsofphp/php-cs-fixer": "^2.18",
+    "friendsofphp/php-cs-fixer": "^3",
     "mikey179/vfsstream": "^1.6",
     "johnpbloch/wp-cli-phar": "^2.5"
   }

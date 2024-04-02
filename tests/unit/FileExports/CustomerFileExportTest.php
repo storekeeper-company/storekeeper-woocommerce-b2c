@@ -7,7 +7,6 @@ use StoreKeeper\WooCommerce\B2C\FileExport\AbstractCSVFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\CustomerFileExport;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
-use WP_User;
 
 class CustomerFileExportTest extends AbstractFileExportTest
 {
@@ -70,7 +69,7 @@ class CustomerFileExportTest extends AbstractFileExportTest
     {
         // Create customers
         $customer = $this->createCustomer();
-        $user = new WP_User($customer->get_id());
+        $user = new \WP_User($customer->get_id());
 
         $instance = $this->getNewFileExportInstance();
         $path = $instance->runExport(Language::getSiteLanguageIso2());

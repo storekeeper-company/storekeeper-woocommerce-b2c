@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Models;
 
 class MigrationVersionModel extends AbstractModel
 {
-    const TABLE_NAME = 'storekeeper_migration_versions';
+    public const TABLE_NAME = 'storekeeper_migration_versions';
 
     public static function getFieldsWithRequired(): array
     {

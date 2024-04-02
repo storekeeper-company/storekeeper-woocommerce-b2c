@@ -7,11 +7,10 @@ use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeExportOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\CommonAttributeName;
 use StoreKeeper\WooCommerce\B2C\Tools\FeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
-use WC_Product_Attribute;
 
 class AttributeExport
 {
-    protected static $exportAttributeToFeaturedAliasMap = null;
+    protected static $exportAttributeToFeaturedAliasMap;
 
     public static function cleanCache()
     {
@@ -131,7 +130,7 @@ class AttributeExport
         }
     }
 
-    public static function getProductAttributeKey(WC_Product_Attribute $attribute): string
+    public static function getProductAttributeKey(\WC_Product_Attribute $attribute): string
     {
         $type = self::getProductAttributeType($attribute);
 
@@ -156,12 +155,12 @@ class AttributeExport
         return $attributeKey;
     }
 
-    private static function getProductAttributeType(WC_Product_Attribute $attribute): string
+    private static function getProductAttributeType(\WC_Product_Attribute $attribute): string
     {
         return $attribute->get_id() <= 0 ? CommonAttributeName::TYPE_CUSTOM_ATTRIBUTE : CommonAttributeName::TYPE_SYSTEM_ATTRIBUTE;
     }
 
-    public static function getProductAttributeOptions(WC_Product_Attribute $attribute): array
+    public static function getProductAttributeOptions(\WC_Product_Attribute $attribute): array
     {
         if ($attribute->get_id() <= 0) {
             return array_map(
@@ -186,7 +185,7 @@ class AttributeExport
         }
     }
 
-    public static function getProductAttributeLabel(WC_Product_Attribute $attribute): string
+    public static function getProductAttributeLabel(\WC_Product_Attribute $attribute): string
     {
         $label = $attribute->get_name();
 

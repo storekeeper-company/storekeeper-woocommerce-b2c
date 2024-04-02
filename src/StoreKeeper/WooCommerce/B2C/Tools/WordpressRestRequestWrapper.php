@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 
 class WordpressRestRequestWrapper
 {
-    const TO_ARRAY_KEYS = [
+    public const TO_ARRAY_KEYS = [
         'headers',
         'body',
         'route',
@@ -51,8 +51,6 @@ class WordpressRestRequestWrapper
     }
 
     /**
-     * @param $param
-     *
      * @return null
      */
     public function getBodyParam($param, $fallback = null)

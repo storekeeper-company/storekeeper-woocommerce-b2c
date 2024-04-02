@@ -10,7 +10,7 @@ use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\AbstractTest;
 class InvalidTaxonomyTest extends AbstractTest
 {
     // Datadump related constants
-    const DATADUMP_DIRECTORY = 'regression/invalid-taxonomy';
+    public const DATADUMP_DIRECTORY = 'regression/invalid-taxonomy';
 
     public function testRun()
     {
@@ -20,7 +20,7 @@ class InvalidTaxonomyTest extends AbstractTest
         $this->mockApiCallsFromCommonDirectory();
         $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
 
-        $this->runner->execute(SyncWooCommerceProducts::getCommandName());
+        $this->runner->execute(SyncWoocommerceProducts::getCommandName());
 
         $wc_products = wc_get_products([]);
         $this->assertCount(

@@ -2,13 +2,27 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\MenuStructure;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
 use StoreKeeper\WooCommerce\B2C\Exceptions\TableNeedsInnoDbException;
+use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\Migrations\MigrationManager;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
-class Updator
+class Updator implements WithHooksInterface
 {
+    public function registerHooks(): void
+    {
+        add_action('load-plugins.php', [$this, 'updateAction']);
+        add_action('load-plugin-install.php', [$this, 'updateAction']);
+        add_action('upgrader_process_complete', [$this, 'onProcessComplete'], 0, 2);
+
+        list($pages) = MenuStructure::getPages();
+        foreach ($pages as $page) {
+            add_action($page->getActionName(), [$this, 'updateAction']);
+        }
+    }
+
     public function updateAction()
     {
         try {

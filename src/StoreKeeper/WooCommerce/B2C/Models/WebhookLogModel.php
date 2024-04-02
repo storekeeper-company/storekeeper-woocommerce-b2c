@@ -7,7 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 
 class WebhookLogModel extends AbstractModel implements IModelPurge
 {
-    const TABLE_NAME = 'storekeeper_webhook_logs';
+    public const TABLE_NAME = 'storekeeper_webhook_logs';
 
     public static function getFieldsWithRequired(): array
     {

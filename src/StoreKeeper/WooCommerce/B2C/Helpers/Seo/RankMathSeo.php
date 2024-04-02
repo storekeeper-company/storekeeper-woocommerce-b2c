@@ -7,7 +7,6 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\Seo;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
-use WC_Product;
 
 class RankMathSeo
 {
@@ -109,7 +108,7 @@ class RankMathSeo
      * @throws WordpressException
      */
     public static function addSeoToWoocommerceProduct(
-        WC_Product $product,
+        \WC_Product $product,
         ?string $title = null,
         ?string $description = null,
         ?string $keywords = null

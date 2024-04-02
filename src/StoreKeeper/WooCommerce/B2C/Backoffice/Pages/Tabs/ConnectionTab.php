@@ -28,11 +28,11 @@ class ConnectionTab extends AbstractTab
 {
     use FormElementTrait;
 
-    const DISCONNECT_ACTION = 'disconnect-action';
-    const CONNECT_ACTION = 'connect-action';
-    const SAVE_ACTION = 'save-action';
+    public const DISCONNECT_ACTION = 'disconnect-action';
+    public const CONNECT_ACTION = 'connect-action';
+    public const SAVE_ACTION = 'save-action';
 
-    const PLUGIN_INITIALIZE_URL = STOREKEEPER_WOOCOMMERCE_INTEGRATIONS.'/sk_connect/sales_channel/init_plugin_connect';
+    public const PLUGIN_INITIALIZE_URL = STOREKEEPER_WOOCOMMERCE_INTEGRATIONS.'/sk_connect/sales_channel/init_plugin_connect';
 
     public function __construct(string $title, string $slug = '')
     {
@@ -115,11 +115,11 @@ class ConnectionTab extends AbstractTab
             $this->renderFormGroup('', "<b>$title</b>");
 
             $steps = [
-                '1. '.__('Copy the "Backoffice API Key" from the text area.', I18n::DOMAIN),
-                '2. '.__('Log into your admin environment', I18n::DOMAIN),
-                '3. '.__('Navigate to settings > technical settings and click on the "webhook" tab.', I18n::DOMAIN),
-                '4. '.__('Paste your api key into the field that says "Api key" and click connect.', I18n::DOMAIN),
-                '5. '.__('Once done, you should reload this page and you will be fully connected.', I18n::DOMAIN),
+                '1. '.__('Copy the "Backoffice API Key" from the text area.', I18N::DOMAIN),
+                '2. '.__('Log into your admin environment', I18N::DOMAIN),
+                '3. '.__('Navigate to settings > technical settings and click on the "webhook" tab.', I18N::DOMAIN),
+                '4. '.__('Paste your api key into the field that says "Api key" and click connect.', I18N::DOMAIN),
+                '5. '.__('Once done, you should reload this page and you will be fully connected.', I18N::DOMAIN),
             ];
             $this->renderFormGroup('', implode('<br/>', $steps));
 

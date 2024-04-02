@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Traits;
 
 trait TaskHandlerTrait
 {
-    protected $taskHandler = null;
+    protected $taskHandler;
 
     public function setTaskHandler($taskHandler)
     {

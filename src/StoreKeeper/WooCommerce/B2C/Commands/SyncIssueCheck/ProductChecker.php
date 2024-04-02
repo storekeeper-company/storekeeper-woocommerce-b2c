@@ -50,9 +50,9 @@ class ProductChecker implements SyncIssueCheckerInterface
         $success = true;
         foreach ($this->backend_products as $shop_product_id => $product) {
             if (!key_exists(
-                    $shop_product_id,
-                    $this->woocommerce_products
-                ) || !$this->woocommerce_products[$shop_product_id]['enabled']) {
+                $shop_product_id,
+                $this->woocommerce_products
+            ) || !$this->woocommerce_products[$shop_product_id]['enabled']) {
                 $success = false;
                 break;
             }
@@ -148,8 +148,8 @@ $variable_product_attribute_miss_match";
         $filters = [];
 
         if (StoreKeeperOptions::exists(StoreKeeperOptions::MAIN_CATEGORY_ID) && StoreKeeperOptions::get(
-                StoreKeeperOptions::MAIN_CATEGORY_ID
-            ) > 0) {
+            StoreKeeperOptions::MAIN_CATEGORY_ID
+        ) > 0) {
             $cat_id = StoreKeeperOptions::get(StoreKeeperOptions::MAIN_CATEGORY_ID);
             $filters[] = [
                 'name' => 'flat_product/category_ids__overlap',
@@ -233,8 +233,6 @@ SQL;
     }
 
     /**
-     * @param $productsActiveInBackendNotActiveInWoocommerce
-     *
      * @return array
      */
     private function formatInactiveProductsInWooCommerce($productsActiveInBackendNotActiveInWoocommerce)
@@ -257,8 +255,6 @@ SQL;
     }
 
     /**
-     * @param $productActiveInWoocommerceNotActiveInBackend
-     *
      * @return array
      */
     private function formatActiveProducts($productActiveInWoocommerceNotActiveInBackend)
@@ -281,8 +277,6 @@ SQL;
     }
 
     /**
-     * @param $variableProductMissMatch
-     *
      * @return string
      */
     private function formatAttributeMissMatch($variableProductMissMatch)
@@ -446,9 +440,9 @@ SQL;
                 }
 
                 if (
-                    count($variable_extra) > 0 ||
-                    count($variation_extra) > 0 ||
-                    count($issue) > 0
+                    count($variable_extra) > 0
+                    || count($variation_extra) > 0
+                    || count($issue) > 0
                 ) {
                     $products[$variable_product_id] = [
                         'name' => $product->get_name(),
@@ -487,9 +481,9 @@ SQL;
 
             foreach ($this->backend_products as $shop_product_id => $product) {
                 if (!key_exists(
-                        $shop_product_id,
-                        $this->woocommerce_products
-                    ) || !$this->woocommerce_products[$shop_product_id]['enabled']) {
+                    $shop_product_id,
+                    $this->woocommerce_products
+                ) || !$this->woocommerce_products[$shop_product_id]['enabled']) {
                     ++$amount;
                     $shop_product_ids[] = $shop_product_id;
                     $product_ids[] = $product['product_id'];

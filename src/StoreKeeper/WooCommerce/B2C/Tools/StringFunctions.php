@@ -5,9 +5,6 @@ namespace StoreKeeper\WooCommerce\B2C\Tools;
 class StringFunctions
 {
     /**
-     * @param $haystack
-     * @param $needle
-     *
      * @return bool
      */
     public static function startsWith($haystack, $needle)
@@ -18,9 +15,6 @@ class StringFunctions
     }
 
     /**
-     * @param $haystack
-     * @param $needle
-     *
      * @return bool
      */
     public static function endsWith($haystack, $needle)

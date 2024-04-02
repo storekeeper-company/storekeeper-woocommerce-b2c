@@ -24,7 +24,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\ProductAttributes;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use StoreKeeper\WooCommerce\B2C\Traits\ConsoleProgressBarTrait;
-use WC_Data_Exception;
 use WC_Product;
 use WC_Product_Simple;
 use WC_Product_Variable;
@@ -34,13 +33,13 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
 {
     use ConsoleProgressBarTrait;
 
-    const PRODUCT_EMBALLAGE_PRICE_META_KEY = 'storekeeper_emballage_price';
-    const PRODUCT_EMBALLAGE_PRICE_WT_META_KEY = 'storekeeper_emballage_price_wt';
-    const PRODUCT_EMBALLAGE_TAX_ID_META_KEY = 'storekeeper_emballage_tax_id';
+    public const PRODUCT_EMBALLAGE_PRICE_META_KEY = 'storekeeper_emballage_price';
+    public const PRODUCT_EMBALLAGE_PRICE_WT_META_KEY = 'storekeeper_emballage_price_wt';
+    public const PRODUCT_EMBALLAGE_TAX_ID_META_KEY = 'storekeeper_emballage_tax_id';
 
-    const CATEGORY_TAG_MODULE = 'ProductsModule';
-    const CATEGORY_ALIAS = 'Product';
-    const TAG_ALIAS = 'Label';
+    public const CATEGORY_TAG_MODULE = 'ProductsModule';
+    public const CATEGORY_ALIAS = 'Product';
+    public const TAG_ALIAS = 'Label';
 
     protected $syncProductVariations = false;
     protected $newItemsCount = 0;
@@ -59,8 +58,6 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     }
 
     /**
-     * @param $StoreKeeperId
-     *
      * @return bool|\WP_Post
      *
      * @throws WordpressException
@@ -88,8 +85,6 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     }
 
     /**
-     * @param $shop_product_id
-     *
      * @return bool|\WP_Post
      *
      * @throws WordpressException
@@ -117,8 +112,6 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     }
 
     /**
-     * @param $sku
-     *
      * @return bool
      *
      * @throws WordpressException
@@ -159,7 +152,7 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
      * @return bool|int
      *
      * @throws WordpressException
-     * @throws WC_Data_Exception
+     * @throws \WC_Data_Exception
      */
     protected function doProcessProductItem($dotObject, array $options = [])
     {
@@ -260,6 +253,7 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
 
             return $currentWordpressType !== $expectedWpType;
         }
+
         // product not found locally so it means it changed
         return true;
     }
@@ -276,7 +270,7 @@ SQL;
     }
 
     /**
-     * @param $newProduct WC_Product_Simple|WC_Product_Variable
+     * @param     $newProduct WC_Product_Simple|WC_Product_Variable
      * @param Dot $product
      *
      * @throws WordpressException
@@ -306,7 +300,7 @@ SQL;
     }
 
     /**
-     * @param $newProduct WC_Product_Simple|WC_Product_Variable
+     * @param     $newProduct WC_Product_Simple|WC_Product_Variable
      * @param Dot $product
      *
      * @throws WordpressException
@@ -349,8 +343,6 @@ SQL;
     }
 
     /**
-     * @param $storekeeperId
-     *
      * @return bool \WP_Term
      *
      * @throws WordpressException
@@ -376,7 +368,7 @@ SQL;
         return false;
     }
 
-    protected function setImage(WC_Product $newProduct, $product)
+    protected function setImage(\WC_Product $newProduct, $product)
     {
         if ($product->has('flat_product.main_image')) {
             $oldAttachmentId = (int) $newProduct->get_image_id();
@@ -457,13 +449,13 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $newProduct
-     * @param Dot                                   $product
+     * @param \WC_Product_Simple|\WC_Product_Variable $newProduct
+     * @param Dot                                     $product
      *
      * @return array
      *
      * @throws WordpressException
-     * @throws WC_Data_Exception
+     * @throws \WC_Data_Exception
      */
     protected function setUpsellIds(&$newProduct, $product)
     {
@@ -564,8 +556,8 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $newProduct
-     * @param Dot                                   $product
+     * @param \WC_Product_Simple|\WC_Product_Variable $newProduct
+     * @param Dot                                     $product
      *
      * @return array
      */
@@ -702,11 +694,9 @@ SQL;
     }
 
     /**
-     * @param $parentShopProductId
-     *
      * @return Dot
      *
-     * @throws Exception
+     * @throws \Exception
      */
     protected function getParentProductObject($parentShopProductId)
     {
@@ -732,8 +722,6 @@ SQL;
     }
 
     /**
-     * @param $dotObject
-     *
      * @return int
      *
      * @throws WordpressException
@@ -754,10 +742,10 @@ SQL;
         $configObject = new Dot($configResponse);
         // Check if the parent shop_product_id exists.
         if (
-            !array_key_exists('configurable_shop_product', $configResponse) ||
-            !array_key_exists('shop_product_id', $configResponse['configurable_shop_product'])
+            !array_key_exists('configurable_shop_product', $configResponse)
+            || !array_key_exists('shop_product_id', $configResponse['configurable_shop_product'])
         ) {
-            throw new Exception("Could not find parent in the backend with assigned product with shop_product_id: $shopProductId");
+            throw new \Exception("Could not find parent in the backend with assigned product with shop_product_id: $shopProductId");
         }
 
         $this->debug('Loaded AssignedProduct configuration', [
@@ -808,14 +796,13 @@ SQL;
         }
 
         // Check if the parent has changed
-        $parentProduct = new WC_Product_Variable($parentProductCheck);
+        $parentProduct = new \WC_Product_Variable($parentProductCheck);
 
         $this->debug('Recalculating parents', [
             'parent_shop_product_id' => $parentShopProductId,
             'storekeeper_shop_product_id' => $shopProductId,
             'parent_post_id' => $productCheck instanceof \WP_Post ? $productCheck->post_parent : null,
         ]);
-
 
         // Schedule a task to calculate the current parent
         $this->getTaskHandler()->rescheduleTask(
@@ -853,7 +840,7 @@ SQL;
     }
 
     /**
-     * @throws WC_Data_Exception
+     * @throws \WC_Data_Exception
      * @throws WordpressException
      */
     protected function processSimpleAndConfigurableProduct(
@@ -885,7 +872,7 @@ SQL;
     }
 
     /**
-     * @return WC_Product_Simple|WC_Product_Variable
+     * @return \WC_Product_Simple|\WC_Product_Variable
      *
      * @throws WordpressException
      */
@@ -903,13 +890,13 @@ SQL;
         }
 
         if ('simple' === $importProductType) {
-            $newProduct = new WC_Product_Simple($product_id);
+            $newProduct = new \WC_Product_Simple($product_id);
         } elseif ('configurable' === $importProductType) {
-            $newProduct = new WC_Product_Variable($product_id);
+            $newProduct = new \WC_Product_Variable($product_id);
         }
 
         if (is_null($newProduct)) {
-            throw new Exception("No product is association with id={$product_id}");
+            throw new \Exception("No product is association with id={$product_id}");
         }
 
         $this->setWoocommerceProductId($newProduct->get_id());
@@ -918,7 +905,7 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     * @param \WC_Product_Simple|\WC_Product_Variable $newProduct
      */
     protected function setProductPrice($newProduct, Dot $dotObject, array $log_data): array
     {
@@ -947,9 +934,9 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     * @param \WC_Product_Simple|\WC_Product_Variable $newProduct
      *
-     * @throws WordpressException|WC_Data_Exception
+     * @throws WordpressException|\WC_Data_Exception
      */
     protected function setProductDetails($newProduct, Dot $dotObject, string $importProductType, array $log_data): array
     {
@@ -984,9 +971,6 @@ SQL;
         $log_data['short_description'] = $shortDescription;
         $this->debug('Set short_description on product', $log_data);
 
-        /* Backorder */
-        $this->setProductBackorder($newProduct, $dotObject);
-
         /* Categories */
         $this->setCategories($newProduct, $dotObject);
         $this->debug('Set Categories on product', $log_data);
@@ -1007,10 +991,10 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     * @param \WC_Product_Simple|\WC_Product_Variable $newProduct
      *
      * @throws WordpressException
-     * @throws WC_Data_Exception
+     * @throws \WC_Data_Exception
      */
     protected function handleUpsellProducts($newProduct, Dot $dotObject, array $options, array $log_data): array
     {
@@ -1027,7 +1011,7 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     * @param \WC_Product_Simple|\WC_Product_Variable $newProduct
      */
     protected function handleCrossSellProducts($newProduct, Dot $dotObject, array $options, array $log_data): array
     {
@@ -1044,7 +1028,7 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     * @param \WC_Product_Simple|\WC_Product_Variable $newProduct
      */
     protected function updateProductMeta($newProduct, Dot $dotObject, array $log_data): void
     {
@@ -1074,7 +1058,7 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $newProduct
+     * @param \WC_Product_Simple|\WC_Product_Variable $newProduct
      *
      * @throws WordpressException
      */
@@ -1124,7 +1108,7 @@ SQL;
     }
 
     /**
-     * @param WC_Product_Simple|WC_Product_Variable $product
+     * @param \WC_Product_Simple|\WC_Product_Variable $product
      *
      * @throws WordpressException
      */
@@ -1158,7 +1142,7 @@ SQL;
     }
 
     /**
-     * @param $parentProduct WC_Product_Simple|WC_Product_Variable
+     * @param     $parentProduct WC_Product_Simple|WC_Product_Variable
      * @param Dot $optionsConfig
      *
      * @throws WordpressException
@@ -1231,7 +1215,7 @@ SQL;
             $sk_attribute = current(ProductAttributes::getSortedAttributes($optionsConfig->get('attributes')));
             $firstAttribute = Attributes::getAttribute($sk_attribute['id']);
             if (is_null($firstAttribute)) {
-                throw new Exception("Attribute id={$sk_attribute['id']} is not synchronized yet");
+                throw new \Exception("Attribute id={$sk_attribute['id']} is not synchronized yet");
             }
 
             foreach ($associatedShopProducts as $associatedShopProductData) {
@@ -1240,7 +1224,7 @@ SQL;
                 $variation_id = $this->getVariationId($associatedShopProduct, $assigned_debug_log);
 
                 if ($variation_id) {
-                    $variation = new WC_Product_Variation($variation_id);
+                    $variation = new \WC_Product_Variation($variation_id);
                     $variation_attributes = $variation->get_attributes();
                     $option_slug = $variation_attributes[$firstAttribute->slug];
                     $term_ids = get_terms([
@@ -1250,7 +1234,7 @@ SQL;
                         'slug' => $option_slug,
                     ]);
                     if (0 === count($term_ids)) {
-                        throw new Exception("Attribute option id={$sk_attribute['id']} (attr=$firstAttribute->slug,term=$option_slug) is not synchronized");
+                        throw new \Exception("Attribute option id={$sk_attribute['id']} (attr=$firstAttribute->slug,term=$option_slug) is not synchronized");
                     }
                     $term_id = $term_ids[0];
                     $menuOrder = get_term_meta($term_id, 'order', true);
@@ -1276,8 +1260,6 @@ SQL;
     }
 
     /**
-     * @param $StoreKeeperId
-     *
      * @return bool
      *
      * @throws WordpressException
@@ -1304,8 +1286,6 @@ SQL;
     }
 
     /**
-     * @param $sku
-     *
      * @return bool
      *
      * @throws WordpressException
@@ -1346,8 +1326,8 @@ SQL;
         $att_to_option = [];
         foreach ($assignedProductData->get('flat_product.content_vars', []) as $content_var) {
             if (
-                array_key_exists('attribute_option_id', $content_var) &&
-                array_key_exists($content_var['attribute_option_id'], $attribute_options_by_id)
+                array_key_exists('attribute_option_id', $content_var)
+                && array_key_exists($content_var['attribute_option_id'], $attribute_options_by_id)
             ) {
                 $att_to_option[$content_var['attribute_id']] = $content_var['attribute_option_id'];
             }
@@ -1357,8 +1337,7 @@ SQL;
     }
 
     /**
-     * @param $assignedProductPost|int \WP_Post
-     * @param $parentProduct WC_Product_Variable
+     * @param     $parentProduct       WC_Product_Variable
      * @param Dot $assignedProductData
      * @param Dot $configObject
      *
@@ -1366,14 +1345,14 @@ SQL;
      *
      * @throws WordpressException
      */
-    protected function updateAssignedProduct($assignedProductPost, WC_Product_Variable $parentProduct, $assignedProductData, $configObject)
+    protected function updateAssignedProduct($assignedProductPost, \WC_Product_Variable $parentProduct, $assignedProductData, $configObject)
     {
         $this->debug('Update assigned product', [
             'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
             'parent_post_id' => $parentProduct->get_id(),
         ]);
 
-        $variationProduct = new WC_Product_Variation($assignedProductPost);
+        $variationProduct = new \WC_Product_Variation($assignedProductPost);
         $attribute_options_by_id = $this->getArrayById($configObject->get('attribute_options'));
 
         $configurable_options = self::getAssignedWantedAttributes($assignedProductData, $attribute_options_by_id);
@@ -1404,15 +1383,14 @@ SQL;
         $this->debug('Saved variation attributes', [
             'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
             'parent_post_id' => $parentProduct->get_id(),
-            'props' => $props
+            'props' => $props,
         ]);
 
-
-        $barcode_was_set = $productAttributes->setBarcodeMeta($variationProduct, $assignedProductData);
+        $barcode_was_set = ProductAttributes::setBarcodeMeta($variationProduct, $assignedProductData);
 
         $this->debug('Saved barcode', [
             'post_id' => $assignedProductPost instanceof \WP_Post ? $assignedProductPost->ID : $assignedProductPost,
-            'barcode_was_set' => $barcode_was_set
+            'barcode_was_set' => $barcode_was_set,
         ]);
 
         $post_id = $variationProduct->save();
@@ -1431,9 +1409,9 @@ SQL;
     }
 
     /**
-     * @param $variationProduct WC_Product_Variation
+     * @param     $variationProduct    WC_Product_Variation
      * @param Dot $assignedProductData
-     * @param $parentProduct WC_Product_Variable
+     * @param     $parentProduct       WC_Product_Variable
      *
      * @return array
      */
@@ -1512,8 +1490,8 @@ SQL;
         $data = [];
         if (
             $this->storekeeper_id > 0
-            && StoreKeeperOptions::exists(StoreKeeperOptions::MAIN_CATEGORY_ID) &&
-            StoreKeeperOptions::get(StoreKeeperOptions::MAIN_CATEGORY_ID) > 0
+            && StoreKeeperOptions::exists(StoreKeeperOptions::MAIN_CATEGORY_ID)
+            && StoreKeeperOptions::get(StoreKeeperOptions::MAIN_CATEGORY_ID) > 0
         ) {
             $wanted_cate_id = StoreKeeperOptions::get(StoreKeeperOptions::MAIN_CATEGORY_ID);
             $data['wanted_cate_id'] = $wanted_cate_id;
@@ -1595,8 +1573,6 @@ SQL;
     }
 
     /**
-     * @param $parentProductId
-     *
      * @throws WordpressException
      */
     private function scheduleVariationActionTask($parentProductId)
@@ -1613,16 +1589,16 @@ SQL;
 
     private function applyStockToProps(
         array &$props,
-        WC_Product_Variation $variationProduct,
+        \WC_Product_Variation $variationProduct,
         Dot $assignedProductData
     ) {
-        list($in_stock, $manage_stock, $stock_quantity) = $this->getStockProperties(
+        [$manage_stock, $stock_quantity, $stock_status] = $this->getStockProperties(
             $assignedProductData,
         );
         if ($variationProduct->get_manage_stock(self::EDIT_CONTEXT) != $manage_stock) {
             $props['manage_stock'] = $manage_stock;
         }
-        $stock_status = $in_stock ? self::STOCK_STATUS_IN_STOCK : self::STOCK_STATUS_OUT_OF_STOCK;
+
         if ($variationProduct->get_manage_stock() !== $manage_stock) {
             $props['manage_stock'] = $manage_stock;
         }

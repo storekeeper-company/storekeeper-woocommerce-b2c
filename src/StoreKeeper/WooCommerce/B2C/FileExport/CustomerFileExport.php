@@ -5,12 +5,10 @@ namespace StoreKeeper\WooCommerce\B2C\FileExport;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
-use WC_Customer;
-use WP_User;
 
 class CustomerFileExport extends AbstractCSVFileExport
 {
-    const FALLBACK_COUNTRY_ISO2 = 'NL';
+    public const FALLBACK_COUNTRY_ISO2 = 'NL';
 
     public function getType(): string
     {
@@ -63,7 +61,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         ];
     }
 
-    public function runExport(string $exportLanguage = null): string
+    public function runExport(?string $exportLanguage = null): string
     {
         $exportLanguage = $exportLanguage ?? Language::getSiteLanguageIso2();
         $arguments = [
@@ -72,7 +70,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         $users = get_users($arguments);
         $total = count($users);
         foreach ($users as $index => $user) {
-            $customer = new WC_Customer($user->ID);
+            $customer = new \WC_Customer($user->ID);
 
             $lineData = [];
             $lineData = $this->exportGenericInfo($lineData, $customer, $exportLanguage);
@@ -92,7 +90,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         return $this->filePath;
     }
 
-    private function exportGenericInfo(array $lineData, WC_Customer $customer, string $overwriteLanguage): array
+    private function exportGenericInfo(array $lineData, \WC_Customer $customer, string $overwriteLanguage): array
     {
         $lineData['shortname'] = $this->getShortname($customer);
         $lineData['language_iso2'] = $overwriteLanguage;
@@ -100,7 +98,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         return $lineData;
     }
 
-    private function getShortname(WC_Customer $customer): string
+    private function getShortname(\WC_Customer $customer): string
     {
         $username = $customer->get_username();
         $id = $customer->get_id();
@@ -109,7 +107,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         return sanitize_title($shortname);
     }
 
-    private function exportBusinessInfo(array $lineData, WC_Customer $customer): array
+    private function exportBusinessInfo(array $lineData, \WC_Customer $customer): array
     {
         if (!empty($customer->get_billing_company())) {
             $lineData['business_data.name'] = $customer->get_billing_company();
@@ -119,7 +117,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         return $lineData;
     }
 
-    private function exportContactInfo(array $lineData, WC_Customer $customer, WP_User $user): array
+    private function exportContactInfo(array $lineData, \WC_Customer $customer, \WP_User $user): array
     {
         $lineData['contact_person.firstname'] = $customer->get_first_name();
         $lineData['contact_person.familyname'] = $customer->get_last_name();
@@ -139,7 +137,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         return $lineData;
     }
 
-    private function exportInvoiceAddress(array $lineData, WC_Customer $customer): array
+    private function exportInvoiceAddress(array $lineData, \WC_Customer $customer): array
     {
         $lineData['address_billing.name'] = self::getFormattedBillingFullName($customer);
         $lineData['address_billing.state'] = $customer->get_billing_state();
@@ -151,7 +149,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         return $lineData;
     }
 
-    private function exportDeliveryAddress(array $lineData, WC_Customer $customer): array
+    private function exportDeliveryAddress(array $lineData, \WC_Customer $customer): array
     {
         $lineData['contact_address.name'] = self::getFormattedShippingFullName($customer);
         $lineData['contact_address.state'] = $customer->get_shipping_state();
@@ -163,7 +161,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         return $lineData;
     }
 
-    public static function getFormattedBillingStreet(WC_Customer $customer): string
+    public static function getFormattedBillingStreet(\WC_Customer $customer): string
     {
         return self::getFormattedStreet(
             $customer->get_billing_address_1(),
@@ -171,7 +169,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         );
     }
 
-    public static function getFormattedShippingStreet(WC_Customer $customer): string
+    public static function getFormattedShippingStreet(\WC_Customer $customer): string
     {
         return self::getFormattedStreet(
             $customer->get_shipping_address_1(),
@@ -184,7 +182,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         return trim($first).' '.trim($second);
     }
 
-    public static function getFormattedBillingFullName(WC_Customer $customer): string
+    public static function getFormattedBillingFullName(\WC_Customer $customer): string
     {
         return self::getFormattedFullName(
             $customer->get_billing_first_name(),
@@ -192,7 +190,7 @@ class CustomerFileExport extends AbstractCSVFileExport
         );
     }
 
-    public static function getFormattedShippingFullName(WC_Customer $customer): string
+    public static function getFormattedShippingFullName(\WC_Customer $customer): string
     {
         return self::getFormattedFullName(
             $customer->get_shipping_first_name(),

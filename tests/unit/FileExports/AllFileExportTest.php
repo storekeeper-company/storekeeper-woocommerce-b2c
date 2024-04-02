@@ -4,8 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C\UnitTest\FileExports;
 
 use StoreKeeper\WooCommerce\B2C\FileExport\AllFileExport;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
-use WC_Helper_Product;
-use ZipArchive;
 
 class AllFileExportTest extends AbstractFileExportTest
 {
@@ -14,7 +12,7 @@ class AllFileExportTest extends AbstractFileExportTest
         return AllFileExport::class;
     }
 
-    const EXPECTED_LINE_COUNT = [
+    public const EXPECTED_LINE_COUNT = [
         FileExportTypeHelper::ATTRIBUTE => 1,
         FileExportTypeHelper::ATTRIBUTE_OPTION => 6,
         FileExportTypeHelper::CATEGORY => 2,
@@ -37,7 +35,7 @@ class AllFileExportTest extends AbstractFileExportTest
             'Zip file is not readable'
         );
 
-        $zip = new ZipArchive();
+        $zip = new \ZipArchive();
         $this->assertTrue(
             $zip->open($path),
             'Failed to open zip file'
@@ -99,7 +97,7 @@ class AllFileExportTest extends AbstractFileExportTest
 
     private function setupTest()
     {
-        WC_Helper_Product::create_attribute();
+        \WC_Helper_Product::create_attribute();
         list($taxRate21) = $this->createTaxRates();
         $this->createSimpleProduct('Simple product', $taxRate21);
         $this->createVariableProduct($taxRate21);

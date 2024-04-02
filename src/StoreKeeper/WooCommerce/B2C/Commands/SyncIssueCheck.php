@@ -10,7 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 class SyncIssueCheck extends AbstractSyncIssue
 {
-    const REPORT_FILE = 'syncIssueCheck.json';
+    public const REPORT_FILE = 'syncIssueCheck.json';
 
     public static function getShortDescription(): string
     {
@@ -32,24 +32,24 @@ class SyncIssueCheck extends AbstractSyncIssue
      */
     public function execute(array $arguments, array $assoc_arguments)
     {
-        //setup
+        // setup
         $this->setupApi();
 
-        //setup vars
+        // setup vars
         $report_text_output = '';
         $report_data = [];
 
-        //run checkers
+        // run checkers
         $ProductChecker = new ProductChecker($this->api);
         $TaskChecker = new TaskChecker();
         $OrderChecker = new OrderChecker($this->api);
 
-        //perform reporting
+        // perform reporting
         if (
-            !$ProductChecker->isSuccess() ||
-            !$TaskChecker->isSuccess() ||
-            !$OrderChecker->isSuccess()) {
-            //merge report text output and data
+            !$ProductChecker->isSuccess()
+            || !$TaskChecker->isSuccess()
+            || !$OrderChecker->isSuccess()) {
+            // merge report text output and data
             $report_text_output .= $ProductChecker->getReportTextOutput();
             $report_data += $ProductChecker->getReportData();
 
@@ -59,7 +59,7 @@ class SyncIssueCheck extends AbstractSyncIssue
             $report_text_output .= $OrderChecker->getReportTextOutput();
             $report_data += $OrderChecker->getReportData();
 
-            //echo & write
+            // echo & write
             $this->echoReport($report_text_output);
             $this->writeReport($report_data);
         }
@@ -78,7 +78,7 @@ class SyncIssueCheck extends AbstractSyncIssue
         $website = get_site_url();
         $api = StoreKeeperOptions::get(StoreKeeperOptions::API_URL);
 
-        //Echo default output + potential extra report output
+        // Echo default output + potential extra report output
         $report_text_output = esc_html($report_text_output);
         echo "=== Description ===
 hostname: $hostname

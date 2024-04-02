@@ -114,10 +114,10 @@ class NotGettexted
                 list($id, $text) = $token;
                 $line += substr_count($text, "\n");
                 if ((T_ML_COMMENT == $id || T_COMMENT == $id) && preg_match(
-                        '|/\*\s*(/?WP_I18N_[a-z_]+)\s*\*/|i',
-                        $text,
-                        $matches
-                    )) {
+                    '|/\*\s*(/?WP_I18N_[a-z_]+)\s*\*/|i',
+                    $text,
+                    $matches
+                )) {
                     if ($this->STAGE_OUTSIDE == $stage) {
                         $stage = $this->STAGE_START_COMMENT;
                         $current_comment_id = $matches[1];

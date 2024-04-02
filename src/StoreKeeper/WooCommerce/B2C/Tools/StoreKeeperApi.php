@@ -18,14 +18,14 @@ class StoreKeeperApi
     /**
      * @var string|null
      */
-    private static $clientName = null;
+    private static $clientName;
     /**
      * @var MockAdapter
      */
     public static $mockAdapter;
 
-    const SYNC_AUTH_DATA = 'sync-data';
-    const GUEST_AUTH_DATA = 'guess-data';
+    public const SYNC_AUTH_DATA = 'sync-data';
+    public const GUEST_AUTH_DATA = 'guess-data';
 
     /**
      * StoreKeeperApi constructor.
@@ -89,8 +89,6 @@ class StoreKeeperApi
     }
 
     /**
-     * @param $authData
-     *
      * @throws \Exception
      */
     private static function requiredKeysCheck($authData)
@@ -164,8 +162,6 @@ class StoreKeeperApi
     /**
      * Gets the mainType with its options from the $backref string.
      *
-     * @param $backref
-     *
      * @return array
      */
     public static function extractMainTypeAndOptions($backref)
@@ -184,8 +180,6 @@ class StoreKeeperApi
 
     /**
      * Extracts the options from the backref.
-     *
-     * @param $backref
      *
      * @return array
      */

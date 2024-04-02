@@ -45,9 +45,6 @@ class AttributeOptionDelete extends AbstractTask
     }
 
     /**
-     * @param $raw_attribute_slug
-     * @param $raw_attribute_name
-     *
      * @throws WordpressException
      */
     private function registerAttribute($raw_attribute_slug, $raw_attribute_name)
@@ -75,10 +72,6 @@ class AttributeOptionDelete extends AbstractTask
     }
 
     /**
-     * @param $taxonomy_slug
-     * @param $taxonomy_name
-     * @param $StoreKeeperId
-     *
      * @return bool|\WP_Term
      *
      * @throws WordpressException

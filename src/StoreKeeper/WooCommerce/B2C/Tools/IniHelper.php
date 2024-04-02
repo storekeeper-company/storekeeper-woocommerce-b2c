@@ -6,7 +6,7 @@ class IniHelper
 {
     private static $initialIni = [];
 
-    public static function setIni(string $option, string $value, callable $onFailCallback = null)
+    public static function setIni(string $option, string $value, ?callable $onFailCallback = null)
     {
         static::saveInitialIni($option);
 
@@ -29,7 +29,7 @@ class IniHelper
         }
     }
 
-    public static function restoreInit($option, callable $onFailCallback = null)
+    public static function restoreInit($option, ?callable $onFailCallback = null)
     {
         if (array_key_exists($option, static::$initialIni)) {
             self::doSetInit(

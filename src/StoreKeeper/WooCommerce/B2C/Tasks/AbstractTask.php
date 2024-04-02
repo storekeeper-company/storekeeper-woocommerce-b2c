@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tasks;
 
-use Exception;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use StoreKeeper\ApiWrapper\ApiWrapper;
@@ -93,12 +92,12 @@ abstract class AbstractTask
     /**
      * @var ApiWrapper
      */
-    protected $storekeeper_api = null;
+    protected $storekeeper_api;
 
     /**
      * AbstractImport constructor.
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct()
     {
@@ -112,7 +111,7 @@ abstract class AbstractTask
      *
      * @return void returns true in the import was succeeded
      *
-     * @throws Exception
+     * @throws \Exception
      */
     abstract public function run(array $task_options = []): void;
 
@@ -126,10 +125,10 @@ abstract class AbstractTask
         if ($this->debug) {
             echo esc_html('['.date('Y-m-d H:i:s').'] '.$message.' '.json_encode($data).PHP_EOL);
             echo sprintf(
-                    'Memory usage: %.2f MB, peak: %.2f MB.',
-                    (memory_get_usage() / 1024 / 1024),
-                    (memory_get_peak_usage() / 1024 / 1024)
-                ).PHP_EOL.PHP_EOL;
+                'Memory usage: %.2f MB, peak: %.2f MB.',
+                memory_get_usage() / 1024 / 1024,
+                memory_get_peak_usage() / 1024 / 1024
+            ).PHP_EOL.PHP_EOL;
         }
     }
 

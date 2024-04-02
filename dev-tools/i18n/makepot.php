@@ -780,9 +780,9 @@ $included_files = get_included_files();
 if (__FILE__ == $included_files[0]) {
     $makepot = new MakePOT();
     if ((3 == count($argv) || 4 == count($argv)) && in_array(
-            $method = str_replace('-', '_', $argv[1]),
-            get_class_methods($makepot)
-        )) {
+        $method = str_replace('-', '_', $argv[1]),
+        get_class_methods($makepot)
+    )) {
         $res = call_user_func([$makepot, $method], realpath($argv[2]), isset($argv[3]) ? $argv[3] : null);
         if (false === $res) {
             fwrite(STDERR, "Couldn't generate POT file!\n");

@@ -7,26 +7,26 @@ use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class GOCustomer extends \WC_Customer
 {
-    const CONTEXT_EDIT = 'edit';
+    public const CONTEXT_EDIT = 'edit';
 
     /**
      * Role names are based on WP user roles.
      *
      * @see https://github.com/WordPress/wordpress-develop/blob/master/tests/phpunit/tests/user/capabilities.php
      */
-    const CUSTOMER_ROLE_NAME = 'customer';
-    const SUBSCRIBER_ROLE_NAME = 'subscriber';
-    const ADMINISTRATOR_ROLE_NAME = 'administrator';
-    const EDITOR_ROLE_NAME = 'editor';
-    const AUTHOR_ROLE_NAME = 'author';
-    const CONTRIBUTOR_ROLE_NAME = 'contributor';
+    public const CUSTOMER_ROLE_NAME = 'customer';
+    public const SUBSCRIBER_ROLE_NAME = 'subscriber';
+    public const ADMINISTRATOR_ROLE_NAME = 'administrator';
+    public const EDITOR_ROLE_NAME = 'editor';
+    public const AUTHOR_ROLE_NAME = 'author';
+    public const CONTRIBUTOR_ROLE_NAME = 'contributor';
 
-    const VALID_ROLES = [
+    public const VALID_ROLES = [
         self::CUSTOMER_ROLE_NAME,
         self::SUBSCRIBER_ROLE_NAME,
     ];
 
-    const INVALID_ROLES = [
+    public const INVALID_ROLES = [
         self::ADMINISTRATOR_ROLE_NAME,
         self::EDITOR_ROLE_NAME,
         self::AUTHOR_ROLE_NAME,

@@ -2,9 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Exports;
 
-use WC_Helper_Coupon;
-use WC_Helper_Order;
-
 abstract class AbstractOrderExportTest extends AbstractExportTest
 {
     public function emptyEnvironment()
@@ -22,10 +19,10 @@ abstract class AbstractOrderExportTest extends AbstractExportTest
      */
     public function createWooCommerceOrder($additional_props = [])
     {
-        $order = WC_Helper_Order::create_order();
+        $order = \WC_Helper_Order::create_order();
         $order->set_props($additional_props);
 
-        $coupon = WC_Helper_Coupon::create_coupon();
+        $coupon = \WC_Helper_Coupon::create_coupon();
         $coupon->set_amount('25');
         $coupon->set_discount_type('percent');
         $coupon->save();

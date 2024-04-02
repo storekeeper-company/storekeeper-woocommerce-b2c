@@ -2,14 +2,13 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Commands;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\LockActiveException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\NotConnectedException;
 
 abstract class AbstractSyncCommand extends AbstractCommand
 {
     /**
-     * @throws NotConnectedException|Exception
+     * @throws NotConnectedException|\Exception
      */
     protected function prepareExecute(): bool
     {

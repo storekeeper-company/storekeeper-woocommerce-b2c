@@ -11,27 +11,24 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 
 class SsoHelper
 {
-    const TRANSIENT_PREFIX = 'sk_sso_login';
-    const OPTION_ROLE_PREFIX = 'storekeeper_role';
+    public const TRANSIENT_PREFIX = 'sk_sso_login';
+    public const OPTION_ROLE_PREFIX = 'storekeeper_role';
 
-    const DISABLED_SSO_ROLE = '';
-    const DEFAULT_SSO_FOR_KNOWN_ROLES = RoleHelper::ROLE_WEBSHOP_MANAGER; // default is use for known roles, that are not set in settings yet.
+    public const DISABLED_SSO_ROLE = '';
+    public const DEFAULT_SSO_FOR_KNOWN_ROLES = RoleHelper::ROLE_WEBSHOP_MANAGER; // default is use for known roles, that are not set in settings yet.
 
-    const FALLBACK_SSO_ROLE_NAME = 'fallback'; // fallback is used for unknown roles.
-    const ADMIN_SSO_ROLE_NAME = 'admin';
-    const MANAGER_SSO_ROLE_NAME = 'manager';
-    const USER_SSO_ROLE_NAME = 'user';
+    public const FALLBACK_SSO_ROLE_NAME = 'fallback'; // fallback is used for unknown roles.
+    public const ADMIN_SSO_ROLE_NAME = 'admin';
+    public const MANAGER_SSO_ROLE_NAME = 'manager';
+    public const USER_SSO_ROLE_NAME = 'user';
 
-    const KNOWN_ROLES = [
+    public const KNOWN_ROLES = [
         self::ADMIN_SSO_ROLE_NAME,
         self::MANAGER_SSO_ROLE_NAME,
         self::USER_SSO_ROLE_NAME,
     ];
 
     /**
-     * @param $user_id
-     * @param $backoffice_role
-     *
      * @return bool
      */
     public static function setUserBackofficeRole($user_id, $backoffice_role)
@@ -40,8 +37,6 @@ class SsoHelper
     }
 
     /**
-     * @param $user_id
-     *
      * @return string
      */
     public static function getUserBackofficeRole($user_id)
@@ -50,10 +45,6 @@ class SsoHelper
     }
 
     /**
-     * @param $name
-     * @param $shortname
-     * @param $backoffice_role
-     *
      * @return int
      *
      * @throws SsoAuthException
@@ -94,8 +85,6 @@ class SsoHelper
     /**
      * Returns the role set in the backoffice settings, fallback to editor role.
      *
-     * @param $backoffice_role
-     *
      * @return string
      */
     private static function backofficeToWordpressRole($backoffice_role)
@@ -120,8 +109,6 @@ class SsoHelper
     }
 
     /**
-     * @param $shortname
-     *
      * @return bool
      */
     public static function existsUser($shortname)
@@ -130,10 +117,6 @@ class SsoHelper
     }
 
     /**
-     * @param $name
-     * @param $shortname
-     * @param $backoffice_role
-     *
      * @return bool
      *
      * @throws SsoAuthException
@@ -179,8 +162,6 @@ class SsoHelper
     /**
      * Creates an SSO for the user.
      *
-     * @param $shortname
-     *
      * @return string
      *
      * @throws \Exception
@@ -206,8 +187,6 @@ class SsoHelper
 
     /**
      * checks if the transient key is correct. and returns the shortname for who the SSO is intended if successful.
-     *
-     * @param $transient_key
      *
      * @return string shortname
      *
@@ -251,8 +230,6 @@ class SsoHelper
     }
 
     /**
-     * @param $shortname
-     *
      * @throws SsoAuthException
      */
     public static function loginUser($shortname)
@@ -282,8 +259,6 @@ class SsoHelper
     }
 
     /**
-     * @param $backoffice_role
-     *
      * @return string
      */
     public static function formatRoleOptionKey($backoffice_role)
@@ -292,8 +267,6 @@ class SsoHelper
     }
 
     /**
-     * @param $role_option_key
-     *
      * @return bool|string
      */
     public static function getBackofficeRoleFromRoleOptionKey($role_option_key)
@@ -303,11 +276,6 @@ class SsoHelper
         return substr($role_option_key, $str_length);
     }
 
-    /**
-     * @param $shortname
-     *
-     * @return mixed
-     */
     public static function getShortname($shortname)
     {
         return "storekeeper-$shortname";

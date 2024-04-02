@@ -2,7 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Helpers;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\FileExport\AllFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\AttributeFileExport;
 use StoreKeeper\WooCommerce\B2C\FileExport\AttributeOptionsFileExport;
@@ -52,7 +51,7 @@ final class FileExportTypeHelper
     public static function ensureType(string $type)
     {
         if (empty(self::CLASS_MAP[$type])) {
-            throw new Exception("Unknown export type $type");
+            throw new \Exception("Unknown export type $type");
         }
     }
 
@@ -81,7 +80,7 @@ final class FileExportTypeHelper
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public static function getClass(string $type): string
     {

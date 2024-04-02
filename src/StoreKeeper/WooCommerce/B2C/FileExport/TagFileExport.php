@@ -44,7 +44,7 @@ class TagFileExport extends AbstractCSVFileExport implements TagExportInterface
     /**
      * Runs the export, once done it returns the path to the exported file.
      */
-    public function runExport(string $exportLanguage = null): string
+    public function runExport(?string $exportLanguage = null): string
     {
         $exportLanguage = $exportLanguage ?? Language::getSiteLanguageIso2();
         $arguments = [

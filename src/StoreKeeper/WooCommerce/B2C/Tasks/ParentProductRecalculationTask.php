@@ -83,8 +83,6 @@ class ParentProductRecalculationTask extends AbstractTask
     }
 
     /**
-     * @param $parent_shop_product_id
-     *
      * @return Dot
      */
     protected function getOptionsConfig($parent_shop_product_id)
@@ -97,8 +95,6 @@ class ParentProductRecalculationTask extends AbstractTask
     }
 
     /**
-     * @param $parent_shop_product_id
-     *
      * @return Dot|void
      */
     protected function getParentProductObject($parent_shop_product_id)

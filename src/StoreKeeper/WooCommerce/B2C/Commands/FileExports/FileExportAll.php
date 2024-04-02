@@ -40,7 +40,7 @@ class FileExportAll extends AbstractFileExportCommand
     }
 
     /* @var null|AllFileExport $allFileExport */
-    protected $allFileExport = null;
+    protected $allFileExport;
 
     public function execute(array $arguments, array $assoc_arguments)
     {

@@ -2,17 +2,15 @@
 
 namespace StoreKeeper\WooCommerce\B2C\FileExport;
 
-use Exception;
 use StoreKeeper\WooCommerce\B2C\Exceptions\FileExportFailedException;
 use StoreKeeper\WooCommerce\B2C\Helpers\FileExportTypeHelper;
 use StoreKeeper\WooCommerce\B2C\Interfaces\ProductExportInterface;
 use StoreKeeper\WooCommerce\B2C\Interfaces\TagExportInterface;
 use StoreKeeper\WooCommerce\B2C\Tools\Language;
-use ZipArchive;
 
 class AllFileExport extends AbstractFileExport implements ProductExportInterface, TagExportInterface
 {
-    const EXPORTS = [
+    public const EXPORTS = [
         FileExportTypeHelper::ATTRIBUTE,
         FileExportTypeHelper::ATTRIBUTE_OPTION,
         FileExportTypeHelper::CATEGORY,
@@ -43,7 +41,7 @@ class AllFileExport extends AbstractFileExport implements ProductExportInterface
     /**
      * @throws FileExportFailedException
      */
-    public function runExport(string $exportLanguage = null): string
+    public function runExport(?string $exportLanguage = null): string
     {
         $exportLanguage = $exportLanguage ?? Language::getSiteLanguageIso2();
         $exports = [];
@@ -55,8 +53,8 @@ class AllFileExport extends AbstractFileExport implements ProductExportInterface
             $this->reportUpdate(count(self::EXPORTS), $index, "Processed $exportName");
         }
 
-        $zip = new ZipArchive();
-        if (true !== $zip->open($this->filePath, ZipArchive::CREATE)) {
+        $zip = new \ZipArchive();
+        if (true !== $zip->open($this->filePath, \ZipArchive::CREATE)) {
             throw new FileExportFailedException('Unable to write to '.$this->filePath);
         }
 
@@ -76,7 +74,7 @@ class AllFileExport extends AbstractFileExport implements ProductExportInterface
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     private function executeRunExport(string $exportType, string $exportLanguage): string
     {

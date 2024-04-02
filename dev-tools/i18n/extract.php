@@ -33,10 +33,10 @@ class StringExtractor
                 continue;
             }
             if (preg_match('/\.php$/', $file_name) && $this->does_file_name_match(
-                    $prefix.$file_name,
-                    $excludes,
-                    $includes
-                )) {
+                $prefix.$file_name,
+                $excludes,
+                $includes
+            )) {
                 $extracted = $this->extract_from_file($file_name, $prefix);
                 $translations->merge_originals_with($extracted);
             }

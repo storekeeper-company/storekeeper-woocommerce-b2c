@@ -9,8 +9,6 @@ use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 abstract class AbstractProductTask extends AbstractTask
 {
     /**
-     * @param $StoreKeeperId
-     *
      * @return bool|\wp_post
      *
      * @throws WordpressException
@@ -36,9 +34,6 @@ abstract class AbstractProductTask extends AbstractTask
         return false;
     }
 
-    /**
-     * @param $parent_post_id
-     */
     protected function scheduleParentUpdate($parent_post_id)
     {
         // We plan a update of the parent post to make sure that one is updated

@@ -12,16 +12,16 @@ use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
 
 class UpdateTagTest extends AbstractTest
 {
-    const CREATE_DATADUMP_DIRECTORY = 'events/createTag';
-    const CREATE_DATADUMP_HOOK = 'events/hook.events.createTag.json';
-    const CREATE_DATADUMP_SOURCE_FILE = '20200219_144448.moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.5e4d49dfd207d.json';
+    public const CREATE_DATADUMP_DIRECTORY = 'events/createTag';
+    public const CREATE_DATADUMP_HOOK = 'events/hook.events.createTag.json';
+    public const CREATE_DATADUMP_SOURCE_FILE = '20200219_144448.moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.5e4d49dfd207d.json';
 
-    const UPDATE_DATADUMP_DIRECTORY = 'events/updateTag';
-    const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateTag.json';
-    const UPDATE_DATADUMP_SOURCE_FILE = '20200220_133725.moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.5e4e8b956c4ec.json';
+    public const UPDATE_DATADUMP_DIRECTORY = 'events/updateTag';
+    public const UPDATE_DATADUMP_HOOK = 'events/hook.events.updateTag.json';
+    public const UPDATE_DATADUMP_SOURCE_FILE = '20200220_133725.moduleFunction.ShopModule::listTranslatedCategoryForHooks.success.5e4e8b956c4ec.json';
 
-    const DELETE_DATADUMP_DIRECTORY = 'events/deleteTag';
-    const DELETE_DATADUMP_HOOK = 'events/hook.events.deleteTag.json';
+    public const DELETE_DATADUMP_DIRECTORY = 'events/deleteTag';
+    public const DELETE_DATADUMP_HOOK = 'events/hook.events.deleteTag.json';
 
     /**
      * Test if creating a tag works.
@@ -168,8 +168,6 @@ class UpdateTagTest extends AbstractTest
     }
 
     /**
-     * @param $storekeeper_id
-     *
      * @return array|bool|\WP_Error|\WP_Term|null
      *
      * @throws WordpressException
