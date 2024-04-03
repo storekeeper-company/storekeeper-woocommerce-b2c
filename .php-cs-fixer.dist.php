@@ -6,6 +6,7 @@ $finder = (new PhpCsFixer\Finder())
     ->exclude('vendor')
     ->exclude('node_modules')
     ->exclude('mount')
+    ->exclude('assets')
 ;
 
 return (new PhpCsFixer\Config())

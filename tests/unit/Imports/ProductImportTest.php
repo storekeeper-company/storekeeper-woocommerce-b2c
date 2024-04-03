@@ -660,7 +660,7 @@ class ProductImportTest extends AbstractTest
         $this->assertSame($expect, $got, 'Assert stock');
     }
 
-    private function createVariableProductWithAttribute(): WC_Product_Variable
+    private function createVariableProductWithAttribute(): \WC_Product_Variable
     {
         $variableProduct = new \WC_Product_Variable();
 

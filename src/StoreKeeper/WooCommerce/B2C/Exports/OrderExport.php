@@ -400,7 +400,7 @@ class OrderExport extends AbstractExport
      *
      * @throws OrderDifferenceException
      */
-    public function checkOrderDifference(WC_Order $databaseOrder, $backofficeOrder): void
+    public function checkOrderDifference(\WC_Order $databaseOrder, $backofficeOrder): void
     {
         $databaseOrderItems = $this->getOrderItems($databaseOrder);
         $backofficeOrderItems = $backofficeOrder['order_items'];
@@ -463,7 +463,7 @@ class OrderExport extends AbstractExport
     /**
      * @throws OrderDifferenceException
      */
-    public function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems, WC_Order $wcOrder): void
+    public function checkOrderDifferenceByExtra(array $databaseOrderItems, array $backofficeOrderItems, \WC_Order $wcOrder): void
     {
         $databaseOrderItemExtras = array_column($databaseOrderItems, 'extra');
         $backofficeOrderItemExtras = array_column($backofficeOrderItems, 'extra');
@@ -647,7 +647,7 @@ class OrderExport extends AbstractExport
      *
      * @throws \Exception
      */
-    private function getOrderItems(WC_Order $order): array
+    private function getOrderItems(\WC_Order $order): array
     {
         $orderItems = [];
         $this->debug('Adding product items');
@@ -823,7 +823,7 @@ class OrderExport extends AbstractExport
         return $orderItems;
     }
 
-    public function getShippingOrderItems(WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
+    public function getShippingOrderItems(\WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
     {
         $orderItems = [];
         /**
@@ -915,7 +915,7 @@ class OrderExport extends AbstractExport
         return parent::convertKnownGeneralException($throwable);
     }
 
-    protected function processPaymentsAndRefunds(WC_Order $WpObject, int $storekeeper_id): void
+    protected function processPaymentsAndRefunds(\WC_Order $WpObject, int $storekeeper_id): void
     {
         $shopModule = $this->storekeeper_api->getModule('ShopModule');
         $storekeeper_order = $shopModule->getOrder($storekeeper_id, null);
@@ -925,7 +925,7 @@ class OrderExport extends AbstractExport
         $this->processRefunds($woocommerceOrderId, $storekeeper_id);
     }
 
-    protected function processPayments(WC_Order $WpObject, int $storekeeper_id, array $storekeeperOrder): void
+    protected function processPayments(\WC_Order $WpObject, int $storekeeper_id, array $storekeeperOrder): void
     {
         $isPaidInBackoffice = (bool) $storekeeperOrder['is_paid'];
         $order_id = $WpObject->get_id();
@@ -1153,7 +1153,7 @@ class OrderExport extends AbstractExport
         }
     }
 
-    protected function newSkPaymentForWcPayment(WC_Order $WpObject): int
+    protected function newSkPaymentForWcPayment(\WC_Order $WpObject): int
     {
         $PaymentModule = $this->storekeeper_api->getModule('PaymentModule');
 

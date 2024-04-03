@@ -28,6 +28,7 @@ class PaymentGateway implements WithHooksInterface
     public const PAYMENT_PENDING_STATUSES = ['open', 'authorized', 'verify'];
     public const PAYMENT_PAID_STATUSES = ['paid', 'paidout',  'refunded', 'refunding', 'partial_refund'];
     public const PAYMENT_CANCELLED_STATUSES = ['cancelled', 'expired', 'error'];
+    public const STOREKEEPER_PAYMENT_ID_PREFIX = 'sk_pay_id_';
     public static $refundedBySkStatus = false;
 
     public function registerHooks(): void
@@ -452,18 +453,18 @@ SQL;
         foreach ($methods as $method) {
             $imageUrl = array_key_exists('image_url', $method) ? $method['image_url'] : '';
             $gateway = new StoreKeeperBaseGateway(
-                    "sk_pay_id_{$method['id']}", $method['title'], (int) $method['id'],
-                    $imageUrl
-                );
+                self::STOREKEEPER_PAYMENT_ID_PREFIX.$method['id'], $method['title'], (int) $method['id'],
+                $imageUrl
+            );
             $gateway_classes[] = $gateway;
 
             // force enable it (the method's here are always available)
             update_option(
-                    'woocommerce_'.$gateway->getId().'_settings',
-                    [
-                        'enabled' => 'yes',
-                    ]
-                );
+                'woocommerce_'.$gateway->getId().'_settings',
+                [
+                    'enabled' => 'yes',
+                ]
+            );
         }
 
         return array_merge($default_gateway_classes, $gateway_classes);
@@ -509,7 +510,7 @@ SQL;
 
         // return url return
         $return_url = $order->get_checkout_order_received_url();
-        if (is_ssl() || 'yes' == get_option('woocommerce_force_ssl_checkout')) {
+        if (is_ssl() || 'yes' === get_option('woocommerce_force_ssl_checkout')) {
             $return_url = str_replace('http:', 'https:', $return_url);
         }
 

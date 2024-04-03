@@ -82,7 +82,7 @@ SQL;
             $results
         ).PHP_EOL;
     }
-    // Process items when $process_items is true
+// Process items when $process_items is true
 } else {
     foreach ($products as $index => $product) {
         $post_id = $product['ID'];

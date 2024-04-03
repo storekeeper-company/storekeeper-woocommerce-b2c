@@ -154,7 +154,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         }
     }
 
-    protected function applyCouponProperties(WC_Coupon $coupon, Dot $data): void
+    protected function applyCouponProperties(\WC_Coupon $coupon, Dot $data): void
     {
         // Default
         $coupon->set_code($data->get('code'));
@@ -180,31 +180,31 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         $coupon->set_usage_limit_per_user($data->get('times_per_customer_per_shop'));
     }
 
-    protected function applyType(WC_Coupon &$coupon, Dot $data): void
+    protected function applyType(\WC_Coupon &$coupon, Dot $data): void
     {
         $wcType = self::getCouponType($data);
         $coupon->set_discount_type($wcType);
     }
 
-    protected function applyAmount(WC_Coupon &$coupon, Dot $data): void
+    protected function applyAmount(\WC_Coupon &$coupon, Dot $data): void
     {
         $amount = self::getCouponAmount($data);
         $coupon->set_amount($amount);
     }
 
-    protected function applyIncludedCategories(WC_Coupon &$coupon, Dot $data): void
+    protected function applyIncludedCategories(\WC_Coupon &$coupon, Dot $data): void
     {
         $categoryIds = self::getCouponIncludedCategoryIds($data);
         $coupon->set_product_categories($categoryIds);
     }
 
-    protected function applyExcludedCategories(WC_Coupon &$coupon, Dot $data): void
+    protected function applyExcludedCategories(\WC_Coupon &$coupon, Dot $data): void
     {
         $categoryIds = self::getCouponExcludedCategoryIds($data);
         $coupon->set_excluded_product_categories($categoryIds);
     }
 
-    protected function applyExpireDate(WC_Coupon &$coupon, Dot $data): void
+    protected function applyExpireDate(\WC_Coupon &$coupon, Dot $data): void
     {
         $date = self::getCouponExpireDate($data);
         $coupon->set_date_expires($date);

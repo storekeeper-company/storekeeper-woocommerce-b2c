@@ -1,50 +1,66 @@
-
+/**
+ * This script is used to render dynamic storekeeper payment methods
+ * and handles the rendering of all blocks
+ */
+import * as React from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import { registerPaymentMethod } from '@woocommerce/blocks-registry';
 import { decodeEntities } from '@wordpress/html-entities';
 import { getSetting } from '@woocommerce/settings';
 
-const settings = getSetting( 'dummy_data', {} );
+const registerPaymentMethodForId = ( paymentMethodId ) => {
+	const settings = getSetting( `${ paymentMethodId }_data`, {} );
+	const defaultLabel = sprintf(
+		/* translators: StoreKeeper Payment %s. */
+		__( 'StoreKeeper Payment %s', 'storekeeper-for-woocommerce' ),
+		paymentMethodId
+	);
 
-const defaultLabel = __(
-	'StoreKeeper Payment',
-	'woo-gutenberg-products-block'
-);
+	const label = defaultLabel || decodeEntities( settings.title );
+	const icon = decodeEntities( settings.icon ) || null;
 
-const label = decodeEntities( settings.title ) || defaultLabel;
-/**
- * Content component
- */
-const Content = () => {
-	return decodeEntities( settings.description || '' );
-};
-/**
- * Label component
- *
- * @param {*} props Props from payment API.
- */
-const Label = ( props ) => {
-	const { PaymentMethodLabel, text } = props.components;
-	return <PaymentMethodLabel text={ text || defaultLabel } />;
-};
-
-
-const ids = [12481,15759,15760]; // todo dynamic
-
-ids.forEach(
-	(id) => {
-		const Dummy = {
-			name: "sk_pay_id_"+id,
-			label: <Label text={'StoreKeeper Payment' + id}/>, // todo label
-			content: <Content />,
-			edit: <Content />,
-			canMakePayment: () => true,
-			ariaLabel: label,
-			supports: {
-				features: settings.supports,
-			},
-		};
-
-		registerPaymentMethod( Dummy );
+	const Icon = () => {
+		return icon ? (
+			<img
+				src={ icon }
+				style={ { float: 'right', marginRight: '20px' } }
+				alt={ label }
+			/>
+		) : '';
 	}
-)
+
+	/**
+	 * Content component
+	 */
+	const Content = () => {
+		return decodeEntities( settings.description || '' );
+	};
+
+	const Label = () => {
+		return <span style={{ width: '100%' }}>
+			{ label }
+			<Icon/>
+		</span>;
+	};
+
+	const StoreKeeperPaymentMethod = {
+		name: paymentMethodId,
+		label: <Label/>,
+		content: <Content />,
+		edit: <Content />,
+		canMakePayment: () => true,
+		ariaLabel: label,
+		supports: {
+			features: settings.supports,
+		},
+	};
+
+	registerPaymentMethod( StoreKeeperPaymentMethod );
+};
+
+const allPaymentMethodData = getSetting('paymentMethodData');
+Object.keys(allPaymentMethodData).forEach((paymentMethodId) => {
+	if (/^sk_pay_id_\d+$/.test(paymentMethodId)) {
+		registerPaymentMethodForId(paymentMethodId);
+	}
+});
