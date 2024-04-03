@@ -16,7 +16,7 @@ const registerPaymentMethodForId = ( paymentMethodId ) => {
 		paymentMethodId
 	);
 
-	const label = defaultLabel || decodeEntities( settings.title );
+	const label = decodeEntities( settings.title ) || defaultLabel;
 	const icon = decodeEntities( settings.icon ) || null;
 
 	const Icon = () => {
