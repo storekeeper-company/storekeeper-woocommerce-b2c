@@ -174,6 +174,12 @@ class StoreKeeperOptions extends AbstractOptions
         return in_array(self::getSyncMode(), self::MODES_WITH_PAYMENTS, true);
     }
 
+    public static function isPaymentGatewayActive(): bool
+    {
+        return 'yes' === self::get(self::PAYMENT_GATEWAY_ACTIVATED, 'yes')
+            && self::isConnected();
+    }
+
     public static function isShippingMethodAllowedForCurrentSyncMode(): bool
     {
         return in_array(self::getSyncMode(), self::MODES_WITH_SHIPPING_METHODS, true);

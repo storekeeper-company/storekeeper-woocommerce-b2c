@@ -154,7 +154,7 @@ class CouponCodeImport extends AbstractImport implements WithConsoleProgressBarI
         }
     }
 
-    protected function applyCouponProperties(\WC_Coupon &$coupon, Dot $data)
+    protected function applyCouponProperties(\WC_Coupon $coupon, Dot $data): void
     {
         // Default
         $coupon->set_code($data->get('code'));
