@@ -2332,7 +2332,7 @@ msgstr "attribute options"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:133
 msgid "attribute term"
-msgstr "attribute term"
+msgstr "Attribute term"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:192
 msgid "attributes"
