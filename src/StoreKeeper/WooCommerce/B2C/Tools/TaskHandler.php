@@ -22,6 +22,7 @@ use StoreKeeper\WooCommerce\B2C\Tasks\MenuItemImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\OrderDeleteTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\OrderExportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\OrderImportTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\OrderPaymentStatusUpdateTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ParentProductRecalculationTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductActivateTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\ProductDeactivateTask;
@@ -70,6 +71,7 @@ class TaskHandler
 
     public const ORDERS_EXPORT = 'orders-export';
     public const ORDERS_IMPORT = 'orders-import';
+    public const ORDERS_PAYMENT_STATUS_CHANGE = 'orders-payment-status-change';
     public const ORDERS_DELETE = 'orders-delete';
     public const SHIPPING_METHOD_IMPORT = 'shipping-method-import';
     public const SHIPPING_METHOD_DELETE = 'shipping-method-delete';
@@ -199,6 +201,7 @@ class TaskHandler
             case self::ORDERS_EXPORT:
             case self::ORDERS_IMPORT:
             case self::ORDERS_DELETE:
+            case self::ORDERS_PAYMENT_STATUS_CHANGE:
                 return self::ORDER_TYPE_GROUP;
             case self::TRIGGER_VARIATION_SAVE_ACTION:
                 return self::TRIGGER_VARIATION_SAVE_ACTION_TYPE_GROUP;
@@ -284,6 +287,9 @@ class TaskHandler
                 break;
             case self::ORDERS_IMPORT:
                 $title = __('Order import', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::ORDERS_PAYMENT_STATUS_CHANGE:
+                $title = __('Order payment status change')."(id=$id)";
                 break;
             case self::CATEGORY_DELETE:
                 $title = __('Delete category', I18N::DOMAIN)."(id=$id)";
@@ -459,6 +465,9 @@ class TaskHandler
                 break;
             case self::ORDERS_IMPORT:
                 $import = new OrderImportTask();
+                break;
+            case self::ORDERS_PAYMENT_STATUS_CHANGE:
+                $import = new OrderPaymentStatusUpdateTask();
                 break;
             case self::CATEGORY_DELETE:
                 $import = new CategoryDeleteTask();

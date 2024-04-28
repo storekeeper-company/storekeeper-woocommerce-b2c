@@ -317,6 +317,21 @@ class EventsHandler
             case 'ShopModule::Order::deleted':
                 TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
                 break;
+            case 'ShopModule::Order::payment_status_change':
+                if (isset($details['payment']['status']) && 'expired' === $details['payment']['status']) {
+                    // Only handle expired payments for now
+                    $metaData = [
+                        'order' => json_encode($details['order'], JSON_THROW_ON_ERROR),
+                        'payment' => json_encode($details['payment'], JSON_THROW_ON_ERROR),
+                    ];
+                    TaskHandler::scheduleTask(
+                        TaskHandler::ORDERS_PAYMENT_STATUS_CHANGE,
+                        $this->getId(),
+                        array_merge($taskData, $metaData),
+                        true
+                    );
+                }
+                break;
         }
     }
 
