@@ -12,13 +12,11 @@ class OrderPaymentStatusUpdateTask extends AbstractTask
             && $this->taskMetaExists('payment')
         ) {
             $storekeeper_id = $this->getTaskMeta('storekeeper_id');
-            $order = $this->getTaskMeta('order');
             $payment = $this->getTaskMeta('payment');
 
-            $orderData = json_decode($order, true, 512, JSON_THROW_ON_ERROR);
             $paymentData = json_decode($payment, true, 512, JSON_THROW_ON_ERROR);
 
-            if ('expired' === $paymentData['status'] && 'cancelled' !== $orderData['status']) {
+            if ('expired' === $paymentData['status']) {
                 $wcOrder = $this->getOrderByStoreKeeperId($storekeeper_id);
                 if ($wcOrder && 'cancelled' !== $wcOrder->get_status()) {
                     // This will trigger OrderHandler::updateWithIgnore already so it will create an order export task

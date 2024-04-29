@@ -318,8 +318,8 @@ class EventsHandler
                 TaskHandler::scheduleTask(TaskHandler::PRODUCT_DELETE, $this->getId(), $taskData);
                 break;
             case 'ShopModule::Order::payment_status_change':
-                if (isset($details['payment']['status']) && 'expired' === $details['payment']['status']) {
-                    // Only handle expired payments for now
+                // We only handle expired because user gets redirected to checkout if they click cancel button on payment, and they can try again.
+                if (isset($details['payment']['status']) && 'expired' === $details['payment']['status'] && !empty($details['order'])) {
                     $metaData = [
                         'order' => json_encode($details['order'], JSON_THROW_ON_ERROR),
                         'payment' => json_encode($details['payment'], JSON_THROW_ON_ERROR),
