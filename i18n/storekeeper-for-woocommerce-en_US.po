@@ -515,6 +515,10 @@ msgstr "English"
 msgid "Enter message or back reference/post/task ID"
 msgstr "Enter message or back reference/post/task ID"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:262
+msgid "Error key"
+msgstr "Error key"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:260
 msgid "Error reference"
 msgstr "Error reference"
@@ -1066,6 +1070,10 @@ msgstr "Order number"
 msgid "Order only"
 msgstr "Order only"
 
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:292
+msgid "Order payment status change"
+msgstr "Order payment status change"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:365
 msgid "Order sync from date"
 msgstr "Order sync from date"
@@ -1120,6 +1128,11 @@ msgstr "Payments active"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:381
 msgid "Payments are disabled in currently selected Synchronization mode"
 msgstr "Payments are disabled in currently selected Synchronization mode"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:41
+msgid "Please provide a valid email address."
+msgstr "Please provide a valid email address."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:103
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:132
@@ -1550,6 +1563,14 @@ msgstr "Shipping method delete"
 msgid "Shipping method import"
 msgstr "Shipping method import"
 
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShippingMethods.php:15
+msgid "Shipping method synchronization is not enabled."
+msgstr "Shipping method synchronization is not enabled."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:69
+msgid "Shipping method synchronization is not supported, please upgrade to a higher package."
+msgstr "Shipping method synchronization is not supported, please upgrade to a higher package."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:468
 msgid "Shipping methods are disabled in currently selected Synchronization mode"
 msgstr "Shipping methods are disabled in currently selected Synchronization mode"
@@ -1743,6 +1764,11 @@ msgstr "StoreKeeper SEO"
 msgid "StoreKeeper Sync Plugin"
 msgstr "StoreKeeper Sync Plugin"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/RoleHelper.php:39
+msgctxt "User role"
+msgid "StoreKeeper Webshop manager"
+msgstr "StoreKeeper Webshop manager"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:204
 msgid "StoreKeeper database version"
 msgstr "StoreKeeper database version"
@@ -1754,6 +1780,10 @@ msgstr "StoreKeeper for WooCommerce"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:59
 msgid "StoreKeeper options"
 msgstr "StoreKeeper options"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:268
+msgid "StoreKeeper plugin version"
+msgstr "StoreKeeper plugin version"
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:94
 msgid "StoreKeeper task processing is not being executed:"
@@ -2211,6 +2241,10 @@ msgstr "Webhooks"
 msgid "Webhooks log count"
 msgstr "Webhooks log count"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:102
+msgid "Webshop Builder"
+msgstr "Webshop Builder"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:389
 msgid "When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop's checkout"
 msgstr "When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop's checkout"
@@ -2332,7 +2366,7 @@ msgstr "attribute options"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:133
 msgid "attribute term"
-msgstr "attribute term"
+msgstr "Attribute term"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:192
 msgid "attributes"
@@ -2443,6 +2477,10 @@ msgstr "tag"
 #: src/StoreKeeper/WooCommerce/B2C/Imports/TagImport.php:197
 msgid "tags"
 msgstr "tags"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:271
+msgid "this task was run with older version"
+msgstr "this task was run with older version"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:97
 msgid "upsell products"

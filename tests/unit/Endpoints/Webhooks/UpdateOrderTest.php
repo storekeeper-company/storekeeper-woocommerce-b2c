@@ -7,9 +7,11 @@ use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
+use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
+use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\AbstractTest;
 
@@ -176,6 +178,38 @@ class UpdateOrderTest extends AbstractTest
         $this->assertCount($secondExpectedRefundCount, $refunds, 'Refund of exactly '.$secondExpectedRefundCount.' should be created');
         // Assert refunds to be synchronized in backoffice
         $this->assertCount($secondExpectedRefundCount, PaymentGateway::getUnsyncedRefundsWithoutPaymentIds($wooCommmerceOrderId), $secondExpectedRefundCount.' refunds to be synchronized should be found');
+    }
+
+    public function testOrderPaymentExpired()
+    {
+        $this->initApiConnection();
+        $wooCommmerceOrderId = $this->createWooCommerceOrder();
+        CleanWoocommerceEnvironment::cleanTasks();
+
+        $dumpFile = $this->getHookDataDump('events/updateOrder/hook.events.paymentStatusChange.expired.json');
+        $backref = $dumpFile->getEventBackref();
+        [, $options] = StoreKeeperApi::extractMainTypeAndOptions($backref);
+        update_post_meta($wooCommmerceOrderId, 'storekeeper_id', $options['id']);
+
+        $rest = $this->getRestWithToken($dumpFile);
+        $this->handleRequest($rest);
+
+        $this->runner->execute(ProcessAllTasks::getCommandName());
+
+        // Assert the status
+        $wooCommerceOrder = new \WC_Order($wooCommmerceOrderId);
+        $wooCommerceStatus = $wooCommerceOrder->get_status('edit');
+
+        $event = $this->getLastEventFromDumpfile($dumpFile);
+        $storeKeeperPaymentStatus = $event->get('details.payment.status');
+        $this->assertEquals('expired', $storeKeeperPaymentStatus, 'Status from event should be expired');
+        $this->assertEquals('cancelled', $wooCommerceStatus, 'WooCommerce order should be cancelled');
+
+        $orderTasks = ProcessAllTasks::getOrderTaskIds();
+        $orderTaskId = $orderTasks[0];
+        $orderTask = TaskModel::get($orderTaskId);
+
+        $this->assertEquals(TaskHandler::ORDERS_EXPORT, $orderTask['type'], 'The created task should be export');
     }
 
     protected function executeOrderUpdateTest(): void

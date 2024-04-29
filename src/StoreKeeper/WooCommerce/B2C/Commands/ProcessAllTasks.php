@@ -246,12 +246,13 @@ class ProcessAllTasks extends AbstractCommand
 
         $select = TaskModel::getSelectHelper()
             ->cols(['id'])
-            ->where('type IN (:type1,:type2,:type3)')
+            ->where('type IN (:type1,:type2,:type3,:type4)')
             ->where('status = :status')
             ->bindValue('status', TaskHandler::STATUS_NEW)
             ->bindValue('type1', TaskHandler::ORDERS_IMPORT)
             ->bindValue('type2', TaskHandler::ORDERS_EXPORT)
             ->bindValue('type3', TaskHandler::ORDERS_DELETE)
+            ->bindValue('type4', TaskHandler::ORDERS_PAYMENT_STATUS_CHANGE)
             ->limit(100);
 
         $query = $db->prepare($select);
@@ -266,12 +267,13 @@ class ProcessAllTasks extends AbstractCommand
 
         $select = TaskModel::getSelectHelper()
             ->cols(['id'])
-            ->where('type NOT IN (:type1,:type2,:type3)')
+            ->where('type NOT IN (:type1,:type2,:type3,:type4)')
             ->where('status = :status')
             ->bindValue('status', TaskHandler::STATUS_NEW)
             ->bindValue('type1', TaskHandler::ORDERS_IMPORT)
             ->bindValue('type2', TaskHandler::ORDERS_EXPORT)
             ->bindValue('type3', TaskHandler::ORDERS_DELETE)
+            ->bindValue('type4', TaskHandler::ORDERS_PAYMENT_STATUS_CHANGE)
             ->orderBy(['times_ran ASC', 'id ASC'])
             ->limit(100);
 
