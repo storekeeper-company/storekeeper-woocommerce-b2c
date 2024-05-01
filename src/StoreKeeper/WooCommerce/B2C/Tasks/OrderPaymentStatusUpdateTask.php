@@ -23,7 +23,7 @@ class OrderPaymentStatusUpdateTask extends AbstractTask
                     $wcOrder->add_order_note(
                         sprintf(
                             __('StoreKeeper: Order was automatically cancelled due to payment expiration (Payment ID=%s)'),
-                            $paymentData['id']
+                            $paymentData['trx'] ?? $paymentData['id']
                         ), true);
                     // This will trigger OrderHandler::updateWithIgnore already so it will create an order export task
                     $wcOrder->set_status('cancelled');
