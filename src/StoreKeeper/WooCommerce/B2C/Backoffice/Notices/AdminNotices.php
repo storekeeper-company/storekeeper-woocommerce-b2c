@@ -141,7 +141,7 @@ class AdminNotices
     {
         global $post_type;
 
-        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && in_array(['shop_order', 'shop_order_placehold'], $post_type, true)) {
+        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && in_array($post_type, ['shop_order', 'shop_order_placehold'], true)) {
             $id = $this->getRequestPostId();
             $goid = get_post_meta($id, 'storekeeper_id', true);
             $order = new \WC_Order($id);
