@@ -10,6 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
+use StoreKeeper\WooCommerce\B2C\PaymentGateway\StoreKeeperBaseGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
@@ -180,10 +181,58 @@ class UpdateOrderTest extends AbstractTest
         $this->assertCount($secondExpectedRefundCount, PaymentGateway::getUnsyncedRefundsWithoutPaymentIds($wooCommmerceOrderId), $secondExpectedRefundCount.' refunds to be synchronized should be found');
     }
 
-    public function testOrderPaymentExpired()
+    public function dataProviderOrderPaymentStatusChange(): array
+    {
+        $tests = [];
+
+        $tests['status pending'] = [
+            'orderStatus' => 'pending',
+            'expectedStatus' => 'cancelled',
+            'orderNotesCount' => 1,
+            'shouldCreateExportOrderTask' => true,
+        ];
+
+        $tests['status on-hold'] = [
+            'orderStatus' => 'on-hold',
+            'expectedStatus' => 'on-hold',
+            'orderNotesCount' => 0,
+            'shouldCreateExportOrderTask' => false,
+        ];
+
+        $tests['status processing (paid)'] = [
+            'orderStatus' => 'processing',
+            'expectedStatus' => 'processing',
+            'orderNotesCount' => 0,
+            'shouldCreateExportOrderTask' => false,
+        ];
+
+        $tests['status completed'] = [
+            'orderStatus' => 'completed',
+            'expectedStatus' => 'completed',
+            'orderNotesCount' => 0,
+            'shouldCreateExportOrderTask' => false,
+        ];
+
+        $tests['status refunded'] = [
+            'orderStatus' => 'refunded',
+            'expectedStatus' => 'refunded',
+            'orderNotesCount' => 0,
+            'shouldCreateExportOrderTask' => false,
+        ];
+
+        return $tests;
+    }
+
+    /**
+     * @dataProvider dataProviderOrderPaymentStatusChange
+     */
+    public function testOrderPaymentStatusChange(string $orderStatus, string $expectedStatus, int $orderNotesCount, bool $shouldCreateExportOrderTask)
     {
         $this->initApiConnection();
         $wooCommmerceOrderId = $this->createWooCommerceOrder();
+        $wooCommerceOrder = new \WC_Order($wooCommmerceOrderId);
+        $wooCommerceOrder->set_status($orderStatus);
+        $wooCommerceOrder->save();
         CleanWoocommerceEnvironment::cleanTasks();
 
         $dumpFile = $this->getHookDataDump('events/updateOrder/hook.events.paymentStatusChange.expired.json');
@@ -203,13 +252,19 @@ class UpdateOrderTest extends AbstractTest
         $event = $this->getLastEventFromDumpfile($dumpFile);
         $storeKeeperPaymentStatus = $event->get('details.payment.status');
         $this->assertEquals('expired', $storeKeeperPaymentStatus, 'Status from event should be expired');
-        $this->assertEquals('cancelled', $wooCommerceStatus, 'WooCommerce order should be cancelled');
+        $this->assertEquals($expectedStatus, $wooCommerceStatus, 'WooCommerce order should match expected status');
 
-        $orderTasks = ProcessAllTasks::getOrderTaskIds();
-        $orderTaskId = $orderTasks[0];
-        $orderTask = TaskModel::get($orderTaskId);
+        $orderNotes = $wooCommerceOrder->get_customer_order_notes();
+        $this->assertCount($orderNotesCount, $orderNotes, 'Should match expected order notes added');
 
-        $this->assertEquals(TaskHandler::ORDERS_EXPORT, $orderTask['type'], 'The created task should be export');
+        if ($shouldCreateExportOrderTask) {
+            $orderTasks = ProcessAllTasks::getOrderTaskIds();
+            $orderTaskId = $orderTasks[0];
+            $orderTask = TaskModel::get($orderTaskId);
+
+            $this->assertEquals(TaskHandler::ORDERS_EXPORT, $orderTask['type'], 'The created task should be export');
+        }
+        
     }
 
     protected function executeOrderUpdateTest(): void
