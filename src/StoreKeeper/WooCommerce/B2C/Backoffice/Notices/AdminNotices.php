@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
+use Automattic\WooCommerce\Internal\DataStores\Orders\DataSynchronizer;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
@@ -140,7 +141,7 @@ class AdminNotices
     {
         global $post_type;
 
-        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && 'shop_order' === $post_type) {
+        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && in_array($post_type, ['shop_order', 'shop_order_placehold'], true)) {
             $id = $this->getRequestPostId();
             $goid = get_post_meta($id, 'storekeeper_id', true);
             $order = new \WC_Order($id);

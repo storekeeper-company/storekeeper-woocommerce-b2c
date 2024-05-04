@@ -18,7 +18,13 @@ class OrderPaymentStatusUpdateTask extends AbstractTask
 
             if ('expired' === $paymentData['status']) {
                 $wcOrder = $this->getOrderByStoreKeeperId($storekeeper_id);
-                if ($wcOrder && 'cancelled' !== $wcOrder->get_status()) {
+
+                if ($wcOrder && 'pending' === $wcOrder->get_status()) {
+                    $wcOrder->add_order_note(
+                        sprintf(
+                            __('StoreKeeper: Order was automatically cancelled due to payment expiration (Payment ID=%s)'),
+                            $paymentData['trx'] ?? $paymentData['id']
+                        ), true);
                     // This will trigger OrderHandler::updateWithIgnore already so it will create an order export task
                     $wcOrder->set_status('cancelled');
                     $wcOrder->save();
@@ -32,25 +38,20 @@ class OrderPaymentStatusUpdateTask extends AbstractTask
      */
     protected function getOrderByStoreKeeperId($storekeeper_id)
     {
-        global $wpdb;
+        $args = [
+            'meta_key' => 'storekeeper_id',
+            'meta_value' => $storekeeper_id,
+        ];
+        $orders = wc_get_orders($args);
 
-        $sql = <<<SQL
-SELECT ID FROM {$wpdb->prefix}posts
-INNER JOIN {$wpdb->prefix}postmeta
-ON {$wpdb->prefix}posts.ID={$wpdb->prefix}postmeta.post_id
-WHERE {$wpdb->prefix}postmeta.meta_key='storekeeper_id'
-AND {$wpdb->prefix}postmeta.meta_value=%d
-AND {$wpdb->prefix}posts.post_type='shop_order'
-SQL;
-
-        $safe_sql = $wpdb->prepare($sql, $storekeeper_id);
-
-        $response = $wpdb->get_row($safe_sql);
-
-        if (isset($response->ID)) {
-            return new \WC_Order($response->ID);
+        if (count($orders) > 1) {
+            throw new \RuntimeException('More than one order found for storekeeper id'.$storekeeper_id);
         }
 
-        return false;
+        if (0 === count($orders)) {
+            return false;
+        }
+
+        return current($orders);
     }
 }
