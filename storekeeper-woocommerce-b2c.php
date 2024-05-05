@@ -17,6 +17,7 @@
  * Text Domain:         storekeeper-for-woocommerce
  * Domain Path:         /i18n
  * Description:         This plugin provides sync possibilities with the StoreKeeper Backoffice.
+ * WC tested up to:     8.7.0
  * Allows synchronization of the WooCommerce product catalog, customers, orders and handles payments using StoreKeeper payment platform.
  */
 

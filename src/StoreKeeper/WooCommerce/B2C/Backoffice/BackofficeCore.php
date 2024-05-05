@@ -65,9 +65,7 @@ class BackofficeCore
         $orderSyncMetaBox = new OrderSyncMetaBox();
         $productSyncMetaBox = new ProductSyncMetaBox();
 
-        // Order sync meta box
-        $this->loader->add_action('add_meta_boxes', $orderSyncMetaBox, 'register');
-        $this->loader->add_action('post_action_'.OrderSyncMetaBox::ACTION_NAME, $orderSyncMetaBox, 'doSync');
+        $orderSyncMetaBox->registerHooks();
 
         // Product sync meta box
         $this->loader->add_action('add_meta_boxes', $productSyncMetaBox, 'register');

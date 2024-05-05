@@ -4,6 +4,8 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 
 abstract class AbstractPostSyncMetaBox
 {
+    public const ACTION_QUERY_ARGUMENT = 'action';
+
     abstract public function register(): void;
 
     abstract public function renderSyncBox(\WP_Post $post): void;
@@ -38,7 +40,7 @@ abstract class AbstractPostSyncMetaBox
     {
         $post_type_object = get_post_type_object($post->post_type);
         $syncLink = add_query_arg(
-            'action',
+            self::ACTION_QUERY_ARGUMENT,
             static::ACTION_NAME,
             admin_url(sprintf($post_type_object->_edit_link, $post->ID))
         );
@@ -48,7 +50,7 @@ abstract class AbstractPostSyncMetaBox
 
     protected function isNonceValid(int $postId): bool
     {
-        $nonce = array_key_exists('_wpnonce', $_REQUEST) ? $_REQUEST['_wpnonce'] : null; // no need to escape, wp_verify_nonce compares hash
+        $nonce = $_REQUEST['_wpnonce'] ?? null; // no need to escape, wp_verify_nonce compares hash
 
         return 1 === wp_verify_nonce($nonce, static::ACTION_NAME.'_post_'.$postId);
     }

@@ -3,6 +3,9 @@
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Endpoints\Webhooks;
 
 use Adbar\Dot;
+use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
+use Automattic\WooCommerce\Internal\DataStores\Orders\DataSynchronizer;
+use Automattic\WooCommerce\Internal\Features\FeaturesController;
 use Mockery\MockInterface;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
@@ -10,7 +13,6 @@ use StoreKeeper\WooCommerce\B2C\Imports\OrderImport;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
-use StoreKeeper\WooCommerce\B2C\PaymentGateway\StoreKeeperBaseGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 use StoreKeeper\WooCommerce\B2C\UnitTest\Commands\CommandRunnerTrait;
@@ -190,6 +192,7 @@ class UpdateOrderTest extends AbstractTest
             'expectedStatus' => 'cancelled',
             'orderNotesCount' => 1,
             'shouldCreateExportOrderTask' => true,
+            'hposEnabled' => false,
         ];
 
         $tests['status on-hold'] = [
@@ -197,6 +200,7 @@ class UpdateOrderTest extends AbstractTest
             'expectedStatus' => 'on-hold',
             'orderNotesCount' => 0,
             'shouldCreateExportOrderTask' => false,
+            'hposEnabled' => false,
         ];
 
         $tests['status processing (paid)'] = [
@@ -204,6 +208,7 @@ class UpdateOrderTest extends AbstractTest
             'expectedStatus' => 'processing',
             'orderNotesCount' => 0,
             'shouldCreateExportOrderTask' => false,
+            'hposEnabled' => false,
         ];
 
         $tests['status completed'] = [
@@ -211,6 +216,7 @@ class UpdateOrderTest extends AbstractTest
             'expectedStatus' => 'completed',
             'orderNotesCount' => 0,
             'shouldCreateExportOrderTask' => false,
+            'hposEnabled' => false,
         ];
 
         $tests['status refunded'] = [
@@ -218,6 +224,48 @@ class UpdateOrderTest extends AbstractTest
             'expectedStatus' => 'refunded',
             'orderNotesCount' => 0,
             'shouldCreateExportOrderTask' => false,
+            'hposEnabled' => false,
+        ];
+
+        // High performance order storage on
+        $tests['status pending - HPOS'] = [
+            'orderStatus' => 'pending',
+            'expectedStatus' => 'cancelled',
+            'orderNotesCount' => 1,
+            'shouldCreateExportOrderTask' => true,
+            'hposEnabled' => true,
+        ];
+
+        $tests['status on-hold - HPOS'] = [
+            'orderStatus' => 'on-hold',
+            'expectedStatus' => 'on-hold',
+            'orderNotesCount' => 0,
+            'shouldCreateExportOrderTask' => false,
+            'hposEnabled' => true,
+        ];
+
+        $tests['status processing (paid) - HPOS'] = [
+            'orderStatus' => 'processing',
+            'expectedStatus' => 'processing',
+            'orderNotesCount' => 0,
+            'shouldCreateExportOrderTask' => false,
+            'hposEnabled' => true,
+        ];
+
+        $tests['status completed - HPOS'] = [
+            'orderStatus' => 'completed',
+            'expectedStatus' => 'completed',
+            'orderNotesCount' => 0,
+            'shouldCreateExportOrderTask' => false,
+            'hposEnabled' => true,
+        ];
+
+        $tests['status refunded - HPOS'] = [
+            'orderStatus' => 'refunded',
+            'expectedStatus' => 'refunded',
+            'orderNotesCount' => 0,
+            'shouldCreateExportOrderTask' => false,
+            'hposEnabled' => true,
         ];
 
         return $tests;
@@ -226,11 +274,21 @@ class UpdateOrderTest extends AbstractTest
     /**
      * @dataProvider dataProviderOrderPaymentStatusChange
      */
-    public function testOrderPaymentStatusChange(string $orderStatus, string $expectedStatus, int $orderNotesCount, bool $shouldCreateExportOrderTask)
-    {
+    public function testOrderPaymentStatusChange(
+        string $orderStatus,
+        string $expectedStatus,
+        int $orderNotesCount,
+        bool $shouldCreateExportOrderTask,
+        bool $hposEnabled
+    ) {
         $this->initApiConnection();
+        /** @var FeaturesController $featureController */
+        $featureController = wc_get_container()->get(FeaturesController::class);
+        $featureController->change_feature_enable(DataSynchronizer::ORDERS_DATA_SYNC_ENABLED_OPTION, $hposEnabled);
+        $featureController->change_feature_enable(CustomOrdersTableController::CUSTOM_ORDERS_TABLE_USAGE_ENABLED_OPTION, $hposEnabled);
+
         $wooCommmerceOrderId = $this->createWooCommerceOrder();
-        $wooCommerceOrder = new \WC_Order($wooCommmerceOrderId);
+        $wooCommerceOrder = wc_get_order($wooCommmerceOrderId);
         $wooCommerceOrder->set_status($orderStatus);
         $wooCommerceOrder->save();
         CleanWoocommerceEnvironment::cleanTasks();
@@ -264,7 +322,6 @@ class UpdateOrderTest extends AbstractTest
 
             $this->assertEquals(TaskHandler::ORDERS_EXPORT, $orderTask['type'], 'The created task should be export');
         }
-        
     }
 
     protected function executeOrderUpdateTest(): void

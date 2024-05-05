@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
+use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
@@ -148,6 +149,13 @@ class Core
      */
     public function __construct()
     {
+        // Declare HPOS compabitility
+        add_action('before_woocommerce_init', static function () {
+            if (class_exists(FeaturesUtil::class)) {
+                FeaturesUtil::declare_compatibility('custom_order_tables', STOREKEEPER_FOR_WOOCOMMERCE_NAME.'/'.STOREKEEPER_WOOCOMMERCE_B2C_NAME.'.php');
+            }
+        });
+
         $this->loader = new ActionFilterLoader();
 
         $this->setUpdateCheck();

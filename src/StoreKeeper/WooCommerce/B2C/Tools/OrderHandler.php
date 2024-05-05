@@ -65,23 +65,6 @@ class OrderHandler
         return null;
     }
 
-    /* @deprecated */
-    public function delete($order_id): \WP_Post
-    {
-        $meta_data = [];
-        if (!empty(get_post_meta($order_id, 'storekeeper_id', true))) {
-            $meta_data['storekeeper_id'] = get_post_meta($order_id, 'storekeeper_id', true);
-        }
-
-        return TaskHandler::scheduleTask(
-            TaskHandler::ORDERS_DELETE,
-            $order_id,
-            [
-                'woocommerce_id' => $order_id,
-            ]
-        );
-    }
-
     /**
      * @param $order WC_Order
      */
