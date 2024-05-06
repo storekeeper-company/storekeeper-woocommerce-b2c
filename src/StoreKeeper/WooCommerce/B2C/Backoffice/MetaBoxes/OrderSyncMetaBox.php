@@ -43,7 +43,6 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox implements WithHooksInter
     private function registerLegacyOrderScreen(): void
     {
         // Support for old WooCommerce which does not support High Performance Order Storage
-        // Remove in future
         foreach (wc_get_order_types('order-meta-boxes') as $type) {
             $orderTypeObject = get_post_type_object($type);
             if (!is_null($orderTypeObject)) {
