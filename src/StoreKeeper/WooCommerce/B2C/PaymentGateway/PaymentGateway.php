@@ -246,7 +246,12 @@ class PaymentGateway implements WithHooksInterface
     {
         $orderId = $args['order_id'];
         $isRefundCreationAllowed = true;
-        $storeKeeperOrderId = get_post_meta($orderId, 'storekeeper_id', true);
+        $wcOrder = wc_get_order($orderId);
+
+        $storeKeeperOrderId = null;
+        if ($wcOrder) {
+            $storeKeeperOrderId = $wcOrder->get_meta('storekeeper_id');
+        }
 
         if ($storeKeeperOrderId) {
             // Refunded by storekeeper means it's just forced to be refunded because of BackOffice status

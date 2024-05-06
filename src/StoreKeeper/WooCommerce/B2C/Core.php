@@ -30,8 +30,6 @@ use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\WebhookLog\WebhookLogPurg
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessSingleTask;
 use StoreKeeper\WooCommerce\B2C\Commands\ScheduledProcessor;
-use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueCheck;
-use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueFixer;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptionPage;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributes;
@@ -74,8 +72,6 @@ class Core
         SyncWoocommerceShopInfo::class,
         SyncWoocommerceFullSync::class,
         ConnectBackend::class,
-        SyncIssueCheck::class,
-        SyncIssueFixer::class,
         SyncWoocommerceUpsellProducts::class,
         SyncWoocommerceUpsellProductPage::class,
         SyncWoocommerceCrossSellProducts::class,

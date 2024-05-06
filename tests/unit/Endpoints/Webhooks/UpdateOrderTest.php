@@ -287,6 +287,9 @@ class UpdateOrderTest extends AbstractTest
         $featureController->change_feature_enable(DataSynchronizer::ORDERS_DATA_SYNC_ENABLED_OPTION, $hposEnabled);
         $featureController->change_feature_enable(CustomOrdersTableController::CUSTOM_ORDERS_TABLE_USAGE_ENABLED_OPTION, $hposEnabled);
 
+        // Create a dummy order first to make sure the correct order is being retrieved
+        $this->createWooCommerceOrder();
+
         $wooCommmerceOrderId = $this->createWooCommerceOrder();
         $wooCommerceOrder = wc_get_order($wooCommmerceOrderId);
         $wooCommerceOrder->set_status($orderStatus);
@@ -296,7 +299,8 @@ class UpdateOrderTest extends AbstractTest
         $dumpFile = $this->getHookDataDump('events/updateOrder/hook.events.paymentStatusChange.expired.json');
         $backref = $dumpFile->getEventBackref();
         [, $options] = StoreKeeperApi::extractMainTypeAndOptions($backref);
-        update_post_meta($wooCommmerceOrderId, 'storekeeper_id', $options['id']);
+        $wooCommerceOrder->add_meta_data('storekeeper_id', $options['id']);
+        $wooCommerceOrder->save();
 
         $rest = $this->getRestWithToken($dumpFile);
         $this->handleRequest($rest);
@@ -304,7 +308,13 @@ class UpdateOrderTest extends AbstractTest
         $this->runner->execute(ProcessAllTasks::getCommandName());
 
         // Assert the status
-        $wooCommerceOrder = new \WC_Order($wooCommmerceOrderId);
+        $args = [
+            'meta_key' => 'storekeeper_id',
+            'meta_value' => $options['id'],
+        ];
+        $orders = wc_get_orders($args);
+        $this->assertCount(1, $orders, '1 order should be found');
+        $wooCommerceOrder = $orders[0];
         $wooCommerceStatus = $wooCommerceOrder->get_status('edit');
 
         $event = $this->getLastEventFromDumpfile($dumpFile);

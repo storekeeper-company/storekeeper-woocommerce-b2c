@@ -45,7 +45,7 @@ class OrderPaymentStatusUpdateTask extends AbstractTask
         $orders = wc_get_orders($args);
 
         if (count($orders) > 1) {
-            throw new \RuntimeException('More than one order found for storekeeper id'.$storekeeper_id);
+            throw new \RuntimeException('More than one order found for storekeeper id '.$storekeeper_id);
         }
 
         if (0 === count($orders)) {

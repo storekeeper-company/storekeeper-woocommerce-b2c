@@ -3,8 +3,8 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes;
 
 use Automattic\WooCommerce\Admin\Overrides\Order;
-use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
@@ -16,24 +16,10 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox implements WithHooksInter
 {
     public const ACTION_NAME = 'sk_sync_order';
 
-    private function isHighPerformanceOrderStorageReady(): bool
-    {
-        $isWooCommerceWithHpos = class_exists(CustomOrdersTableController::class);
-        if ($isWooCommerceWithHpos) {
-            /** @var CustomOrdersTableController $ordersTableController */
-            $ordersTableController = wc_get_container()->get(CustomOrdersTableController::class);
-            if ($ordersTableController->custom_orders_table_usage_is_enabled()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     final public function register(): void
     {
         if ('add' !== get_current_screen()->action) {
-            if ($this->isHighPerformanceOrderStorageReady()) {
+            if (BackofficeCore::isHighPerformanceOrderStorageReady()) {
                 $screen = wc_get_page_screen_id('shop-order');
                 add_meta_box(
                     'storekeeper-order-sync',
@@ -83,13 +69,14 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox implements WithHooksInter
 
         $syncUrl = esc_url($this->getNonceSyncActionLink($post));
 
-        $storekeeperId = (int) $this->getPostMeta($theorder->get_id(), 'storekeeper_id', 0);
+        $storekeeperId = (int) $theorder->meta_exists('storekeeper_id') ? $theorder->get_meta('storekeeper_id') : 0;
+
         $idLabel = esc_html__('Backoffice ID', I18N::DOMAIN);
         $idValue = esc_html($storekeeperId ?: '-');
 
         $dateLabel = esc_html__('Last sync', I18N::DOMAIN);
         $dateValue = DatabaseConnection::formatFromDatabaseDateIfNotEmpty(
-            esc_html($this->getPostMeta($theorder->get_id(), 'storekeeper_sync_date', null))
+            esc_html($theorder->meta_exists('storekeeper_sync_date') ? $theorder->get_meta('storekeeper_sync_date') : null)
         );
         $syncDateForDisplay = DateTimeHelper::formatForDisplay($dateValue);
 
@@ -148,7 +135,7 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox implements WithHooksInter
     {
         $editUrl = get_edit_post_link($postId, 'url');
         $wooCommerceOrder = wc_get_order($postId);
-        if ($this->isHighPerformanceOrderStorageReady()) {
+        if (BackofficeCore::isHighPerformanceOrderStorageReady()) {
             $editUrl = $wooCommerceOrder->get_edit_order_url();
         }
 
@@ -218,7 +205,7 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox implements WithHooksInter
 
     public function setup(): void
     {
-        if ($this->isHighPerformanceOrderStorageReady()) {
+        if (BackofficeCore::isHighPerformanceOrderStorageReady()) {
             $this->handleSave();
         } else {
             // This means it still uses the /wp-admin/post.php

@@ -145,9 +145,10 @@ class AdminNotices
             && 'edit' === $this->getRequestAction()
         ) {
             $id = $this->getRequestPostId();
-            $goid = get_post_meta($id, 'storekeeper_id', true);
             $order = new \WC_Order($id);
-            if ($goid && $order->has_status('completed')) {
+            $storeKeeperId = $order->get_meta('storekeeper_id');
+
+            if ($storeKeeperId && $order->has_status('completed')) {
                 $message = __(
                     'This order is marked as completed, any changes might not be synced to the backoffice',
                     I18N::DOMAIN

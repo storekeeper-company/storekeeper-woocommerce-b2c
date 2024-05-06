@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice;
 
+use Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\ProductSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Notices\AdminNotices;
@@ -117,5 +118,19 @@ class BackofficeCore
     public static function isShippingMethodUsed(): bool
     {
         return 'yes' === StoreKeeperOptions::get(StoreKeeperOptions::SHIPPING_METHOD_ACTIVATED, 'no') && StoreKeeperOptions::isShippingMethodAllowedForCurrentSyncMode();
+    }
+
+    public static function isHighPerformanceOrderStorageReady(): bool
+    {
+        $isWooCommerceWithHpos = class_exists(CustomOrdersTableController::class);
+        if ($isWooCommerceWithHpos) {
+            /** @var CustomOrdersTableController $ordersTableController */
+            $ordersTableController = wc_get_container()->get(CustomOrdersTableController::class);
+            if ($ordersTableController->custom_orders_table_usage_is_enabled()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
