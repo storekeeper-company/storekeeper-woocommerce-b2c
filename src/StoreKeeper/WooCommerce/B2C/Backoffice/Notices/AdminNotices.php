@@ -2,7 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 
-use Automattic\WooCommerce\Internal\DataStores\Orders\DataSynchronizer;
+use Automattic\WooCommerce\Utilities\OrderUtil;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
@@ -137,15 +137,18 @@ class AdminNotices
         }
     }
 
-    private function StoreKeeperOrderCheck()
+    private function StoreKeeperOrderCheck(): void
     {
-        global $post_type;
-
-        if ($this->isPostPage() && 'edit' === $this->getRequestAction() && in_array($post_type, ['shop_order', 'shop_order_placehold'], true)) {
+        if (
+            $this->isPostPage()
+            && $this->isPostTypeOrder()
+            && 'edit' === $this->getRequestAction()
+        ) {
             $id = $this->getRequestPostId();
-            $goid = get_post_meta($id, 'storekeeper_id', true);
             $order = new \WC_Order($id);
-            if ($goid && $order->has_status('completed')) {
+            $storeKeeperId = $order->get_meta('storekeeper_id');
+
+            if ($storeKeeperId && $order->has_status('completed')) {
                 $message = __(
                     'This order is marked as completed, any changes might not be synced to the backoffice',
                     I18N::DOMAIN
@@ -159,6 +162,13 @@ class AdminNotices
                 <?php
             }
         }
+    }
+
+    private function isPostTypeOrder(): bool
+    {
+        global $post, $post_type;
+
+        return (class_exists(OrderUtil::class) && OrderUtil::is_order($post->ID)) || in_array($post_type, wc_get_order_types(), true);
     }
 
     private function isSyncedFromBackend($type)

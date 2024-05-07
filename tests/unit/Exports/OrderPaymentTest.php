@@ -462,6 +462,13 @@ class OrderPaymentTest extends AbstractOrderExportTest
                             'Status update order id check'
                         );
 
+                        $wcOrder = wc_get_order($new_order_id);
+                        $this->assertEquals(
+                            $wcOrder->get_meta('storekeeper_id'),
+                            $got[1],
+                            'Status update order id check'
+                        );
+
                         ++$updateStatusCount;
                     }
                 );
@@ -529,11 +536,19 @@ class OrderPaymentTest extends AbstractOrderExportTest
         // Export tasks
         $this->processAllTasks();
 
+        $wcOrder = wc_get_order($new_order_id);
+        $this->assertEquals(
+            $sk_order_id,
+            $wcOrder->get_meta('storekeeper_id'),
+            'storekeeper_id is assigned'
+        );
+
         $this->assertEquals(
             $sk_order_id,
             get_post_meta($new_order_id, 'storekeeper_id', true),
             'storekeeper_id is assigned'
         );
+
         $this->assertEquals(
             1,
             $updateStatusCount,
@@ -651,6 +666,13 @@ class OrderPaymentTest extends AbstractOrderExportTest
                             'Status update order id check'
                         );
 
+                        $wcOrder = wc_get_order($new_order_id);
+                        $this->assertEquals(
+                            $wcOrder->get_meta('storekeeper_id'),
+                            $got[1],
+                            'Status update order id check'
+                        );
+
                         ++$updateStatusCount;
                     }
                 );
@@ -693,6 +715,13 @@ class OrderPaymentTest extends AbstractOrderExportTest
 
         // Export tasks
         $this->processAllTasks();
+
+        $wcOrder = wc_get_order($new_order_id);
+        $this->assertEquals(
+            $sk_order_id,
+            $wcOrder->get_meta('storekeeper_id'),
+            'storekeeper_id is assigned'
+        );
 
         $this->assertEquals(
             $sk_order_id,

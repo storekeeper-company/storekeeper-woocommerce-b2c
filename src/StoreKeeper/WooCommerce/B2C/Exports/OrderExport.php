@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Exports;
 
 use Automattic\WooCommerce\Utilities\NumberUtil;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
+use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
@@ -49,6 +50,7 @@ class OrderExport extends AbstractExport
     public const MAXIMUM_DUPLICATE_COUNT = 3;
 
     private ?int $shopOrderId = null;
+    private \WC_Order $order;
 
     protected function getFunction()
     {
@@ -58,6 +60,15 @@ class OrderExport extends AbstractExport
     protected function getFunctionMultiple()
     {
         return 'get_posts';
+    }
+
+    protected function getStoreKeeperIdFromMeta()
+    {
+        if (BackofficeCore::isHighPerformanceOrderStorageReady()) {
+            return $this->order->get_meta('storekeeper_id');
+        }
+
+        return parent::getStoreKeeperIdFromMeta();
     }
 
     protected function getMetaFunction()
@@ -81,6 +92,8 @@ class OrderExport extends AbstractExport
      */
     protected function processItem($order): void
     {
+        global $storekeeper_ignore_order_id;
+        $this->order = $order;
         $this->shopOrderId = $shopOrderId = $order->get_id();
         $this->debug('Exporting order with id '.$shopOrderId);
         if ('eur' !== strtolower(get_woocommerce_currency())) {
@@ -291,6 +304,8 @@ class OrderExport extends AbstractExport
             $this->debug('Added billing_address as shipping_address information', $callData);
         }
 
+        // Ignore order to avoid triggering order export again
+        $storekeeper_ignore_order_id = $order->get_id();
         /*
          * Create or update the order.
          */
@@ -319,13 +334,14 @@ class OrderExport extends AbstractExport
             }
 
             WordpressExceptionThrower::throwExceptionOnWpError(
-                update_post_meta($shopOrderId, 'storekeeper_id', $storekeeper_id)
+                $order->add_meta_data('storekeeper_id', $storekeeper_id),
             );
+            $order->save();
         }
 
         $date = DatabaseConnection::formatToDatabaseDate();
         WordpressExceptionThrower::throwExceptionOnWpError(
-            update_post_meta($shopOrderId, 'storekeeper_sync_date', $date)
+            $order->update_meta_data('storekeeper_sync_date', $date),
         );
         $this->debug('Saved order data', $storekeeper_id);
 
@@ -367,8 +383,11 @@ class OrderExport extends AbstractExport
 
         if ($order->meta_exists(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY)) {
             $order->delete_meta_data(OrderHandler::TO_BE_SYNCHRONIZED_META_KEY);
-            $order->save();
         }
+
+        $order->save();
+        // Remove ignore
+        $storekeeper_ignore_order_id = null;
     }
 
     /**

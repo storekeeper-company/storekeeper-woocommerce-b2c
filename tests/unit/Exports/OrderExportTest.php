@@ -694,6 +694,13 @@ class OrderExportTest extends AbstractOrderExportTest
         // run the sync
         $this->processTask($task);
 
+        $wcOrder = wc_get_order($newOrderWithNlCountryId);
+        $this->assertEquals(
+            $skOrderId,
+            $wcOrder->get_meta('storekeeper_id'),
+            'storekeeper_id is assigned on wordpress order'
+        );
+
         $this->assertEquals(
             $skOrderId,
             get_post_meta($newOrderWithNlCountryId, 'storekeeper_id', true),
@@ -833,6 +840,13 @@ class OrderExportTest extends AbstractOrderExportTest
 
         // run the sync
         $this->processTask($task);
+
+        $wcOrder = wc_get_order($new_order_id);
+        $this->assertEquals(
+            $sk_order_id,
+            $wcOrder->get_meta('storekeeper_id'),
+            'storekeeper_id is assigned on wordpress order'
+        );
 
         $this->assertEquals(
             $sk_order_id,
@@ -1528,6 +1542,13 @@ class OrderExportTest extends AbstractOrderExportTest
 
         // run the sync
         $this->processTask($task);
+
+        $wcOrder = wc_get_order($new_order_id);
+        $this->assertEquals(
+            $sk_order_id,
+            $wcOrder->get_meta('storekeeper_id'),
+            'storekeeper_id is assigned on wordpress order'
+        );
 
         $this->assertEquals(
             $sk_order_id,

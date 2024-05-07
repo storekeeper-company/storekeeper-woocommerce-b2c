@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
+use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
@@ -29,8 +30,6 @@ use StoreKeeper\WooCommerce\B2C\Commands\ModelCommands\WebhookLog\WebhookLogPurg
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessAllTasks;
 use StoreKeeper\WooCommerce\B2C\Commands\ProcessSingleTask;
 use StoreKeeper\WooCommerce\B2C\Commands\ScheduledProcessor;
-use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueCheck;
-use StoreKeeper\WooCommerce\B2C\Commands\SyncIssueFixer;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptionPage;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceAttributes;
@@ -73,8 +72,6 @@ class Core
         SyncWoocommerceShopInfo::class,
         SyncWoocommerceFullSync::class,
         ConnectBackend::class,
-        SyncIssueCheck::class,
-        SyncIssueFixer::class,
         SyncWoocommerceUpsellProducts::class,
         SyncWoocommerceUpsellProductPage::class,
         SyncWoocommerceCrossSellProducts::class,
@@ -148,6 +145,13 @@ class Core
      */
     public function __construct()
     {
+        // Declare HPOS compabitility
+        add_action('before_woocommerce_init', static function () {
+            if (class_exists(FeaturesUtil::class)) {
+                FeaturesUtil::declare_compatibility('custom_order_tables', STOREKEEPER_FOR_WOOCOMMERCE_NAME.'/'.STOREKEEPER_WOOCOMMERCE_B2C_NAME.'.php');
+            }
+        });
+
         $this->loader = new ActionFilterLoader();
 
         $this->setUpdateCheck();
