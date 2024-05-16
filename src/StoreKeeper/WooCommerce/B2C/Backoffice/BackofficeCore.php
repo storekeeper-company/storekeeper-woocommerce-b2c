@@ -76,9 +76,7 @@ class BackofficeCore
     private function loadStorekeeperMenu()
     {
         $menuStructure = new MenuStructure();
-        $this->loader->add_action('init', $menuStructure, 'registerCapability');
-        $this->loader->add_action('admin_menu', $menuStructure, 'registerMenu', 99);
-        $this->loader->add_action('admin_enqueue_scripts', $menuStructure, 'registerStyle');
+        $menuStructure->registerHooks();
     }
 
     private function loadStorekeeperAdminStyles()

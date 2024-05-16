@@ -37,7 +37,7 @@ class PluginConflictChecker
                     $conflicts = true;
                 } else {
                     $exec = preg_match(
-                        '/^(<|lt|<=|le|>|gt|>=|ge|==|=|eq|!=|<>)(\d\.\d\.\d)/',
+                        '/^(<|lt|<=|le|>|gt|>=|ge|==|=|eq|!=|<>)([\d\.]+)/',
                         $conflictVersion,
                         $matches
                     );

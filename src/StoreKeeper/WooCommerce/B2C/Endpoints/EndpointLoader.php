@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Endpoints;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\ProductXEditor;
 use StoreKeeper\WooCommerce\B2C\Endpoints\FileExport\ExportEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Sso\SsoGetEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\TaskProcessor\TaskProcessorEndpoint;
@@ -9,6 +10,7 @@ use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\InfoEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\Webhooks\WebhookPostEndpoint;
 use StoreKeeper\WooCommerce\B2C\Endpoints\WebService\AddressSearchEndpoint;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
+use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 
 class EndpointLoader
 {
@@ -94,5 +96,17 @@ class EndpointLoader
                 'permission_callback' => '__return_true',
             ]
         );
+
+        if (PluginStatus::isProductXEnabled()) {
+            try {
+                $productX = new ProductXEditor();
+                $productX->registerRoutes();
+            } catch (\Throwable $e) {
+                LoggerFactory::create('load_errors')->error(
+                    'Woocommerce Builder api cannot be loaded:  '.$e->getMessage(),
+                    ['trace' => $e->getTraceAsString()]
+                );
+            }
+        }
     }
 }

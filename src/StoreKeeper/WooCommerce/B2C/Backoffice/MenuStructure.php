@@ -2,24 +2,32 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Backoffice;
 
+use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\ProductXEditor;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\DashboardPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\LogsPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\SettingsPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\StatusPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\ToolsPage;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Helpers\RoleHelper;
+use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Objects\PluginStatus;
 
-class MenuStructure
+class MenuStructure implements WithHooksInterface
 {
-    public const CAPABILITY_ADMIN = 'storekeeper_admin_capability';
+    public function registerHooks(): void
+    {
+        add_action('init', [$this, 'registerCapability']);
+        add_action('admin_menu', [$this, 'registerMenu'], 99);
+        add_action('admin_enqueue_scripts', [$this, 'registerStyle']);
+    }
 
     public function registerCapability()
     {
         $role = get_role('administrator');
-        $role->add_cap(self::CAPABILITY_ADMIN, true);
+        $role->add_cap(RoleHelper::CAP_CONTENT_BUILDER, true);
     }
 
     public static function registerStyle()
@@ -27,42 +35,24 @@ class MenuStructure
         wp_enqueue_style('storekeeper_menu_style', plugin_dir_url(__FILE__).'/static/menu.css');
 
         if (PluginStatus::isProductXEnabled()) {
-            if (RoleHelper::isContentManager()) {
-                wp_enqueue_script('storekeeper_productx_adjust', plugin_dir_url(__FILE__).'/static/productx-adjust.js');
-            }
-            $_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
-            $is_active = wopb_function()->is_lc_active();
-            $license_key = get_option('edd_wopb_license_key');
-            if ('wopb-builder' == $_page || 'wopb_builder' == get_post_type(get_the_ID())) {
-                wp_enqueue_script('wopb-conditions-script', WOPB_URL.'addons/builder/assets/js/conditions.min.js', ['wp-api-fetch', 'wp-components', 'wp-i18n', 'wp-blocks'], WOPB_VER, true);
-                wp_localize_script('wopb-conditions-script', 'wopb_condition', [
-                    'url' => WOPB_URL,
-                    'active' => $is_active,
-                    'premium_link' => wopb_function()->get_premium_link(),
-                    'license' => $is_active ? get_option('edd_wopb_license_key') : '',
-                    'builder_url' => admin_url('admin.php?page=wopb-builder'),
-                    'builder_type' => get_the_ID() ? get_post_meta(get_the_ID(), '_wopb_builder_type', true) : '',
-                    'home_page_display' => get_option('show_on_front'),
-                ]);
-                wp_enqueue_script('wopb-dashboard-script', WOPB_URL.'assets/js/wopb_dashboard_min.js', ['wp-i18n', 'wp-api-fetch', 'wp-api-request', 'wp-components', 'wp-blocks'], WOPB_VER, true);
-                wp_localize_script('wopb-dashboard-script', 'wopb_dashboard_pannel', [
-                    'url' => WOPB_URL,
-                    'active' => $is_active,
-                    'license' => $license_key,
-                    'settings' => wopb_function()->get_setting(),
-                    'addons' => wopb_function()->all_addons(),
-                    'addons_settings' => apply_filters('wopb_settings', []),
-                    'premium_link' => wopb_function()->get_premium_link(),
-                    'builder_url' => admin_url('admin.php?page=wopb-builder'),
-                    'affiliate_id' => apply_filters('wopb_affiliate_id', false),
-                    'version' => WOPB_VER,
-                    'setup_wizard_link' => admin_url('admin.php?page=wopb-initial-setup-wizard'),
-                    'helloBar' => get_transient('wopb_helloBar'),
-                    'status' => get_option('edd_wopb_license_status'),
-                    'expire' => get_option('edd_wopb_license_expire'),
-                    'whats_new_link' => admin_url('admin.php?page=wopb-whats-new'),
-                ]);
-                wp_set_script_translations('wopb-dashboard-script', 'product-blocks', WOPB_PATH.'languages/');
+            try {
+                if (RoleHelper::isContentManager()) {
+                    wp_enqueue_script('storekeeper_productx_adjust', plugin_dir_url(__FILE__).'/static/productx-adjust.js');
+                }
+                ProductXEditor::loadProduxtXScripts();
+            } catch (\Throwable $e) {
+                LoggerFactory::create('load_errors')->error(
+                    'Woocommerce Builder cannot be loaded:  '.$e->getMessage(),
+                    [
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                        'trace' => $e->getTraceAsString(),
+                    ]
+                );
+                wp_die(
+                    __('Woocommerce Builder cannot be loaded.', I18N::DOMAIN).
+                    sprintf(__(' It was tested with version builder version: %s. ', I18N::DOMAIN), PluginStatus::PRODUCT_X_COMPATIBLE_VERSION),
+                );
             }
         }
     }
@@ -74,7 +64,7 @@ class MenuStructure
         add_menu_page(
             __('StoreKeeper', I18N::DOMAIN),
             __('StoreKeeper', I18N::DOMAIN),
-            self::CAPABILITY_ADMIN,
+            RoleHelper::CAP_CONTENT_BUILDER,
             $dashboardPage->getSlug(),
             null,
             plugin_dir_url(__FILE__).'/static/menu-icon.png',
@@ -87,7 +77,7 @@ class MenuStructure
                 $dashboardPage->getSlug(),
                 $subPage->title,
                 $subPage->title,
-                self::CAPABILITY_ADMIN,
+                RoleHelper::CAP_CONTENT_BUILDER,
                 $subPage->getSlug(),
                 [$subPage, 'initialize']
             );

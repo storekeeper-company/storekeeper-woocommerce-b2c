@@ -10,6 +10,7 @@ class PluginStatus
     public const YOAST_SEO = 'wordpress-seo/wp-seo.php';
     public const RANK_MATH_SEO = 'seo-by-rank-math/rank-math.php';
     public const PRODUCT_X = 'product-blocks/product-blocks.php';
+    public const PRODUCT_X_COMPATIBLE_VERSION = '3.1.15';
     private static $plugins;
 
     private static function getPlugins()
