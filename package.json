@@ -20,7 +20,7 @@
 	},
 	"scripts": {
 		"start": "wp-scripts start",
-		"build": "wp-scripts build && npm run i18n:build",
+		"build": "wp-scripts build",
 		"i18n": "npm run i18n:build",
 		"i18n:build": "npm run i18n:pot && ./dev-tools/build_i18n.sh",
 		"i18n:pot": "php -d xdebug.max_nesting_level=512 $(which wp) i18n make-pot --exclude=\"node_modules/,i18n/,assets/\" --headers='{\"Report-Msgid-Bugs-To\":\"https://woocommerce.com/my-account/create-a-ticket/\", \"language-team\":\"nl <contact@storekeeper.nl>\"}' . i18n/storekeeper-woocommerce-b2c.pot",

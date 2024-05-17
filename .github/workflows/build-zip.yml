@@ -28,14 +28,26 @@ jobs:
           tools: composer
           coverage: none
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+
       - name: Print versions
         run: |
-          php --version
-          composer --version
+          echo -m "php: " && php --version
+          echo -m "composer: " && composer --version
+          echo -m "node: " && node -v
+          echo -m "npm: " && npm -v
           echo Plugin version $LAST_VERSION_TAG
 
-      - name: Install packages
+      - name: Install packages PHP
         run: composer install --ignore-platform-reqs --prefer-dist --no-dev --optimize-autoloader
+
+      - name: Install packages node
+        run: npm i
+
+      - name: Build node
+        run: npm run build
 
       - name: Apply version with build
         if: ${{ ! startsWith( github.ref, 'refs/tags/' ) }}
@@ -55,6 +67,8 @@ jobs:
           ls -a | grep -v  '^storekeeper-for-woocommerce$' | grep -v '^\.*$' | xargs mv -t  storekeeper-for-woocommerce
           zip -r storekeeper-for-woocommerce.zip \
             storekeeper-for-woocommerce/exports \
+            storekeeper-for-woocommerce/assets \
+            storekeeper-for-woocommerce/node_modules \
             storekeeper-for-woocommerce/i18n \
             storekeeper-for-woocommerce/src \
             storekeeper-for-woocommerce/vendor \
