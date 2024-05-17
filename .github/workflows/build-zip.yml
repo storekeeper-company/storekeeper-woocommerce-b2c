@@ -34,10 +34,10 @@ jobs:
 
       - name: Print versions
         run: |
-          echo -m "php: " && php --version
-          echo -m "composer: " && composer --version
-          echo -m "node: " && node -v
-          echo -m "npm: " && npm -v
+          echo -n "php: " && php --version
+          echo -n "composer: " && composer --version
+          echo -n "node: " && node -v
+          echo -n "npm: " && npm -v
           echo Plugin version $LAST_VERSION_TAG
 
       - name: Install packages PHP
