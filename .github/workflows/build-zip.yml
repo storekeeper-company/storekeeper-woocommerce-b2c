@@ -68,7 +68,6 @@ jobs:
           zip -r storekeeper-for-woocommerce.zip \
             storekeeper-for-woocommerce/exports \
             storekeeper-for-woocommerce/assets \
-            storekeeper-for-woocommerce/node_modules \
             storekeeper-for-woocommerce/i18n \
             storekeeper-for-woocommerce/src \
             storekeeper-for-woocommerce/vendor \
