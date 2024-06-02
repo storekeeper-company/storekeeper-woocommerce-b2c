@@ -585,6 +585,94 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->processNewOrder($new_order_id, $new_order);
     }
 
+    public function dataProviderTestOrderCreateBillingName()
+    {
+        $tests['without company name'] = [
+            'companyName' => '',
+            'customerFirstName' => 'John',
+            'customerLastName' => 'Doe',
+            'expectedName' => 'John Doe',
+        ];
+
+        $tests['with company name'] = [
+            'companyName' => 'Peter Company',
+            'customerFirstName' => 'John',
+            'customerLastName' => 'Doe',
+            'expectedName' => 'Peter Company',
+        ];
+
+        return $tests;
+    }
+
+    /** @dataProvider dataProviderTestOrderCreateBillingName */
+    public function testOrderCreateBillingName($companyName, $customerFirstName, $customerLastName, $expectedName)
+    {
+        $this->initApiConnection();
+
+        $this->mockApiCallsFromDirectory(self::DATA_DUMP_FOLDER_CREATE, true);
+
+        $this->emptyEnvironment();
+
+        $new_order = $this->getOrderProps();
+        $new_order['billing_company'] = $companyName;
+        $new_order['billing_first_name'] = $customerFirstName;
+        $new_order['billing_last_name'] = $customerLastName;
+        $new_order_id = $this->createWooCommerceOrder($new_order);
+        // this is normally created when the woocommerce_checkout_order_processed hook is fired
+        // StoreKeeper\WooCommerce\B2C\Core::setOrderHooks
+        $OrderHandler = new OrderHandler();
+        $task = $OrderHandler->create($new_order_id);
+
+        // set the checker for expected result
+        $sk_order_id = mt_rand();
+        $sk_customer_id = mt_rand();
+
+        $sent_order = [];
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($sk_customer_id, $sk_order_id, $expectedName, &$sent_order) {
+                $module->expects('newOrder')
+                    ->andReturnUsing(
+                        function ($got) use ($expectedName, $sk_order_id, &$sent_order) {
+                            [$order] = $got;
+                            $sent_order = $order;
+                            $sent_order['id'] = $sk_order_id;
+                            $sent_order = $this->calculateNewOrder($sent_order);
+                            $this->assertEquals($expectedName, $order['billing_address']['address_billing']['name'], 'Should match expected billing address name');
+
+                            return $sk_order_id;
+                        }
+                    );
+
+                $module->expects('findShopCustomerBySubuserEmail')
+                    ->andReturnUsing(
+                        function () use ($sk_customer_id) {
+                            return [
+                                'id' => $sk_customer_id,
+                                // only this field is used
+                            ];
+                        }
+                    );
+                $module->expects('getOrder')
+                    ->andReturnUsing(
+                        function () use (&$sent_order) {
+                            return $sent_order;
+                        }
+                    );
+                /*
+                 * Unrelated-calls for this test
+                 */
+                $module->expects('updateOrder')->andReturnUsing(
+                    function () {
+                        return null;
+                    }
+                );
+            }
+        );
+
+        $this->processTask($task);
+    }
+
     public function dataProviderOrderCreateWithNlCountry()
     {
         $tests = [];
@@ -1668,7 +1756,7 @@ class OrderExportTest extends AbstractOrderExportTest
                 'zipcode' => $new_order['billing_postcode'],
                 'street' => $expectedBillingStreet,
                 'country_iso2' => $new_order['billing_country'],
-                'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
+                'name' => !empty($new_order['billing_company']) ? $new_order['billing_company'] : $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
             ],
             'contact_set' => [
                 'email' => $new_order['billing_email'],

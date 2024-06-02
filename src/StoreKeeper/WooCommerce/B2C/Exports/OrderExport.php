@@ -217,7 +217,7 @@ class OrderExport extends AbstractExport
                     $order->get_billing_address_2(self::CONTEXT)
                 ),
                 'country_iso2' => $order->get_billing_country(self::CONTEXT),
-                'name' => $order->get_formatted_billing_full_name(),
+                'name' => !empty($order->get_billing_company(self::CONTEXT)) ? $order->get_billing_company(self::CONTEXT) : $order->get_formatted_billing_full_name(),
             ],
             'contact_set' => [
                 'email' => $order->get_billing_email(self::CONTEXT),
