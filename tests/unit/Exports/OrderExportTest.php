@@ -1756,7 +1756,7 @@ class OrderExportTest extends AbstractOrderExportTest
                 'zipcode' => $new_order['billing_postcode'],
                 'street' => $expectedBillingStreet,
                 'country_iso2' => $new_order['billing_country'],
-                'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
+                'name' => !empty($new_order['billing_company']) ? $new_order['billing_company'] : $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
             ],
             'contact_set' => [
                 'email' => $new_order['billing_email'],
