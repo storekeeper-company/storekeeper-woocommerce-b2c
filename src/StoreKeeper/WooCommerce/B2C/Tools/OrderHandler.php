@@ -97,6 +97,16 @@ class OrderHandler
             $order = new \WC_Order($orderId);
             $orderCreatedDate = $order->get_date_created();
 
+            $orderStatus = $order->get_status();
+
+            if ($orderStatus === 'checkout-draft') {
+                // @see https://woocommerce.com/document/cart-checkout-blocks-status/
+                // When using WooCommerce Blocks for the checkout process, orders are created when the shopper arrives to the checkout page
+                // The pending payment status does not accurately reflect the state of these orders, which may be incomplete or unsubmitted.
+                // To accommodate for this, the checkout-draft status is used until the order is submitted.
+                return false;
+            }
+
             if (is_null($orderCreatedDate)) {
                 return false;
             }

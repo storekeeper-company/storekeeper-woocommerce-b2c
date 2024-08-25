@@ -39,7 +39,7 @@ class WC_Helper_Order
      *
      * @since   2.4
      */
-    public static function create_order($customer_id = 1, $product = null)
+    public static function create_order($customer_id = 1, $product = null, string $status = 'pending')
     {
         if (!is_a($product, 'WC_Product')) {
             $product = WC_Helper_Product::create_simple_product();
@@ -47,15 +47,12 @@ class WC_Helper_Order
 
         WC_Helper_Shipping::create_simple_flat_rate();
 
-        $order_data = [
-            'status' => 'pending',
-            'customer_id' => $customer_id,
-            'customer_note' => '',
-            'total' => '',
-        ];
-
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1'; // Required, else wc_create_order throws an exception
-        $order = wc_create_order($order_data);
+        $order = new \WC_Order();
+        $order->set_status($status);
+        $order->set_customer_id($customer_id);
+        $order->set_customer_note('');
+        $order->set_total('');
 
         // Add order products
         $item = new WC_Order_Item_Product();
