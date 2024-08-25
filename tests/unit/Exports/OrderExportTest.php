@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Exports;
 
+use Automattic\WooCommerce\Blocks\Package;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Mockery\MockInterface;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
@@ -1562,6 +1563,28 @@ class OrderExportTest extends AbstractOrderExportTest
         $refunds = RefundModel::findBy(['wc_order_id = :order_id'], ['order_id' => $newOrderId]);
         $this->assertCount(1, $refunds, '1 refund should have been created');
         $this->assertTrue((bool) $refunds[0]['is_synced'], 'Refund should be marked as synchronized');
+    }
+
+    public function testWooCommerceCheckoutBlocksDraftOrder()
+    {
+        // Load the blocks library
+        Package::init();
+
+        $this->initApiConnection();
+        $this->emptyEnvironment();
+
+        $orderHandler = new OrderHandler();
+
+        $draftOrder = \WC_Helper_Order::create_order(1, null, 'checkout-draft');
+        $draftOrder->save();
+
+        $draftOrderTaskIds = TaskModel::getTasksByStoreKeeperId($draftOrder->get_id());
+        $this->assertEmpty($draftOrderTaskIds, 'No tasks should have spawned');
+
+        $draftOrder->update_status('completed');
+        $draftOrder->save();
+        $draftOrderTaskIds = TaskModel::getTasksByStoreKeeperId($draftOrder->get_id());
+        $this->assertNotEmpty($draftOrderTaskIds, 'Tasks should have spawned after status update');
     }
 
     /**
