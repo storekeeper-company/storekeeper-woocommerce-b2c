@@ -360,6 +360,7 @@ HTML;
 
     private function setCustomerHooks()
     {
+        // todo do not connect if api not set up
         $customerHook = new CustomerLoginRegisterHandler();
         $this->loader->add_action('wp_login', $customerHook, 'loginBackendSync', null, 2);
         $this->loader->add_action('user_register', $customerHook, 'registerBackendSync', null, 2);

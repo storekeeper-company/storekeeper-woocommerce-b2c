@@ -8,6 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CartHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CategorySummaryHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\MarkdownHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\StoreKeeperSeoHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\FormShortCode;
@@ -46,6 +47,9 @@ class FrontendCore
         if ('yes' === StoreKeeperOptions::get(StoreKeeperOptions::VALIDATE_CUSTOMER_ADDRESS, 'yes')) {
             $this->registerAddressFormHandler();
         }
+
+        // todo
+        (new ProductAddOnHandler())->registerHooks();
     }
 
     public function run()
