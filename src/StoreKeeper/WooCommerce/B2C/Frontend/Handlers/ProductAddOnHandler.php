@@ -19,6 +19,8 @@ class ProductAddOnHandler implements WithHooksInterface
     public const CART_FIELD_SELECTED_IDS = self::FIELD_PREFIX.'_selected_ids';
     public const CART_FIELD_ADDON_PRICE = self::FIELD_PREFIX.'_price';
     public const CART_FIELD_ADDON_PARENT = self::FIELD_PREFIX.'_parent';
+    public const CART_FIELD_ADDON_ID = self::FIELD_PREFIX.'_id';
+    public const CART_FIELD_ADDON_NAME = self::FIELD_PREFIX.'_name';
     public const CART_FIELD_ADDON_DATA = self::FIELD_PREFIX.'_data';
     public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e882';
 
@@ -30,6 +32,7 @@ class ProductAddOnHandler implements WithHooksInterface
         add_action('woocommerce_add_to_cart', [$this, 'add_additional_item_to_cart'], 10, 6);
         add_action('woocommerce_before_calculate_totals', [$this, 'add_custom_price'], 10, 1);
         add_filter('woocommerce_add_cart_item_data', [$this, 'save_custom_field_data'], 10, 3);
+        add_filter('woocommerce_cart_item_name', [$this, 'custom_cart_item_name'], 10, 3);
         add_filter('woocommerce_get_item_data', [$this, 'display_custom_field_data'], 10, 2);
     }
 
@@ -191,11 +194,16 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function save_custom_field_data($cart_item_data, $product_id, $variation_id)
     {
-        if (
-            isset($_POST[self::FIELD_CHOICE])
-            && is_array($_POST[self::FIELD_CHOICE])
-        ) {
-            $cart_item_data[self::CART_FIELD_SELECTED_IDS] = $this->getSelectedOptionFromPost();
+        if ($this->isProductWithAddOns($product_id)) {
+            $cart_item_data[self::CART_FIELD_ADDON_ID] = uniqid();
+            $cart_item_data[self::CART_FIELD_SELECTED_IDS] = [];
+
+            if (
+                isset($_POST[self::FIELD_CHOICE])
+                && is_array($_POST[self::FIELD_CHOICE])
+            ) {
+                $cart_item_data[self::CART_FIELD_SELECTED_IDS] = $this->getSelectedOptionFromPost();
+            }
         }
 
         return $cart_item_data;
@@ -204,19 +212,25 @@ class ProductAddOnHandler implements WithHooksInterface
     public function add_additional_item_to_cart($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data)
     {
         if (
-            !empty($cart_item_data[self::CART_FIELD_SELECTED_IDS])
+            !empty($cart_item_data[self::CART_FIELD_ADDON_ID])
             && empty($cart_item_data[self::CART_FIELD_ADDON_PARENT]) // exclude children
         ) {
             $addon_id = $this->getSkAddonProductId();
             $product = wc_get_product($product_id);
 
+            $all_selected_option_ids = $cart_item_data[self::CART_FIELD_SELECTED_IDS];
             foreach ($this->getAddOnsForProduct($product) as $addon) {
                 $type = $addon['type'];
-                if (self::ADDON_TYPE_REQUIRED_ADDON === $type || self::ADDON_TYPE_BUNDLE === $type) {
-                    foreach ($addon['options'] as $option) {
+                foreach ($addon['options'] as $option) {
+                    $selected = self::ADDON_TYPE_REQUIRED_ADDON === $type
+                        || self::ADDON_TYPE_BUNDLE === $type
+                        || in_array($option['id'], $all_selected_option_ids)
+                    ;
+                    if ($selected) {
                         $addon_item_data = [
-                            self::CART_FIELD_ADDON_PARENT => $cart_item_key,
+                            self::CART_FIELD_ADDON_PARENT => $cart_item_data[self::CART_FIELD_ADDON_ID],
                             self::CART_FIELD_ADDON_PRICE => $option['ppu_wt'],
+                            self::CART_FIELD_ADDON_NAME => $option['title'],
                         ];
                         WC()->cart->add_to_cart(
                             $addon_id,
@@ -226,25 +240,6 @@ class ProductAddOnHandler implements WithHooksInterface
                             $addon_item_data
                         );
                     }
-                }
-            }
-
-            list($required_price, $price_addon_changes) = $this->calculateStartPriceAndAddOnChanges($product);
-
-            $all_selected_option_ids = $cart_item_data[self::CART_FIELD_SELECTED_IDS];
-            foreach ($all_selected_option_ids as $option_id) {
-                if (array_key_exists($option_id, $price_addon_changes)) {
-                    $addon_item_data = [
-                        self::CART_FIELD_ADDON_PARENT => $cart_item_key,
-                        self::CART_FIELD_ADDON_PRICE => $price_addon_changes[$option_id],
-                    ];
-                    WC()->cart->add_to_cart(
-                        $addon_id,
-                        $quantity,
-                        0, // $variation_id
-                        [], // $variation
-                        $addon_item_data
-                    );
                 }
             }
         }
@@ -264,6 +259,15 @@ class ProductAddOnHandler implements WithHooksInterface
                 $cart_item['data']->set_price($cart_item[self::CART_FIELD_ADDON_PRICE]);
             }
         }
+    }
+
+    public function custom_cart_item_name($name, $cart_item, $cart_item_key)
+    {
+        if (!empty($cart_item[self::CART_FIELD_ADDON_NAME])) {
+            return $cart_item[self::CART_FIELD_ADDON_NAME];
+        }
+
+        return $name;
     }
 
     public function display_custom_field_data($item_data, $cart_item)
@@ -387,5 +391,15 @@ class ProductAddOnHandler implements WithHooksInterface
         $price = floatval($price);
 
         return $price;
+    }
+
+    protected function isProductWithAddOns($product_id): bool
+    {
+        $is_with_add_ons = false;
+        if ($product_id) {
+            $is_with_add_ons = true; // todo
+        }
+
+        return $is_with_add_ons;
     }
 }
