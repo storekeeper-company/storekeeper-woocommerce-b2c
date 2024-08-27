@@ -82,7 +82,7 @@ class GOCustomer extends \WC_Customer
     public function __construct($data = 0, $is_session = false)
     {
         parent::__construct($data, $is_session);
-        $this->go_api = StoreKeeperApi::getApiByAuthName();
+        $this->go_api = StoreKeeperApi::getApiByAuthName(); // todo fix it, throws fatal on diconnect
     }
 
     /**
