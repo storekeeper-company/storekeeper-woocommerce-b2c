@@ -99,7 +99,7 @@ class OrderHandler
 
             $orderStatus = $order->get_status();
 
-            if ($orderStatus === 'checkout-draft') {
+            if ('checkout-draft' === $orderStatus) {
                 // @see https://woocommerce.com/document/cart-checkout-blocks-status/
                 // When using WooCommerce Blocks for the checkout process, orders are created when the shopper arrives to the checkout page
                 // The pending payment status does not accurately reflect the state of these orders, which may be incomplete or unsubmitted.

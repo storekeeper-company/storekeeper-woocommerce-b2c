@@ -105,7 +105,7 @@ class OrderExport extends AbstractExport
             throw new \Exception("Order with id {$shopOrderId} does not exists.");
         }
 
-        if ($order->get_status() === 'checkout-draft') {
+        if ('checkout-draft' === $order->get_status()) {
             throw new \Exception('Orders with checkout-draft status should not be exported');
         }
 

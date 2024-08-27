@@ -48,7 +48,7 @@ class WC_Helper_Order
         WC_Helper_Shipping::create_simple_flat_rate();
 
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1'; // Required, else wc_create_order throws an exception
-        $order = new \WC_Order();
+        $order = new WC_Order();
         $order->set_status($status);
         $order->set_customer_id($customer_id);
         $order->set_customer_note('');

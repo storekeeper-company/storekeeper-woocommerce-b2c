@@ -159,9 +159,9 @@ class Core
         if (StoreKeeperOptions::isOrderSyncEnabled()) {
             $this->setOrderHooks();
         }
-//        if (StoreKeeperOptions::isCustomerSyncEnabled()) { // todo
-//            $this->setCustomerHooks();
-//        }
+        //        if (StoreKeeperOptions::isCustomerSyncEnabled()) { // todo
+        //            $this->setCustomerHooks();
+        //        }
 
         $this->setCouponHooks();
         $this->prepareCron();
