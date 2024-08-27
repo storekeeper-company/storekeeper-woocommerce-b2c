@@ -31,7 +31,6 @@ class ProductAddOnHandler implements WithHooksInterface
         add_action('wp_head', [$this, 'add_styles']);
         add_action('woocommerce_before_add_to_cart_button', [$this, 'add_addon_fields']);
         add_action('woocommerce_before_add_to_cart_form', [$this, 'add_price_update_script']);
-        add_action('woocommerce_add_to_cart_validation', [$this, 'validate_custom_field'], 10, 3);
         add_action('woocommerce_add_to_cart', [$this, 'add_additional_item_to_cart'], 10, 6);
         add_action('woocommerce_before_calculate_totals', [$this, 'add_custom_price'], 10, 1);
         add_filter('woocommerce_add_cart_item_data', [$this, 'save_custom_field_data'], 10, 3);
@@ -195,16 +194,6 @@ class ProductAddOnHandler implements WithHooksInterface
         wc_get_template('add-on/css/add-on-styles.php', [], '', $template_path);
     }
 
-    public function validate_custom_field($passed, $product_id, $quantity)
-    {
-        // todo validate if required are added, change to auto change items
-        //        if (empty($_POST['custom_option'])) {
-        //            wc_add_notice(__('Please select a custom option before adding this product to your cart.'), 'error');
-        //            $passed = false;
-        //        }
-
-        return $passed;
-    }
 
     public function save_custom_field_data($cart_item_data, $product_id, $variation_id)
     {
