@@ -1,14 +1,12 @@
 <?php
 
 $additionaPrice = json_encode($price_addon_changes);
-$fieldNameSelector = "[data-sk-type=\"".\StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler::INPUT_TYPE_PRODUCT_ADD_ON."\"]";
+$fieldNameSelector = '[data-sk-type="'.StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler::INPUT_TYPE_PRODUCT_ADD_ON.'"]';
 $fieldSelectSelector = "select{$fieldNameSelector}";
 $fieldCheckboxSelector = "{$fieldNameSelector} input[type=checkbox]";
 $fieldSelector = "$fieldSelectSelector, $fieldCheckboxSelector";
 
 echo <<<HTML
-
-HERE // todo
 <script type="text/javascript">
     jQuery(document).ready(function($) {
         var originalPrice = {$start_price};
