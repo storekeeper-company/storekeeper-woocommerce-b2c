@@ -22,6 +22,15 @@ class ProductAddOnHandler implements WithHooksInterface
     public const CART_FIELD_ADDON_ID = self::FIELD_PREFIX.'_id';
     public const CART_FIELD_ADDON_NAME = self::FIELD_PREFIX.'_name';
     public const CART_FIELD_ADDON_DATA = self::FIELD_PREFIX.'_data';
+
+    public const CART_FIELDS = [
+        self::CART_FIELD_SELECTED_IDS,
+        self::CART_FIELD_ADDON_PRICE,
+        self::CART_FIELD_ADDON_PARENT,
+        self::CART_FIELD_ADDON_ID,
+        self::CART_FIELD_ADDON_NAME,
+        self::CART_FIELD_ADDON_DATA,
+    ];
     public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e882';
     public const CSS_CLASS_ADDON_PRODUCT = 'sk-addon-product';
     public const CSS_CLASS_ADDON_SUBPRODUCT = 'sk-addon-subproduct';
@@ -41,7 +50,10 @@ class ProductAddOnHandler implements WithHooksInterface
         add_filter('woocommerce_cart_item_thumbnail', [$this, 'remove_cart_item_thumbnail'], 10, 3);
         add_filter('woocommerce_cart_item_quantity', [$this, 'remove_quantity_input_for_subproducts'], 10, 3);
         add_action('woocommerce_cart_item_removed', [$this, 'remove_subproducts_when_main_product_removed'], 10, 2);
+        add_action('woocommerce_checkout_create_order_line_item', [$this, 'modify_order_line_item'], 10, 4);
         add_action('woocommerce_after_cart_item_quantity_update', [$this, 'update_subproduct_quantity'], 10, 4);
+        add_filter('woocommerce_order_item_name', [$this, 'order_item_component_name'], 10, 2);
+        add_filter('woocommerce_cart_item_permalink', [$this, 'woocommerce_cart_item_permalink_filter'], 10, 3);
     }
 
     public const PRODUCT_ADDONS = [
@@ -194,7 +206,6 @@ class ProductAddOnHandler implements WithHooksInterface
         wc_get_template('add-on/css/add-on-styles.php', [], '', $template_path);
     }
 
-
     public function save_custom_field_data($cart_item_data, $product_id, $variation_id)
     {
         if ($this->isProductWithAddOns($product_id)) {
@@ -289,14 +300,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function display_custom_field_data($item_data, $cart_item)
     {
-        if (isset($cart_item['custom_option'])) {
-            $item_data[] = [
-                'key' => __('Custom Option'),
-                'value' => wc_clean($cart_item['custom_option']),
-            ];
-        }
-
-        return $item_data;
+        return $item_data; // todo
     }
 
     public function remove_quantity_input_for_subproducts($quantity_input, $cart_item_key, $cart_item)
@@ -326,6 +330,35 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         return $thumbnail;
+    }
+
+    public function modify_order_line_item(\WC_Order_Item_Product $item, $cart_item_key, $cart_item_data, \WC_Order $order)
+    {
+        if (!empty($cart_item_data[self::CART_FIELD_ADDON_ID])) {
+            foreach (self::CART_FIELDS as $field_name) {
+                if (isset($cart_item_data[$field_name])) {
+                    $item->add_meta_data($field_name, $cart_item_data[$field_name]);
+                }
+            }
+        }
+    }
+
+    public function woocommerce_cart_item_permalink_filter($product_permalink, $cart_item, $cart_item_key)
+    {
+        // needed to replace the name on the checkout order summary
+        // other option would be replacing in js or new product type with some name getting from global
+        if (isset($cart_item[self::CART_FIELD_ADDON_NAME])) {
+            if ($cart_item['data'] instanceof \WC_Product) {
+                $cart_item['data']->set_name($cart_item[self::CART_FIELD_ADDON_NAME]);
+            }
+        }
+
+        return $product_permalink;
+    }
+
+    public function order_item_component_name($content, $order_item)
+    {
+        return $content; // todo for admin
     }
 
     protected function getSingleKeyName($id): string

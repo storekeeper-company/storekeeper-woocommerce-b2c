@@ -56,6 +56,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFi
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -389,6 +390,8 @@ HTML;
             $core = new FrontendCore();
         }
         $core->run();
+
+        (new ProductAddOnHandler())->registerHooks(); // todo
     }
 
     private function loadEndpoints()
