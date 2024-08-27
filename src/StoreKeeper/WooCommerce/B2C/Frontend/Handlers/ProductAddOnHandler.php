@@ -23,9 +23,12 @@ class ProductAddOnHandler implements WithHooksInterface
     public const CART_FIELD_ADDON_NAME = self::FIELD_PREFIX.'_name';
     public const CART_FIELD_ADDON_DATA = self::FIELD_PREFIX.'_data';
     public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e882';
+    public const CSS_CLASS_ADDON_PRODUCT = 'sk-addon-product';
+    public const CSS_CLASS_ADDON_SUBPRODUCT = 'sk-addon-subproduct';
 
     public function registerHooks(): void
     {
+        add_action('wp_head', [$this, 'add_styles']);
         add_action('woocommerce_before_add_to_cart_button', [$this, 'add_addon_fields']);
         add_action('woocommerce_before_add_to_cart_form', [$this, 'add_price_update_script']);
         add_action('woocommerce_add_to_cart_validation', [$this, 'validate_custom_field'], 10, 3);
@@ -33,7 +36,11 @@ class ProductAddOnHandler implements WithHooksInterface
         add_action('woocommerce_before_calculate_totals', [$this, 'add_custom_price'], 10, 1);
         add_filter('woocommerce_add_cart_item_data', [$this, 'save_custom_field_data'], 10, 3);
         add_filter('woocommerce_cart_item_name', [$this, 'custom_cart_item_name'], 10, 3);
+        add_filter('woocommerce_cart_item_class', [$this, 'add_subproduct_class'], 10, 3);
         add_filter('woocommerce_get_item_data', [$this, 'display_custom_field_data'], 10, 2);
+        add_filter('woocommerce_cart_item_remove_link', [$this, 'remove_cart_item_remove_link'], 10, 2);
+        add_filter('woocommerce_cart_item_thumbnail', [$this, 'remove_cart_item_thumbnail'], 10, 3);
+        add_filter('woocommerce_cart_item_quantity', [$this, 'remove_quantity_input_for_subproducts'], 10, 3);
         add_action('woocommerce_cart_item_removed', [$this, 'remove_subproducts_when_main_product_removed'], 10, 2);
         add_action('woocommerce_after_cart_item_quantity_update', [$this, 'update_subproduct_quantity'], 10, 4);
     }
@@ -130,7 +137,6 @@ class ProductAddOnHandler implements WithHooksInterface
         $product->set_catalog_visibility('hidden');
         $product->set_price(0.00);
         $product->set_regular_price(0.00);
-        $product->set_description('This is a hidden product for internal use.');
         $product->save();
 
         return $product->get_id();
@@ -183,6 +189,12 @@ class ProductAddOnHandler implements WithHooksInterface
         ], '', $template_path);
     }
 
+    public function add_styles()
+    {
+        $template_path = Core::plugin_abspath().'templates/';
+        wc_get_template('add-on/css/add-on-styles.php', [], '', $template_path);
+    }
+
     public function validate_custom_field($passed, $product_id, $quantity)
     {
         // todo validate if required are added, change to auto change items
@@ -197,14 +209,17 @@ class ProductAddOnHandler implements WithHooksInterface
     public function save_custom_field_data($cart_item_data, $product_id, $variation_id)
     {
         if ($this->isProductWithAddOns($product_id)) {
-            $cart_item_data[self::CART_FIELD_ADDON_ID] = uniqid();
+            $has_add_ons = $this->hasRequiredAddOns($product_id);
             $cart_item_data[self::CART_FIELD_SELECTED_IDS] = [];
-
             if (
                 isset($_POST[self::FIELD_CHOICE])
                 && is_array($_POST[self::FIELD_CHOICE])
             ) {
                 $cart_item_data[self::CART_FIELD_SELECTED_IDS] = $this->getSelectedOptionFromPost();
+                $has_add_ons = true;
+            }
+            if ($has_add_ons) {
+                $cart_item_data[self::CART_FIELD_ADDON_ID] = uniqid();
             }
         }
 
@@ -272,6 +287,17 @@ class ProductAddOnHandler implements WithHooksInterface
         return $name;
     }
 
+    public function add_subproduct_class($class, $cart_item, $cart_item_key)
+    {
+        if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])) {
+            $class .= ' '.self::CSS_CLASS_ADDON_SUBPRODUCT;
+        } elseif (isset($cart_item[self::CART_FIELD_ADDON_ID])) {
+            $class .= ' '.self::CSS_CLASS_ADDON_PRODUCT;
+        }
+
+        return $class;
+    }
+
     public function display_custom_field_data($item_data, $cart_item)
     {
         if (isset($cart_item['custom_option'])) {
@@ -282,6 +308,35 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         return $item_data;
+    }
+
+    public function remove_quantity_input_for_subproducts($quantity_input, $cart_item_key, $cart_item)
+    {
+        if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])) {
+            return '';
+        }
+
+        return $quantity_input;
+    }
+
+    public function remove_cart_item_remove_link($link, $cart_item_key)
+    {
+        $cart = WC()->cart->get_cart();
+        $cart_item = $cart[$cart_item_key];
+        if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])) {
+            return '';
+        }
+
+        return $link;
+    }
+
+    public function remove_cart_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
+    {
+        if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])) {
+            return '';
+        }
+
+        return $thumbnail;
     }
 
     protected function getSingleKeyName($id): string
@@ -437,5 +492,10 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         return $is_with_add_ons;
+    }
+
+    protected function hasRequiredAddOns($product_id): bool
+    {
+        return true; // todo
     }
 }
