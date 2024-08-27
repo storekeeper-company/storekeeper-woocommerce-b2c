@@ -34,6 +34,8 @@ class ProductAddOnHandler implements WithHooksInterface
         add_filter('woocommerce_add_cart_item_data', [$this, 'save_custom_field_data'], 10, 3);
         add_filter('woocommerce_cart_item_name', [$this, 'custom_cart_item_name'], 10, 3);
         add_filter('woocommerce_get_item_data', [$this, 'display_custom_field_data'], 10, 2);
+        add_action('woocommerce_cart_item_removed', [$this, 'remove_subproducts_when_main_product_removed'], 10, 2);
+        add_action('woocommerce_after_cart_item_quantity_update', [$this, 'update_subproduct_quantity'], 10, 4);
     }
 
     public const PRODUCT_ADDONS = [
@@ -360,6 +362,40 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         return [$required_price, $price_addon_changes];
+    }
+
+    public function remove_subproducts_when_main_product_removed($cart_item_key, $cart)
+    {
+        $removed_item = $cart->removed_cart_contents[$cart_item_key];
+
+        if (isset($removed_item[self::CART_FIELD_ADDON_ID])) {
+            $main_product_addon_id = $removed_item[self::CART_FIELD_ADDON_ID];
+
+            foreach ($cart->cart_contents as $key => $cart_item) {
+                if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])
+                    && $cart_item[self::CART_FIELD_ADDON_PARENT] === $main_product_addon_id) {
+                    $cart->remove_cart_item($key);
+                }
+            }
+        }
+    }
+
+    public function update_subproduct_quantity($cart_item_key, $new_quantity, $old_quantity = null, $cart = null)
+    {
+        if (null === $cart) {
+            $cart = WC()->cart;
+        }
+
+        $cart_item = $cart->get_cart_item($cart_item_key);
+        if (isset($cart_item[self::CART_FIELD_ADDON_ID])) {
+            $main_product_addon_id = $cart_item[self::CART_FIELD_ADDON_ID];
+            foreach ($cart->get_cart() as $key => $item) {
+                if (isset($item[self::CART_FIELD_ADDON_PARENT])
+                    && $item[self::CART_FIELD_ADDON_PARENT] === $main_product_addon_id) {
+                    $cart->set_quantity($key, $new_quantity, false);
+                }
+            }
+        }
     }
 
     protected function getSelectedOptionFromPost(): array
