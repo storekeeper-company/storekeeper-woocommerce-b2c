@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 
 class ProductAddOnHandler implements WithHooksInterface
@@ -16,14 +17,13 @@ class ProductAddOnHandler implements WithHooksInterface
     public const KEY_FORM_ID = 'form_id';
     public const KEY_FORM_OPTIONS = 'form_options';
     public const INPUT_TYPE_PRODUCT_ADD_ON = 'product-add-on';
-    public const SUBITEM_FIELD_PREFIX = 'sk_subitem';
     public const CART_FIELD_SELECTED_IDS = self::FIELD_PREFIX.'_selected_ids';
     public const CART_FIELD_PRICE = self::FIELD_PREFIX.'_price';
-    public const CART_FIELD_PARENT_ID = self::SUBITEM_FIELD_PREFIX.'_parent_id';
-    public const CART_FIELD_ID = self::SUBITEM_FIELD_PREFIX.'_id';
-    public const CART_FIELD_NAME = self::SUBITEM_FIELD_PREFIX.'_name';
-    public const CART_FIELD_SHOP_PRODUCT_ID = self::SUBITEM_FIELD_PREFIX.'_shop_product_id';
-    public const CART_FIELD_ADDON_GROUP_ID = self::SUBITEM_FIELD_PREFIX.'_product_product_addon_group_id';
+    public const CART_FIELD_PARENT_ID = OrderExport::CART_FIELD_PARENT_ID;
+    public const CART_FIELD_ID = OrderExport::CART_FIELD_ID;
+    public const CART_FIELD_NAME = OrderExport::CART_FIELD_NAME;
+    public const CART_FIELD_SHOP_PRODUCT_ID = OrderExport::CART_FIELD_SHOP_PRODUCT_ID;
+    public const CART_FIELD_ADDON_GROUP_ID = OrderExport::CART_FIELD_ADDON_GROUP_ID;
 
     public const CART_FIELDS = [
         self::CART_FIELD_SELECTED_IDS,
@@ -70,19 +70,19 @@ class ProductAddOnHandler implements WithHooksInterface
                     'id' => 1,
                     'title' => 'Zanddeeg 500 gram',
                     'ppu_wt' => 2.85,
-                    'shop_product_id' => 11,
+                    'shop_product_id' => 135842,
                 ],
                 [
                     'id' => 2,
                     'title' => 'Banketbakkersroom (bakvast) 100 gram (CaH)',
                     'ppu_wt' => 1.85,
-                    'shop_product_id' => 12,
+                    'shop_product_id' => 135843,
                 ],
                 [
                     'id' => 3,
                     'title' => 'Amandelspijs 100 gram',
                     'ppu_wt' => 2.35,
-                    'shop_product_id' => 13,
+                    'shop_product_id' => 135844,
                 ],
             ],
         ],
@@ -95,19 +95,19 @@ class ProductAddOnHandler implements WithHooksInterface
                     'id' => 4,
                     'title' => 'Bavarois Advocaat 100 gram',
                     'ppu_wt' => 3.75,
-                    'shop_product_id' => 14,
+                    'shop_product_id' => 135837,
                 ],
                 [
                     'id' => 5,
                     'title' => 'Bavarois Crème Brûlée',
                     'ppu_wt' => 3.00,
-                    'shop_product_id' => 15,
+                    'shop_product_id' => 135837,
                 ],
                 [
                     'id' => 6,
                     'title' => 'Bavarois Cappuccino 100 gram',
                     'ppu_wt' => 1.50,
-                    'shop_product_id' => 16,
+                    'shop_product_id' => 135837,
                 ],
             ],
         ],
@@ -120,19 +120,19 @@ class ProductAddOnHandler implements WithHooksInterface
                     'id' => 7,
                     'title' => 'Bavarois Banaan 100 gram',
                     'ppu_wt' => 2,
-                    'shop_product_id' => 17,
+                    'shop_product_id' => 112711,
                 ],
                 [
                     'id' => 8,
                     'title' => 'Bavarois Rabarber-Aardbei 100 gram',
                     'ppu_wt' => 5,
-                    'shop_product_id' => 18,
+                    'shop_product_id' => 80156,
                 ],
                 [
                     'id' => 9,
                     'title' => 'Bavarois Yoghurt-Kers 100 gram',
                     'ppu_wt' => 10,
-                    'shop_product_id' => 19,
+                    'shop_product_id' => 4732,
                 ],
             ],
         ],

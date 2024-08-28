@@ -42,6 +42,13 @@ class OrderExport extends AbstractExport
     public const EXTRA_ROW_TYPE = 'wp_row_type';
     public const EXTRA_ADDON_GROUP_ID = 'product_addon_group_id';
 
+    public const SUBITEM_FIELD_PREFIX = 'sk_subitem';
+    public const CART_FIELD_ID = self::SUBITEM_FIELD_PREFIX.'_id';
+    public const CART_FIELD_NAME = self::SUBITEM_FIELD_PREFIX.'_name';
+    public const CART_FIELD_SHOP_PRODUCT_ID = self::SUBITEM_FIELD_PREFIX.'_shop_product_id';
+    public const CART_FIELD_ADDON_GROUP_ID = self::SUBITEM_FIELD_PREFIX.'_product_addon_group_id';
+    public const CART_FIELD_PARENT_ID = self::SUBITEM_FIELD_PREFIX.'_parent_id';
+
     public const KNOWN_EXTRAS_KEY = [
         self::EXTRA_ROW_MD5_KEY,
         self::EXTRA_ROW_ID_KEY,
@@ -688,6 +695,9 @@ class OrderExport extends AbstractExport
             }
         }
 
+        $orderItemIds = [];
+        $orderItemIndex = 0;
+
         /**
          * @var $orderProduct WC_Order_Item_Product
          */
@@ -714,10 +724,13 @@ class OrderExport extends AbstractExport
                 ]);
             } else {
                 $productId = $currentProduct->get_id();
-                if (array_key_exists($productId, $shopProductIdMap)) {
-                    $shopProductId = $shopProductIdMap[$productId];
-                } else {
-                    $shopProductId = $this->fetchShopProductId($currentProduct);
+                $shopProductId = $orderItemProduct->get_meta(self::CART_FIELD_SHOP_PRODUCT_ID);
+                if (empty($shopProductId)) {
+                    if (array_key_exists($productId, $shopProductIdMap)) {
+                        $shopProductId = $shopProductIdMap[$productId];
+                    } else {
+                        $shopProductId = $this->fetchShopProductId($currentProduct);
+                    }
                 }
 
                 $description = '';
@@ -795,9 +808,7 @@ class OrderExport extends AbstractExport
                 $data['extra'] = $extra;
             }
 
-            $orderItems[] = $data;
-
-            $this->debug($index.' Added product item', $data);
+            $this->addDataToOrderItems($orderItemProduct, $orderItemIndex, $orderItemIds, $data, $orderItems);
 
             if (!is_null($diff_product)) {
                 $diff_product['name'] = $data['name'];
@@ -1221,5 +1232,40 @@ class OrderExport extends AbstractExport
         }
 
         return $storekeeperPayment;
+    }
+
+    protected function addDataToOrderItems(
+        \WC_Order_Item $wcItemProduct,
+        int &$orderItemIndex,
+        array &$orderItemIds,
+        array $orderItem,
+        array &$orderItems
+    ): void {
+        $added_to_items = false;
+        $orderItemId = $wcItemProduct->get_meta(self::CART_FIELD_ID);
+        if (!empty($orderItemId)) {
+            $orderItemIds[$orderItemId] = $orderItemIndex;
+
+            $orderItemParentId = $wcItemProduct->get_meta(self::CART_FIELD_PARENT_ID);
+            $addonGroupId = $wcItemProduct->get_meta(self::CART_FIELD_ADDON_GROUP_ID);
+            if (!empty($addonGroupId)) {
+                $orderItem['extra']['product_addon_group_id'] = $addonGroupId;
+            }
+            if (array_key_exists($orderItemParentId, $orderItemIds)) {
+                $parent = &$orderItems[$orderItemIds[$orderItemParentId]];
+                if (!isset($parent['subitems'])) {
+                    $parent['subitems'] = [];
+                }
+
+                $parent['subitems'][] = $orderItem;
+                $added_to_items = true;
+            }
+        }
+
+        if (!$added_to_items) {
+            $orderItems[$orderItemIndex] = $orderItem;
+        }
+        ++$orderItemIndex;
+        $this->debug($orderItemIndex.' Added product item', $orderItem);
     }
 }
