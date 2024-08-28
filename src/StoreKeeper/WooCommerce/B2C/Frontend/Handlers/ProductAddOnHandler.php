@@ -16,22 +16,25 @@ class ProductAddOnHandler implements WithHooksInterface
     public const KEY_FORM_ID = 'form_id';
     public const KEY_FORM_OPTIONS = 'form_options';
     public const INPUT_TYPE_PRODUCT_ADD_ON = 'product-add-on';
+    public const SUBITEM_FIELD_PREFIX = 'sk_subitem';
     public const CART_FIELD_SELECTED_IDS = self::FIELD_PREFIX.'_selected_ids';
-    public const CART_FIELD_ADDON_PRICE = self::FIELD_PREFIX.'_price';
-    public const CART_FIELD_ADDON_PARENT = self::FIELD_PREFIX.'_parent';
-    public const CART_FIELD_ADDON_ID = self::FIELD_PREFIX.'_id';
-    public const CART_FIELD_ADDON_NAME = self::FIELD_PREFIX.'_name';
-    public const CART_FIELD_ADDON_DATA = self::FIELD_PREFIX.'_data';
+    public const CART_FIELD_PRICE = self::FIELD_PREFIX.'_price';
+    public const CART_FIELD_PARENT_ID = self::SUBITEM_FIELD_PREFIX.'_parent_id';
+    public const CART_FIELD_ID = self::SUBITEM_FIELD_PREFIX.'_id';
+    public const CART_FIELD_NAME = self::SUBITEM_FIELD_PREFIX.'_name';
+    public const CART_FIELD_SHOP_PRODUCT_ID = self::SUBITEM_FIELD_PREFIX.'_shop_product_id';
+    public const CART_FIELD_ADDON_GROUP_ID = self::SUBITEM_FIELD_PREFIX.'_product_product_addon_group_id';
 
     public const CART_FIELDS = [
         self::CART_FIELD_SELECTED_IDS,
-        self::CART_FIELD_ADDON_PRICE,
-        self::CART_FIELD_ADDON_PARENT,
-        self::CART_FIELD_ADDON_ID,
-        self::CART_FIELD_ADDON_NAME,
-        self::CART_FIELD_ADDON_DATA,
+        self::CART_FIELD_PRICE,
+        self::CART_FIELD_PARENT_ID,
+        self::CART_FIELD_ID,
+        self::CART_FIELD_NAME,
+        self::CART_FIELD_SHOP_PRODUCT_ID,
+        self::CART_FIELD_ADDON_GROUP_ID,
     ];
-    public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e882';
+    public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e883';
     public const CSS_CLASS_ADDON_PRODUCT = 'sk-addon-product';
     public const CSS_CLASS_ADDON_SUBPRODUCT = 'sk-addon-subproduct';
 
@@ -54,11 +57,12 @@ class ProductAddOnHandler implements WithHooksInterface
         add_action('woocommerce_after_cart_item_quantity_update', [$this, 'update_subproduct_quantity'], 10, 4);
         add_filter('woocommerce_order_item_name', [$this, 'order_item_component_name'], 10, 2);
         add_filter('woocommerce_cart_item_permalink', [$this, 'woocommerce_cart_item_permalink_filter'], 10, 3);
+        add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_meta_for_display'], 10, 2);
     }
 
     public const PRODUCT_ADDONS = [
         [
-            'addon_group_id' => 1,
+            'product_addon_group_id' => 1,
             'title' => 'Standaard inbegrepen',
             'type' => self::ADDON_TYPE_REQUIRED_ADDON,
             'options' => [
@@ -66,24 +70,24 @@ class ProductAddOnHandler implements WithHooksInterface
                     'id' => 1,
                     'title' => 'Zanddeeg 500 gram',
                     'ppu_wt' => 2.85,
-                    'shop_product_id' => 123,
+                    'shop_product_id' => 11,
                 ],
                 [
                     'id' => 2,
                     'title' => 'Banketbakkersroom (bakvast) 100 gram (CaH)',
                     'ppu_wt' => 1.85,
-                    'shop_product_id' => 123,
+                    'shop_product_id' => 12,
                 ],
                 [
                     'id' => 3,
                     'title' => 'Amandelspijs 100 gram',
                     'ppu_wt' => 2.35,
-                    'shop_product_id' => 122,
+                    'shop_product_id' => 13,
                 ],
             ],
         ],
         [
-            'addon_group_id' => 2,
+            'product_addon_group_id' => 2,
             'title' => 'Smaak bavarois',
             'type' => self::ADDON_TYPE_SINGLE_CHOICE,
             'options' => [
@@ -91,24 +95,24 @@ class ProductAddOnHandler implements WithHooksInterface
                     'id' => 4,
                     'title' => 'Bavarois Advocaat 100 gram',
                     'ppu_wt' => 3.75,
-                    'shop_product_id' => 123,
+                    'shop_product_id' => 14,
                 ],
                 [
                     'id' => 5,
                     'title' => 'Bavarois Crème Brûlée',
                     'ppu_wt' => 3.00,
-                    'shop_product_id' => 123,
+                    'shop_product_id' => 15,
                 ],
                 [
                     'id' => 6,
                     'title' => 'Bavarois Cappuccino 100 gram',
                     'ppu_wt' => 1.50,
-                    'shop_product_id' => 123,
+                    'shop_product_id' => 16,
                 ],
             ],
         ],
         [
-            'addon_group_id' => 4,
+            'product_addon_group_id' => 4,
             'title' => 'Smaak bavarois (extra)',
             'type' => self::ADDON_TYPE_MULTIPLE_CHOICE,
             'options' => [
@@ -116,19 +120,19 @@ class ProductAddOnHandler implements WithHooksInterface
                     'id' => 7,
                     'title' => 'Bavarois Banaan 100 gram',
                     'ppu_wt' => 2,
-                    'shop_product_id' => 123,
+                    'shop_product_id' => 17,
                 ],
                 [
                     'id' => 8,
                     'title' => 'Bavarois Rabarber-Aardbei 100 gram',
                     'ppu_wt' => 5,
-                    'shop_product_id' => 123,
+                    'shop_product_id' => 18,
                 ],
                 [
                     'id' => 9,
                     'title' => 'Bavarois Yoghurt-Kers 100 gram',
                     'ppu_wt' => 10,
-                    'shop_product_id' => 123,
+                    'shop_product_id' => 19,
                 ],
             ],
         ],
@@ -142,15 +146,28 @@ class ProductAddOnHandler implements WithHooksInterface
         }
         $product = new \WC_Product_Simple();
 
-        $product->set_name('StoreKeeper Addon Product');
+        $product->set_name('StoreKeeper Not-configured Addon');
         $product->set_sku(self::ADDON_SKU);
         $product->set_status('publish');
         $product->set_catalog_visibility('hidden');
+        $product->set_sold_individually(false); // todo?
         $product->set_price(0.00);
         $product->set_regular_price(0.00);
         $product->save();
 
         return $product->get_id();
+    }
+
+    public function hide_meta_for_display($formatted_meta, $order_item): array
+    {
+        $valid_meta = [];
+        foreach ($formatted_meta as $id => $meta) {
+            if (!in_array($meta->key, self::CART_FIELDS)) {
+                $valid_meta[$id] = $meta;
+            }
+        }
+
+        return $valid_meta;
     }
 
     public function add_addon_fields(): void
@@ -219,7 +236,7 @@ class ProductAddOnHandler implements WithHooksInterface
                 $has_add_ons = true;
             }
             if ($has_add_ons) {
-                $cart_item_data[self::CART_FIELD_ADDON_ID] = uniqid();
+                $cart_item_data[self::CART_FIELD_ID] = uniqid();
             }
         }
 
@@ -229,8 +246,8 @@ class ProductAddOnHandler implements WithHooksInterface
     public function add_additional_item_to_cart($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data)
     {
         if (
-            !empty($cart_item_data[self::CART_FIELD_ADDON_ID])
-            && empty($cart_item_data[self::CART_FIELD_ADDON_PARENT]) // exclude children
+            !empty($cart_item_data[self::CART_FIELD_ID])
+            && empty($cart_item_data[self::CART_FIELD_PARENT_ID]) // exclude children
         ) {
             $addon_id = $this->getSkAddonProductId();
             $product = wc_get_product($product_id);
@@ -245,9 +262,11 @@ class ProductAddOnHandler implements WithHooksInterface
                     ;
                     if ($selected) {
                         $addon_item_data = [
-                            self::CART_FIELD_ADDON_PARENT => $cart_item_data[self::CART_FIELD_ADDON_ID],
-                            self::CART_FIELD_ADDON_PRICE => $option['ppu_wt'],
-                            self::CART_FIELD_ADDON_NAME => $option['title'],
+                            self::CART_FIELD_PARENT_ID => $cart_item_data[self::CART_FIELD_ID],
+                            self::CART_FIELD_PRICE => $option['ppu_wt'],
+                            self::CART_FIELD_NAME => $option['title'],
+                            self::CART_FIELD_SHOP_PRODUCT_ID => $option['shop_product_id'],
+                            self::CART_FIELD_ADDON_GROUP_ID => $addon['product_addon_group_id'],
                         ];
                         WC()->cart->add_to_cart(
                             $addon_id,
@@ -270,18 +289,18 @@ class ProductAddOnHandler implements WithHooksInterface
 
         foreach ($cart->get_cart() as $cart_item) {
             if (
-                isset($cart_item[self::CART_FIELD_ADDON_PRICE])
-                && isset($cart_item[self::CART_FIELD_ADDON_PARENT])
+                isset($cart_item[self::CART_FIELD_PRICE])
+                && isset($cart_item[self::CART_FIELD_PARENT_ID])
             ) {
-                $cart_item['data']->set_price($cart_item[self::CART_FIELD_ADDON_PRICE]);
+                $cart_item['data']->set_price($cart_item[self::CART_FIELD_PRICE]);
             }
         }
     }
 
     public function custom_cart_item_name($name, $cart_item, $cart_item_key)
     {
-        if (!empty($cart_item[self::CART_FIELD_ADDON_NAME])) {
-            return $cart_item[self::CART_FIELD_ADDON_NAME];
+        if (!empty($cart_item[self::CART_FIELD_NAME])) {
+            return $cart_item[self::CART_FIELD_NAME];
         }
 
         return $name;
@@ -289,9 +308,9 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function add_subproduct_class($class, $cart_item, $cart_item_key)
     {
-        if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])) {
+        if (isset($cart_item[self::CART_FIELD_PARENT_ID])) {
             $class .= ' '.self::CSS_CLASS_ADDON_SUBPRODUCT;
-        } elseif (isset($cart_item[self::CART_FIELD_ADDON_ID])) {
+        } elseif (isset($cart_item[self::CART_FIELD_ID])) {
             $class .= ' '.self::CSS_CLASS_ADDON_PRODUCT;
         }
 
@@ -305,7 +324,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function remove_quantity_input_for_subproducts($quantity_input, $cart_item_key, $cart_item)
     {
-        if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])) {
+        if (isset($cart_item[self::CART_FIELD_PARENT_ID])) {
             return '';
         }
 
@@ -316,7 +335,7 @@ class ProductAddOnHandler implements WithHooksInterface
     {
         $cart = WC()->cart->get_cart();
         $cart_item = $cart[$cart_item_key];
-        if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])) {
+        if (isset($cart_item[self::CART_FIELD_PARENT_ID])) {
             return '';
         }
 
@@ -325,7 +344,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function remove_cart_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
     {
-        if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])) {
+        if (isset($cart_item[self::CART_FIELD_PARENT_ID])) {
             return '';
         }
 
@@ -334,7 +353,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function modify_order_line_item(\WC_Order_Item_Product $item, $cart_item_key, $cart_item_data, \WC_Order $order)
     {
-        if (!empty($cart_item_data[self::CART_FIELD_ADDON_ID])) {
+        if (!empty($cart_item_data[self::CART_FIELD_ID])) {
             foreach (self::CART_FIELDS as $field_name) {
                 if (isset($cart_item_data[$field_name])) {
                     $item->add_meta_data($field_name, $cart_item_data[$field_name]);
@@ -347,9 +366,9 @@ class ProductAddOnHandler implements WithHooksInterface
     {
         // needed to replace the name on the checkout order summary
         // other option would be replacing in js or new product type with some name getting from global
-        if (isset($cart_item[self::CART_FIELD_ADDON_NAME])) {
+        if (isset($cart_item[self::CART_FIELD_NAME])) {
             if ($cart_item['data'] instanceof \WC_Product) {
-                $cart_item['data']->set_name($cart_item[self::CART_FIELD_ADDON_NAME]);
+                $cart_item['data']->set_name($cart_item[self::CART_FIELD_NAME]);
             }
         }
 
@@ -375,7 +394,7 @@ class ProductAddOnHandler implements WithHooksInterface
     {
         $result = [];
         foreach (self::PRODUCT_ADDONS as $addon) {
-            $id = $addon['addon_group_id'];
+            $id = $addon['product_addon_group_id'];
             $type = $addon['type'];
             if (self::ADDON_TYPE_SINGLE_CHOICE === $type) {
                 $field_options = [
@@ -445,12 +464,12 @@ class ProductAddOnHandler implements WithHooksInterface
     {
         $removed_item = $cart->removed_cart_contents[$cart_item_key];
 
-        if (isset($removed_item[self::CART_FIELD_ADDON_ID])) {
-            $main_product_addon_id = $removed_item[self::CART_FIELD_ADDON_ID];
+        if (isset($removed_item[self::CART_FIELD_ID])) {
+            $main_product_addon_id = $removed_item[self::CART_FIELD_ID];
 
             foreach ($cart->cart_contents as $key => $cart_item) {
-                if (isset($cart_item[self::CART_FIELD_ADDON_PARENT])
-                    && $cart_item[self::CART_FIELD_ADDON_PARENT] === $main_product_addon_id) {
+                if (isset($cart_item[self::CART_FIELD_PARENT_ID])
+                    && $cart_item[self::CART_FIELD_PARENT_ID] === $main_product_addon_id) {
                     $cart->remove_cart_item($key);
                 }
             }
@@ -464,11 +483,11 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         $cart_item = $cart->get_cart_item($cart_item_key);
-        if (isset($cart_item[self::CART_FIELD_ADDON_ID])) {
-            $main_product_addon_id = $cart_item[self::CART_FIELD_ADDON_ID];
+        if (isset($cart_item[self::CART_FIELD_ID])) {
+            $main_product_addon_id = $cart_item[self::CART_FIELD_ID];
             foreach ($cart->get_cart() as $key => $item) {
-                if (isset($item[self::CART_FIELD_ADDON_PARENT])
-                    && $item[self::CART_FIELD_ADDON_PARENT] === $main_product_addon_id) {
+                if (isset($item[self::CART_FIELD_PARENT_ID])
+                    && $item[self::CART_FIELD_PARENT_ID] === $main_product_addon_id) {
                     $cart->set_quantity($key, $new_quantity, false);
                 }
             }

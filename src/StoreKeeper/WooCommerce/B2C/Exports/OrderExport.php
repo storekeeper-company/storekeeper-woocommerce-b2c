@@ -40,11 +40,13 @@ class OrderExport extends AbstractExport
     public const EXTRA_ROW_ID_KEY = 'wp_row_id';
     public const EXTRA_ROW_MD5_KEY = 'wp_row_md5';
     public const EXTRA_ROW_TYPE = 'wp_row_type';
+    public const EXTRA_ADDON_GROUP_ID = 'product_addon_group_id';
 
     public const KNOWN_EXTRAS_KEY = [
         self::EXTRA_ROW_MD5_KEY,
         self::EXTRA_ROW_ID_KEY,
         self::EXTRA_ROW_TYPE,
+        self::EXTRA_ADDON_GROUP_ID,
     ];
 
     public const MAXIMUM_DUPLICATE_COUNT = 3;
