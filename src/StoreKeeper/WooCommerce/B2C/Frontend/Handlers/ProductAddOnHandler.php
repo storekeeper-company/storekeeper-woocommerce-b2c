@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
+use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 
 class ProductAddOnHandler implements WithHooksInterface
 {
@@ -37,6 +38,7 @@ class ProductAddOnHandler implements WithHooksInterface
     public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e883';
     public const CSS_CLASS_ADDON_PRODUCT = 'sk-addon-product';
     public const CSS_CLASS_ADDON_SUBPRODUCT = 'sk-addon-subproduct';
+    public const KEY_ORDERABLE_STOCK = 'orderable_stock';
 
     public function registerHooks(): void
     {
@@ -71,12 +73,14 @@ class ProductAddOnHandler implements WithHooksInterface
                     'title' => 'Zanddeeg 500 gram',
                     'ppu_wt' => 2.85,
                     'shop_product_id' => 135842,
+                    self::KEY_ORDERABLE_STOCK => 5,
                 ],
                 [
                     'id' => 2,
                     'title' => 'Banketbakkersroom (bakvast) 100 gram (CaH)',
                     'ppu_wt' => 1.85,
                     'shop_product_id' => 135843,
+                    self::KEY_ORDERABLE_STOCK => 99,
                 ],
                 [
                     'id' => 3,
@@ -96,12 +100,14 @@ class ProductAddOnHandler implements WithHooksInterface
                     'title' => 'Bavarois Advocaat 100 gram',
                     'ppu_wt' => 3.75,
                     'shop_product_id' => 135837,
+                    self::KEY_ORDERABLE_STOCK => 0,
                 ],
                 [
                     'id' => 5,
                     'title' => 'Bavarois Crème Brûlée',
                     'ppu_wt' => 3.00,
                     'shop_product_id' => 135837,
+                    self::KEY_ORDERABLE_STOCK => 3,
                 ],
                 [
                     'id' => 6,
@@ -121,12 +127,14 @@ class ProductAddOnHandler implements WithHooksInterface
                     'title' => 'Bavarois Banaan 100 gram',
                     'ppu_wt' => 2,
                     'shop_product_id' => 112711,
+                    self::KEY_ORDERABLE_STOCK => 3,
                 ],
                 [
                     'id' => 8,
                     'title' => 'Bavarois Rabarber-Aardbei 100 gram',
                     'ppu_wt' => 5,
                     'shop_product_id' => 80156,
+                    self::KEY_ORDERABLE_STOCK => 0,
                 ],
                 [
                     'id' => 9,
@@ -174,7 +182,10 @@ class ProductAddOnHandler implements WithHooksInterface
     {
         global $product;
 
-        if (!$product) {
+        if (!($product instanceof \WC_Product)) {
+            return;
+        }
+        if (!$this->isProductWithAddOns($product->get_id())) {
             return;
         }
         foreach ($this->getAddOnsForProduct($product) as $addon) {
@@ -206,7 +217,10 @@ class ProductAddOnHandler implements WithHooksInterface
         if (!$product) {
             return;
         }
-        list($required_price, $price_addon_changes) = $this->calculateStartPriceAndAddOnChanges($product);
+        if (!$this->isProductWithAddOns($product->get_id())) {
+            return;
+        }
+        list($required_price, $price_addon_changes) = $this->calculateRequiredAndOptionalPriceChanges($product);
 
         $template_path = Core::plugin_abspath().'templates/';
         $price = $this->getProductSalePrice($product);
@@ -380,18 +394,20 @@ class ProductAddOnHandler implements WithHooksInterface
         return $content; // todo for admin
     }
 
-    protected function getSingleKeyName($id): string
+    protected function getSingleKeyName(int $id): string
     {
         return self::FIELD_CHOICE."[$id][".self::ADDON_TYPE_SINGLE_CHOICE.']';
     }
 
-    protected function getMultipleChoiceKeyName($addon_id, $option_id): string
+    protected function getMultipleChoiceKeyName(int $addon_id, int $option_id): string
     {
         return self::FIELD_CHOICE."[$addon_id][".self::ADDON_TYPE_MULTIPLE_CHOICE."][$option_id]";
     }
 
     protected function getAddOnsForProduct(\WC_Product $product): array
     {
+        $shop_product_id = $product->get_meta('storekeeper_id');
+
         $result = [];
         foreach (self::PRODUCT_ADDONS as $addon) {
             $id = $addon['product_addon_group_id'];
@@ -440,7 +456,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $option['title'].' (+'.$option['ppu_wt'].')';
     }
 
-    protected function calculateStartPriceAndAddOnChanges(\WC_Product $product): array
+    protected function calculateRequiredAndOptionalPriceChanges(\WC_Product $product): array
     {
         $required_price = 0;
         $price_addon_changes = [];
@@ -468,8 +484,10 @@ class ProductAddOnHandler implements WithHooksInterface
             $main_product_addon_id = $removed_item[self::CART_FIELD_ID];
 
             foreach ($cart->cart_contents as $key => $cart_item) {
-                if (isset($cart_item[self::CART_FIELD_PARENT_ID])
-                    && $cart_item[self::CART_FIELD_PARENT_ID] === $main_product_addon_id) {
+                if (
+                    isset($cart_item[self::CART_FIELD_PARENT_ID])
+                    && $cart_item[self::CART_FIELD_PARENT_ID] === $main_product_addon_id
+                ) {
                     $cart->remove_cart_item($key);
                 }
             }
@@ -486,8 +504,10 @@ class ProductAddOnHandler implements WithHooksInterface
         if (isset($cart_item[self::CART_FIELD_ID])) {
             $main_product_addon_id = $cart_item[self::CART_FIELD_ID];
             foreach ($cart->get_cart() as $key => $item) {
-                if (isset($item[self::CART_FIELD_PARENT_ID])
-                    && $item[self::CART_FIELD_PARENT_ID] === $main_product_addon_id) {
+                if (
+                    isset($item[self::CART_FIELD_PARENT_ID])
+                    && $item[self::CART_FIELD_PARENT_ID] === $main_product_addon_id
+                ) {
                     $cart->set_quantity($key, $new_quantity, false);
                 }
             }
@@ -514,7 +534,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $all_selected_option_ids;
     }
 
-    protected function getProductSalePrice($product): float
+    protected function getProductSalePrice(\WC_Product $product): float
     {
         $price = $product->get_sale_price('edit');
         if (empty($price)) {
@@ -525,18 +545,17 @@ class ProductAddOnHandler implements WithHooksInterface
         return $price;
     }
 
-    protected function isProductWithAddOns($product_id): bool
+    protected function isProductWithAddOns(int $product_id): bool
     {
-        $is_with_add_ons = false;
-        if ($product_id) {
-            $is_with_add_ons = true; // todo
-        }
-
-        return $is_with_add_ons;
+        return '1' === get_post_meta($product_id, ProductImport::META_HAS_ADDONS, true);
     }
 
-    protected function hasRequiredAddOns($product_id): bool
+    protected function hasRequiredAddOns(int $product_id): bool
     {
+        if (!$this->isProductWithAddOns($product_id)) {
+            return false;
+        }
+
         return true; // todo
     }
 }

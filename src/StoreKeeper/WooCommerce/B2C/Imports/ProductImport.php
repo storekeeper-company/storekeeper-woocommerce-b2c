@@ -40,6 +40,7 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     public const CATEGORY_TAG_MODULE = 'ProductsModule';
     public const CATEGORY_ALIAS = 'Product';
     public const TAG_ALIAS = 'Label';
+    public const META_HAS_ADDONS = 'storekeeper_has_addons';
 
     protected $syncProductVariations = false;
     protected $newItemsCount = 0;
@@ -1052,6 +1053,14 @@ SQL;
                     update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
                 }
             }
+        }
+
+        if ($dotObject->has('flat_product.product.has_addons')) {
+            update_post_meta(
+                $newProduct->get_id(),
+                self::META_HAS_ADDONS,
+                $dotObject->get('flat_product.product.has_addons') ? '1' : '0',
+            );
         }
 
         $this->debug('Configurable product finalized', $log_data);
