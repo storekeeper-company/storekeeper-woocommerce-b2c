@@ -38,7 +38,6 @@ class ProductAddOnHandler implements WithHooksInterface
         self::CART_FIELD_SHOP_PRODUCT_ID,
         self::CART_FIELD_ADDON_GROUP_ID,
     ];
-    public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e883';
     public const CSS_CLASS_ADDON_PRODUCT = 'sk-addon-product';
     public const CSS_CLASS_ADDON_SUBPRODUCT = 'sk-addon-subproduct';
     public const KEY_WC_PRODUCT = 'wc_product';
@@ -61,114 +60,15 @@ class ProductAddOnHandler implements WithHooksInterface
         add_filter('woocommerce_cart_item_class', [$this, 'add_subproduct_class'], 10, 3);
         add_filter('woocommerce_get_item_data', [$this, 'display_custom_field_data'], 10, 2);
         add_filter('woocommerce_cart_item_remove_link', [$this, 'remove_cart_item_remove_link'], 10, 2);
-        add_filter('woocommerce_cart_item_thumbnail', [$this, 'remove_cart_item_thumbnail'], 10, 3);
         add_filter('woocommerce_cart_item_quantity', [$this, 'remove_quantity_input_for_subproducts'], 10, 3);
         add_action('woocommerce_cart_item_removed', [$this, 'remove_subproducts_when_main_product_removed'], 10, 2);
         add_action('woocommerce_checkout_create_order_line_item', [$this, 'modify_order_line_item'], 10, 4);
-        add_action('woocommerce_after_cart_item_quantity_update', [$this, 'update_subproduct_quantity'], 10, 4);
+        add_action('woocommerce_after_cart_item_quantity_update', [$this, 'update_cart_subitem_quantity'], 10, 4);
         add_filter('woocommerce_order_item_name', [$this, 'order_item_component_name'], 10, 2);
         add_filter('woocommerce_cart_item_permalink', [$this, 'woocommerce_cart_item_permalink_filter'], 10, 3);
         add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_meta_for_display'], 10, 2);
         add_filter('woocommerce_update_cart_validation', [$this, 'validate_on_qty_on_update_cart_quantity'], 10, 4);
-        add_filter('woocommerce_add_to_cart_validation', [$this, 'custom_add_to_cart_validation'], 10, 5);
-    }
-
-    public const PRODUCT_ADDONS = [// todo remove
-        [
-            'product_addon_group_id' => 1,
-            'title' => 'Standaard inbegrepen',
-            'type' => self::ADDON_TYPE_REQUIRED_ADDON,
-            'options' => [
-                [
-                    'id' => 1,
-                    'title' => 'Zanddeeg 500 gram',
-                    'ppu_wt' => 2.85,
-                    'shop_product_id' => 135842,
-                ],
-                [
-                    'id' => 2,
-                    'title' => 'Banketbakkersroom (bakvast) 100 gram (CaH)',
-                    'ppu_wt' => 1.85,
-                    'shop_product_id' => 135843,
-                ],
-                [
-                    'id' => 3,
-                    'title' => 'Amandelspijs 100 gram',
-                    'ppu_wt' => 2.35,
-                    'shop_product_id' => 135844,
-                ],
-            ],
-        ],
-        [
-            'product_addon_group_id' => 2,
-            'title' => 'Smaak bavarois',
-            'type' => self::ADDON_TYPE_SINGLE_CHOICE,
-            'options' => [
-                [
-                    'id' => 4,
-                    'title' => 'Bavarois Advocaat 100 gram',
-                    'ppu_wt' => 3.75,
-                    'shop_product_id' => 135837,
-                ],
-                [
-                    'id' => 5,
-                    'title' => 'Bavarois Crème Brûlée',
-                    'ppu_wt' => 3.00,
-                    'shop_product_id' => 135837,
-                ],
-                [
-                    'id' => 6,
-                    'title' => 'Bavarois Cappuccino 100 gram',
-                    'ppu_wt' => 1.50,
-                    'shop_product_id' => 135837,
-                ],
-            ],
-        ],
-        [
-            'product_addon_group_id' => 4,
-            'title' => 'Smaak bavarois (extra)',
-            'type' => self::ADDON_TYPE_MULTIPLE_CHOICE,
-            'options' => [
-                [
-                    'id' => 7,
-                    'title' => 'Bavarois Banaan 100 gram',
-                    'ppu_wt' => 2,
-                    'shop_product_id' => 112711,
-                ],
-                [
-                    'id' => 8,
-                    'title' => 'Bavarois Rabarber-Aardbei 100 gram',
-                    'ppu_wt' => 5,
-                    'shop_product_id' => 80156,
-                ],
-                [
-                    'id' => 9,
-                    'title' => 'Bavarois Yoghurt-Kers 100 gram',
-                    'ppu_wt' => 10,
-                    'shop_product_id' => 4732,
-                ],
-            ],
-        ],
-    ];
-
-    public function getSkAddonProductId(): int
-    {
-        $product_id = wc_get_product_id_by_sku(self::ADDON_SKU);
-        if ($product_id) {
-            return $product_id; // todo cache me
-        }
-        $product = new \WC_Product_Simple();
-
-        $product->set_name('StoreKeeper Not-configured Addon');
-        $product->set_sku(self::ADDON_SKU);
-        $product->set_status('publish');
-        $product->set_catalog_visibility('hidden');
-        $product->set_sold_individually(false); // todo?
-        $product->set_price(0.00);
-        $product->set_regular_price(0.00);
-        $product->save();
-
-        return $product->get_id();
+        add_filter('woocommerce_add_to_cart_validation', [$this, 'validate_on_add_to_cart'], 10, 5);
     }
 
     public function hide_meta_for_display($formatted_meta, $order_item): array
@@ -357,15 +257,6 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         return $link;
-    }
-
-    public function remove_cart_item_thumbnail($thumbnail, $cart_item, $cart_item_key)
-    {
-        if (isset($cart_item[self::CART_FIELD_PARENT_ID])) {
-            return '';
-        }
-
-        return $thumbnail;
     }
 
     public function modify_order_line_item(\WC_Order_Item_Product $item, $cart_item_key, $cart_item_data, \WC_Order $order)
@@ -610,7 +501,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $passed;
     }
 
-    public function custom_add_to_cart_validation($passed, $product_id, $quantity, $variation_id = '', $variations = '')
+    public function validate_on_add_to_cart($passed, $product_id, $quantity, $variation_id = '', $variations = '')
     {
         $cart_item = $this->save_custom_field_data([], $product_id, $variation_id);
         if (isset($cart_item[self::CART_FIELD_ID])) {
@@ -655,7 +546,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $passed;
     }
 
-    public function update_subproduct_quantity($cart_item_key, $new_quantity, $old_quantity = null, $cart = null)
+    public function update_cart_subitem_quantity($cart_item_key, $new_quantity, $old_quantity = null, $cart = null)
     {
         if (null === $cart) {
             $cart = WC()->cart;
@@ -817,7 +708,7 @@ class ProductAddOnHandler implements WithHooksInterface
                 /* translators: 1: product name 2: quantity in stock */
                 $message = sprintf(__('You cannot add that amount of &quot;%1$s&quot; to the cart because there is not enough stock (%2$s remaining).', 'woocommerce'),
                     $wc_product->get_name(),
-                    wc_format_stock_quantity_for_display($new_total_qty, $wc_product)
+                    wc_format_stock_quantity_for_display($wc_product->get_stock_quantity(), $wc_product)
                 );
 
                 return apply_filters('woocommerce_cart_product_not_enough_stock_message', $message, $wc_product, $new_total_qty);
