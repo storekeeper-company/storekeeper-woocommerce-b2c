@@ -20,6 +20,7 @@ class ProductAddOnHandler implements WithHooksInterface
     public const KEY_FORM_ID = 'form_id';
     public const KEY_FORM_OPTIONS = 'form_options';
     public const INPUT_TYPE_PRODUCT_ADD_ON = 'product-add-on';
+    public const INPUT_TYPE_PRODUCT_ADD_ON_SELECTOR = '[data-sk-type="'.self::INPUT_TYPE_PRODUCT_ADD_ON.'"]';
     public const CART_FIELD_SELECTED_IDS = self::FIELD_PREFIX.'_selected_ids';
     public const CART_FIELD_PRICE = self::FIELD_PREFIX.'_price';
     public const CART_FIELD_PARENT_ID = OrderExport::CART_FIELD_PARENT_ID;
@@ -40,6 +41,11 @@ class ProductAddOnHandler implements WithHooksInterface
     public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e883';
     public const CSS_CLASS_ADDON_PRODUCT = 'sk-addon-product';
     public const CSS_CLASS_ADDON_SUBPRODUCT = 'sk-addon-subproduct';
+    public const KEY_WC_PRODUCT = 'wc_product';
+    public const KEY_OUT_OF_STOCK_OPTION_IDS = 'out_of_stock_option_ids';
+    public const OPTION_TITLE = 'option_title';
+    public const FORM_DATA_SK_TYPE = 'data-sk-type';
+    public const FORM_DATA_SK_ADDON = 'data-sk-addon';
 
     protected $addon_call_cache = [];
 
@@ -65,7 +71,7 @@ class ProductAddOnHandler implements WithHooksInterface
         add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_meta_for_display'], 10, 2);
     }
 
-    public const PRODUCT_ADDONS = [
+    public const PRODUCT_ADDONS = [// todo remove
         [
             'product_addon_group_id' => 1,
             'title' => 'Standaard inbegrepen',
@@ -185,24 +191,24 @@ class ProductAddOnHandler implements WithHooksInterface
         if (!$this->isProductWithAddOns($product->get_id())) {
             return;
         }
-        foreach ($this->getAddOnsForProduct($product) as $addon) {
+
+        $addons = $this->getAddOnsForProduct($product);
+        $template_path = Core::plugin_abspath().'templates/';
+
+        foreach ($addons as $addon) {
             $type = $addon['type'];
-            // todo disable out of stock
             if ($this->isRequiredType($type)) {
-                // todo sum up the required add ons
-                echo '<p class="custom-checkbox-description">'.$addon['title'].'</p>'; // todo style better
-                echo '<ul>';
-                foreach ($addon['options'] as $option) {
-                    echo '<li>'.$option['title'].'</li>';
-                }
-                echo '</ul>';
+                wc_get_template('add-on/form-required.php', [
+                    'addon' => $addon,
+                ], '', $template_path);
             } elseif (self::ADDON_TYPE_SINGLE_CHOICE === $type) {
-                woocommerce_form_field($addon[self::KEY_FORM_ID], $addon[self::KEY_FORM_OPTIONS]);
+                wc_get_template('add-on/form-single-choice.php', [
+                    'addon' => $addon,
+                ], '', $template_path);
             } elseif (self::ADDON_TYPE_MULTIPLE_CHOICE === $type) {
-                echo '<p class="custom-checkbox-description">'.$addon['title'].'</p>';
-                foreach ($addon['options'] as $option) {
-                    woocommerce_form_field($option[self::KEY_FORM_ID], $option[self::KEY_FORM_OPTIONS]);
-                }
+                wc_get_template('add-on/form-multiple-choice.php', [
+                    'addon' => $addon,
+                ], '', $template_path);
             }
         }
     }
@@ -400,7 +406,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return self::FIELD_CHOICE."[$addon_id][".self::ADDON_TYPE_MULTIPLE_CHOICE."][$option_id]";
     }
 
-    protected function getCachedAddOnsFromApi(\WC_Product $product): array
+    protected function getAddOnsFromApiWithWcProducts(\WC_Product $product): array
     {
         $shop_product_id = $product->get_meta('storekeeper_id');
         if (empty($shop_product_id)) {
@@ -408,7 +414,11 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         if (!array_key_exists($shop_product_id, $this->addon_call_cache)) {
-            $this->addon_call_cache[$shop_product_id] = $this->getAddOnsFromApi($shop_product_id);
+            $addons = $this->getAddOnsFromApi($shop_product_id);
+            $addons = $this->addWcProductsToAddons($addons);
+            $addons = $this->filterAddonsWithWcProducts($addons);
+
+            $this->addon_call_cache[$shop_product_id] = $addons;
         }
 
         return $this->addon_call_cache[$shop_product_id];
@@ -471,40 +481,54 @@ class ProductAddOnHandler implements WithHooksInterface
 
     protected function getAddOnsForProduct(\WC_Product $product): array
     {
-        $addons = $this->getCachedAddOnsFromApi($product);
+        $addons = $this->getAddOnsFromApiWithWcProducts($product);
+
+        /* @var \WC_Product $wc_product */
         $result = [];
         foreach ($addons as $addon) {
             $id = $addon['product_addon_group_id'];
             $type = $addon['type'];
+            $out_of_stock_options = [];
+            foreach ($addon['options'] as &$option) {
+                $option[self::KEY_FORM_ID] = $this->getMultipleChoiceKeyName($id, $option['id']);
+                $option[self::OPTION_TITLE] = $this->formatOptionTitle($option);
+
+                $wc_product = $option[self::KEY_WC_PRODUCT];
+                if (!$wc_product->is_in_stock()) {
+                    $out_of_stock_options[] = (int) $option['id'];
+                }
+            }
+            $addon[self::KEY_FORM_ID] = $this->getSingleKeyName($id);
+            $addon[self::KEY_OUT_OF_STOCK_OPTION_IDS] = $out_of_stock_options;
+
+            $attributes = [
+                self::FORM_DATA_SK_TYPE => self::INPUT_TYPE_PRODUCT_ADD_ON,
+                self::FORM_DATA_SK_ADDON => $addon[self::KEY_FORM_ID],
+            ];
             if (self::ADDON_TYPE_SINGLE_CHOICE === $type) {
                 $field_options = [
                     '' => 'Choose option', // todo localize
                 ];
+
                 foreach ($addon['options'] as &$option) {
-                    $field_options[$option['id']] = $this->formatOptionTitle($option);
+                    $field_options[$option['id']] = $option[self::OPTION_TITLE];
                 }
-                $addon[self::KEY_FORM_ID] = $this->getSingleKeyName($id);
                 $addon[self::KEY_FORM_OPTIONS] = [
                     'type' => 'select',
                     'class' => ['form-row-wide'],
                     'label' => $addon['title'],
                     'required' => false,
                     'options' => $field_options,
-                    'custom_attributes' => [
-                        'data-sk-type' => self::INPUT_TYPE_PRODUCT_ADD_ON,
-                    ],
+                    'custom_attributes' => $attributes,
                 ];
             } elseif (self::ADDON_TYPE_MULTIPLE_CHOICE === $type) {
                 foreach ($addon['options'] as &$option) {
-                    $option[self::KEY_FORM_ID] = $this->getMultipleChoiceKeyName($id, $option['id']);
                     $option[self::KEY_FORM_OPTIONS] = [
                         'type' => 'checkbox',
                         'class' => ['form-row-wide'],
-                        'label' => $this->formatOptionTitle($option),
+                        'label' => $option[self::OPTION_TITLE],
                         'checked_value' => $option['id'],
-                        'custom_attributes' => [
-                            'data-sk-type' => self::INPUT_TYPE_PRODUCT_ADD_ON,
-                        ],
+                        'custom_attributes' => $attributes,
                     ];
                 }
             }
@@ -635,5 +659,60 @@ class ProductAddOnHandler implements WithHooksInterface
     protected function isRequiredType(string $type): bool
     {
         return self::ADDON_TYPE_REQUIRED_ADDON === $type || self::ADDON_TYPE_BUNDLE === $type;
+    }
+
+    protected function addWcProductsToAddons(array $addons): array
+    {
+        $shop_product_ids = [];
+        foreach ($addons as $addon) {
+            foreach ($addon['options'] as $option) {
+                $shop_product_ids[] = $option['shop_product_id'];
+            }
+        }
+
+        $products = wc_get_products([
+            'limit' => -1,
+            'meta_key' => 'storekeeper_id',
+            'meta_value' => $shop_product_ids,
+            'meta_compare' => 'IN',
+        ]);
+        $wc_product_per_id = [];
+        foreach ($products as $product) {
+            /* @var \WC_Product $product */
+            $shop_product_id = $product->get_meta('storekeeper_id');
+            $wc_product_per_id[$shop_product_id] = $product;
+        }
+
+        unset($addon, $option);
+        foreach ($addons as &$addon) {
+            foreach ($addon['options'] as &$option) {
+                $shop_product_id = $option['shop_product_id'];
+                if (array_key_exists($shop_product_id, $wc_product_per_id)) {
+                    $option[self::KEY_WC_PRODUCT] = $wc_product_per_id[$shop_product_id];
+                }
+            }
+        }
+
+        return $addons;
+    }
+
+    protected function filterAddonsWithWcProducts(array $addons): array
+    {
+        $addon_with_wc_products = [];
+        foreach ($addons as $addon) {
+            $options_with_wc_products = [];
+            foreach ($addon['options'] as $option) {
+                if (
+                    isset($option[self::KEY_WC_PRODUCT])
+                    && $option[self::KEY_WC_PRODUCT] instanceof \WC_Product) {
+                    $options_with_wc_products[] = $option;
+                }
+            }
+            if (!empty($options_with_wc_products)) {
+                $addon_with_wc_products[] = $addon;
+            }
+        }
+
+        return $addon_with_wc_products;
     }
 }

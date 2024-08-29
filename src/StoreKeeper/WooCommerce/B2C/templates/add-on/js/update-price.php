@@ -1,7 +1,9 @@
 <?php
 
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
+
 $additionaPrice = json_encode($price_addon_changes);
-$fieldNameSelector = '[data-sk-type="'.StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler::INPUT_TYPE_PRODUCT_ADD_ON.'"]';
+$fieldNameSelector = ProductAddOnHandler::INPUT_TYPE_PRODUCT_ADD_ON_SELECTOR;
 $fieldSelectSelector = "select{$fieldNameSelector}";
 $fieldCheckboxSelector = "{$fieldNameSelector} input[type=checkbox]";
 $fieldSelector = "$fieldSelectSelector, $fieldCheckboxSelector";
