@@ -213,6 +213,7 @@ class ProductAddOnHandler implements WithHooksInterface
                     ;
                     if ($selected) {
                         $addon_item_data = [
+                            self::CART_FIELD_ID => uniqid(),
                             self::CART_FIELD_PARENT_ID => $cart_item_data[self::CART_FIELD_ID],
                             self::CART_FIELD_PRICE => $option['ppu_wt'],
                             self::CART_FIELD_NAME => $option['title'],
