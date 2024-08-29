@@ -70,6 +70,7 @@ class ProductAddOnHandler implements WithHooksInterface
         add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_meta_for_display'], 10, 2);
         add_filter('woocommerce_update_cart_validation', [$this, 'validate_on_qty_on_update_cart_quantity'], 10, 4);
         add_filter('woocommerce_add_to_cart_validation', [$this, 'validate_on_add_to_cart'], 10, 5);
+        add_action('woocommerce_cart_calculate_fees', [$this, 'addEmballageFee'], 11);
     }
 
     public function enqueue_scripts(): void
@@ -743,5 +744,47 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         return null;
+    }
+
+    public function addEmballageFee()
+    {
+        /* @var \WooCommerce $woocommerce */
+        global $woocommerce;
+
+        $items = $woocommerce->cart->get_cart();
+
+        $lastEmballageTaxRateId = null;
+        $totalEmballagePriceInCents = 0;
+        foreach ($items as $values) {
+            if (!$this->isProductWithAddOns($values['product_id'])) {
+                // only use legacy embalage if product is not synchronized as with addons
+                $product = wc_get_product($values['product_id']);
+
+                if ($product) {
+                    $quantity = $values['quantity'];
+                    if ($product->meta_exists(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY)) {
+                        $emballagePrice = $product->get_meta(ProductImport::PRODUCT_EMBALLAGE_PRICE_META_KEY);
+                        $totalEmballagePriceInCents += round($emballagePrice * 100) * $quantity;
+                    }
+
+                    if ($product->meta_exists(ProductImport::PRODUCT_EMBALLAGE_TAX_ID_META_KEY)) {
+                        $lastEmballageTaxRateId = $product->get_meta(ProductImport::PRODUCT_EMBALLAGE_TAX_ID_META_KEY);
+                    }
+                }
+            }
+        }
+
+        if ($totalEmballagePriceInCents > 0) {
+            $totalEmballagePrice = round($totalEmballagePriceInCents / 100, 2);
+            $emballagePrice = [
+                'name' => __('Emballage fee', I18N::DOMAIN),
+                'amount' => $totalEmballagePrice,
+                OrderExport::IS_EMBALLAGE_FEE_KEY => true,
+            ];
+            if ($lastEmballageTaxRateId) {
+                $emballagePrice[OrderExport::TAX_RATE_ID_FEE_KEY] = $lastEmballageTaxRateId;
+            }
+            $woocommerce->cart->fees_api()->add_fee($emballagePrice);
+        }
     }
 }
