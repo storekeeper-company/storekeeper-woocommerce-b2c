@@ -51,29 +51,36 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function registerHooks(): void
     {
-        add_action('wp_head', [$this, 'add_styles']);
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-        add_filter('woocommerce_post_class', [$this, 'add_post_classes'], 10, 2);
-        add_action('woocommerce_before_add_to_cart_button', [$this, 'add_addon_fields']);
-        add_action('woocommerce_before_add_to_cart_form', [$this, 'add_price_update_script']);
-        add_action('woocommerce_add_to_cart', [$this, 'add_additional_item_to_cart'], 10, 6);
-        add_action('woocommerce_before_calculate_totals', [$this, 'add_custom_price'], 10, 1);
-        add_filter('woocommerce_add_cart_item_data', [$this, 'save_custom_field_data'], 10, 3);
-        add_filter('woocommerce_cart_item_name', [$this, 'custom_cart_item_name'], 10, 3);
-        add_filter('woocommerce_cart_item_class', [$this, 'add_subproduct_class'], 10, 3);
-        add_filter('woocommerce_cart_item_remove_link', [$this, 'remove_cart_item_remove_link'], 10, 2);
-        add_filter('woocommerce_cart_item_quantity', [$this, 'remove_quantity_input_for_subproducts'], 10, 3);
-        add_action('woocommerce_cart_item_removed', [$this, 'remove_subproducts_when_main_product_removed'], 10, 2);
-        add_action('woocommerce_checkout_create_order_line_item', [$this, 'modify_order_line_item'], 10, 4);
-        add_action('woocommerce_after_cart_item_quantity_update', [$this, 'update_cart_subitem_quantity'], 10, 4);
-        add_filter('woocommerce_cart_item_permalink', [$this, 'woocommerce_cart_item_permalink_filter'], 10, 3);
-        add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_meta_for_display'], 10, 2);
-        add_filter('woocommerce_update_cart_validation', [$this, 'validate_on_qty_on_update_cart_quantity'], 10, 4);
-        add_filter('woocommerce_add_to_cart_validation', [$this, 'validate_on_add_to_cart'], 10, 5);
+        // global
+        add_action('wp_head', [$this, 'renderCssStyles']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueueWcPriceScript']);
+
+        // product page
+        add_filter('woocommerce_post_class', [$this, 'addPostSkAddonCssClass'], 10, 2);
+        add_action('woocommerce_before_add_to_cart_button', [$this, 'renderAddOnFormOnProductPage']);
+        add_action('woocommerce_before_add_to_cart_form', [$this, 'renderPriceCalculationJsScriptOnProductPage']);
+
+        // cart management
+        add_filter('woocommerce_add_to_cart_validation', [$this, 'validateCartItemAddQuantity'], 10, 5);
+        add_filter('woocommerce_update_cart_validation', [$this, 'validateCartItemQuantityUpdate'], 10, 4);
+        add_action('woocommerce_add_to_cart', [$this, 'addSubitemsToCart'], 10, 6);
+        add_action('woocommerce_before_calculate_totals', [$this, 'setAddOnPriceOnCartSubitem'], 10, 1);
+        add_filter('woocommerce_add_cart_item_data', [$this, 'setAddOnCartItemData'], 10, 3);
+        add_filter('woocommerce_cart_item_name', [$this, 'getAddOnOptionNameFromCartItem'], 10, 3);
+        add_filter('woocommerce_cart_item_class', [$this, 'appendCssClassToCartItem'], 10, 3);
+        add_filter('woocommerce_cart_item_remove_link', [$this, 'disableRemoveLinkForCartSubitems'], 10, 2);
+        add_filter('woocommerce_cart_item_quantity', [$this, 'disableQuantityInputForCartSubitems'], 10, 3);
+        add_action('woocommerce_cart_item_removed', [$this, 'removeSubitemsForCartItem'], 10, 2);
+        add_action('woocommerce_after_cart_item_quantity_update', [$this, 'updateCartSubitemsQuantityForCartItem'], 10, 4);
+        add_filter('woocommerce_cart_item_permalink', [$this, 'injectSubitemProductNameForMiniCart'], 10, 3);
         add_action('woocommerce_cart_calculate_fees', [$this, 'addEmballageFee'], 11);
+
+        // order management
+        add_action('woocommerce_checkout_create_order_line_item', [$this, 'copyCartItemDataToOrderItem'], 10, 4);
+        add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'filterOrderItemAddOnMetaForDisplay'], 10, 2);
     }
 
-    public function enqueue_scripts(): void
+    public function enqueueWcPriceScript(): void
     {
         wp_enqueue_script('wc-price-js', Core::plugin_url().'/resources/js/wc_price.js', ['jquery'], '1.0', false);
         $wc_settings = [
@@ -86,7 +93,7 @@ class ProductAddOnHandler implements WithHooksInterface
         wp_localize_script('wc-price-js', 'wc_settings_args', $wc_settings);
     }
 
-    public function add_post_classes($classes, $product): array
+    public function addPostSkAddonCssClass($classes, $product): array
     {
         if ($this->isProductWithAddOns($product->get_id())) {
             $classes[] = 'has-sk-addon';
@@ -95,7 +102,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $classes;
     }
 
-    public function hide_meta_for_display($formatted_meta, $order_item): array
+    public function filterOrderItemAddOnMetaForDisplay($formatted_meta, $order_item): array
     {
         $valid_meta = [];
         foreach ($formatted_meta as $id => $meta) {
@@ -107,7 +114,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $valid_meta;
     }
 
-    public function add_addon_fields(): void
+    public function renderAddOnFormOnProductPage(): void
     {
         global $product;
 
@@ -139,7 +146,7 @@ class ProductAddOnHandler implements WithHooksInterface
         }
     }
 
-    public function add_price_update_script()
+    public function renderPriceCalculationJsScriptOnProductPage()
     {
         global $product;
 
@@ -163,13 +170,13 @@ class ProductAddOnHandler implements WithHooksInterface
         ], '', $template_path);
     }
 
-    public function add_styles()
+    public function renderCssStyles()
     {
         $template_path = Core::plugin_abspath().'templates/';
         wc_get_template('add-on/css/add-on-styles.php', [], '', $template_path);
     }
 
-    public function save_custom_field_data($cart_item_data, $product_id, $variation_id)
+    public function setAddOnCartItemData($cart_item_data, $product_id, $variation_id)
     {
         if ($this->isProductWithAddOns($product_id)) {
             $has_add_ons = $this->hasRequiredAddOns($product_id);
@@ -189,7 +196,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $cart_item_data;
     }
 
-    public function add_additional_item_to_cart($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data)
+    public function addSubitemsToCart($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data)
     {
         if (
             !empty($cart_item_data[self::CART_FIELD_ID])
@@ -225,7 +232,7 @@ class ProductAddOnHandler implements WithHooksInterface
         }
     }
 
-    public function add_custom_price($cart)
+    public function setAddOnPriceOnCartSubitem($cart)
     {
         if (is_admin() && !defined('DOING_AJAX')) {
             return;
@@ -241,7 +248,7 @@ class ProductAddOnHandler implements WithHooksInterface
         }
     }
 
-    public function custom_cart_item_name($name, $cart_item, $cart_item_key)
+    public function getAddOnOptionNameFromCartItem($name, $cart_item, $cart_item_key)
     {
         if (!empty($cart_item[self::CART_FIELD_NAME])) {
             return $cart_item[self::CART_FIELD_NAME];
@@ -250,7 +257,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $name;
     }
 
-    public function add_subproduct_class($class, $cart_item, $cart_item_key)
+    public function appendCssClassToCartItem($class, $cart_item, $cart_item_key)
     {
         if (isset($cart_item[self::CART_FIELD_PARENT_ID])) {
             $class .= ' '.self::CSS_CLASS_ADDON_SUBPRODUCT;
@@ -261,7 +268,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $class;
     }
 
-    public function remove_quantity_input_for_subproducts($quantity_input, $cart_item_key, $cart_item)
+    public function disableQuantityInputForCartSubitems($quantity_input, $cart_item_key, $cart_item)
     {
         if (isset($cart_item[self::CART_FIELD_PARENT_ID])) {
             return '';
@@ -270,7 +277,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $quantity_input;
     }
 
-    public function remove_cart_item_remove_link($link, $cart_item_key)
+    public function disableRemoveLinkForCartSubitems($link, $cart_item_key)
     {
         $cart = WC()->cart->get_cart();
         $cart_item = $cart[$cart_item_key];
@@ -281,7 +288,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $link;
     }
 
-    public function modify_order_line_item(\WC_Order_Item_Product $item, $cart_item_key, $cart_item_data, \WC_Order $order)
+    public function copyCartItemDataToOrderItem(\WC_Order_Item_Product $item, $cart_item_key, $cart_item_data, \WC_Order $order)
     {
         if (!empty($cart_item_data[self::CART_FIELD_ID])) {
             foreach (self::CART_FIELDS as $field_name) {
@@ -292,7 +299,7 @@ class ProductAddOnHandler implements WithHooksInterface
         }
     }
 
-    public function woocommerce_cart_item_permalink_filter($product_permalink, $cart_item, $cart_item_key)
+    public function injectSubitemProductNameForMiniCart($product_permalink, $cart_item, $cart_item_key)
     {
         // needed to replace the name on the checkout order summary
         // other option would be replacing in js or new product type with some name getting from global
@@ -479,7 +486,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return [$required_price, $price_addon_changes];
     }
 
-    public function remove_subproducts_when_main_product_removed($cart_item_key, $cart)
+    public function removeSubitemsForCartItem($cart_item_key, $cart)
     {
         $removed_item = $cart->removed_cart_contents[$cart_item_key];
 
@@ -497,7 +504,7 @@ class ProductAddOnHandler implements WithHooksInterface
         }
     }
 
-    public function validate_on_qty_on_update_cart_quantity($passed, $cart_item_key, $cart_item, $quantity)
+    public function validateCartItemQuantityUpdate($passed, $cart_item_key, $cart_item, $quantity)
     {
         if (isset($cart_item[self::CART_FIELD_ID])) {
             $set_quantities = [];
@@ -521,9 +528,9 @@ class ProductAddOnHandler implements WithHooksInterface
         return $passed;
     }
 
-    public function validate_on_add_to_cart($passed, $product_id, $quantity, $variation_id = '', $variations = '')
+    public function validateCartItemAddQuantity($passed, $product_id, $quantity, $variation_id = '', $variations = '')
     {
-        $cart_item = $this->save_custom_field_data([], $product_id, $variation_id);
+        $cart_item = $this->setAddOnCartItemData([], $product_id, $variation_id);
         if (isset($cart_item[self::CART_FIELD_ID])) {
             $all_selected_option_ids = $cart_item[self::CART_FIELD_SELECTED_IDS];
             $cart = WC()->cart;
@@ -566,7 +573,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return $passed;
     }
 
-    public function update_cart_subitem_quantity($cart_item_key, $new_quantity, $old_quantity = null, $cart = null)
+    public function updateCartSubitemsQuantityForCartItem($cart_item_key, $new_quantity, $old_quantity = null, $cart = null)
     {
         if (null === $cart) {
             $cart = WC()->cart;
@@ -756,8 +763,12 @@ class ProductAddOnHandler implements WithHooksInterface
         $lastEmballageTaxRateId = null;
         $totalEmballagePriceInCents = 0;
         foreach ($items as $values) {
-            if (!$this->isProductWithAddOns($values['product_id'])) {
+            $addFee = !$this->isProductWithAddOns($values['product_id'])
+                && !$this->hasRequiredAddOns($values['product_id']);
+
+            if ($addFee) {
                 // only use legacy embalage if product is not synchronized as with addons
+                // otherwise it will be added double
                 $product = wc_get_product($values['product_id']);
 
                 if ($product) {
