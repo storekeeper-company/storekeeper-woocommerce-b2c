@@ -188,7 +188,7 @@ class ProductAddOnHandler implements WithHooksInterface
         foreach ($this->getAddOnsForProduct($product) as $addon) {
             $type = $addon['type'];
             // todo disable out of stock
-            if (self::ADDON_TYPE_REQUIRED_ADDON === $type || self::ADDON_TYPE_BUNDLE === $type) {
+            if ($this->isRequiredType($type)) {
                 // todo sum up the required add ons
                 echo '<p class="custom-checkbox-description">'.$addon['title'].'</p>'; // todo style better
                 echo '<ul>';
@@ -267,8 +267,7 @@ class ProductAddOnHandler implements WithHooksInterface
             foreach ($this->getAddOnsForProduct($product) as $addon) {
                 $type = $addon['type'];
                 foreach ($addon['options'] as $option) {
-                    $selected = self::ADDON_TYPE_REQUIRED_ADDON === $type
-                        || self::ADDON_TYPE_BUNDLE === $type
+                    $selected = $this->isRequiredType($type)
                         || in_array($option['id'], $all_selected_option_ids)
                     ;
                     if ($selected) {
@@ -401,7 +400,7 @@ class ProductAddOnHandler implements WithHooksInterface
         return self::FIELD_CHOICE."[$addon_id][".self::ADDON_TYPE_MULTIPLE_CHOICE."][$option_id]";
     }
 
-    protected function getAddOnsForWcProduct(\WC_Product $product): array
+    protected function getCachedAddOnsFromApi(\WC_Product $product): array
     {
         $shop_product_id = $product->get_meta('storekeeper_id');
         if (empty($shop_product_id)) {
@@ -414,6 +413,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
         return $this->addon_call_cache[$shop_product_id];
     }
+
     protected function getAddOnsFromApi(int $shop_product_id): array
     {
         try {
@@ -453,6 +453,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
                 $formatted_addons[] = $formatted_addon;
             }
+
             return $formatted_addons;
         } catch (\Exception $e) {
             LoggerFactory::create('load_errors')->error(
@@ -470,7 +471,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     protected function getAddOnsForProduct(\WC_Product $product): array
     {
-        $addons = $this->getAddOnsForWcProduct($product);
+        $addons = $this->getCachedAddOnsFromApi($product);
         $result = [];
         foreach ($addons as $addon) {
             $id = $addon['product_addon_group_id'];
@@ -526,7 +527,7 @@ class ProductAddOnHandler implements WithHooksInterface
         $price_addon_changes = [];
         foreach ($this->getAddOnsForProduct($product) as $addon) {
             $type = $addon['type'];
-            if (self::ADDON_TYPE_REQUIRED_ADDON === $type || self::ADDON_TYPE_BUNDLE === $type) {
+            if ($this->isRequiredType($type)) {
                 foreach ($addon['options'] as $option) {
                     $required_price += $option['ppu_wt'];
                 }
@@ -620,6 +621,19 @@ class ProductAddOnHandler implements WithHooksInterface
             return false;
         }
 
-        return true; // todo
+        $product = wc_get_product($product_id);
+        $addons = $this->getAddOnsForProduct($product);
+        foreach ($addons as $addon) {
+            if ($this->isRequiredType($addon['type']) && !empty($addon['options'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function isRequiredType(string $type): bool
+    {
+        return self::ADDON_TYPE_REQUIRED_ADDON === $type || self::ADDON_TYPE_BUNDLE === $type;
     }
 }
