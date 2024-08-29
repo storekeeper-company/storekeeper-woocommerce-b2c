@@ -708,6 +708,7 @@ class ProductAddOnHandler implements WithHooksInterface
                 }
             }
             if (!empty($options_with_wc_products)) {
+                $addon['options'] = $options_with_wc_products;
                 $addon_with_wc_products[] = $addon;
             }
         }
