@@ -401,18 +401,21 @@ class ProductAddOnHandler implements WithHooksInterface
         return self::FIELD_CHOICE."[$addon_id][".self::ADDON_TYPE_MULTIPLE_CHOICE."][$option_id]";
     }
 
-    protected function getAddOnsFromApi(\WC_Product $product): array
+    protected function getAddOnsForWcProduct(\WC_Product $product): array
     {
         $shop_product_id = $product->get_meta('storekeeper_id');
         if (empty($shop_product_id)) {
             return [];
         }
 
-        if (array_key_exists($shop_product_id, $this->addon_call_cache)) {
-            return $this->addon_call_cache[$shop_product_id];
+        if (!array_key_exists($shop_product_id, $this->addon_call_cache)) {
+            $this->addon_call_cache[$shop_product_id] = $this->getAddOnsFromApi($shop_product_id);
         }
 
-        $formatted_addons = [];
+        return $this->addon_call_cache[$shop_product_id];
+    }
+    protected function getAddOnsFromApi(int $shop_product_id): array
+    {
         try {
             $api = StoreKeeperApi::getApiByAuthName();
             $ShopModule = $api->getModule('ShopModule');
@@ -426,6 +429,7 @@ class ProductAddOnHandler implements WithHooksInterface
                 return [];
             }
 
+            $formatted_addons = [];
             foreach ($product_addon_group_ids as $product_addon_group_id) {
                 $group = $ShopModule->getShopProductAddonGroup($product_addon_group_id);
 
@@ -449,6 +453,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
                 $formatted_addons[] = $formatted_addon;
             }
+            return $formatted_addons;
         } catch (\Exception $e) {
             LoggerFactory::create('load_errors')->error(
                 'Shop product add ons cannot be loaded:  '.$e->getMessage(),
@@ -460,14 +465,12 @@ class ProductAddOnHandler implements WithHooksInterface
             );
         }
 
-        $this->addon_call_cache[$shop_product_id] = $formatted_addons;
-
-        return $formatted_addons;
+        return [];
     }
 
     protected function getAddOnsForProduct(\WC_Product $product): array
     {
-        $addons = $this->getAddOnsFromApi($product);
+        $addons = $this->getAddOnsForWcProduct($product);
         $result = [];
         foreach ($addons as $addon) {
             $id = $addon['product_addon_group_id'];

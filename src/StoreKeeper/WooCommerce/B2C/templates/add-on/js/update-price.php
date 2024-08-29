@@ -30,6 +30,7 @@ echo <<<HTML
             });
 
             // todo fix the price format
+            // todo fix discount price
             $('.woocommerce-Price-amount').html('<span class="woocommerce-Price-currencySymbol">$</span>' + newPrice.toFixed(2));
         }
         
