@@ -3,7 +3,7 @@
 $product_class = StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler::CSS_CLASS_ADDON_PRODUCT;
 $subproduct_class = StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler::CSS_CLASS_ADDON_SUBPRODUCT;
 
-$icon_url = StoreKeeper\WooCommerce\B2C\Core::plugin_url().'/assets/images/arrow-turn-down-left.svg';
+$icon_url = StoreKeeper\WooCommerce\B2C\Core::plugin_url().'/resources/images/arrow-turn-down-left.svg';
 echo <<<HTML
  <style>
     .$subproduct_class td {
@@ -24,6 +24,7 @@ echo <<<HTML
           background-size: contain;
           background-repeat: no-repeat;
           background-position: center right;
+          opacity: .25;
     }
 </style>
 HTML;

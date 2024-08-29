@@ -2,7 +2,8 @@
 
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 
-$additionaPrice = json_encode($price_addon_changes);
+
+$additionalPrice = json_encode($price_addon_changes);
 $fieldNameSelector = ProductAddOnHandler::INPUT_TYPE_PRODUCT_ADD_ON_SELECTOR;
 $fieldSelectSelector = "select{$fieldNameSelector}";
 $fieldCheckboxSelector = "{$fieldNameSelector} input[type=checkbox]";
@@ -12,7 +13,7 @@ echo <<<HTML
 <script type="text/javascript">
     jQuery(document).ready(function($) {
         var originalPrice = {$start_price};
-        var additionaPrice = {$additionaPrice};
+        var additionaPrice = {$additionalPrice};
         
         function recalculatePrice() {
             var newPrice = originalPrice;
@@ -31,9 +32,10 @@ echo <<<HTML
               }
             });
 
-            // todo fix the price format
             // todo fix discount price
-            $('.woocommerce-Price-amount').html('<span class="woocommerce-Price-currencySymbol">$</span>' + newPrice.toFixed(2));
+            $('.woocommerce-Price-amount').html(
+                 wc_price_js( newPrice, wc_settings_args ) 
+            );
         }
         
         $('{$fieldSelector}').change(function() {

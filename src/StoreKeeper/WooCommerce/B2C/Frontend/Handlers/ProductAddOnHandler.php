@@ -51,6 +51,7 @@ class ProductAddOnHandler implements WithHooksInterface
     public function registerHooks(): void
     {
         add_action('wp_head', [$this, 'add_styles']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('woocommerce_before_add_to_cart_button', [$this, 'add_addon_fields']);
         add_action('woocommerce_before_add_to_cart_form', [$this, 'add_price_update_script']);
         add_action('woocommerce_add_to_cart', [$this, 'add_additional_item_to_cart'], 10, 6);
@@ -69,6 +70,19 @@ class ProductAddOnHandler implements WithHooksInterface
         add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_meta_for_display'], 10, 2);
         add_filter('woocommerce_update_cart_validation', [$this, 'validate_on_qty_on_update_cart_quantity'], 10, 4);
         add_filter('woocommerce_add_to_cart_validation', [$this, 'validate_on_add_to_cart'], 10, 5);
+    }
+
+    public function enqueue_scripts(): void
+    {
+        wp_enqueue_script('wc-price-js', Core::plugin_url().'/resources/js/wc_price.js', ['jquery'], '1.0', false);
+        $wc_settings = [
+            'currency_symbol' => get_woocommerce_currency_symbol(),
+            'decimal_separator' => wc_get_price_decimal_separator(),
+            'thousand_separator' => wc_get_price_thousand_separator(),
+            'currency_format_num_decimals' => wc_get_price_decimals(),
+            'price_format' => get_woocommerce_price_format(),
+        ];
+        wp_localize_script('wc-price-js', 'wc_settings_args', $wc_settings);
     }
 
     public function hide_meta_for_display($formatted_meta, $order_item): array
