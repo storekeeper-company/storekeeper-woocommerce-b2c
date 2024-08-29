@@ -69,6 +69,8 @@ class ProductAddOnHandler implements WithHooksInterface
         add_filter('woocommerce_order_item_name', [$this, 'order_item_component_name'], 10, 2);
         add_filter('woocommerce_cart_item_permalink', [$this, 'woocommerce_cart_item_permalink_filter'], 10, 3);
         add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_meta_for_display'], 10, 2);
+        add_filter('woocommerce_update_cart_validation', [$this, 'validate_on_qty_on_update_cart_quantity'], 10, 4);
+        add_filter('woocommerce_add_to_cart_validation', [$this, 'custom_add_to_cart_validation'], 10, 5);
     }
 
     public const PRODUCT_ADDONS = [// todo remove
@@ -266,7 +268,6 @@ class ProductAddOnHandler implements WithHooksInterface
             !empty($cart_item_data[self::CART_FIELD_ID])
             && empty($cart_item_data[self::CART_FIELD_PARENT_ID]) // exclude children
         ) {
-            $addon_id = $this->getSkAddonProductId();
             $product = wc_get_product($product_id);
 
             $all_selected_option_ids = $cart_item_data[self::CART_FIELD_SELECTED_IDS];
@@ -285,7 +286,7 @@ class ProductAddOnHandler implements WithHooksInterface
                             self::CART_FIELD_ADDON_GROUP_ID => $addon['product_addon_group_id'],
                         ];
                         WC()->cart->add_to_cart(
-                            $addon_id,
+                            $option[self::KEY_WC_PRODUCT]->get_id(),
                             $quantity,
                             0, // $variation_id
                             [], // $variation
@@ -489,6 +490,7 @@ class ProductAddOnHandler implements WithHooksInterface
             $id = $addon['product_addon_group_id'];
             $type = $addon['type'];
             $out_of_stock_options = [];
+            unset($option);
             foreach ($addon['options'] as &$option) {
                 $option[self::KEY_FORM_ID] = $this->getMultipleChoiceKeyName($id, $option['id']);
                 $option[self::OPTION_TITLE] = $this->formatOptionTitle($option);
@@ -509,7 +511,7 @@ class ProductAddOnHandler implements WithHooksInterface
                 $field_options = [
                     '' => 'Choose option', // todo localize
                 ];
-
+                unset($option);
                 foreach ($addon['options'] as &$option) {
                     $field_options[$option['id']] = $option[self::OPTION_TITLE];
                 }
@@ -522,6 +524,7 @@ class ProductAddOnHandler implements WithHooksInterface
                     'custom_attributes' => $attributes,
                 ];
             } elseif (self::ADDON_TYPE_MULTIPLE_CHOICE === $type) {
+                unset($option);
                 foreach ($addon['options'] as &$option) {
                     $option[self::KEY_FORM_OPTIONS] = [
                         'type' => 'checkbox',
@@ -581,6 +584,75 @@ class ProductAddOnHandler implements WithHooksInterface
                 }
             }
         }
+    }
+
+    public function validate_on_qty_on_update_cart_quantity($passed, $cart_item_key, $cart_item, $quantity)
+    {
+        if (isset($cart_item[self::CART_FIELD_ID])) {
+            $set_quantities = [];
+            $main_product_addon_id = $cart_item[self::CART_FIELD_ID];
+            $cart = WC()->cart;
+            foreach ($cart->get_cart() as $key => $item) {
+                if (
+                    isset($item[self::CART_FIELD_PARENT_ID])
+                    && $item[self::CART_FIELD_PARENT_ID] === $main_product_addon_id
+                ) {
+                    $notice = $this->validateAddonNewCartQuantity($item, $cart, $set_quantities, $quantity);
+                    if (!is_null($notice)) {
+                        $passed = false;
+                        wc_add_notice($notice, 'error');
+                    }
+                    $set_quantities[$key] = $quantity;
+                }
+            }
+        }
+
+        return $passed;
+    }
+
+    public function custom_add_to_cart_validation($passed, $product_id, $quantity, $variation_id = '', $variations = '')
+    {
+        $cart_item = $this->save_custom_field_data([], $product_id, $variation_id);
+        if (isset($cart_item[self::CART_FIELD_ID])) {
+            $all_selected_option_ids = $cart_item[self::CART_FIELD_SELECTED_IDS];
+            $cart = WC()->cart;
+            $product = wc_get_product($product_id);
+
+            $set_product_quantities = [];
+            $send_errors = [];
+            foreach ($this->getAddOnsForProduct($product) as $addon) {
+                $type = $addon['type'];
+                foreach ($addon['options'] as $option) {
+                    $selected = $this->isRequiredType($type)
+                        || in_array($option['id'], $all_selected_option_ids)
+                    ;
+                    if ($selected) {
+                        $product_id = $option[self::KEY_WC_PRODUCT]->get_id();
+                        if (!isset($set_product_quantities[$product_id])) {
+                            $set_product_quantities[$product_id] = 0;
+                        }
+                        $set_product_quantities[$product_id] += $quantity;
+
+                        $notice = $this->validateAddonNewCartQuantity(
+                            [
+                                'data' => $option[self::KEY_WC_PRODUCT],
+                                'key' => uniqid(),
+                            ],
+                            $cart, [], $set_product_quantities[$product_id]
+                        );
+                        if (!is_null($notice)) {
+                            $passed = false;
+                            if (!in_array($product_id, $send_errors)) {
+                                wc_add_notice($notice, 'error');
+                                $send_errors[] = $product_id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $passed;
     }
 
     public function update_subproduct_quantity($cart_item_key, $new_quantity, $old_quantity = null, $cart = null)
@@ -714,5 +786,44 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         return $addon_with_wc_products;
+    }
+
+    protected function getProductOtherQuantityFromCart($cart, $wc_product, $key1, array $set_quantities)
+    {
+        $other_quantity = 0;
+        foreach ($cart->get_cart() as $qtyitem) {
+            if (
+                $qtyitem['product_id'] === $wc_product->get_id()
+                && $qtyitem['key'] !== $key1
+            ) {
+                if (array_key_exists($qtyitem['key'], $set_quantities)) {
+                    $other_quantity += $set_quantities[$qtyitem['key']];
+                } else {
+                    $other_quantity += $qtyitem['quantity'];
+                }
+            }
+        }
+
+        return $other_quantity;
+    }
+
+    protected function validateAddonNewCartQuantity($item, $cart, array $set_quantities, $new_quantity): ?string
+    {
+        if ($item['data'] instanceof \WC_Product) {
+            $wc_product = $item['data'];
+            $other_quantity = $this->getProductOtherQuantityFromCart($cart, $wc_product, $item['key'], $set_quantities);
+            $new_total_qty = $new_quantity + $other_quantity;
+            if (!$wc_product->has_enough_stock($new_total_qty)) {
+                /* translators: 1: product name 2: quantity in stock */
+                $message = sprintf(__('You cannot add that amount of &quot;%1$s&quot; to the cart because there is not enough stock (%2$s remaining).', 'woocommerce'),
+                    $wc_product->get_name(),
+                    wc_format_stock_quantity_for_display($new_total_qty, $wc_product)
+                );
+
+                return apply_filters('woocommerce_cart_product_not_enough_stock_message', $message, $wc_product, $new_total_qty);
+            }
+        }
+
+        return null;
     }
 }
