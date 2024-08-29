@@ -2,11 +2,16 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
-use StoreKeeper\WooCommerce\B2C\Objects\GOCustomer;
+use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
+use StoreKeeper\WooCommerce\B2C\Objects\ShopCustomer;
 
-class CustomerLoginRegisterHandler
+class CustomerLoginRegisterHandler implements WithHooksInterface
 {
-    public const CONTEXT = 'edit';
+    public function registerHooks(): void
+    {
+        add_action('wp_login', [$this, 'loginBackendSync'], null, 2);
+        add_action('user_register', [$this, 'registerBackendSync'], null, 2);
+    }
 
     /**
      * @throws \Exception
@@ -17,7 +22,7 @@ class CustomerLoginRegisterHandler
             return;
         }
 
-        $customer = new GOCustomer($user->ID);
+        $customer = new ShopCustomer($user->ID);
         if (!$customer->is_customer_email_known()) {
             $customer->sync_customer_to_manage();
         }
@@ -32,7 +37,7 @@ class CustomerLoginRegisterHandler
             return;
         }
 
-        $customer = new GOCustomer($user_id);
+        $customer = new ShopCustomer($user_id);
         if (!$customer->is_customer_email_known()) {
             $customer->sync_customer_to_manage();
         }

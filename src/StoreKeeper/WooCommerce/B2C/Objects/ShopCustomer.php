@@ -2,10 +2,11 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Objects;
 
+use StoreKeeper\ApiWrapper\ApiWrapper;
 use StoreKeeper\WooCommerce\B2C\Exceptions\EmailIsAdminUserException;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
-class GOCustomer extends \WC_Customer
+class ShopCustomer extends \WC_Customer
 {
     public const CONTEXT_EDIT = 'edit';
 
@@ -32,8 +33,8 @@ class GOCustomer extends \WC_Customer
         self::AUTHOR_ROLE_NAME,
         self::CONTRIBUTOR_ROLE_NAME,
     ];
-
-    private $go_api;
+    /* @var ApiWrapper */
+    private $api;
 
     protected $data = [
         'date_created' => null,
@@ -82,7 +83,15 @@ class GOCustomer extends \WC_Customer
     public function __construct($data = 0, $is_session = false)
     {
         parent::__construct($data, $is_session);
-        $this->go_api = StoreKeeperApi::getApiByAuthName(); // todo fix it, throws fatal on diconnect
+    }
+
+    protected function getApi()
+    {
+        if (is_null($this->api)) {
+            $this->api = StoreKeeperApi::getApiByAuthName();
+        }
+
+        return $this->api;
     }
 
     /**
@@ -95,7 +104,7 @@ class GOCustomer extends \WC_Customer
         $email = $this->get_email(self::CONTEXT_EDIT);
         if (!empty($email)) {
             try {
-                $this->go_api->getModule('ShopModule')->findShopCustomerBySubuserEmail(['email' => $email]);
+                $this->getApi()->getModule('ShopModule')->findShopCustomerBySubuserEmail(['email' => $email]);
 
                 return true;
             } catch (\Throwable $exception) {
@@ -162,7 +171,7 @@ class GOCustomer extends \WC_Customer
             ],
         ];
 
-        $storekeeper_id = $this->go_api->getModule('ShopModule')->newShopCustomer($call_data);
+        $storekeeper_id = $this->getApi()->getModule('ShopModule')->newShopCustomer($call_data);
         $this->set_storekeeper_id($storekeeper_id);
 
         return $storekeeper_id;
