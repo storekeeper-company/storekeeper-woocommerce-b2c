@@ -55,6 +55,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\OrderTrackingMessage;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFilter;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -157,6 +158,9 @@ class Core
         $this->setLocale();
         if (StoreKeeperOptions::isOrderSyncEnabled()) {
             $this->setOrderHooks();
+        }
+        if (StoreKeeperOptions::isCustomerSyncEnabled()) {
+            (new CustomerLoginRegisterHandler())->registerHooks();
         }
 
         $this->setCouponHooks();

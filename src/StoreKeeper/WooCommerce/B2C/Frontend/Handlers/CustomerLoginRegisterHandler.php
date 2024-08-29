@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\Objects\ShopCustomer;
 
@@ -22,9 +23,20 @@ class CustomerLoginRegisterHandler implements WithHooksInterface
             return;
         }
 
-        $customer = new ShopCustomer($user->ID);
-        if (!$customer->is_customer_email_known()) {
-            $customer->sync_customer_to_manage();
+        try {
+            $customer = new ShopCustomer($user->ID);
+            if (!$customer->is_customer_email_known()) {
+                $customer->sync_customer_to_manage();
+            }
+        } catch (\Throwable $e) {
+            LoggerFactory::create('shop_customer')->error(
+                'Cannot synchronizeCustomer:  '.$e->getMessage(),
+                [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                ]
+            );
         }
     }
 
@@ -37,9 +49,20 @@ class CustomerLoginRegisterHandler implements WithHooksInterface
             return;
         }
 
-        $customer = new ShopCustomer($user_id);
-        if (!$customer->is_customer_email_known()) {
-            $customer->sync_customer_to_manage();
+        try {
+            $customer = new ShopCustomer($user_id);
+            if (!$customer->is_customer_email_known()) {
+                $customer->sync_customer_to_manage();
+            }
+        } catch (\Throwable $e) {
+            LoggerFactory::create('shop_customer')->error(
+                'Cannot synchronizeCustomer:  '.$e->getMessage(),
+                [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                ]
+            );
         }
     }
 }
