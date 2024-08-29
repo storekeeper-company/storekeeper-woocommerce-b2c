@@ -4,8 +4,10 @@ namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
+use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class ProductAddOnHandler implements WithHooksInterface
 {
@@ -38,7 +40,8 @@ class ProductAddOnHandler implements WithHooksInterface
     public const ADDON_SKU = '7718efcc-07fe-4027-b10a-8fdc6871e883';
     public const CSS_CLASS_ADDON_PRODUCT = 'sk-addon-product';
     public const CSS_CLASS_ADDON_SUBPRODUCT = 'sk-addon-subproduct';
-    public const KEY_ORDERABLE_STOCK = 'orderable_stock';
+
+    protected $addon_call_cache = [];
 
     public function registerHooks(): void
     {
@@ -73,14 +76,12 @@ class ProductAddOnHandler implements WithHooksInterface
                     'title' => 'Zanddeeg 500 gram',
                     'ppu_wt' => 2.85,
                     'shop_product_id' => 135842,
-                    self::KEY_ORDERABLE_STOCK => 5,
                 ],
                 [
                     'id' => 2,
                     'title' => 'Banketbakkersroom (bakvast) 100 gram (CaH)',
                     'ppu_wt' => 1.85,
                     'shop_product_id' => 135843,
-                    self::KEY_ORDERABLE_STOCK => 99,
                 ],
                 [
                     'id' => 3,
@@ -100,14 +101,12 @@ class ProductAddOnHandler implements WithHooksInterface
                     'title' => 'Bavarois Advocaat 100 gram',
                     'ppu_wt' => 3.75,
                     'shop_product_id' => 135837,
-                    self::KEY_ORDERABLE_STOCK => 0,
                 ],
                 [
                     'id' => 5,
                     'title' => 'Bavarois Crème Brûlée',
                     'ppu_wt' => 3.00,
                     'shop_product_id' => 135837,
-                    self::KEY_ORDERABLE_STOCK => 3,
                 ],
                 [
                     'id' => 6,
@@ -127,14 +126,12 @@ class ProductAddOnHandler implements WithHooksInterface
                     'title' => 'Bavarois Banaan 100 gram',
                     'ppu_wt' => 2,
                     'shop_product_id' => 112711,
-                    self::KEY_ORDERABLE_STOCK => 3,
                 ],
                 [
                     'id' => 8,
                     'title' => 'Bavarois Rabarber-Aardbei 100 gram',
                     'ppu_wt' => 5,
                     'shop_product_id' => 80156,
-                    self::KEY_ORDERABLE_STOCK => 0,
                 ],
                 [
                     'id' => 9,
@@ -404,12 +401,75 @@ class ProductAddOnHandler implements WithHooksInterface
         return self::FIELD_CHOICE."[$addon_id][".self::ADDON_TYPE_MULTIPLE_CHOICE."][$option_id]";
     }
 
-    protected function getAddOnsForProduct(\WC_Product $product): array
+    protected function getAddOnsFromApi(\WC_Product $product): array
     {
         $shop_product_id = $product->get_meta('storekeeper_id');
+        if (empty($shop_product_id)) {
+            return [];
+        }
 
+        if (array_key_exists($shop_product_id, $this->addon_call_cache)) {
+            return $this->addon_call_cache[$shop_product_id];
+        }
+
+        $formatted_addons = [];
+        try {
+            $api = StoreKeeperApi::getApiByAuthName();
+            $ShopModule = $api->getModule('ShopModule');
+            $addon_groups = $ShopModule->getShopProductAddonIdsForHook([$shop_product_id]);
+            if (empty($addon_groups)) {
+                return [];
+            }
+            $addon_group = array_pop($addon_groups);
+            $product_addon_group_ids = $addon_group['product_addon_group_ids'];
+            if (empty($product_addon_group_ids)) {
+                return [];
+            }
+
+            foreach ($product_addon_group_ids as $product_addon_group_id) {
+                $group = $ShopModule->getShopProductAddonGroup($product_addon_group_id);
+
+                $formatted_addon = [
+                    'product_addon_group_id' => $product_addon_group_id,
+                    'title' => $group['product_addon_group']['title'],
+                    'type' => $group['product_addon_group']['type'],
+                    'options' => [],
+                ];
+
+                foreach ($group['shop_product_addon_items'] as $addon_item) {
+                    if ($addon_item['active']) {
+                        $formatted_addon['options'][] = [
+                            'id' => $addon_item['product_addon_item_id'],
+                            'title' => $addon_item['title'],
+                            'ppu_wt' => $addon_item['product_price']['ppu_wt'],
+                            'shop_product_id' => $addon_item['shop_product_id'],
+                        ];
+                    }
+                }
+
+                $formatted_addons[] = $formatted_addon;
+            }
+        } catch (\Exception $e) {
+            LoggerFactory::create('load_errors')->error(
+                'Shop product add ons cannot be loaded:  '.$e->getMessage(),
+                [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                ]
+            );
+        }
+
+        $this->addon_call_cache[$shop_product_id] = $formatted_addons;
+
+        return $formatted_addons;
+    }
+
+    protected function getAddOnsForProduct(\WC_Product $product): array
+    {
+        $addons = $this->getAddOnsFromApi($product);
         $result = [];
-        foreach (self::PRODUCT_ADDONS as $addon) {
+        foreach ($addons as $addon) {
             $id = $addon['product_addon_group_id'];
             $type = $addon['type'];
             if (self::ADDON_TYPE_SINGLE_CHOICE === $type) {
@@ -452,8 +512,9 @@ class ProductAddOnHandler implements WithHooksInterface
 
     protected function formatOptionTitle($option): string
     {
-        // todo format price
-        return $option['title'].' (+'.$option['ppu_wt'].')';
+        $price = strip_tags(wc_price($option['ppu_wt']));
+
+        return $option['title'].' (+'.$price.')';
     }
 
     protected function calculateRequiredAndOptionalPriceChanges(\WC_Product $product): array
