@@ -4,13 +4,15 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 
 $out_of_stock_str = json_encode(' - '.__('Out of stock', 'woocommerce'));
 
-echo '<p class="custom-checkbox-description">'.$addon['title'].'</p>';  // todo style better
+echo '<div class="sk-addon-select">';
+echo '<p class="sk-addon-title">'.$addon['title'].'</p>';
 foreach ($addon['options'] as $option) {
     woocommerce_form_field(
         $option[ProductAddOnHandler::KEY_FORM_ID],
         $option[ProductAddOnHandler::KEY_FORM_OPTIONS]
     );
 }
+echo '</div>';
 
 $out_of_stock = $addon[ProductAddOnHandler::KEY_OUT_OF_STOCK_OPTION_IDS];
 if (!empty($out_of_stock)) {

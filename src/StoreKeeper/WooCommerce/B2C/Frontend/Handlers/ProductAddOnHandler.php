@@ -6,6 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Core;
 use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
+use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
@@ -427,7 +428,10 @@ class ProductAddOnHandler implements WithHooksInterface
             ];
             if (self::ADDON_TYPE_SINGLE_CHOICE === $type) {
                 $field_options = [
-                    '' => 'Choose option', // todo localize
+                    '' => sprintf(
+                        __('No %s selected', I18N::DOMAIN),
+                        $addon['title']
+                    ),
                 ];
                 unset($option);
                 foreach ($addon['options'] as &$option) {

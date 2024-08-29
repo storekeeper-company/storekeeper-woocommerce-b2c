@@ -55,8 +55,6 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\OrderTrackingMessage;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFilter;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -160,9 +158,6 @@ class Core
         if (StoreKeeperOptions::isOrderSyncEnabled()) {
             $this->setOrderHooks();
         }
-        //        if (StoreKeeperOptions::isCustomerSyncEnabled()) { // todo
-        //            $this->setCustomerHooks();
-        //        }
 
         $this->setCouponHooks();
         $this->prepareCron();
@@ -360,14 +355,6 @@ HTML;
         );
     }
 
-    private function setCustomerHooks()
-    {
-        // todo do not connect if api not set up
-        $customerHook = new CustomerLoginRegisterHandler();
-        $this->loader->add_action('wp_login', $customerHook, 'loginBackendSync', null, 2);
-        $this->loader->add_action('user_register', $customerHook, 'registerBackendSync', null, 2);
-    }
-
     private function setCouponHooks()
     {
         // Overwrite WooCommerce lower casing of coupon codes
@@ -390,8 +377,6 @@ HTML;
             $core = new FrontendCore();
         }
         $core->run();
-
-        (new ProductAddOnHandler())->registerHooks(); // todo
     }
 
     private function loadEndpoints()

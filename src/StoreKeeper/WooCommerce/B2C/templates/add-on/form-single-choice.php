@@ -3,10 +3,13 @@
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 
 $form_field_id = $addon[ProductAddOnHandler::KEY_FORM_ID];
+
+echo '<div class="sk-addon-select">';
 woocommerce_form_field(
     $form_field_id,
     $addon[ProductAddOnHandler::KEY_FORM_OPTIONS]
 );
+echo '</div>';
 
 $fieldNameSelector = ProductAddOnHandler::INPUT_TYPE_PRODUCT_ADD_ON_SELECTOR;
 $fieldSelectSelector = "select{$fieldNameSelector}[name=\"$form_field_id\"]";
