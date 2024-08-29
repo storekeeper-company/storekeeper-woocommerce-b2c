@@ -4,8 +4,9 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 
 $out_of_stock_str = json_encode(' - '.__('Out of stock', 'woocommerce'));
 
-echo '<div class="sk-addon-select">';
-echo '<p class="sk-addon-title">'.$addon['title'].'</p>';
+$type = $addon['type'];
+echo '<div class="sk-addon-select sk-addon-'.$type.'">';
+echo '<p class="sk-addon-title">'.esc_html($addon['title']).'</p>';
 foreach ($addon['options'] as $option) {
     woocommerce_form_field(
         $option[ProductAddOnHandler::KEY_FORM_ID],

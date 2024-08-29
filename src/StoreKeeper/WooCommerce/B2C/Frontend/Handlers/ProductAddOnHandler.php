@@ -260,7 +260,6 @@ class ProductAddOnHandler implements WithHooksInterface
         return $class;
     }
 
-
     public function remove_quantity_input_for_subproducts($quantity_input, $cart_item_key, $cart_item)
     {
         if (isset($cart_item[self::CART_FIELD_PARENT_ID])) {
@@ -428,7 +427,7 @@ class ProductAddOnHandler implements WithHooksInterface
                 }
                 $addon[self::KEY_FORM_OPTIONS] = [
                     'type' => 'select',
-                    'class' => ['form-row-wide'],
+                    'class' => ['sk-addon-input'],
                     'label' => $addon['title'],
                     'required' => false,
                     'options' => $field_options,
@@ -439,7 +438,7 @@ class ProductAddOnHandler implements WithHooksInterface
                 foreach ($addon['options'] as &$option) {
                     $option[self::KEY_FORM_OPTIONS] = [
                         'type' => 'checkbox',
-                        'class' => ['form-row-wide'],
+                        'class' => ['sk-addon-input'],
                         'label' => $option[self::OPTION_TITLE],
                         'checked_value' => $option['id'],
                         'custom_attributes' => $attributes,
