@@ -52,6 +52,7 @@ class ProductAddOnHandler implements WithHooksInterface
     {
         add_action('wp_head', [$this, 'add_styles']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+        add_filter('woocommerce_post_class', [$this, 'add_post_classes'], 10, 2);
         add_action('woocommerce_before_add_to_cart_button', [$this, 'add_addon_fields']);
         add_action('woocommerce_before_add_to_cart_form', [$this, 'add_price_update_script']);
         add_action('woocommerce_add_to_cart', [$this, 'add_additional_item_to_cart'], 10, 6);
@@ -83,6 +84,15 @@ class ProductAddOnHandler implements WithHooksInterface
             'price_format' => get_woocommerce_price_format(),
         ];
         wp_localize_script('wc-price-js', 'wc_settings_args', $wc_settings);
+    }
+
+    public function add_post_classes($classes, $product): array
+    {
+        if ($this->isProductWithAddOns($product->get_id())) {
+            $classes[] = 'has-sk-addon';
+        }
+
+        return $classes;
     }
 
     public function hide_meta_for_display($formatted_meta, $order_item): array
@@ -143,9 +153,12 @@ class ProductAddOnHandler implements WithHooksInterface
 
         $template_path = Core::plugin_abspath().'templates/';
         $price = $this->getProductSalePrice($product);
+        $regularPrice = $this->getProductRegularPrice($product);
 
         wc_get_template('add-on/js/update-price.php', [
-            'start_price' => $required_price + $price,
+            'product_id' => $product->get_id(),
+            'start_price' => $required_price + $regularPrice,
+            'start_sale_price' => $required_price + $price,
             'price_addon_changes' => $price_addon_changes,
         ], '', $template_path);
     }
@@ -606,6 +619,14 @@ class ProductAddOnHandler implements WithHooksInterface
         if (empty($price)) {
             $price = $product->get_regular_price('edit');
         }
+        $price = floatval($price);
+
+        return $price;
+    }
+
+    protected function getProductRegularPrice(\WC_Product $product): float
+    {
+        $price = $product->get_regular_price('edit');
         $price = floatval($price);
 
         return $price;
