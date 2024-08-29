@@ -82,7 +82,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function enqueueWcPriceScript(): void
     {
-        wp_enqueue_script('wc-price-js', Core::plugin_url().'/assets/js/wc_price.js', ['jquery'], '1.0', false);
+        wp_enqueue_script('wc-price-js', Core::plugin_url().'/assets/wc_price.js', ['jquery'], '1.0', false);
         $wc_settings = [
             'currency_symbol' => get_woocommerce_currency_symbol(),
             'decimal_separator' => wc_get_price_decimal_separator(),
