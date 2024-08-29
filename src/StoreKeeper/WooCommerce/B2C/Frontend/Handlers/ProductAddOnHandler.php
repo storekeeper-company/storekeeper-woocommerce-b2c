@@ -61,13 +61,11 @@ class ProductAddOnHandler implements WithHooksInterface
         add_filter('woocommerce_add_cart_item_data', [$this, 'save_custom_field_data'], 10, 3);
         add_filter('woocommerce_cart_item_name', [$this, 'custom_cart_item_name'], 10, 3);
         add_filter('woocommerce_cart_item_class', [$this, 'add_subproduct_class'], 10, 3);
-        add_filter('woocommerce_get_item_data', [$this, 'display_custom_field_data'], 10, 2);
         add_filter('woocommerce_cart_item_remove_link', [$this, 'remove_cart_item_remove_link'], 10, 2);
         add_filter('woocommerce_cart_item_quantity', [$this, 'remove_quantity_input_for_subproducts'], 10, 3);
         add_action('woocommerce_cart_item_removed', [$this, 'remove_subproducts_when_main_product_removed'], 10, 2);
         add_action('woocommerce_checkout_create_order_line_item', [$this, 'modify_order_line_item'], 10, 4);
         add_action('woocommerce_after_cart_item_quantity_update', [$this, 'update_cart_subitem_quantity'], 10, 4);
-        add_filter('woocommerce_order_item_name', [$this, 'order_item_component_name'], 10, 2);
         add_filter('woocommerce_cart_item_permalink', [$this, 'woocommerce_cart_item_permalink_filter'], 10, 3);
         add_filter('woocommerce_order_item_get_formatted_meta_data', [$this, 'hide_meta_for_display'], 10, 2);
         add_filter('woocommerce_update_cart_validation', [$this, 'validate_on_qty_on_update_cart_quantity'], 10, 4);
@@ -262,10 +260,6 @@ class ProductAddOnHandler implements WithHooksInterface
         return $class;
     }
 
-    public function display_custom_field_data($item_data, $cart_item)
-    {
-        return $item_data; // todo
-    }
 
     public function remove_quantity_input_for_subproducts($quantity_input, $cart_item_key, $cart_item)
     {
@@ -309,11 +303,6 @@ class ProductAddOnHandler implements WithHooksInterface
         }
 
         return $product_permalink;
-    }
-
-    public function order_item_component_name($content, $order_item)
-    {
-        return $content; // todo for admin
     }
 
     protected function getSingleKeyName(int $id): string

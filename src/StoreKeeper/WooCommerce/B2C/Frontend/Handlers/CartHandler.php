@@ -15,9 +15,9 @@ class CartHandler implements WithHooksInterface
     {
         // todo
         //        add_action('woocommerce_cart_calculate_fees', [$this, 'addEmballageFee'], 11);
-        //
-        //        add_action('woocommerce_registration_errors', [$this, 'validateEmailOnRegistration'], 10, 3);
-        //        add_action('woocommerce_checkout_process', [$this, 'validateEmailCheckout']);
+
+        add_action('woocommerce_registration_errors', [$this, 'validateEmailOnRegistration'], 10, 3);
+        add_action('woocommerce_checkout_process', [$this, 'validateEmailCheckout']);
     }
 
     public function validateEmailOnRegistration($validation_errors, $username, $email)
