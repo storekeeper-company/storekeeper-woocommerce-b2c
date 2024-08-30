@@ -4,10 +4,11 @@ namespace StoreKeeper\WooCommerce\B2C\Frontend;
 
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\OrderTrackingMessage;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CartHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CategorySummaryHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerEmailHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\MarkdownHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\StoreKeeperSeoHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\FormShortCode;
@@ -53,7 +54,7 @@ class FrontendCore
         $seo = new StoreKeeperSeoHandler();
         $seo->registerHooks();
 
-        $cartHandler = new CartHandler();
+        $cartHandler = new CustomerEmailHandler();
         $cartHandler->registerHooks();
 
         $categorySummray = new CategorySummaryHandler();
@@ -63,6 +64,8 @@ class FrontendCore
         $markdown->registerHooks();
 
         $this->loader->run();
+
+        (new ProductAddOnHandler())->registerHooks();
     }
 
     private function registerAddressFormHandler(): void

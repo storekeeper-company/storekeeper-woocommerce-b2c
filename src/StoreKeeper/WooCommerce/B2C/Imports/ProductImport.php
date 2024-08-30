@@ -40,6 +40,7 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     public const CATEGORY_TAG_MODULE = 'ProductsModule';
     public const CATEGORY_ALIAS = 'Product';
     public const TAG_ALIAS = 'Label';
+    public const META_HAS_ADDONS = 'storekeeper_has_addons';
 
     protected $syncProductVariations = false;
     protected $newItemsCount = 0;
@@ -849,23 +850,16 @@ SQL;
         array $options,
         string $importProductType
     ): int {
-        // Get the product entity
         $newProduct = $this->ensureWooCommerceProduct($dotObject, $importProductType);
-        // Handle seo
+
         $this->processSeo($newProduct, $dotObject);
-        // Product variables/details
         $log_data = $this->setProductDetails($newProduct, $dotObject, $importProductType, $log_data);
-        // Product prices
+        $log_data = $this->setProductVisibility($dotObject, $newProduct, $log_data);
         $log_data = $this->setProductPrice($newProduct, $dotObject, $log_data);
-        // Product stock
         $log_data = $this->setProductStock($newProduct, $dotObject, $log_data);
-        // Upsell products
         $log_data = $this->handleUpsellProducts($newProduct, $dotObject, $options, $log_data);
-        // Cross-sell products
         $log_data = $this->handleCrossSellProducts($newProduct, $dotObject, $options, $log_data);
-        // Save the product changes
         $log_data = $this->saveProduct($newProduct, $dotObject, $log_data);
-        // Update product object's metadata
         $this->updateProductMeta($newProduct, $dotObject, $log_data);
 
         return $newProduct->get_id();
@@ -1052,6 +1046,14 @@ SQL;
                     update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
                 }
             }
+        }
+
+        if ($dotObject->has('flat_product.product.has_addons')) {
+            update_post_meta(
+                $newProduct->get_id(),
+                self::META_HAS_ADDONS,
+                $dotObject->get('flat_product.product.has_addons') ? '1' : '0',
+            );
         }
 
         $this->debug('Configurable product finalized', $log_data);
@@ -1663,5 +1665,25 @@ SQL;
     protected function getImportEntityName(): string
     {
         return __('products', I18N::DOMAIN);
+    }
+
+    protected function setProductVisibility(Dot $dotObject, $newProduct, array $log_data): array
+    {
+        if ($dotObject->has('web_visible_in_search') || $dotObject->has('web_visible_in_catalog')) {
+            $web_visible_in_search = $dotObject->get('web_visible_in_search');
+            $web_visible_in_catalog = $dotObject->get('web_visible_in_catalog');
+            $mode = 'hidden';
+            if ($web_visible_in_search && $web_visible_in_catalog) {
+                $mode = 'visible';
+            } elseif ($web_visible_in_search) {
+                $mode = 'search';
+            } elseif ($web_visible_in_catalog) {
+                $mode = 'catalog';
+            }
+            $newProduct->set_catalog_visibility($mode);
+            $log_data['visibility'] = $mode;
+        }
+
+        return $log_data;
     }
 }

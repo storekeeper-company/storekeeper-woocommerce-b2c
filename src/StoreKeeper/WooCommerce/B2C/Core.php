@@ -160,8 +160,9 @@ class Core
             $this->setOrderHooks();
         }
         if (StoreKeeperOptions::isCustomerSyncEnabled()) {
-            $this->setCustomerHooks();
+            (new CustomerLoginRegisterHandler())->registerHooks();
         }
+
         $this->setCouponHooks();
         $this->prepareCron();
         self::registerCommands();
@@ -356,13 +357,6 @@ HTML;
             self::HIGH_PRIORITY,
             4
         );
-    }
-
-    private function setCustomerHooks()
-    {
-        $customerHook = new CustomerLoginRegisterHandler();
-        $this->loader->add_action('wp_login', $customerHook, 'loginBackendSync', null, 2);
-        $this->loader->add_action('user_register', $customerHook, 'registerBackendSync', null, 2);
     }
 
     private function setCouponHooks()
