@@ -1362,7 +1362,7 @@ SQL;
         $firstAttributeId = $configObject->get('attributes.0.id');
         $menuOrder = 0;
         foreach ($assignedProductData->get('flat_product.content_vars', []) as $content_var) {
-            if ($content_var['attribute_id'] == $firstAttributeId) {
+            if (isset($content_var['attribute_id']) && $content_var['attribute_id'] == $firstAttributeId) {
                 $menuOrder = $content_var['attribute_option_order'] ?? 0;
             }
         }

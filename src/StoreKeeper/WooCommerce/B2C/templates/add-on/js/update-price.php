@@ -8,24 +8,49 @@ $fieldSelectSelector = "select{$fieldNameSelector}";
 $fieldCheckboxSelector = "{$fieldNameSelector} input[type=checkbox]";
 $fieldSelector = "$fieldSelectSelector, $fieldCheckboxSelector";
 $productSelector = "#product-$product_id";
+$allowed_addon_groups = json_encode($allowed_addon_groups);
+
+$groupSelector = ProductAddOnHandler::FORM_DATA_SK_ADDON_GROUP_ID;
+$skGroupKey = ProductAddOnHandler::FORM_DATA_SK_ADDON_GROUP_ID_JS;
 
 echo <<<HTML
 <script type="text/javascript">
+
     jQuery(document).ready(function($) {
+        var productId = $product_id;
         var originalPrice = {$start_price};
         var originalSalePrice = {$start_sale_price};
+        var requiredPrice = {$required_price};
         var additionaPrice = {$additionalPrice};
+        var allowedAddonGroups = $allowed_addon_groups;
+        var addonGroups = $('[$groupSelector]');
         var regularPriceEl = $('$productSelector .woocommerce-Price-amount');
         var salePriceEl = $('$productSelector del .woocommerce-Price-amount');
         if( salePriceEl.length > 0 ) {
             regularPriceEl = $('$productSelector ins .woocommerce-Price-amount');
         } 
         
-        function recalculatePrice() {
-            var newPrice = originalPrice;
-            var newSalePrice = originalSalePrice;
+        function recalculatePrice(newPrice, newSalePrice) {
+            newPrice += requiredPrice;
+            newSalePrice += requiredPrice;
+            var productGroupAddons = [];
+            var otherGroupAddons = [];
+            var productGroupIds = allowedAddonGroups[productId] || [];
+            addonGroups.each(function(i, el) {
+                var groupId = parseInt(el.dataset.$skGroupKey);
+                if( productGroupIds.includes(groupId)){
+                    productGroupAddons.push(el);
+                } else {
+                    otherGroupAddons.push(el);
+                }
+            });
             
-            $('{$fieldSelectSelector}').each(function(i, el) {
+            var productGroupAddonEl = $(productGroupAddons);
+            
+            $(otherGroupAddons).hide();
+            productGroupAddonEl.show();
+            
+            productGroupAddonEl.find('{$fieldSelectSelector}').each(function(i, el) {
               var optionId = el.value;
               if( additionaPrice[optionId] ){
                   newPrice += additionaPrice[optionId];
@@ -33,7 +58,7 @@ echo <<<HTML
               }
             });
             
-            $('{$fieldCheckboxSelector}:checked').each(function(i, el) {
+            productGroupAddonEl.find('{$fieldCheckboxSelector}:checked').each(function(i, el) {
               var optionId = el.value;
               if( additionaPrice[optionId] ){
                   newPrice += additionaPrice[optionId];
@@ -50,9 +75,29 @@ echo <<<HTML
         }
         
         $('{$fieldSelector}').change(function() {
-            recalculatePrice();
+            recalculatePrice(originalPrice,originalSalePrice);
         });
-        recalculatePrice();
+        
+        
+        var \$form = $('form.variations_form');
+        \$form.on('found_variation', function(event, variation) {          
+          productId = variation.variation_id;
+          originalPrice = variation.display_regular_price;
+          originalSalePrice = variation.display_price;
+          
+          recalculatePrice(originalPrice,originalSalePrice);
+        });
+        
+        \$form.on('reset_data', function(event) {          
+          originalPrice = {$start_price};
+          originalSalePrice = {$start_sale_price};
+          productId = $product_id;
+          
+          recalculatePrice(originalPrice,originalSalePrice);
+        });
+        
+        // initial recalculation
+        recalculatePrice(originalPrice,originalSalePrice);
     });
 </script>
 

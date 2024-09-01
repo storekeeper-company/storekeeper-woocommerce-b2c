@@ -46,6 +46,8 @@ class ProductAddOnHandler implements WithHooksInterface
     public const OPTION_TITLE = 'option_title';
     public const FORM_DATA_SK_TYPE = 'data-sk-type';
     public const FORM_DATA_SK_ADDON = 'data-sk-addon';
+    public const FORM_DATA_SK_ADDON_GROUP_ID = 'data-sk-group-id';
+    public const FORM_DATA_SK_ADDON_GROUP_ID_JS = 'skGroupId';
 
     protected $addon_call_cache = [];
 
@@ -95,7 +97,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function addPostSkAddonCssClass($classes, $product): array
     {
-        if ($this->isProductWithAddOns($product->get_id())) {
+        if (is_product() && $this->isProductWithAddOns($product)) {
             $classes[] = 'has-sk-addon';
         }
 
@@ -121,7 +123,7 @@ class ProductAddOnHandler implements WithHooksInterface
         if (!($product instanceof \WC_Product)) {
             return;
         }
-        if (!$this->isProductWithAddOns($product->get_id())) {
+        if (!$this->isProductWithAddOns($product)) {
             return;
         }
 
@@ -153,10 +155,22 @@ class ProductAddOnHandler implements WithHooksInterface
         if (!$product) {
             return;
         }
-        if (!$this->isProductWithAddOns($product->get_id())) {
+        if (!$this->isProductWithAddOns($product)) {
             return;
         }
-        list($required_price, $price_addon_changes) = $this->calculateRequiredAndOptionalPriceChanges($product);
+        $addons = $this->getAddOnsForProduct($product);
+
+        $allowed_addon_groups = [];
+        foreach ($addons as $addon) {
+            foreach ($addon[self::KEY_WC_PRODUCT] as $wc_product) {
+                $id = $wc_product->get_id();
+                if (!isset($allowed_addon_groups[$id])) {
+                    $allowed_addon_groups[$id] = [];
+                }
+                $allowed_addon_groups[$id][] = $addon['product_addon_group_id'];
+            }
+        }
+        list($required_price, $price_addon_changes) = $this->calculateRequiredAndOptionalPriceChanges($addons);
 
         $template_path = Core::plugin_abspath().'templates/';
         $price = $this->getProductSalePrice($product);
@@ -164,9 +178,11 @@ class ProductAddOnHandler implements WithHooksInterface
 
         wc_get_template('add-on/js/update-price.php', [
             'product_id' => $product->get_id(),
-            'start_price' => $required_price + $regularPrice,
-            'start_sale_price' => $required_price + $price,
+            'start_price' => $regularPrice,
+            'start_sale_price' => $price,
+            'required_price' => $required_price,
             'price_addon_changes' => $price_addon_changes,
+            'allowed_addon_groups' => $allowed_addon_groups,
         ], '', $template_path);
     }
 
@@ -178,8 +194,9 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function setAddOnCartItemData($cart_item_data, $product_id, $variation_id)
     {
-        if ($this->isProductWithAddOns($product_id)) {
-            $has_add_ons = $this->hasRequiredAddOns($product_id);
+        $product = wc_get_product($product_id);
+        if ($this->isProductWithAddOns($product, $variation_id)) {
+            $has_add_ons = $this->hasRequiredAddOns($product_id, $variation_id);
             $cart_item_data[self::CART_FIELD_SELECTED_IDS] = [];
             if (
                 isset($_POST[self::FIELD_CHOICE])
@@ -202,6 +219,9 @@ class ProductAddOnHandler implements WithHooksInterface
             !empty($cart_item_data[self::CART_FIELD_ID])
             && empty($cart_item_data[self::CART_FIELD_PARENT_ID]) // exclude children
         ) {
+            if (!empty($variation_id)) {
+                $product_id = $variation_id;
+            }
             $product = wc_get_product($product_id);
 
             $all_selected_option_ids = $cart_item_data[self::CART_FIELD_SELECTED_IDS];
@@ -330,31 +350,52 @@ class ProductAddOnHandler implements WithHooksInterface
             return [];
         }
 
-        if (!array_key_exists($shop_product_id, $this->addon_call_cache)) {
-            $addons = $this->getAddOnsFromApi($shop_product_id);
+        $shop_product_ids = [(int) $shop_product_id];
+        if ($product instanceof \WC_Product_Variable) {
+            $variations = $product->get_available_variations();
+            foreach ($variations as $variation) {
+                $variation_id = $variation['variation_id'];
+                $shop_product_id = get_post_meta($variation_id, 'storekeeper_id', true);
+                if (!empty($shop_product_id)) {
+                    $shop_product_ids[] = (int) $shop_product_id;
+                }
+            }
+        }
+
+        $shop_product_ids = array_unique($shop_product_ids);
+        sort($shop_product_ids);
+        $key = implode('|', $shop_product_ids);
+
+        if (!array_key_exists($key, $this->addon_call_cache)) {
+            $addons = $this->getAddOnsFromApi($shop_product_ids);
             $addons = $this->addWcProductsToAddons($addons);
             $addons = $this->filterAddonsWithWcProducts($addons);
 
-            $this->addon_call_cache[$shop_product_id] = $addons;
+            $this->addon_call_cache[$key] = $addons;
         }
 
-        return $this->addon_call_cache[$shop_product_id];
+        return $this->addon_call_cache[$key];
     }
 
-    protected function getAddOnsFromApi(int $shop_product_id): array
+    protected function getAddOnsFromApi(array $shop_product_ids): array
     {
         try {
             $api = StoreKeeperApi::getApiByAuthName();
             $ShopModule = $api->getModule('ShopModule');
-            $addon_groups = $ShopModule->getShopProductAddonIdsForHook([$shop_product_id]);
+            $addon_groups = $ShopModule->getShopProductAddonIdsForHook($shop_product_ids);
             if (empty($addon_groups)) {
                 return [];
             }
-            $addon_group = array_pop($addon_groups);
-            $product_addon_group_ids = $addon_group['product_addon_group_ids'];
+
+            $product_addon_group_ids = [];
+            foreach ($addon_groups as $addon) {
+                $product_addon_group_ids = array_merge($product_addon_group_ids, $addon['product_addon_group_ids'] ?? []);
+            }
+
             if (empty($product_addon_group_ids)) {
                 return [];
             }
+            $product_addon_group_ids = array_unique($product_addon_group_ids);
 
             $formatted_addons = [];
             foreach ($product_addon_group_ids as $product_addon_group_id) {
@@ -365,6 +406,8 @@ class ProductAddOnHandler implements WithHooksInterface
                     'title' => $group['product_addon_group']['title'],
                     'type' => $group['product_addon_group']['type'],
                     'options' => [],
+                    'order' => $group['product_addon_group']['order'],
+                    'shop_product_ids' => [],
                 ];
 
                 foreach ($group['shop_product_addon_items'] as $addon_item) {
@@ -378,8 +421,24 @@ class ProductAddOnHandler implements WithHooksInterface
                     }
                 }
 
-                $formatted_addons[] = $formatted_addon;
+                $formatted_addons[$product_addon_group_id] = $formatted_addon;
             }
+
+            foreach ($addon_groups as $addon_group) {
+                $shop_product_id = $addon_group['id'];
+                foreach ($addon_group['product_addon_group_ids'] as $product_addon_group_id) {
+                    $formatted_addons[$product_addon_group_id]['shop_product_ids'][] = $shop_product_id;
+                }
+            }
+
+            usort($formatted_addons, function ($a, $b) {
+                $res = $a['order'] <=> $b['order'];
+                if (0 === $res) {
+                    $res = $a['product_addon_group_id'] <=> $b['product_addon_group_id'];
+                }
+
+                return $res;
+            });
 
             return $formatted_addons;
         } catch (\Exception $e) {
@@ -467,11 +526,11 @@ class ProductAddOnHandler implements WithHooksInterface
         return $option['title'].' (+'.$price.')';
     }
 
-    protected function calculateRequiredAndOptionalPriceChanges(\WC_Product $product): array
+    protected function calculateRequiredAndOptionalPriceChanges(array $addons): array
     {
         $required_price = 0;
         $price_addon_changes = [];
-        foreach ($this->getAddOnsForProduct($product) as $addon) {
+        foreach ($addons as $addon) {
             $type = $addon['type'];
             if ($this->isRequiredType($type)) {
                 foreach ($addon['options'] as $option) {
@@ -616,9 +675,16 @@ class ProductAddOnHandler implements WithHooksInterface
 
     protected function getProductSalePrice(\WC_Product $product): float
     {
-        $price = $product->get_sale_price('edit');
-        if (empty($price)) {
-            $price = $product->get_regular_price('edit');
+        if ($product instanceof \WC_Product_Variable) {
+            $price = $product->get_variation_sale_price();
+            if (empty($price)) {
+                $price = $product->get_variation_regular_price();
+            }
+        } else {
+            $price = $product->get_sale_price('edit');
+            if (empty($price)) {
+                $price = $product->get_regular_price('edit');
+            }
         }
         $price = floatval($price);
 
@@ -627,24 +693,49 @@ class ProductAddOnHandler implements WithHooksInterface
 
     protected function getProductRegularPrice(\WC_Product $product): float
     {
-        $price = $product->get_regular_price('edit');
+        if ($product instanceof \WC_Product_Variable) {
+            $price = $product->get_variation_regular_price();
+        } else {
+            $price = $product->get_regular_price('edit');
+        }
         $price = floatval($price);
 
         return $price;
     }
 
-    protected function isProductWithAddOns(int $product_id): bool
+    protected function isProductWithAddOns(\WC_Product $product, $variation_id = null): bool
     {
-        return '1' === get_post_meta($product_id, ProductImport::META_HAS_ADDONS, true);
-    }
-
-    protected function hasRequiredAddOns(int $product_id): bool
-    {
-        if (!$this->isProductWithAddOns($product_id)) {
-            return false;
+        $has_addons = '1' === $product->get_meta(ProductImport::META_HAS_ADDONS, true);
+        if (!$has_addons) {
+            $check_ids = [];
+            if ($product instanceof \WC_Product_Variable) {
+                // if variable also check is any children have addon
+                $check_ids = $product->get_visible_children();
+            }
+            if (!empty($variation_id)) {
+                $check_ids[] = $variation_id;
+            }
+            if (!empty($check_ids)) {
+                $exists = get_posts([
+                    'post_type' => ['product_variation'],
+                    'numberposts' => 1,
+                    'meta_key' => ProductImport::META_HAS_ADDONS,
+                    'meta_value' => '1',
+                    'fields' => 'ids',
+                    'include' => $check_ids,
+                ]);
+                $has_addons = !empty($exists);
+            }
         }
 
-        $product = wc_get_product($product_id);
+        return $has_addons;
+    }
+
+    protected function hasRequiredAddOns(int $product_id, $variation_id = null): bool
+    {
+        $product = empty($variation_id) ?
+            wc_get_product($product_id) : wc_get_product($variation_id);
+
         $addons = $this->getAddOnsForProduct($product);
         foreach ($addons as $addon) {
             if ($this->isRequiredType($addon['type']) && !empty($addon['options'])) {
@@ -664,22 +755,24 @@ class ProductAddOnHandler implements WithHooksInterface
     {
         $shop_product_ids = [];
         foreach ($addons as $addon) {
+            $shop_product_ids = array_merge($addon['shop_product_ids'], $shop_product_ids);
             foreach ($addon['options'] as $option) {
                 $shop_product_ids[] = $option['shop_product_id'];
             }
         }
+        $shop_product_ids = array_values(array_unique($shop_product_ids));
 
-        $products = wc_get_products([
-            'limit' => -1,
-            'meta_key' => 'storekeeper_id',
-            'meta_value' => $shop_product_ids,
-            'meta_compare' => 'IN',
-        ]);
-        $wc_product_per_id = [];
-        foreach ($products as $product) {
-            /* @var \WC_Product $product */
-            $shop_product_id = $product->get_meta('storekeeper_id');
-            $wc_product_per_id[$shop_product_id] = $product;
+        foreach ($shop_product_ids as $shop_product_id) {
+            $products = get_posts([
+                'post_type' => ['product', 'product_variation'],
+                'numberposts' => 1,
+                'meta_key' => 'storekeeper_id',
+                'meta_value' => $shop_product_id,
+                'fields' => 'ids',
+            ]);
+            if (!empty($products)) {
+                $wc_product_per_id[$shop_product_id] = wc_get_product($products[0]);
+            }
         }
 
         unset($addon, $option);
@@ -690,6 +783,14 @@ class ProductAddOnHandler implements WithHooksInterface
                     $option[self::KEY_WC_PRODUCT] = $wc_product_per_id[$shop_product_id];
                 }
             }
+
+            $wc_products = [];
+            foreach ($addon['shop_product_ids'] as $shop_product_id) {
+                if (array_key_exists($shop_product_id, $wc_product_per_id)) {
+                    $wc_products[] = $wc_product_per_id[$shop_product_id];
+                }
+            }
+            $addon[self::KEY_WC_PRODUCT] = $wc_products;
         }
 
         return $addons;
@@ -765,13 +866,17 @@ class ProductAddOnHandler implements WithHooksInterface
         $lastEmballageTaxRateId = null;
         $totalEmballagePriceInCents = 0;
         foreach ($items as $values) {
-            $addFee = !$this->isProductWithAddOns($values['product_id'])
+            $product = $values['data'];
+            if (!($product instanceof \WC_Product)) {
+                continue;
+            }
+
+            $addFee = !$this->isProductWithAddOns($product, $values['variation_id'])
                 && !$this->hasRequiredAddOns($values['product_id']);
 
             if ($addFee) {
                 // only use legacy embalage if product is not synchronized as with addons
-                // otherwise it will be added double
-                $product = wc_get_product($values['product_id']);
+                // otherwise it will be added double;
 
                 if ($product) {
                     $quantity = $values['quantity'];
