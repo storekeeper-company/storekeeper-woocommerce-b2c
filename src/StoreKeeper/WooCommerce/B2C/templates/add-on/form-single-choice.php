@@ -2,10 +2,11 @@
 
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 
-$type = $addon['type'];
 $form_field_id = $addon[ProductAddOnHandler::KEY_FORM_ID];
 
-echo '<div class="sk-addon-select sk-addon-'.$type.'">';
+echo '<div class="sk-addon-select sk-addon-'.$addon['type'].'" 
+    '.ProductAddOnHandler::FORM_DATA_SK_ADDON_GROUP_ID.'="'.$addon['product_addon_group_id'].'">';
+
 woocommerce_form_field(
     $form_field_id,
     $addon[ProductAddOnHandler::KEY_FORM_OPTIONS]
