@@ -97,7 +97,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function addPostSkAddonCssClass($classes, $product): array
     {
-        if ($this->isProductWithAddOns($product->get_id())) {
+        if (is_product() && $this->isProductWithAddOns($product)) {
             $classes[] = 'has-sk-addon';
         }
 
@@ -123,7 +123,7 @@ class ProductAddOnHandler implements WithHooksInterface
         if (!($product instanceof \WC_Product)) {
             return;
         }
-        if (!$this->isProductWithAddOns($product->get_id())) {
+        if (!$this->isProductWithAddOns($product)) {
             return;
         }
 
@@ -155,7 +155,7 @@ class ProductAddOnHandler implements WithHooksInterface
         if (!$product) {
             return;
         }
-        if (!$this->isProductWithAddOns($product->get_id())) {
+        if (!$this->isProductWithAddOns($product)) {
             return;
         }
         $addons = $this->getAddOnsForProduct($product);
@@ -194,8 +194,9 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function setAddOnCartItemData($cart_item_data, $product_id, $variation_id)
     {
-        if ($this->isProductWithAddOns($product_id)) {
-            $has_add_ons = $this->hasRequiredAddOns($product_id);
+        $product = wc_get_product($product_id);
+        if ($this->isProductWithAddOns($product, $variation_id)) {
+            $has_add_ons = $this->hasRequiredAddOns($product_id, $variation_id);
             $cart_item_data[self::CART_FIELD_SELECTED_IDS] = [];
             if (
                 isset($_POST[self::FIELD_CHOICE])
@@ -218,6 +219,9 @@ class ProductAddOnHandler implements WithHooksInterface
             !empty($cart_item_data[self::CART_FIELD_ID])
             && empty($cart_item_data[self::CART_FIELD_PARENT_ID]) // exclude children
         ) {
+            if (!empty($variation_id)) {
+                $product_id = $variation_id;
+            }
             $product = wc_get_product($product_id);
 
             $all_selected_option_ids = $cart_item_data[self::CART_FIELD_SELECTED_IDS];
@@ -699,18 +703,39 @@ class ProductAddOnHandler implements WithHooksInterface
         return $price;
     }
 
-    protected function isProductWithAddOns(int $product_id): bool
+    protected function isProductWithAddOns(\WC_Product $product, $variation_id = null): bool
     {
-        return '1' === get_post_meta($product_id, ProductImport::META_HAS_ADDONS, true);
-    }
-
-    protected function hasRequiredAddOns(int $product_id): bool
-    {
-        if (!$this->isProductWithAddOns($product_id)) {
-            return false;
+        $has_addons = '1' === $product->get_meta(ProductImport::META_HAS_ADDONS, true);
+        if (!$has_addons) {
+            $check_ids = [];
+            if ($product instanceof \WC_Product_Variable) {
+                // if variable also check is any children have addon
+                $check_ids = $product->get_visible_children();
+            }
+            if (!empty($variation_id)) {
+                $check_ids[] = $variation_id;
+            }
+            if (!empty($check_ids)) {
+                $exists = get_posts([
+                    'post_type' => ['product_variation'],
+                    'numberposts' => 1,
+                    'meta_key' => ProductImport::META_HAS_ADDONS,
+                    'meta_value' => '1',
+                    'fields' => 'ids',
+                    'include' => $check_ids,
+                ]);
+                $has_addons = !empty($exists);
+            }
         }
 
-        $product = wc_get_product($product_id);
+        return $has_addons;
+    }
+
+    protected function hasRequiredAddOns(int $product_id, $variation_id = null): bool
+    {
+        $product = empty($variation_id) ?
+            wc_get_product($product_id) : wc_get_product($variation_id);
+
         $addons = $this->getAddOnsForProduct($product);
         foreach ($addons as $addon) {
             if ($this->isRequiredType($addon['type']) && !empty($addon['options'])) {
@@ -841,13 +866,17 @@ class ProductAddOnHandler implements WithHooksInterface
         $lastEmballageTaxRateId = null;
         $totalEmballagePriceInCents = 0;
         foreach ($items as $values) {
-            $addFee = !$this->isProductWithAddOns($values['product_id'])
+            $product = $values['data'];
+            if (!($product instanceof \WC_Product)) {
+                continue;
+            }
+
+            $addFee = !$this->isProductWithAddOns($product, $values['variation_id'])
                 && !$this->hasRequiredAddOns($values['product_id']);
 
             if ($addFee) {
                 // only use legacy embalage if product is not synchronized as with addons
-                // otherwise it will be added double
-                $product = wc_get_product($values['product_id']);
+                // otherwise it will be added double;
 
                 if ($product) {
                     $quantity = $values['quantity'];

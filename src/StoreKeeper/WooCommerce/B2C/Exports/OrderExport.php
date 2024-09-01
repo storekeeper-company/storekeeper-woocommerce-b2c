@@ -40,6 +40,7 @@ class OrderExport extends AbstractExport
     public const EXTRA_ROW_ID_KEY = 'wp_row_id';
     public const EXTRA_ROW_MD5_KEY = 'wp_row_md5';
     public const EXTRA_ROW_TYPE = 'wp_row_type';
+    public const EXTRA_ROW_META = 'wp_row_meta';
     public const EXTRA_ADDON_GROUP_ID = 'product_addon_group_id';
 
     public const SUBITEM_FIELD_PREFIX = 'sk_subitem';
@@ -49,8 +50,7 @@ class OrderExport extends AbstractExport
     public const CART_FIELD_ADDON_GROUP_ID = self::SUBITEM_FIELD_PREFIX.'_product_addon_group_id';
     public const CART_FIELD_PARENT_ID = self::SUBITEM_FIELD_PREFIX.'_parent_id';
 
-    public const KNOWN_EXTRAS_KEY = [
-        self::EXTRA_ROW_MD5_KEY,
+    private const EXTRA_KEYS_FOR_MD5_COMPARE = [
         self::EXTRA_ROW_ID_KEY,
         self::EXTRA_ROW_TYPE,
         self::EXTRA_ADDON_GROUP_ID,
@@ -603,7 +603,7 @@ class OrderExport extends AbstractExport
     {
         foreach ($extras as &$extra) {
             foreach ($extra as $key => $data) {
-                if (!in_array($key, self::KNOWN_EXTRAS_KEY, true)) {
+                if (!in_array($key, self::EXTRA_KEYS_FOR_MD5_COMPARE, true)) {
                     unset($extra[$key]);
                 }
             }
@@ -735,22 +735,7 @@ class OrderExport extends AbstractExport
 
                 $description = '';
                 if ($currentProduct instanceof \WC_Product_Variation) {
-                    /**
-                     * @var $meta_datum WC_Meta_Data
-                     *                  This is the metadata that is set on the product order, for a variation product that.
-                     *                  More info about meta_data: https://docs.woocommerce.com/wc-apidocs/class-WC_Data.html
-                     */
-                    $metaData = $orderItemProduct->get_meta_data();
-                    $meta = [];
-                    foreach ($metaData as $metaDatum) {
-                        $data = $metaDatum->get_data();
-                        $meta[] = $data['value'];
-                    }
-                    $description = implode(', ', $meta);
-
-                    if (empty($description)) {
-                        $description = $currentProduct->get_attribute_summary();
-                    }
+                    $description = $currentProduct->get_attribute_summary();
                 }
 
                 $this->debug('Got product', $currentProduct);
@@ -794,15 +779,10 @@ class OrderExport extends AbstractExport
                     $data['name'] = $currentProduct->get_name(self::CONTEXT);
                 }
 
-                $productData = $orderItemProduct->get_data();
-                // Need to unset meta_data as it changes like '_reduced_stock' which causes order difference error
-                unset($productData['meta_data']);
-
-                // Adding the actual product ID here causes difference if order is deleted.
                 $extra = [
                     self::EXTRA_ROW_ID_KEY => $orderItemProduct->get_id(),
-                    self::EXTRA_ROW_MD5_KEY => md5(json_encode($productData, JSON_THROW_ON_ERROR)),
                     self::EXTRA_ROW_TYPE => self::ROW_PRODUCT_TYPE,
+                    self::EXTRA_ROW_META => $this->getOrderLineMeta($orderItemProduct),
                 ];
 
                 $data['extra'] = $extra;
@@ -1257,15 +1237,50 @@ class OrderExport extends AbstractExport
                     $parent['subitems'] = [];
                 }
 
+                $orderItem['extra'][self::EXTRA_ROW_MD5_KEY] = $this->calculateRowMd5($orderItem);
                 $parent['subitems'][] = $orderItem;
                 $added_to_items = true;
             }
         }
 
         if (!$added_to_items) {
+            $orderItem['extra'][self::EXTRA_ROW_MD5_KEY] = $this->calculateRowMd5($orderItem);
             $orderItems[$orderItemIndex] = $orderItem;
         }
         ++$orderItemIndex;
         $this->debug($orderItemIndex.' Added product item', $orderItem);
+    }
+
+    protected function getOrderLineMeta(\WC_Order_Item $orderItemProduct): array
+    {
+        $metaData = $orderItemProduct->get_meta_data();
+        $meta = [];
+        foreach ($metaData as $metaDatum) {
+            /**
+             * @var $meta_datum WC_Meta_Data
+             *                  This is the metadata that is set on the product order, for a variation product that.
+             *                  More info about meta_data: https://docs.woocommerce.com/wc-apidocs/class-WC_Data.html
+             */
+            $meta_data = $metaDatum->get_data();
+            $meta[$meta_data['key']] = $meta_data['value'];
+        }
+
+        return $meta;
+    }
+
+    protected function calculateRowMd5(array $orderItem): string
+    {
+        if (!empty($orderItem['extra'])) {
+            ksort($orderItem['extra']);
+            $valid = [];
+            foreach ($orderItem['extra'] as $key => $data) {
+                if (in_array($key, self::EXTRA_KEYS_FOR_MD5_COMPARE, true)) {
+                    $valid[] = $data;
+                }
+            }
+            $orderItem['extra'] = $valid;
+        }
+
+        return md5(json_encode($orderItem, JSON_THROW_ON_ERROR));
     }
 }
