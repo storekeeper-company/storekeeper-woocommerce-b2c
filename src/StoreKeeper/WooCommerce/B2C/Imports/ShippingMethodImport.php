@@ -142,7 +142,6 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
             [$wcShippingZone, $skZoneId] = $this->ensureShippingZone($countryIso2, $dotObject);
             try {
                 $wcShippingMethodInstance = $this->ensureShippingMethod($countryIso2, $skZoneId, $wcShippingZone, $dotObject);
-
                 switch ($wcShippingMethodInstance->id) {
                     case self::SHIPPING_CLASS_FLAT_RATE:
                         $this->debug('Setting correct data for shipping method instance', [
@@ -152,6 +151,12 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                         ]);
                         /* @var \WC_Shipping_Flat_Rate $wcShippingMethodInstance */
                         $wcShippingMethodInstance->init_instance_settings();
+                        $wcShippingMethodInstance->instance_settings['min_amount'] = number_format(
+                            floatval($dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt')),
+                            2,
+                            ',',
+                            ''
+                        );
                         $wcShippingMethodInstance->instance_settings['cost'] = (string) $dotObject->get('shipping_method_price_flat_strategy.ppu_wt');
                         $wcShippingMethodInstance->instance_settings['title'] = (string) $dotObject->get('name');
                         $this->saveShippingMethodInstance($wcShippingMethodInstance);
@@ -164,6 +169,12 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                         ]);
                         /* @var \WC_Shipping_Local_Pickup $wcShippingMethodInstance */
                         $wcShippingMethodInstance->init_instance_settings();
+                        $wcShippingMethodInstance->instance_settings['min_amount'] = number_format(
+                            floatval($dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt')),
+                            2,
+                            ',',
+                            ''
+                        );
                         $wcShippingMethodInstance->instance_settings['cost'] = (string) $dotObject->get('shipping_method_price_flat_strategy.ppu_wt');
                         $wcShippingMethodInstance->instance_settings['title'] = (string) $dotObject->get('name');
                         $this->saveShippingMethodInstance($wcShippingMethodInstance);
@@ -177,7 +188,12 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                         ]);
                         /* @var \WC_Shipping_Free_Shipping $wcShippingMethodInstance */
                         $wcShippingMethodInstance->init_instance_settings();
-                        $wcShippingMethodInstance->instance_settings['min_amount'] = (int) $dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt');
+                        $wcShippingMethodInstance->instance_settings['min_amount'] = number_format(
+                            floatval($dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt')),
+                            2,
+                            ',',
+                            ''
+                        );
                         $wcShippingMethodInstance->instance_settings['title'] = (string) $dotObject->get('name');
                         $wcShippingMethodInstance->instance_settings['requires'] = self::FREE_SHIPPING_REQUIRES;
                         $this->saveShippingMethodInstance($wcShippingMethodInstance);
