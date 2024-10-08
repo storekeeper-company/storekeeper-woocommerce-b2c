@@ -160,9 +160,8 @@ class Core
             $this->setOrderHooks();
         }
         if (StoreKeeperOptions::isCustomerSyncEnabled()) {
-            (new CustomerLoginRegisterHandler())->registerHooks();
+            $this->setCustomerHooks();
         }
-
         $this->setCouponHooks();
         $this->prepareCron();
         self::registerCommands();
@@ -184,6 +183,11 @@ class Core
             $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
+
+        add_filter('woocommerce_shipping_settings', 'display_min_amount_field');
+        add_action('woocommerce_shipping_init', array($this, 'ts_apply_min_amount_to_all_shipping_methods'));
+        add_action('woocommerce_review_order_after_shipping', array($this, 'ts_display_shipping_min_amount_content'));
+        add_filter('woocommerce_package_rates', array($this, 'ts_modify_shipping_rates'), 10, 2);
     }
 
     private function prepareCron()
@@ -246,7 +250,7 @@ class Core
         return (defined('WP_DEBUG') && WP_DEBUG)
             || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
             || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-        ;
+            ;
     }
 
     public static function isDataDump(): bool
@@ -359,6 +363,13 @@ HTML;
         );
     }
 
+    private function setCustomerHooks()
+    {
+        $customerHook = new CustomerLoginRegisterHandler();
+        $this->loader->add_action('wp_login', $customerHook, 'loginBackendSync', null, 2);
+        $this->loader->add_action('user_register', $customerHook, 'registerBackendSync', null, 2);
+    }
+
     private function setCouponHooks()
     {
         // Overwrite WooCommerce lower casing of coupon codes
@@ -462,5 +473,92 @@ HTML;
 HTML;
             }
         }
+    }
+
+    /**
+     * @param $settings
+     * @return mixed
+     */
+    public function ts_add_extra_fields_in_shipping_methods($settings) {
+        // Add a new setting for Minimum Amount
+        $new_settings = $settings;
+        $currency_code = get_woocommerce_currency_symbol();
+
+        $new_settings['min_amount'] = array(
+            'title'       => __('Minimum Cost (' . $currency_code .')', 'woocommerce'),
+            'type'        => 'text',
+            'class'       => 'currency-input2',
+            'placeholder' => '100.00', // Adjusted to reflect decimal format
+            'default'     => '100.00', // Default value as a decimal
+            'custom_attributes' => array(
+                'min' => 0,
+                'step' => '0.01' // Allow decimal steps in the input
+            ),
+        );
+        return $new_settings;
+    }
+
+    /**
+     * @return void
+     */
+    public function ts_display_shipping_min_amount_content() {
+        // Retrieve the shipping method selected by the user
+        $chosen_shipping_method = WC()->session->get('chosen_shipping_methods')[0];
+
+        // Get the shipping settings for the chosen method
+        $shipping_method_settings = get_option("woocommerce_{$chosen_shipping_method}_settings");
+
+        // Ensure the settings are an array and contain 'min_amount'
+        if (is_array($shipping_method_settings) && isset($shipping_method_settings['min_amount'])) {
+            $min_amount = floatval($shipping_method_settings['min_amount']);
+        } else {
+            $min_amount = ''; // Fallback if the option or 'min_amount' key is not available
+        }
+    }
+
+
+    /**
+     * @return void
+     */
+    public function ts_apply_min_amount_to_all_shipping_methods() {
+        // Manually add the filter for known methods, including Local Pickup
+        $shipping_methods = array('flat_rate', 'free_shipping', 'local_pickup');
+
+        foreach ($shipping_methods as $method_id) {
+            add_filter("woocommerce_shipping_instance_form_fields_{$method_id}", array($this, 'ts_add_extra_fields_in_shipping_methods'), 10, 1);
+        }
+    }
+
+    /**
+     * @param $rates
+     * @param $package
+     * @return mixed
+     */
+    public function ts_modify_shipping_rates($rates, $package) {
+        $shipping_methods = WC()->shipping->get_shipping_methods();
+        $total = floatval(WC()->cart->subtotal);
+        $formatted_cart_total = number_format($total, 2, ',', '');
+
+        $methods_data = array_map(function($method) {
+            $min_amount = isset($method->instance_settings['min_amount']) ? $method->instance_settings['min_amount'] : 'N/A';
+            return [
+                'name' => $method->title,
+                'min_amount' => $min_amount
+            ];
+        }, $shipping_methods);
+
+        foreach ($rates as $rate_key => $rate) {
+            if (isset($rate->method_id, $rate->instance_id)) {
+                foreach ($methods_data as $method_data) {
+                    if ($method_data['name'] === $rate->label && floatval($formatted_cart_total) >= floatval($method_data['min_amount'])) {
+                        $rates[$rate_key]->cost = 0;
+                        $rates[$rate_key]->label .= ': Free Shipping';
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $rates;
     }
 }
