@@ -534,50 +534,26 @@ HTML;
      * @param $package
      * @return mixed
      */
-    public  function ts_modify_shipping_rates($rates, $package ) {
-        $shipping_packages = WC()->shipping->get_packages();
+    public function ts_modify_shipping_rates($rates, $package) {
         $shipping_methods = WC()->shipping->get_shipping_methods();
+        $total = floatval(WC()->cart->subtotal);
+        $formatted_cart_total = number_format($total, 2, ',', '');
 
-        $data = [];
-        foreach ( $shipping_methods as $method ) {
-            // Check if the method cost is serialized
-            if ( is_serialized( $method ) ) {
-                $method_data = unserialize( $method ); // Unserialize the shipping method data
-                $min_amount = isset( $method->instance_settings['min_amount']) ? $method->instance_settings['min_amount'] : 'N/A';
-                $data[] = [
-                    'name' => $method->title,
-                    'min_amount' => $min_amount,
-                ];
-            } else {
-                $min_amount = isset( $method->instance_settings['min_amount'] ) ? $method->instance_settings['min_amount'] : 'N/A';
-                $data[] = [
-                    'name' => $method->title,
-                    'min_amount' => $min_amount,
-                ];
-            }
-        }
+        $methods_data = array_map(function($method) {
+            $min_amount = isset($method->instance_settings['min_amount']) ? $method->instance_settings['min_amount'] : 'N/A';
+            return [
+                'name' => $method->title,
+                'min_amount' => $min_amount
+            ];
+        }, $shipping_methods);
 
-        $total = WC()->cart->subtotal;
-        $cart  = number_format(
-            floatval($total),
-            2,
-            ',',
-            ''
-        );
-
-        foreach ( $rates as $rate_key => $rate ) {
-            // Get the shipping method instance using method_id and instance_id
-            if ( isset( $rate->method_id ) && isset( $rate->instance_id ) ) {
-                // Check against the data array
-                foreach ( $data as $method_data ) {
-                    // If the method name matches the rate label, show the min_amount
-                    if ( $method_data['name'] === $rate->label ) {
-
-                        if ( floatval($cart) >= floatval($method_data['min_amount'] )) {
-                            $rates[$rate_key]->cost = 0;
-                            $rates[$rate_key]->label .= ': Free Shipping';
-                            break; // Break after finding a match to avoid unnecessary iterations
-                        }
+        foreach ($rates as $rate_key => $rate) {
+            if (isset($rate->method_id, $rate->instance_id)) {
+                foreach ($methods_data as $method_data) {
+                    if ($method_data['name'] === $rate->label && floatval($formatted_cart_total) >= floatval($method_data['min_amount'])) {
+                        $rates[$rate_key]->cost = 0;
+                        $rates[$rate_key]->label .= ': Free Shipping';
+                        break;
                     }
                 }
             }
