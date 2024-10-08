@@ -186,9 +186,7 @@ class Core
 
         add_filter('woocommerce_shipping_settings', 'display_min_amount_field');
         add_action('woocommerce_shipping_init', array($this, 'ts_apply_min_amount_to_all_shipping_methods'));
-        // Hook to display the minimum amount in the order review section
         add_action('woocommerce_review_order_after_shipping', array($this, 'ts_display_shipping_min_amount_content'));
-
         add_filter('woocommerce_package_rates', array($this, 'ts_modify_shipping_rates'), 10, 2);
     }
 
