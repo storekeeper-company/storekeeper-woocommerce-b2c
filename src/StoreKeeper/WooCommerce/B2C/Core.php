@@ -185,14 +185,14 @@ class Core
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
 
-        add_action('pa_color_add_form_fields',  array($this, 'add_color_custom_field'));
-        add_action('pa_color_edit_form_fields', array($this, 'edit_color_custom_field'));
-        add_action('created_pa_color', array($this, 'save_color_custom_field'));
-        add_action('edited_pa_color', array($this, 'save_color_custom_field'));
-        add_filter('manage_edit-pa_color_columns', array($this, 'add_pa_color_column'));
-        add_filter('manage_pa_color_custom_column', array($this, 'display_pa_color_column') , 10, 3);
-        add_action('admin_enqueue_scripts', array($this,'enqueue_storekeeper_admin_style'));
-        add_action('admin_enqueue_scripts', array($this,'enqueue_storekeeper_script'));
+        add_action('pa_color_add_form_fields',  array($this, 'addColorCustomField'));
+        add_action('pa_color_edit_form_fields', array($this, 'editColorCustomField'));
+        add_action('created_pa_color', array($this, 'saveColorCustomField'));
+        add_action('edited_pa_color', array($this, 'saveColorCustomField'));
+        add_filter('manage_edit-pa_color_columns', array($this, 'addPaColorColumn'));
+        add_filter('manage_pa_color_custom_column', array($this, 'displayPaColorColumn') , 10, 3);
+        add_action('admin_enqueue_scripts', array($this,'enqueueStorekeeperAdminStyle'));
+        add_action('admin_enqueue_scripts', array($this,'enqueueStorekeeperScript'));
     }
 
     private function prepareCron()
@@ -476,7 +476,7 @@ HTML;
     /**
      * @return void
      */
-    public function add_color_custom_field() {
+    public function addColorCustomField() {
         if (isset($_GET['taxonomy']) && $_GET['taxonomy'] == 'pa_color') {
             ?>
 
@@ -495,7 +495,7 @@ HTML;
      * @param $term
      * @return void
      */
-    public function edit_color_custom_field($term) {
+    public function editColorCustomField($term) {
         if (isset($_GET['taxonomy']) && $_GET['taxonomy'] == 'pa_color') {
             $color = get_term_meta($term->term_id, 'color_hex', true);
             ?>
@@ -516,7 +516,7 @@ HTML;
      * @param $term_id
      * @return void
      */
-    public function save_color_custom_field($term_id) {
+    public function saveColorCustomField($term_id) {
         if (isset($_POST['color_hex']) && !empty($_POST['color_hex'])) {
             update_term_meta($term_id, 'color_hex', sanitize_text_field($_POST['color_hex']));
         }
@@ -526,7 +526,7 @@ HTML;
      * @param $columns
      * @return mixed
      */
-    public function add_pa_color_column($columns) {
+    public function addPaColorColumn($columns) {
         $columns['color_display'] = __('Color', 'woocommerce');
         return $columns;
     }
@@ -537,7 +537,7 @@ HTML;
      * @param $term_id
      * @return mixed|string
      */
-    public function display_pa_color_column($out, $column, $term_id) {
+    public function displayPaColorColumn($out, $column, $term_id) {
         if ($column === 'color_display') {
             $color = get_term_meta($term_id, 'color_hex', true);
             if ($color) {
@@ -551,7 +551,7 @@ HTML;
     /**
      * @return void
      */
-    public function enqueue_storekeeper_admin_style() {
+    public function enqueueStorekeeperAdminStyle() {
         // Get the path to the CSS file using plugins_url()
         $css_path = plugins_url('storekeeper-for-woocommerce/assets/css/style.css');
 
@@ -562,7 +562,7 @@ HTML;
     /**
      * @return void
      */
-    public function enqueue_storekeeper_script() {
+    public function enqueueStorekeeperScript() {
         // Get the path to the JavaScript file using plugins_url()
         $js_path = plugins_url('storekeeper-for-woocommerce/assets/js/scripts.js');
 
