@@ -40,7 +40,6 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     public const CATEGORY_TAG_MODULE = 'ProductsModule';
     public const CATEGORY_ALIAS = 'Product';
     public const TAG_ALIAS = 'Label';
-    public const META_HAS_ADDONS = 'storekeeper_has_addons';
 
     protected $syncProductVariations = false;
     protected $newItemsCount = 0;
@@ -850,16 +849,23 @@ SQL;
         array $options,
         string $importProductType
     ): int {
+        // Get the product entity
         $newProduct = $this->ensureWooCommerceProduct($dotObject, $importProductType);
-
+        // Handle seo
         $this->processSeo($newProduct, $dotObject);
+        // Product variables/details
         $log_data = $this->setProductDetails($newProduct, $dotObject, $importProductType, $log_data);
-        $log_data = $this->setProductVisibility($dotObject, $newProduct, $log_data);
+        // Product prices
         $log_data = $this->setProductPrice($newProduct, $dotObject, $log_data);
+        // Product stock
         $log_data = $this->setProductStock($newProduct, $dotObject, $log_data);
+        // Upsell products
         $log_data = $this->handleUpsellProducts($newProduct, $dotObject, $options, $log_data);
+        // Cross-sell products
         $log_data = $this->handleCrossSellProducts($newProduct, $dotObject, $options, $log_data);
+        // Save the product changes
         $log_data = $this->saveProduct($newProduct, $dotObject, $log_data);
+        // Update product object's metadata
         $this->updateProductMeta($newProduct, $dotObject, $log_data);
 
         return $newProduct->get_id();
@@ -949,6 +955,7 @@ SQL;
 
         $newProduct->set_slug($dotObject->get('flat_product.slug'));
         $log_data['slug'] = $dotObject->get('flat_product.slug');
+
         $this->debug('Set slug on product', $log_data);
 
         /** Description */
@@ -1033,27 +1040,55 @@ SQL;
         $this->debug('storekeeper_id added to post.', $log_data);
 
         if ($dotObject->has('flat_product.content_vars')) {
+
             $nonAttributeOptions = array_filter(
                 $dotObject->get('flat_product.content_vars'),
                 function ($attribute) {
                     return !key_exists('attribute_option_id', $attribute);
                 }
             );
-            foreach ($nonAttributeOptions as $attribute) {
+
+            // Find attributes that have 'attribute_option_color_hex'
+            $colorAttributes = array_filter(
+                $dotObject->get('flat_product.content_vars'),
+                function ($attribute) {
+                    return array_key_exists('attribute_option_color_hex', $attribute);
+                }
+            );
+
+            // Merge the non-attribute options with the color attributes
+            $mergedAttributes = array_merge($nonAttributeOptions, $colorAttributes);
+
+
+            foreach ($mergedAttributes as $attribute) {
                 if (key_exists('attribute_id', $attribute)) {
                     $label = sanitize_title($attribute['label']);
                     $attribute_id = $attribute['attribute_id'];
                     update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
+                    // Check if 'attribute_option_color_hex' exists and save it
+                    if (key_exists('attribute_option_color_hex', $attribute)) {
+                        $color_hex = $attribute['attribute_option_color_hex'];
+                        // Check if the term already exists
+                        $value_label = $attribute['value_label']; // e.g., 'Orange'
+                        $term = term_exists($value_label, 'pa_color');
+                        update_post_meta($newProduct->get_id(), 'attribute_option_color_hex_' . $attribute_id, $color_hex);
+                        if ($term) {
+                            $term_id = $term['term_id'];
+                            $existing_color_hex = get_term_meta($term_id, 'color_hex', true); // true for single value
+                            if ($existing_color_hex) {
+                                update_term_meta($term_id, 'color_hex', $color_hex);
+                            } else {
+                                add_term_meta($term_id, 'color_hex', $color_hex);
+                            }
+                        }
+                    }
+                    // Save the value_label
+                    if (key_exists('value_label', $attribute)) {
+                        $value_label = $attribute['value_label'];
+                        update_post_meta($newProduct->get_id(), 'value_label_' . $attribute_id, $value_label);
+                    }
                 }
             }
-        }
-
-        if ($dotObject->has('flat_product.product.has_addons')) {
-            update_post_meta(
-                $newProduct->get_id(),
-                self::META_HAS_ADDONS,
-                $dotObject->get('flat_product.product.has_addons') ? '1' : '0',
-            );
         }
 
         $this->debug('Configurable product finalized', $log_data);
@@ -1362,7 +1397,7 @@ SQL;
         $firstAttributeId = $configObject->get('attributes.0.id');
         $menuOrder = 0;
         foreach ($assignedProductData->get('flat_product.content_vars', []) as $content_var) {
-            if (isset($content_var['attribute_id']) && $content_var['attribute_id'] == $firstAttributeId) {
+            if ($content_var['attribute_id'] == $firstAttributeId) {
                 $menuOrder = $content_var['attribute_option_order'] ?? 0;
             }
         }
@@ -1665,25 +1700,5 @@ SQL;
     protected function getImportEntityName(): string
     {
         return __('products', I18N::DOMAIN);
-    }
-
-    protected function setProductVisibility(Dot $dotObject, $newProduct, array $log_data): array
-    {
-        if ($dotObject->has('web_visible_in_search') || $dotObject->has('web_visible_in_catalog')) {
-            $web_visible_in_search = $dotObject->get('web_visible_in_search');
-            $web_visible_in_catalog = $dotObject->get('web_visible_in_catalog');
-            $mode = 'hidden';
-            if ($web_visible_in_search && $web_visible_in_catalog) {
-                $mode = 'visible';
-            } elseif ($web_visible_in_search) {
-                $mode = 'search';
-            } elseif ($web_visible_in_catalog) {
-                $mode = 'catalog';
-            }
-            $newProduct->set_catalog_visibility($mode);
-            $log_data['visibility'] = $mode;
-        }
-
-        return $log_data;
     }
 }
