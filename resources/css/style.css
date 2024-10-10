@@ -1,0 +1,23 @@
+.color-input-container {
+    display: flex;
+    align-items: center;
+}
+
+.color-input {
+    width: 100px; /* Width of the text input */
+    margin-right: 5px; /* Space between inputs */
+    border: 1px solid #ccc; /* Border around text input */
+    padding: 5px; /* Padding for the text input */
+}
+
+.color-picker {
+    width: 40px; /* Width of the color input */
+    height: 30px; /* Height of the color input */
+    border: none; /* Remove border */
+    padding: 0; /* Remove padding */
+    cursor: pointer; /* Cursor style for better UX */
+}
+
+.column-color_display {
+    color: #2270B1;
+}
