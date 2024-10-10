@@ -354,7 +354,7 @@ class Attributes implements LoggerAwareInterface
         string $option_name,
         ?string $option_image = null,
         int $option_order = 0,
-        ?string $option_hex_color = null,
+        ?string $option_hex_color = null
     ): int {
         $this->logger->debug('Importing attribute option', [
             'attribute_id' => $attribute_id,
