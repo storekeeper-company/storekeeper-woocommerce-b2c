@@ -528,28 +528,33 @@ HTML;
      * @return mixed
      */
     public function tsModifyShippingRates($rates, $package): mixed {
+        // Get the formatted cart total using WooCommerce's functions and settings
+        $total = WC()->cart->get_cart_contents_total();
+        $formatted_cart_total = floatval($total); // WooCommerce already formats the price, so we just cast it to float
+
+        // Get the available shipping methods
         $shipping_methods = WC()->shipping->get_shipping_methods();
-        // Get the cart subtotal using WooCommerce functions
-        $total = floatval(WC()->cart->subtotal);
 
-        // Use WooCommerce's format function to respect currency and formatting settings
-        $formatted_cart_total = wc_price($total, array('decimal_separator' => get_option('woocommerce_price_decimal_sep'), 'thousand_separator' => get_option('woocommerce_price_thousand_sep')));
-
+        // Prepare the methods data, ensuring 'min_amount' is properly retrieved and formatted
         $methods_data = array_map(function($method) {
-            $min_amount = isset($method->instance_settings['min_amount']) ? $method->instance_settings['min_amount'] : __('N/A', 'no-min-amount');
+            // Retrieve the 'min_amount' setting and ensure it uses float
+            $min_amount = isset($method->instance_settings['min_amount']) ? floatval($method->instance_settings['min_amount']) : __('N/A', 'no-min-amount');
             return [
                 'name' => $method->title,
                 'min_amount' => $min_amount
             ];
         }, $shipping_methods);
 
+        // Loop through the shipping rates to apply free shipping where necessary
         foreach ($rates as $rate_key => $rate) {
             if (isset($rate->method_id, $rate->instance_id)) {
                 foreach ($methods_data as $method_data) {
-                    if ($method_data['name'] === $rate->label && floatval($formatted_cart_total) >= floatval($method_data['min_amount'])) {
-                        $rates[$rate_key]->cost = 0;
+                    // Compare method label and check if cart total is greater than or equal to min_amount
+                    if ($method_data['name'] === $rate->label && $formatted_cart_total >= $method_data['min_amount']) {
+                        $rates[$rate_key]->cost = 0; // Set cost to 0 for free shipping
+                        // Append 'Free Shipping' label with translation
                         $rates[$rate_key]->label .= __(': Free Shipping', 'free-shipping');
-                        break;
+                        break; // Exit inner loop as rate has been processed
                     }
                 }
             }
