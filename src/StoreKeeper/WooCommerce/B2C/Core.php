@@ -186,9 +186,6 @@ class Core
         }
 
         add_action('pa_color_add_form_fields',  array($this, 'addColorCustomField'));
-        add_action('pa_color_edit_form_fields', array($this, 'editColorCustomField'));
-        add_action('created_pa_color', array($this, 'saveColorCustomField'));
-        add_action('edited_pa_color', array($this, 'saveColorCustomField'));
         add_filter('manage_edit-pa_color_columns', array($this, 'addPaColorColumn'));
         add_filter('manage_pa_color_custom_column', array($this, 'displayPaColorColumn') , 10, 3);
         add_action('admin_enqueue_scripts', array($this,'enqueueStorekeeperAdminStyle'));
@@ -491,36 +488,6 @@ HTML;
         }
     }
 
-    /**
-     * @param $term
-     * @return void
-     */
-    public function editColorCustomField($term) {
-        if (isset($_GET['taxonomy']) && $_GET['taxonomy'] == 'pa_color') {
-            $color = get_term_meta($term->term_id, 'color_hex', true);
-            ?>
-            <tr class="form-field">
-                <th scope="row" valign="top"><label for="color_hex"><?php _e( 'Color', 'woocommerce' ); ?></label></th>
-                <td>
-                    <div class="color-input-container">
-                        <input name="color_hex" id="color_code" type="text" value="<?php echo esc_attr($color) ? esc_attr($color) : '#000000'; ?>" class="color-input" />
-                        <input type="color" id="color_picker" value="<?php echo esc_attr($color) ? esc_attr($color) : '#000000'; ?>" class="color-picker" />
-                    </div>
-                </td>
-            </tr>
-            <?php
-        }
-    }
-
-    /**
-     * @param $term_id
-     * @return void
-     */
-    public function saveColorCustomField($term_id) {
-        if (isset($_POST['color_hex']) && !empty($_POST['color_hex'])) {
-            update_term_meta($term_id, 'color_hex', sanitize_text_field($_POST['color_hex']));
-        }
-    }
 
     /**
      * @param $columns
@@ -546,7 +513,6 @@ HTML;
         }
         return $out;
     }
-
 
     /**
      * @return void

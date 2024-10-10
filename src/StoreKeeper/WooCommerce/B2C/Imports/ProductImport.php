@@ -855,6 +855,7 @@ SQL;
         $this->processSeo($newProduct, $dotObject);
         // Product variables/details
         $log_data = $this->setProductDetails($newProduct, $dotObject, $importProductType, $log_data);
+        $log_data = $this->setProductVisibility($dotObject, $newProduct, $log_data);
         // Product prices
         $log_data = $this->setProductPrice($newProduct, $dotObject, $log_data);
         // Product stock
@@ -1047,6 +1048,14 @@ SQL;
                     return !key_exists('attribute_option_id', $attribute);
                 }
             );
+
+            if ($dotObject->has('flat_product.product.has_addons')) {
+                update_post_meta(
+                    $newProduct->get_id(),
+                    self::META_HAS_ADDONS,
+                    $dotObject->get('flat_product.product.has_addons') ? '1' : '0',
+                );
+            }
 
             // Find attributes that have 'attribute_option_color_hex'
             $colorAttributes = array_filter(
@@ -1397,7 +1406,7 @@ SQL;
         $firstAttributeId = $configObject->get('attributes.0.id');
         $menuOrder = 0;
         foreach ($assignedProductData->get('flat_product.content_vars', []) as $content_var) {
-            if ($content_var['attribute_id'] == $firstAttributeId) {
+            if (isset($content_var['attribute_id']) && $content_var['attribute_id'] == $firstAttributeId) {
                 $menuOrder = $content_var['attribute_option_order'] ?? 0;
             }
         }
@@ -1659,6 +1668,26 @@ SQL;
     public function setSyncProductVariations(bool $isProductVariable): void
     {
         $this->syncProductVariations = $isProductVariable;
+    }
+
+    protected function setProductVisibility(Dot $dotObject, $newProduct, array $log_data): array
+    {
+        if ($dotObject->has('web_visible_in_search') || $dotObject->has('web_visible_in_catalog')) {
+            $web_visible_in_search = $dotObject->get('web_visible_in_search');
+            $web_visible_in_catalog = $dotObject->get('web_visible_in_catalog');
+            $mode = 'hidden';
+            if ($web_visible_in_search && $web_visible_in_catalog) {
+                $mode = 'visible';
+            } elseif ($web_visible_in_search) {
+                $mode = 'search';
+            } elseif ($web_visible_in_catalog) {
+                $mode = 'catalog';
+            }
+            $newProduct->set_catalog_visibility($mode);
+            $log_data['visibility'] = $mode;
+        }
+
+        return $log_data;
     }
 
     public function getSyncProductVariations()

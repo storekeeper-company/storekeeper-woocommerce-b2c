@@ -101,6 +101,7 @@ class AttributeOptionImport extends AbstractImport implements WithConsoleProgres
             $dotObject->get('label'),
             $dotObject->get('image_url'),
             $dotObject->get('order', 0),
+            $dotObject->get('hex_color'),
         );
 
         return null;

@@ -353,7 +353,8 @@ class Attributes implements LoggerAwareInterface
         string $option_alias,
         string $option_name,
         ?string $option_image = null,
-        int $option_order = 0
+        int $option_order = 0,
+        ?string $option_hex_color = null,
     ): int {
         $this->logger->debug('Importing attribute option', [
             'attribute_id' => $attribute_id,
@@ -362,6 +363,7 @@ class Attributes implements LoggerAwareInterface
             'option_name' => $option_name,
             'option_image' => $option_image,
             'option_order' => $option_order,
+            'option_color_hex' => $option_hex_color,
         ]);
         $wc_attribute = \wc_get_attribute($attribute_id);
         self::registerAttributeTemporary($wc_attribute->slug, $wc_attribute->name);
@@ -440,6 +442,7 @@ class Attributes implements LoggerAwareInterface
         }
 
         update_term_meta($term_id, 'order', $option_order);
+        update_term_meta($term_id, 'color_hex', $option_order);
 
         $this->logger->debug('Update attribute option image', [
             'sk_attribute_option_id' => $sk_attribute_option_id,
