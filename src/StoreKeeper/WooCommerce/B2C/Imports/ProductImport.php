@@ -40,6 +40,7 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     public const CATEGORY_TAG_MODULE = 'ProductsModule';
     public const CATEGORY_ALIAS = 'Product';
     public const TAG_ALIAS = 'Label';
+    public const META_HAS_ADDONS = 'storekeeper_has_addons';
 
     protected $syncProductVariations = false;
     protected $newItemsCount = 0;
