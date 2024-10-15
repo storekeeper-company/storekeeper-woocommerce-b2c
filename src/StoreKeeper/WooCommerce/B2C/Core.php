@@ -146,7 +146,7 @@ class Core
     public function __construct()
     {
         add_action('init', function() {
-            load_plugin_textdomain('free-shipping', false, 'storekeeper-for-woocommerce/languages/');
+            load_plugin_textdomain(I18N::DOMAIN, false, 'storekeeper-for-woocommerce/languages/');
         });
 
         // Declare HPOS compabitility
