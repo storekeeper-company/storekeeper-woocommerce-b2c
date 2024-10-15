@@ -145,10 +145,6 @@ class Core
      */
     public function __construct()
     {
-        add_action('init', function() {
-            load_plugin_textdomain(I18N::DOMAIN, false, 'storekeeper-for-woocommerce/i18n/');
-        });
-
         // Declare HPOS compabitility
         add_action('before_woocommerce_init', static function () {
             if (class_exists(FeaturesUtil::class)) {
@@ -551,7 +547,7 @@ HTML;
                 foreach ($methods_data as $method_data) {
                     if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
                         $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= __(': Free Shipping', I18N::DOMAIN);
+                        $rates[$rate_key]->label .= ': '.__('Free Shipping', I18N::DOMAIN);
                         break;
                     }
                 }
