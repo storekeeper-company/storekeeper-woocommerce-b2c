@@ -482,7 +482,7 @@ HTML;
         $currency_code = get_woocommerce_currency_symbol();
 
         $new_settings['min_amount'] = array(
-            'title'       => __('Minimum Cost (' . $currency_code .')', 'woocommerce'),
+            'title' => sprintf(__('Minimum Cost (%s)', I18N::DOMAIN), $currency_code),
             'type'        => 'text',
             'placeholder' => '100.00', // Adjusted to reflect decimal format
             'default'     => '100.00', // Default value as a decimal
@@ -551,7 +551,7 @@ HTML;
                 foreach ($methods_data as $method_data) {
                     if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
                         $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= __(': Free Shipping', 'free-shipping');
+                        $rates[$rate_key]->label .= __(': Free Shipping', I18N::DOMAIN);
                         break;
                     }
                 }

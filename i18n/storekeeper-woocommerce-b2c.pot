@@ -2692,3 +2692,10 @@ msgstr ""
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"
 msgstr ""
+
+
+msgid ": Free Shipping"
+msgstr ": Gratis Verzending"
+
+msgid "Minimum Cost (%s)"
+msgstr "Minimum Cost (%s)"
