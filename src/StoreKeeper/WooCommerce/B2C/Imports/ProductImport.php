@@ -1050,14 +1050,6 @@ SQL;
                 }
             );
 
-            if ($dotObject->has('flat_product.product.has_addons')) {
-                update_post_meta(
-                    $newProduct->get_id(),
-                    self::META_HAS_ADDONS,
-                    $dotObject->get('flat_product.product.has_addons') ? '1' : '0',
-                );
-            }
-
             // Find attributes that have 'attribute_option_color_hex'
             $colorAttributes = array_filter(
                 $dotObject->get('flat_product.content_vars'),
@@ -1066,36 +1058,65 @@ SQL;
                 }
             );
 
-            // Merge the non-attribute options with the color attributes
             $mergedAttributes = array_merge($nonAttributeOptions, $colorAttributes);
 
+            $blocksyTaxonomyMetaOptions = [];
 
             foreach ($mergedAttributes as $attribute) {
                 if (key_exists('attribute_id', $attribute)) {
+                    $BlogModule = $this->storekeeper_api->getModule('BlogModule');
+                    $response = $BlogModule->listTranslatedAttributes(
+                        0,
+                        0,
+                        1,
+                        [
+                            [
+                                'name' => 'id',
+                                'dir' => 'desc',
+                            ],
+                        ],
+                        [
+                            [
+                                'name' => 'id__=',
+                                'val' => $attribute['attribute_id'],
+                            ],
+                        ]
+                    );
+
+                    $data = $response['data'][0];
+                    $attributeType = $data['type'];
                     $label = sanitize_title($attribute['label']);
-                    $attribute_id = $attribute['attribute_id'];
-                    update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
-                    // Check if 'attribute_option_color_hex' exists and save it
-                    if (key_exists('attribute_option_color_hex', $attribute)) {
-                        $color_hex = $attribute['attribute_option_color_hex'];
-                        // Check if the term already exists
-                        $value_label = $attribute['value_label']; // e.g., 'Orange'
-                        $term = term_exists($value_label, 'pa_color');
-                        update_post_meta($newProduct->get_id(), 'attribute_option_color_hex_' . $attribute_id, $color_hex);
-                        if ($term) {
-                            $term_id = $term['term_id'];
-                            $existing_color_hex = get_term_meta($term_id, 'color_hex', true); // true for single value
-                            if ($existing_color_hex) {
-                                update_term_meta($term_id, 'color_hex', $color_hex);
-                            } else {
-                                add_term_meta($term_id, 'color_hex', $color_hex);
-                            }
-                        }
+                    $attributeId = $attribute['attribute_id'];
+
+                    if ($attributeType === 'color') {
+                        $blocksyTaxonomyMetaOptions['color_type'] = 'simple';
+                        $blocksyTaxonomyMetaOptions['accent_color'] = [
+                            'default' => ['color' => $attribute['attribute_option_color_hex']],
+                            'secondary' => ['color' => 'CT_CSS_SKIP_RULE']
+                        ];
+                    } else {
+                        $blocksyTaxonomyMetaOptions['color_type'] = 'default';
                     }
-                    // Save the value_label
+
+                    $blocksyTaxonomyMetaOptions['tooltip_type'] = 'default';
+                    $blocksyTaxonomyMetaOptions['tooltip_mask'] = '{term_name}';
+                    $blocksyTaxonomyMetaOptions['tooltip_image'] = '';
+
+                    $serializedMetaOptions = serialize($blocksyTaxonomyMetaOptions);
+
+                    update_post_meta($newProduct->get_id(), 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
+
+                    update_post_meta($newProduct->get_id(), 'attribute_id_' . $attributeId, $label);
+
                     if (key_exists('value_label', $attribute)) {
-                        $value_label = $attribute['value_label'];
-                        update_post_meta($newProduct->get_id(), 'value_label_' . $attribute_id, $value_label);
+                        $valueLabel = $attribute['value_label'];
+                        update_post_meta($newProduct->get_id(), 'value_label_' . $attributeId, $valueLabel);
+                        $term = term_exists($valueLabel, 'pa_' . sanitize_title($attribute['label']));
+
+                        if ($term) {
+                            $termId = $term['term_id'];
+                            update_term_meta($termId, 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
+                        }
                     }
                 }
             }

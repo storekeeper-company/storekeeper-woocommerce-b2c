@@ -184,12 +184,6 @@ class Core
             $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
-
-        add_action('pa_color_add_form_fields',  array($this, 'addColorCustomField'));
-        add_filter('manage_edit-pa_color_columns', array($this, 'addPaColorColumn'));
-        add_filter('manage_pa_color_custom_column', array($this, 'displayPaColorColumn') , 10, 3);
-        add_action('admin_enqueue_scripts', array($this,'enqueueStorekeeperAdminStyle'));
-        add_action('admin_enqueue_scripts', array($this,'enqueueStorekeeperScript'));
     }
 
     private function prepareCron()
@@ -468,71 +462,5 @@ HTML;
 HTML;
             }
         }
-    }
-
-    /**
-     * @return void
-     */
-    public function addColorCustomField() {
-        if (isset($_GET['taxonomy']) && $_GET['taxonomy'] == 'pa_color') {
-            ?>
-
-            <div class="form-field">
-                <label for="color_attribute"><?php _e( 'Color', 'woocommerce' ); ?></label>
-                <div class="color-input-container">
-                    <input name="color_hex" id="color_code" type="text" value="#000000" class="color-input" />
-                    <input type="color" id="color_picker" value="#000000" class="color-picker" />
-                </div>
-            </div>
-            <?php
-        }
-    }
-
-
-    /**
-     * @param $columns
-     * @return mixed
-     */
-    public function addPaColorColumn($columns) {
-        $columns['color_display'] = __('Color', 'woocommerce');
-        return $columns;
-    }
-
-    /**
-     * @param $out
-     * @param $column
-     * @param $term_id
-     * @return mixed|string
-     */
-    public function displayPaColorColumn($out, $column, $term_id) {
-        if ($column === 'color_display') {
-            $color = get_term_meta($term_id, 'color_hex', true);
-            if ($color) {
-                $out = sprintf('<span style="background-color:%s; padding: 5px 20px; display: inline-block;"></span>', esc_attr($color));
-            }
-        }
-        return $out;
-    }
-
-    /**
-     * @return void
-     */
-    public function enqueueStorekeeperAdminStyle() {
-        // Get the path to the CSS file using plugins_url()
-        $css_path = plugins_url('storekeeper-for-woocommerce/assets/css/style.css');
-
-        // Enqueue the stylesheet
-        wp_enqueue_style('storekeeper-admin-style', $css_path, array(), null);
-    }
-
-    /**
-     * @return void
-     */
-    public function enqueueStorekeeperScript() {
-        // Get the path to the JavaScript file using plugins_url()
-        $js_path = plugins_url('storekeeper-for-woocommerce/assets/js/scripts.js');
-
-        // Enqueue the script
-        wp_enqueue_script('custom-script', $js_path, array(), null, true);
     }
 }
