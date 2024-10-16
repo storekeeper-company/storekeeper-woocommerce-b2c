@@ -565,6 +565,50 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 );
             }
         );
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'BlogModule',
+            function (MockInterface $module) use ($attribute) {
+                $module->shouldReceive('listTranslatedAttributes')->andReturnUsing(
+                    function ($got) {
+                        return [
+                            'data' => [
+                                [
+                                    'translatable' => [
+                                        'id' => 10,
+                                        'lang' => 'nl',
+                                        'used_langs' => [],
+                                        'translated_langs' => [],
+                                        'reviewed_langs' => [],
+                                        'final_langs' => [],
+                                        'date_created' => '2020-01-29 10:53:53+01:00',
+                                        'backref' => 'BlogModule::Attribute(id=2)',
+                                        'translatable_type_id' => 6,
+                                    ],
+                                    'id' => 2,
+                                    'name' => 'brand',
+                                    'label' => 'Brand',
+                                    'relation_data_id' => 2,
+                                    'is_options' => true,
+                                    'required' => false,
+                                    'published' => true,
+                                    'date_created' => '2020-01-29 10:53:53+01:00',
+                                    'type' => 'string',
+                                    'configuration_id' => 1,
+                                    'translatable_id' => 10,
+                                    'date_updated' => '2020-01-29 10:53:53+01:00',
+                                    'unique' => false,
+                                    'order' => 0,
+                                ],
+                            ],
+                            'total' => 8,
+                            'count' => 8,
+                        ];
+                    }
+                );
+
+            }
+        );
     }
 
     protected function prepareVFSForCDNImageTest(string $imageCdnPrefix): void
