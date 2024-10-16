@@ -102,11 +102,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
     {
         $this->initializeTest();
 
-        // Get the original product data
-        $original_product_data = array_merge(
-            $this->getReturnData(),
-            $this->getBlogModuleData()
-        );
+        $original_product_data = $this->getReturnData();
 
         // Get the simple products from the data dump
         $original_product_data = $this->getProductsByTypeFromDataDump(
