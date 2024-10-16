@@ -94,7 +94,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     protected function getBlogModuleData($file = self::DATADUMP_BLOG_MODULE_SOURCE_FILE): array
     {
-        return $this->getDataDump(self::DATADUMP_DIRECTORY . '/' . $file)
+        return $this->getDataDump(self::DATADUMP_DIRECTORY_ATTRIBUTES . '/' . $file)
             ->getReturn()['data'];
     }
 
