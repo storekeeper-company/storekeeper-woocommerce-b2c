@@ -568,9 +568,9 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
         StoreKeeperApi::$mockAdapter->withModule(
             'BlogModule',
-            function (MockInterface $module) use ($attribute) {
+            function (MockInterface $module) {
                 $module->shouldReceive('listTranslatedAttributes')->andReturnUsing(
-                    function ($got) {
+                    function ($attribute) {
                         return [
                             'data' => [
                                 [
