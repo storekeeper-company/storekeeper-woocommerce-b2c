@@ -31,6 +31,10 @@ class SyncWoocommerceProductsTest extends AbstractTest
     public const MEDIA_IMAGE_JPEG_FILE = 'image_big_image.jpeg';
     public const MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE = 'cat_sample_big_image.jpg';
 
+    public const DATADUMP_DIRECTORY_ATTRIBUTES = 'commands/sync-woocommerce-attributes';
+    public const DATADUMP_BLOG_MODULE_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.633cdd60f6610605a1bbef88a9c0415dc5576d8177a3e73793ebbaf9f7fd6342.json';
+
+
     /**
      * Initialize the tests by following these steps:
      * 1. Initialize the API connection and the mock API calls
@@ -46,11 +50,13 @@ class SyncWoocommerceProductsTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->prepareVFSForCDNImageTest($imageCdnPrefix);
+        $this->mockSyncWoocommerceBlogModule();
         $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
 
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
+        $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY_ATTRIBUTES, true);
         $this->mockApiCallsFromCommonDirectory();
-        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
+        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY . '/media');
         $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
 
         // Tests whether there are no products before import
@@ -82,9 +88,15 @@ class SyncWoocommerceProductsTest extends AbstractTest
     protected function getReturnData($file = self::DATADUMP_SOURCE_FILE): array
     {
         // Read the original data from the data dump
-        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.$file);
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY . '/' . $file);
 
         return $file->getReturn()['data'];
+    }
+
+    protected function getBlogModuleData($file = self::DATADUMP_BLOG_MODULE_SOURCE_FILE): array
+    {
+        return $this->getDataDump(self::DATADUMP_DIRECTORY_ATTRIBUTES . '/' . $file)
+            ->getReturn()['data'];
     }
 
     public function testSimpleProductImport()
@@ -303,7 +315,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 'MWVR2-zwart' => 4,
             ],
             $actualAttributeOptionPosition,
-            'Menu order for '.$variationProduct->get_title()
+            'Menu order for ' . $variationProduct->get_title()
         );
 
         $this->assertAttributeOptionOrder();
@@ -386,7 +398,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
     protected function assertAttributeOptionOrder()
     {
         // Read the original data from the data dump
-        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY . '/' . self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
         $configurableProductOptions = $file->getReturn();
         $attributeOptions = $configurableProductOptions['attribute_options'];
 
@@ -453,7 +465,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
         $this->mockApiCallsFromDirectory(self::WITH_ERRORS_DATADUMP_DIRECTORY);
         $this->mockApiCallsFromCommonDirectory();
-        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
+        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY . '/media');
         $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
 
         // Run the product import command
@@ -512,21 +524,21 @@ class SyncWoocommerceProductsTest extends AbstractTest
             /* @var \WC_Product $wcSimpleProduct */
             $wcSimpleProduct = $wcProducts[0];
             $attachmentId = $wcSimpleProduct->get_image_id();
-            $this->assertTrue((bool) get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be external');
+            $this->assertTrue((bool)get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be external');
 
             $attachmentUrl = wp_get_attachment_image_url($attachmentId, [10000, 10000]);
             $originalCdnUrl = $original->get('flat_product.main_image.cdn_url');
-            $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}.".Media::FULL_VARIANT_KEY, $originalCdnUrl);
+            $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}." . Media::FULL_VARIANT_KEY, $originalCdnUrl);
             $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
 
-            $attachmentImageSrcSet = (string) wp_get_attachment_image_srcset($attachmentId);
+            $attachmentImageSrcSet = (string)wp_get_attachment_image_srcset($attachmentId);
             $attachmentImageSrcSetArray = explode(', ', $attachmentImageSrcSet);
             if (!empty($attachmentImageSrcSet)) {
                 foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
                     // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
-                    $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
+                    $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl) . ' [0-9]+w';
                     $pattern = str_replace('/', '\/', $pattern);
-                    $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
+                    $this->assertTrue((bool)preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
                 }
             }
         }
@@ -567,17 +579,90 @@ class SyncWoocommerceProductsTest extends AbstractTest
         );
     }
 
+    protected function mockSyncWoocommerceBlogModule()
+    {
+        StoreKeeperApi::$mockAdapter->withModule(
+            'BlogModule',
+            function (MockInterface $module) {
+                $module->shouldReceive('listTranslatedAttributes')->andReturnUsing(
+                    function ($attribute) {
+                        return [
+                            'data' => [
+                                [
+                                    'translatable' => [
+                                        'id' => 10,
+                                        'lang' => 'nl',
+                                        'used_langs' => [],
+                                        'translated_langs' => [],
+                                        'reviewed_langs' => [],
+                                        'final_langs' => [],
+                                        'date_created' => '2020-01-29 10:53:53+01:00',
+                                        'backref' => 'BlogModule::Attribute(id=1)',
+                                        'translatable_type_id' => 6,
+                                    ],
+                                    'id' => 2,
+                                    'name' => 'brand',
+                                    'label' => 'Brand',
+                                    'relation_data_id' => 2,
+                                    'is_options' => true,
+                                    'required' => false,
+                                    'published' => true,
+                                    'date_created' => '2020-01-29 10:53:53+01:00',
+                                    'type' => 'string',
+                                    'configuration_id' => 1,
+                                    'translatable_id' => 10,
+                                    'date_updated' => '2020-01-29 10:53:53+01:00',
+                                    'unique' => false,
+                                    'order' => 0,
+                                ],
+                                [
+                                    'translatable' => [
+                                        'id' => 2,
+                                        'lang' => 'en',
+                                        'used_langs' => [],
+                                        'translated_langs' => [],
+                                        'reviewed_langs' => [],
+                                        'final_langs' => [],
+                                        'date_created' => '2024-01-01 10:00:00+00:00',
+                                        'backref' => 'BlogModule::Attribute(id=2)',
+                                        'translatable_type_id' => 1
+                                    ],
+                                    'id' => 2,
+                                    'name' => 'size',
+                                    'label' => 'Size',
+                                    'relation_data_id' => 1,
+                                    'is_options' => true,
+                                    'required' => false,
+                                    'published' => true,
+                                    'date_created' => '2024-01-01 10:00:00+00:00',
+                                    'type' => 'string',
+                                    'configuration_id' => 1,
+                                    'translatable_id' => 2,
+                                    'date_updated' => '2024-01-01 10:00:00+00:00',
+                                    'unique' => false,
+                                    'order' => 1
+                                ],
+                            ],
+                            'total' => 8,
+                            'count' => 8,
+                        ];
+                    }
+                );
+            }
+        );
+    }
+
     protected function prepareVFSForCDNImageTest(string $imageCdnPrefix): void
     {
         // Prepare VFS for CDN image test
         $rootDirectoryName = 'test-shop.sk-cdn.net';
-        $testImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_IMAGE_JPEG_FILE);
-        $testCatSampleImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
+        $testImageContent = file_get_contents($this->getDataDir() . self::DATADUMP_DIRECTORY . '/media/' . self::MEDIA_IMAGE_JPEG_FILE);
+        $testCatSampleImageContent = file_get_contents($this->getDataDir() . self::DATADUMP_DIRECTORY . '/media/' . self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
 
         $structure = [
             'g' => [
                 'test-shop-img-scale' => [
-                    $imageCdnPrefix.'.'.Media::FULL_VARIANT_KEY => [
+                    $imageCdnPrefix . '.' . Media::FULL_VARIANT_KEY => [
                         'f' => [
                             'image.jpeg' => $testImageContent,
                             'cat_sample.jpg' => $testCatSampleImageContent,

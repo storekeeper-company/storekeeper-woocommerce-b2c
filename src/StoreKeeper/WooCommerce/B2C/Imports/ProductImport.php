@@ -850,16 +850,24 @@ SQL;
         array $options,
         string $importProductType
     ): int {
+        // Get the product entity
         $newProduct = $this->ensureWooCommerceProduct($dotObject, $importProductType);
-
+        // Handle seo
         $this->processSeo($newProduct, $dotObject);
+        // Product variables/details
         $log_data = $this->setProductDetails($newProduct, $dotObject, $importProductType, $log_data);
         $log_data = $this->setProductVisibility($dotObject, $newProduct, $log_data);
+        // Product prices
         $log_data = $this->setProductPrice($newProduct, $dotObject, $log_data);
+        // Product stock
         $log_data = $this->setProductStock($newProduct, $dotObject, $log_data);
+        // Upsell products
         $log_data = $this->handleUpsellProducts($newProduct, $dotObject, $options, $log_data);
+        // Cross-sell products
         $log_data = $this->handleCrossSellProducts($newProduct, $dotObject, $options, $log_data);
+        // Save the product changes
         $log_data = $this->saveProduct($newProduct, $dotObject, $log_data);
+        // Update product object's metadata
         $this->updateProductMeta($newProduct, $dotObject, $log_data);
 
         return $newProduct->get_id();
@@ -949,6 +957,7 @@ SQL;
 
         $newProduct->set_slug($dotObject->get('flat_product.slug'));
         $log_data['slug'] = $dotObject->get('flat_product.slug');
+
         $this->debug('Set slug on product', $log_data);
 
         /** Description */
@@ -1033,27 +1042,84 @@ SQL;
         $this->debug('storekeeper_id added to post.', $log_data);
 
         if ($dotObject->has('flat_product.content_vars')) {
+
             $nonAttributeOptions = array_filter(
                 $dotObject->get('flat_product.content_vars'),
                 function ($attribute) {
                     return !key_exists('attribute_option_id', $attribute);
                 }
             );
-            foreach ($nonAttributeOptions as $attribute) {
+
+            // Find attributes that have 'attribute_option_color_hex'
+            $colorAttributes = array_filter(
+                $dotObject->get('flat_product.content_vars'),
+                function ($attribute) {
+                    return array_key_exists('attribute_option_color_hex', $attribute);
+                }
+            );
+
+            $mergedAttributes = array_merge($nonAttributeOptions, $colorAttributes);
+
+            $blocksyTaxonomyMetaOptions = [];
+
+            foreach ($mergedAttributes as $attribute) {
                 if (key_exists('attribute_id', $attribute)) {
+                    $BlogModule = $this->storekeeper_api->getModule('BlogModule');
+                    $response = $BlogModule->listTranslatedAttributes(
+                        0,
+                        0,
+                        1,
+                        [
+                            [
+                                'name' => 'id',
+                                'dir' => 'desc',
+                            ],
+                        ],
+                        [
+                            [
+                                'name' => 'id__=',
+                                'val' => $attribute['attribute_id'],
+                            ],
+                        ]
+                    );
+
+                    $data = $response['data'][0];
+                    $attributeType = $data['type'];
                     $label = sanitize_title($attribute['label']);
-                    $attribute_id = $attribute['attribute_id'];
-                    update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
+                    $attributeId = $attribute['attribute_id'];
+
+                    if ($attributeType === 'color') {
+                        $blocksyTaxonomyMetaOptions['color_type'] = 'simple';
+                        $blocksyTaxonomyMetaOptions['accent_color'] = [
+                            'default' => ['color' => $attribute['attribute_option_color_hex']],
+                            'secondary' => ['color' => 'CT_CSS_SKIP_RULE']
+                        ];
+                    } else {
+                        $blocksyTaxonomyMetaOptions['color_type'] = 'default';
+                    }
+
+                    $blocksyTaxonomyMetaOptions['tooltip_type'] = 'default';
+                    $blocksyTaxonomyMetaOptions['tooltip_mask'] = '{term_name}';
+                    $blocksyTaxonomyMetaOptions['tooltip_image'] = '';
+
+                    $serializedMetaOptions = serialize($blocksyTaxonomyMetaOptions);
+
+                    update_post_meta($newProduct->get_id(), 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
+
+                    update_post_meta($newProduct->get_id(), 'attribute_id_' . $attributeId, $label);
+
+                    if (key_exists('value_label', $attribute)) {
+                        $valueLabel = $attribute['value_label'];
+                        update_post_meta($newProduct->get_id(), 'value_label_' . $attributeId, $valueLabel);
+                        $term = term_exists($valueLabel, 'pa_' . sanitize_title($attribute['label']));
+
+                        if ($term) {
+                            $termId = $term['term_id'];
+                            update_term_meta($termId, 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
+                        }
+                    }
                 }
             }
-        }
-
-        if ($dotObject->has('flat_product.product.has_addons')) {
-            update_post_meta(
-                $newProduct->get_id(),
-                self::META_HAS_ADDONS,
-                $dotObject->get('flat_product.product.has_addons') ? '1' : '0',
-            );
         }
 
         $this->debug('Configurable product finalized', $log_data);
@@ -1626,6 +1692,26 @@ SQL;
         $this->syncProductVariations = $isProductVariable;
     }
 
+    protected function setProductVisibility(Dot $dotObject, $newProduct, array $log_data): array
+    {
+        if ($dotObject->has('web_visible_in_search') || $dotObject->has('web_visible_in_catalog')) {
+            $web_visible_in_search = $dotObject->get('web_visible_in_search');
+            $web_visible_in_catalog = $dotObject->get('web_visible_in_catalog');
+            $mode = 'hidden';
+            if ($web_visible_in_search && $web_visible_in_catalog) {
+                $mode = 'visible';
+            } elseif ($web_visible_in_search) {
+                $mode = 'search';
+            } elseif ($web_visible_in_catalog) {
+                $mode = 'catalog';
+            }
+            $newProduct->set_catalog_visibility($mode);
+            $log_data['visibility'] = $mode;
+        }
+
+        return $log_data;
+    }
+
     public function getSyncProductVariations()
     {
         return $this->syncProductVariations;
@@ -1665,25 +1751,5 @@ SQL;
     protected function getImportEntityName(): string
     {
         return __('products', I18N::DOMAIN);
-    }
-
-    protected function setProductVisibility(Dot $dotObject, $newProduct, array $log_data): array
-    {
-        if ($dotObject->has('web_visible_in_search') || $dotObject->has('web_visible_in_catalog')) {
-            $web_visible_in_search = $dotObject->get('web_visible_in_search');
-            $web_visible_in_catalog = $dotObject->get('web_visible_in_catalog');
-            $mode = 'hidden';
-            if ($web_visible_in_search && $web_visible_in_catalog) {
-                $mode = 'visible';
-            } elseif ($web_visible_in_search) {
-                $mode = 'search';
-            } elseif ($web_visible_in_catalog) {
-                $mode = 'catalog';
-            }
-            $newProduct->set_catalog_visibility($mode);
-            $log_data['visibility'] = $mode;
-        }
-
-        return $log_data;
     }
 }
