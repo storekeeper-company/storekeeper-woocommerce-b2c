@@ -50,6 +50,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->prepareVFSForCDNImageTest($imageCdnPrefix);
+        $this->mockSyncWoocommerceBlogModule();
         $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
 
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
@@ -576,7 +577,9 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 );
             }
         );
-
+    }
+    protected function mockSyncWoocommerceBlogModule()
+    {
         StoreKeeperApi::$mockAdapter->withModule(
             'BlogModule',
             function (MockInterface $module) {
@@ -620,6 +623,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
             }
         );
+
     }
 
     protected function prepareVFSForCDNImageTest(string $imageCdnPrefix): void
