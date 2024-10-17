@@ -7,7 +7,6 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
 use StoreKeeper\WooCommerce\B2C\Query\CronQueryBuilder;
-use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
 
 class ProcessAllTasksTest extends AbstractTest
@@ -82,76 +81,6 @@ class ProcessAllTasksTest extends AbstractTest
     public function testMissingTaskError()
     {
         $this->initApiConnection();
-
-        StoreKeeperApi::$mockAdapter->withModule(
-            'BlogModule',
-            function (MockInterface $module) {
-                $module->shouldReceive('listTranslatedAttributes')->andReturnUsing(
-                    function ($attribute) {
-                        return [
-                            'data' => [
-                                [
-                                    'translatable' => [
-                                        'id' => 10,
-                                        'lang' => 'nl',
-                                        'used_langs' => [],
-                                        'translated_langs' => [],
-                                        'reviewed_langs' => [],
-                                        'final_langs' => [],
-                                        'date_created' => '2020-01-29 10:53:53+01:00',
-                                        'backref' => 'BlogModule::Attribute(id=1)',
-                                        'translatable_type_id' => 6,
-                                    ],
-                                    'id' => 2,
-                                    'name' => 'brand',
-                                    'label' => 'Brand',
-                                    'relation_data_id' => 2,
-                                    'is_options' => true,
-                                    'required' => false,
-                                    'published' => true,
-                                    'date_created' => '2020-01-29 10:53:53+01:00',
-                                    'type' => 'string',
-                                    'configuration_id' => 1,
-                                    'translatable_id' => 10,
-                                    'date_updated' => '2020-01-29 10:53:53+01:00',
-                                    'unique' => false,
-                                    'order' => 0,
-                                ],
-                                [
-                                    'translatable' => [
-                                        'id' => 2,
-                                        'lang' => 'en',
-                                        'used_langs' => [],
-                                        'translated_langs' => [],
-                                        'reviewed_langs' => [],
-                                        'final_langs' => [],
-                                        'date_created' => '2024-01-01 10:00:00+00:00',
-                                        'backref' => 'BlogModule::Attribute(id=2)',
-                                        'translatable_type_id' => 1
-                                    ],
-                                    'id' => 2,
-                                    'name' => 'size',
-                                    'label' => 'Size',
-                                    'relation_data_id' => 1,
-                                    'is_options' => true,
-                                    'required' => false,
-                                    'published' => true,
-                                    'date_created' => '2024-01-01 10:00:00+00:00',
-                                    'type' => 'string',
-                                    'configuration_id' => 1,
-                                    'translatable_id' => 2,
-                                    'date_updated' => '2024-01-01 10:00:00+00:00',
-                                    'unique' => false,
-                                    'order' => 1
-                                ],
-                            ],
-                            'total' => 8,
-                            'count' => 8,
-                        ];
-                    }
-                );
-            }
-        );
 
         // Plan tasks
         $this->processEventsFromDir(self::MISSING_TASK_ERROR_DIR.'/events');
