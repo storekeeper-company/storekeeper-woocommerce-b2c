@@ -1,14 +1,15 @@
 msgid ""
 msgstr ""
+"Project-Id-Version: StoreKeeper for WooCommerce\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2024-10-15 17:51+0300\n"
+"Last-Translator: lokalise.com\n"
+"Language-Team: lokalise.com\n"
+"Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: lokalise.com\n"
-"Project-Id-Version: StoreKeeper for WooCommerce\n"
-"PO-Revision-Date: 2024-05-01 16:35\n"
-"Last-Translator: lokalise.com\n"
-"Language-Team: lokalise.com\n\n"
-"Language: nl_NL\n"
+"X-Generator: Poedit 3.5\n"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:244
 msgid " (Last called %s ago)"
@@ -1681,8 +1682,12 @@ msgid "Starting upsell products synchronization..."
 msgstr "Upsell synchronisatie van producten starten..."
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:153
-msgid "Stating payment %s\n eid: %s, trx: %s"
-msgstr "Opgave betaling %s\n eid: %s, trx: %s"
+msgid ""
+"Stating payment %s\n"
+" eid: %s, trx: %s"
+msgstr ""
+"Opgave betaling %s\n"
+" eid: %s, trx: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:187
 msgid "Statistics"
@@ -2000,8 +2005,12 @@ msgid "The language to which the entities will be exported."
 msgstr "De taal waarnaar de entiteiten worden geëxporteerd."
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:166
-msgid "The order\\'s payment status received: %s\ntrx=%s"
-msgstr "De ontvangen betalingsstatus van de bestelling: %s \n trx= %s"
+msgid ""
+"The order\\'s payment status received: %s\n"
+"trx=%s"
+msgstr ""
+"De ontvangen betalingsstatus van de bestelling: %s \n"
+" trx= %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:54
 msgid "The payment has been canceled, please try again"
@@ -2408,3 +2417,9 @@ msgstr "woocommerce, e-commerce, woo, verkoop, winkel"
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:42
 msgid "years"
 msgstr "jaren"
+
+msgid "Free Shipping"
+msgstr "Gratis Verzending"
+
+msgid "Minimum Cost (%s)"
+msgstr "Kosten Minimaal (%s)"

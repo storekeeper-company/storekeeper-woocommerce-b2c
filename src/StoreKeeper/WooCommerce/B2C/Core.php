@@ -162,7 +162,6 @@ class Core
         if (StoreKeeperOptions::isCustomerSyncEnabled()) {
             (new CustomerLoginRegisterHandler())->registerHooks();
         }
-
         $this->setCouponHooks();
         $this->prepareCron();
         self::registerCommands();
@@ -184,6 +183,11 @@ class Core
             $this->loader->add_filter('wp_get_attachment_image_src', $media, 'getAttachmentImageSource', 999, 4);
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
+
+        add_filter('woocommerce_shipping_settings', 'displayMinAmountField');
+        add_action('woocommerce_shipping_init', array($this, 'applyMinAmountToAllShippingMethods'));
+        add_action('woocommerce_review_order_after_shipping', array($this, 'displayShippingMinAmountContent'));
+        add_filter('woocommerce_package_rates', array($this, 'modifyShippingRates'), 10, 2);
     }
 
     private function prepareCron()
@@ -246,7 +250,7 @@ class Core
         return (defined('WP_DEBUG') && WP_DEBUG)
             || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
             || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-        ;
+            ;
     }
 
     public static function isDataDump(): bool
@@ -462,5 +466,94 @@ HTML;
 HTML;
             }
         }
+    }
+
+    /**
+     * @param $settings
+     * @return mixed
+     */
+    public function addExtraFieldsInShippingMethods($settings): mixed {
+        // Add a new setting for Minimum Amount
+        $new_settings = $settings;
+        $currency_code = get_woocommerce_currency_symbol();
+
+        $new_settings['min_amount'] = array(
+            'title' => sprintf(__('Minimum Cost (%s)', I18N::DOMAIN), $currency_code),
+            'type'        => 'text',
+            'placeholder' => '100.00', // Adjusted to reflect decimal format
+            'default'     => '100.00', // Default value as a decimal
+            'custom_attributes' => array(
+                'min' => 0,
+                'step' => '0.01' // Allow decimal steps in the input
+            ),
+        );
+        return $new_settings;
+    }
+
+    /**
+     * @return void
+     */
+    public function displayShippingMinAmountContent(): void  {
+        // Retrieve the shipping method selected by the user
+        $chosen_shipping_method = WC()->session->get('chosen_shipping_methods')[0];
+
+        // Get the shipping settings for the chosen method
+        $shipping_method_settings = get_option("woocommerce_{$chosen_shipping_method}_settings");
+
+        // Ensure the settings are an array and contain 'min_amount'
+        if (is_array($shipping_method_settings) && isset($shipping_method_settings['min_amount'])) {
+            $min_amount = floatval($shipping_method_settings['min_amount']);
+        } else {
+            $min_amount = '';
+        }
+    }
+
+
+    /**
+     * @return void
+     */
+    public function applyMinAmountToAllShippingMethods(): void {
+        // Manually add the filter for known methods, including Local Pickup
+        $shipping_methods = array('flat_rate', 'free_shipping', 'local_pickup');
+
+        foreach ($shipping_methods as $method_id) {
+            add_filter("woocommerce_shipping_instance_form_fields_{$method_id}", array($this, 'addExtraFieldsInShippingMethods'), 10, 1);
+        }
+    }
+
+    /**
+     * @param $rates
+     * @param $package
+     * @return mixed
+     */
+    public function modifyShippingRates($rates, $package): mixed {
+        // Get the formatted cart total using WooCommerce's functions and settings
+        $total = WC()->cart->get_cart_contents_total();
+
+        // Get the available shipping methods
+        $shipping_methods = WC()->shipping->get_shipping_methods();
+
+        // Prepare the methods data, ensuring 'min_amount' is properly retrieved and formatted
+        $methods_data = array_map(function($method) {
+            $min_amount = isset($method->instance_settings['min_amount']) ? floatval($method->instance_settings['min_amount']) : 0;
+            return [
+                'name' => $method->title,
+                'min_amount' => $min_amount
+            ];
+        }, $shipping_methods);
+
+        foreach ($rates as $rate_key => $rate) {
+            if (isset($rate->method_id, $rate->instance_id)) {
+                foreach ($methods_data as $method_data) {
+                    if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
+                        $rates[$rate_key]->cost = 0;
+                        $rates[$rate_key]->label .= ': '.__('Free Shipping', I18N::DOMAIN);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $rates;
     }
 }
