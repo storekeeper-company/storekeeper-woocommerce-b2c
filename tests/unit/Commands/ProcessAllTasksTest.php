@@ -147,7 +147,7 @@ class ProcessAllTasksTest extends AbstractTest
             '_type' => 'moduleFunction',
             'time_ms' => 100,
             '_version' => '1.0',
-            '_timestamp' => now()->toISOString(),
+            '_timestamp' => '2020-02-18T12:58:57+00:00'
         ];
 
         $this->mockApiCall('moduleFunction.BlogModule::listTranslatedAttributes', $mockResponse);
