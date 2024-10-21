@@ -46,7 +46,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->prepareVFSForCDNImageTest($imageCdnPrefix);
-        $this->mockSyncWoocommerceBlogModule();
         $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
 
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
