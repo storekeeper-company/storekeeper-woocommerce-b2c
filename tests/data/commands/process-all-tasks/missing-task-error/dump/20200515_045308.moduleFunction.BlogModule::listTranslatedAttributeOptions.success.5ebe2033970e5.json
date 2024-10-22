@@ -1,0 +1,60 @@
+{
+    "success": true,
+    "call_id": "5ebe2033970e5",
+    "module_name": "BlogModule",
+    "function": "listTranslatedAttributes",
+    "params": [
+        0,
+        0,
+        1,
+        [
+            {
+                "name": "id",
+                "dir": "desc"
+            }
+        ],
+        [
+            {
+                "name": "id__=",
+                "val": 1
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "translatable": {
+                    "id": 42,
+                    "lang": "nl",
+                    "used_langs": [],
+                    "translated_langs": [],
+                    "reviewed_langs": [],
+                    "final_langs": [],
+                    "date_created": "2020-05-15 06:22:17+02:00",
+                    "backref": "BlogModule::Attribute(id=1)",
+                    "translatable_type_id": 6
+                },
+                "id": 1,
+                "name": "kleur",
+                "label": "Kleur",
+                "relation_data_id": 2,
+                "is_options": true,
+                "required": false,
+                "published": true,
+                "date_created": "2020-05-15 06:22:17+02:00",
+                "type": "string",
+                "configuration_id": 1,
+                "translatable_id": 42,
+                "date_updated": "2020-05-15 06:22:17+02:00",
+                "unique": false,
+                "order": 0
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 1230.0,
+    "_version": "1.0",
+    "_timestamp": "2020-05-15T04:53:07+00:00"
+}
