@@ -600,7 +600,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
                                         'backref' => 'BlogModule::Attribute(id=1)',
                                         'translatable_type_id' => 6,
                                     ],
-                                    'id' => 2,
+                                    'id' => 1,
                                     'name' => 'brand',
                                     'label' => 'Brand',
                                     'relation_data_id' => 2,
