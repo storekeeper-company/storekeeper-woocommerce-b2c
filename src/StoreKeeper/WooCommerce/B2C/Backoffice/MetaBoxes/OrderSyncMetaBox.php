@@ -229,4 +229,53 @@ class OrderSyncMetaBox extends AbstractPostSyncMetaBox implements WithHooksInter
 
         return wp_nonce_url($syncLink, static::ACTION_NAME.'_post_'.$wooCommerceOrder->get_id());
     }
+
+    public function syncAllPaidOrders(): void
+    {
+        if (class_exists('WC_Order_Query')) {
+            $query = new WC_Order_Query([
+                'status' => ['processing', 'completed'],
+                'limit' => -1,
+            ]);
+
+            $orders = $query->get_orders();
+            foreach ($orders as $order) {
+                $orderId = $order->get_id();
+                $noPaidOrder = 'SELECT * FROM wp_storekeeper_pay_orders_payments WHERE order_id = {' . $orderId .'} AND is_paid = 0;';
+
+                if ($noPaidOrder) {
+                    try {
+                        $export = new OrderExport(
+                            [
+                                'id' => $orderId,
+                            ]
+                        );
+
+                        try {
+                            $export->run();
+                        } catch (\Throwable $throwable) {
+                            $message = $throwable->getMessage();
+                            if ($throwable instanceof GeneralException) {
+                                $message = "[{$throwable->getClass()}] {$throwable->getMessage()}";
+                            }
+
+                            $error = __('Failed to sync order', I18N::DOMAIN) . ': ' . $message;
+                            wp_redirect(
+                                add_query_arg(
+                                    'sk_sync_error',
+                                    urlencode($error),
+                                    $editUrl
+                                )
+                            );
+                            exit;
+                        }
+                    } catch (\Exception $e) {
+                        error_log('Failed to sync order ID ' . $order->get_id() . ': ' . $e->getMessage());
+                    }
+                }
+            }
+        } else {
+            error_log('WC_Order_Query not found.', 3, $logFile);
+        }
+    }
 }
