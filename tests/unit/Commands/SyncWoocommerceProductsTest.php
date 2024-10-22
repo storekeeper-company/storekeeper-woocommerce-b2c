@@ -30,6 +30,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     public const MEDIA_IMAGE_JPEG_FILE = 'image_big_image.jpeg';
     public const MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE = 'cat_sample_big_image.jpg';
+    public const DATADUMP_DIRECTORY_ATTRIBUTES = 'commands/sync-woocommerce-attributes';
+    public const DATADUMP_BLOG_MODULE_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.633cdd60f6610605a1bbef88a9c0415dc5576d8177a3e73793ebbaf9f7fd6342.json';
 
     /**
      * Initialize the tests by following these steps:
@@ -46,6 +48,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
         // Initialize the test
         $this->initApiConnection();
         $this->prepareVFSForCDNImageTest($imageCdnPrefix);
+        $this->mockSyncWoocommerceBlogModule();
         $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
 
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
@@ -560,6 +563,79 @@ class SyncWoocommerceProductsTest extends AbstractTest
                             'data' => [
                                 ['currency_iso3' => 'EUR'],
                             ],
+                        ];
+                    }
+                );
+            }
+        );
+    }
+
+    protected function mockSyncWoocommerceBlogModule()
+    {
+        StoreKeeperApi::$mockAdapter->withModule(
+            'BlogModule',
+            function (MockInterface $module) {
+                $module->shouldReceive('listTranslatedAttributes')->andReturnUsing(
+                    function ($attribute) {
+                        return [
+                            'data' => [
+                                [
+                                    'translatable' => [
+                                        'id' => 10,
+                                        'lang' => 'nl',
+                                        'used_langs' => [],
+                                        'translated_langs' => [],
+                                        'reviewed_langs' => [],
+                                        'final_langs' => [],
+                                        'date_created' => '2020-01-29 10:53:53+01:00',
+                                        'backref' => 'BlogModule::Attribute(id=1)',
+                                        'translatable_type_id' => 6,
+                                    ],
+                                    'id' => 1,
+                                    'name' => 'brand',
+                                    'label' => 'Brand',
+                                    'relation_data_id' => 2,
+                                    'is_options' => true,
+                                    'required' => false,
+                                    'published' => true,
+                                    'date_created' => '2020-01-29 10:53:53+01:00',
+                                    'type' => 'string',
+                                    'configuration_id' => 1,
+                                    'translatable_id' => 10,
+                                    'date_updated' => '2020-01-29 10:53:53+01:00',
+                                    'unique' => false,
+                                    'order' => 0,
+                                ],
+                                [
+                                    'translatable' => [
+                                        'id' => 2,
+                                        'lang' => 'en',
+                                        'used_langs' => [],
+                                        'translated_langs' => [],
+                                        'reviewed_langs' => [],
+                                        'final_langs' => [],
+                                        'date_created' => '2024-01-01 10:00:00+00:00',
+                                        'backref' => 'BlogModule::Attribute(id=2)',
+                                        'translatable_type_id' => 1
+                                    ],
+                                    'id' => 2,
+                                    'name' => 'size',
+                                    'label' => 'Size',
+                                    'relation_data_id' => 1,
+                                    'is_options' => true,
+                                    'required' => false,
+                                    'published' => true,
+                                    'date_created' => '2024-01-01 10:00:00+00:00',
+                                    'type' => 'string',
+                                    'configuration_id' => 1,
+                                    'translatable_id' => 2,
+                                    'date_updated' => '2024-01-01 10:00:00+00:00',
+                                    'unique' => false,
+                                    'order' => 1
+                                ],
+                            ],
+                            'total' => 8,
+                            'count' => 8,
                         ];
                     }
                 );

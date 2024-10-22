@@ -11,6 +11,7 @@ abstract class AbstractTest extends \StoreKeeper\WooCommerce\B2C\UnitTest\Abstra
     {
         parent::setUp();
         $this->setUpRunner();
+        do_action('woocommerce_init');
     }
 
     public function tearDown(): void
