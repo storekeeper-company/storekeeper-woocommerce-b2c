@@ -61,7 +61,7 @@ class ProductImportTest extends AbstractTest
         string $expectedStatus,
         int $expectedShopProductId
     ): void {
-        $setShopProductObjectSyncStatusForHookCallCount = 1;
+        $setShopProductObjectSyncStatusForHookCallCount = 0;
 
         StoreKeeperApi::$mockAdapter
             ->withModule(
@@ -109,7 +109,6 @@ class ProductImportTest extends AbstractTest
             'Actual size of the retrieved product collection is wrong'
         );
 
-        // Check if the sync status call count matches the expected count
         if ($expectedStatusCallCount !== $setShopProductObjectSyncStatusForHookCallCount) {
             $this->addWarning(
                 'Product sync status should be sent to Backoffice: expected ' .
