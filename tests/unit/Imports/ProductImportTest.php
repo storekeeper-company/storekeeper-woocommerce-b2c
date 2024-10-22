@@ -61,7 +61,7 @@ class ProductImportTest extends AbstractTest
         string $expectedStatus,
         int $expectedShopProductId
     ): void {
-        $setShopProductObjectSyncStatusForHookCallCount = 0;
+        $setShopProductObjectSyncStatusForHookCallCount = 1;
 
         StoreKeeperApi::$mockAdapter
             ->withModule(
