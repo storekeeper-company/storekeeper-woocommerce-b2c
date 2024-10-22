@@ -63,6 +63,8 @@ class ProductImportTest extends AbstractTest
     ): void {
         $setShopProductObjectSyncStatusForHookCallCount = 0;
 
+        do_action('woocommerce_init');
+
         StoreKeeperApi::$mockAdapter
             ->withModule(
                 'ShopModule',
@@ -86,15 +88,14 @@ class ProductImportTest extends AbstractTest
 
                             return null;
                         });
-                });
+                }
+            );
 
-        // Handle the product creation hook event
         $creationOptions = $this->handleHookRequest(
             self::CREATE_DATADUMP_DIRECTORY,
-            $dumpHookFile,
+            $dumpHookFile
         );
 
-        // Retrieve the product from wordpress using the storekeeper id
         $products = wc_get_products(
             [
                 'post_type' => 'product',
