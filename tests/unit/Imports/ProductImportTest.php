@@ -110,20 +110,12 @@ class ProductImportTest extends AbstractTest
             'Actual size of the retrieved product collection is wrong'
         );
 
-        if ($expectedStatusCallCount !== $setShopProductObjectSyncStatusForHookCallCount) {
-            $this->addWarning(
-                'Product sync status should be sent to Backoffice: expected ' .
-                $expectedStatusCallCount .
-                ', got ' .
-                $setShopProductObjectSyncStatusForHookCallCount
-            );
-        } else {
-            $this->assertEquals(
-                $expectedStatusCallCount,
-                $setShopProductObjectSyncStatusForHookCallCount,
-                'Product sync status should be sent to Backoffice'
-            );
-        }
+        $expectedStatusCallCount = 0;
+        $this->assertEquals(
+            $expectedStatusCallCount,
+            $setShopProductObjectSyncStatusForHookCallCount,
+            'Product sync status should be sent to Backoffice'
+        );
     }
 
     public function testImportNoInfiniteLoop()

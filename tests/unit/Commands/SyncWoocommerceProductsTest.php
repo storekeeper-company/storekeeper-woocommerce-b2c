@@ -30,9 +30,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     public const MEDIA_IMAGE_JPEG_FILE = 'image_big_image.jpeg';
     public const MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE = 'cat_sample_big_image.jpg';
-    public const DATADUMP_DIRECTORY_ATTRIBUTES = 'commands/sync-woocommerce-attributes';
-    public const DATADUMP_BLOG_MODULE_SOURCE_FILE = 'moduleFunction.BlogModule::listTranslatedAttributes.633cdd60f6610605a1bbef88a9c0415dc5576d8177a3e73793ebbaf9f7fd6342.json';
-
     /**
      * Initialize the tests by following these steps:
      * 1. Initialize the API connection and the mock API calls

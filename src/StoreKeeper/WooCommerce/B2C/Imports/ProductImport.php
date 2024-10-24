@@ -48,6 +48,8 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
 
     protected bool $skipBroken = false;
 
+    private array $attributeTypesCache = [];
+
     public function isSkipBroken(): bool
     {
         return $this->skipBroken;
@@ -1047,35 +1049,14 @@ SQL;
                 }
             );
 
-            $mergedAttributes = array_merge($nonAttributeOptions, $colorAttributes);
-
             $blocksyTaxonomyMetaOptions = [];
 
-            foreach ($mergedAttributes as $attribute) {
+            foreach ($colorAttributes as $attribute) {
                 if (key_exists('attribute_id', $attribute)) {
-                    $BlogModule = $this->storekeeper_api->getModule('BlogModule');
-                    $response = $BlogModule->listTranslatedAttributes(
-                        0,
-                        0,
-                        1,
-                        [
-                            [
-                                'name' => 'id',
-                                'dir' => 'desc',
-                            ],
-                        ],
-                        [
-                            [
-                                'name' => 'id__=',
-                                'val' => $attribute['attribute_id'],
-                            ],
-                        ]
-                    );
-
-                    $data = $response['data'][0];
-                    $attributeType = $data['type'];
-                    $label = sanitize_title($attribute['label']);
                     $attributeId = $attribute['attribute_id'];
+                    $attributeType = $this->getAttributeType($attributeId);
+                    $label = sanitize_title($attribute['label']);
+
 
                     if ($attributeType === 'color') {
                         $blocksyTaxonomyMetaOptions['color_type'] = 'simple';
@@ -1093,18 +1074,14 @@ SQL;
 
                     $serializedMetaOptions = serialize($blocksyTaxonomyMetaOptions);
 
-                    update_post_meta($newProduct->get_id(), 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
-
-                    update_post_meta($newProduct->get_id(), 'attribute_id_' . $attributeId, $label);
-
                     if (key_exists('value_label', $attribute)) {
                         $valueLabel = $attribute['value_label'];
-                        update_post_meta($newProduct->get_id(), 'value_label_' . $attributeId, $valueLabel);
-                        $term = term_exists($valueLabel, 'pa_' . sanitize_title($attribute['label']));
-
-                        if ($term) {
-                            $termId = $term['term_id'];
+                        $storekeeperId = $attribute['storekeeper_id'];
+                        $termId = AttributeOptionModel::getTermIdByStorekeeperId($attributeId, $storekeeperId);
+                        if ($termId && term_exists($termId, 'pa_' . sanitize_title($attribute['label']))) {
                             update_term_meta($termId, 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
+                        } else {
+                            error_log("Term ID not found for Storekeeper ID: $storekeeperId or does not belong to the taxonomy.");
                         }
                     }
                 }
@@ -1748,5 +1725,39 @@ SQL;
         }
 
         return $log_data;
+    }
+
+    public function getAttributeType(int $attributeId): string {
+        if (isset($this->attributeTypesCache[$attributeId])) {
+            return $this->attributeTypesCache[$attributeId];
+        }
+        $BlogModule = $this->storekeeper_api->getModule('BlogModule');
+        $response = $BlogModule->listTranslatedAttributes(
+            0,
+            0,
+            1,
+            [
+                [
+                    'name' => 'id',
+                    'dir' => 'desc',
+                ],
+            ],
+            [
+                [
+                    'name' => 'id__=',
+                    'val' => $attributeId,
+                ],
+            ]
+        );
+
+        if (isset($response['data'][0])) {
+            $data = $response['data'][0];
+            $attributeType = $data['type'];
+            $this->attributeTypesCache[$attributeId] = $attributeType;
+            return $attributeType;
+        }
+
+        // Return a default value or throw an exception if no data is found
+        return 'unknown'; // or throw new Exception("Attribute not found");
     }
 }
