@@ -574,7 +574,7 @@ HTML;
 
 
     public function syncAllPaidAndProcessingOrders() {
-        $orderSyncMetaBox = new OrderSyncMetaBox();
+        $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
     }
 }
