@@ -4,6 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C;
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
+use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\ConnectBackend;
@@ -198,6 +199,20 @@ class Core
 
         $processTask = new ProcessTaskCron();
         $this->loader->add_action(CronRegistrar::HOOK_PROCESS_TASK, $processTask, 'execute');
+
+        add_filter('cron_schedules', function($schedules) {
+            $schedules['every_day'] = [
+                'interval' => 86400,
+                'display'  => __('Every Day')
+            ];
+            return $schedules;
+        });
+
+        if (!wp_next_scheduled('sk_sync_paid_orders')) {
+            wp_schedule_event(time(), 'every_day', 'sk_sync_paid_orders');
+        }
+
+        $this->loader->add_action('sk_sync_paid_orders', $this, 'syncAllPaidAndProcessingOrders');
     }
 
     /**
@@ -555,5 +570,11 @@ HTML;
         }
 
         return $rates;
+    }
+
+
+    public function syncAllPaidAndProcessingOrders() {
+        $orderSyncMetaBox = new Cron();
+        $orderSyncMetaBox->syncAllPaidOrders();
     }
 }
