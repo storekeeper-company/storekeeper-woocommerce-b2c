@@ -1793,7 +1793,11 @@ class OrderExportTest extends AbstractOrderExportTest
         ];
 
         if ('NL' === $wc_order->get_billing_country()) {
-            $splitStreet = OrderExport::splitStreetNumber($new_order['billing_address_house_number'] ?? '');
+            $billing_house_number = $new_order['billing_address_house_number'] ?? '';
+
+            // Ensure the value is a string
+            $splitStreet = OrderExport::splitStreetNumber((string) $billing_house_number);
+
             $expect_billing['address_billing']['streetnumber'] = $splitStreet['streetnumber'];
             $expect_billing['address_billing']['flatnumber'] = $splitStreet['flatnumber'];
         }

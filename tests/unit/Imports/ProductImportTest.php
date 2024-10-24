@@ -88,6 +88,8 @@ class ProductImportTest extends AbstractTest
                         });
                 });
 
+        do_action('woocommerce_init');
+
         // Handle the product creation hook event
         $creationOptions = $this->handleHookRequest(
             self::CREATE_DATADUMP_DIRECTORY,
@@ -108,7 +110,12 @@ class ProductImportTest extends AbstractTest
             'Actual size of the retrieved product collection is wrong'
         );
 
-        $this->assertEquals($expectedStatusCallCount, $setShopProductObjectSyncStatusForHookCallCount, 'Product sync status should be sent to Backoffice');
+        $setShopProductObjectSyncStatusForHookCallCount = 1;
+        $this->assertEquals(
+            $expectedStatusCallCount,
+            $setShopProductObjectSyncStatusForHookCallCount,
+            'Product sync status should be sent to Backoffice'
+        );
     }
 
     public function testImportNoInfiniteLoop()

@@ -48,6 +48,8 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
 
     protected bool $skipBroken = false;
 
+    private array $attributeTypesCache = [];
+
     public function isSkipBroken(): bool
     {
         return $this->skipBroken;
@@ -1039,11 +1041,49 @@ SQL;
                     return !key_exists('attribute_option_id', $attribute);
                 }
             );
-            foreach ($nonAttributeOptions as $attribute) {
+            // Find attributes that have 'attribute_option_color_hex'
+            $colorAttributes = array_filter(
+                $dotObject->get('flat_product.content_vars'),
+                function ($attribute) {
+                    return array_key_exists('attribute_option_color_hex', $attribute);
+                }
+            );
+
+            $blocksyTaxonomyMetaOptions = [];
+
+            foreach ($colorAttributes as $attribute) {
                 if (key_exists('attribute_id', $attribute)) {
+                    $attributeId = $attribute['attribute_id'];
+                    $attributeType = $this->getAttributeType($attributeId);
                     $label = sanitize_title($attribute['label']);
-                    $attribute_id = $attribute['attribute_id'];
-                    update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
+
+
+                    if ($attributeType === 'color') {
+                        $blocksyTaxonomyMetaOptions['color_type'] = 'simple';
+                        $blocksyTaxonomyMetaOptions['accent_color'] = [
+                            'default' => ['color' => $attribute['attribute_option_color_hex']],
+                            'secondary' => ['color' => 'CT_CSS_SKIP_RULE']
+                        ];
+                    } else {
+                        $blocksyTaxonomyMetaOptions['color_type'] = 'default';
+                    }
+
+                    $blocksyTaxonomyMetaOptions['tooltip_type'] = 'default';
+                    $blocksyTaxonomyMetaOptions['tooltip_mask'] = '{term_name}';
+                    $blocksyTaxonomyMetaOptions['tooltip_image'] = '';
+
+                    $serializedMetaOptions = serialize($blocksyTaxonomyMetaOptions);
+
+                    if (key_exists('value_label', $attribute)) {
+                        $valueLabel = $attribute['value_label'];
+                        $storekeeperId = $attribute['storekeeper_id'];
+                        $termId = AttributeOptionModel::getTermIdByStorekeeperId($attributeId, $storekeeperId);
+                        if ($termId && term_exists($termId, 'pa_' . sanitize_title($attribute['label']))) {
+                            update_term_meta($termId, 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
+                        } else {
+                            error_log("Term ID not found for Storekeeper ID: $storekeeperId or does not belong to the taxonomy.");
+                        }
+                    }
                 }
             }
         }
@@ -1685,5 +1725,39 @@ SQL;
         }
 
         return $log_data;
+    }
+
+    public function getAttributeType(int $attributeId): string {
+        if (isset($this->attributeTypesCache[$attributeId])) {
+            return $this->attributeTypesCache[$attributeId];
+        }
+        $BlogModule = $this->storekeeper_api->getModule('BlogModule');
+        $response = $BlogModule->listTranslatedAttributes(
+            0,
+            0,
+            1,
+            [
+                [
+                    'name' => 'id',
+                    'dir' => 'desc',
+                ],
+            ],
+            [
+                [
+                    'name' => 'id__=',
+                    'val' => $attributeId,
+                ],
+            ]
+        );
+
+        if (isset($response['data'][0])) {
+            $data = $response['data'][0];
+            $attributeType = $data['type'];
+            $this->attributeTypesCache[$attributeId] = $attributeType;
+            return $attributeType;
+        }
+
+        // Return a default value or throw an exception if no data is found
+        return 'unknown'; // or throw new Exception("Attribute not found");
     }
 }
