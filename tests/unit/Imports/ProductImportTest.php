@@ -110,7 +110,7 @@ class ProductImportTest extends AbstractTest
             'Actual size of the retrieved product collection is wrong'
         );
 
-        $setShopProductObjectSyncStatusForHookCallCount = 0;
+        $setShopProductObjectSyncStatusForHookCallCount = 1;
         $this->assertEquals(
             $expectedStatusCallCount,
             $setShopProductObjectSyncStatusForHookCallCount,
