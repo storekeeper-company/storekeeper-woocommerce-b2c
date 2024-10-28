@@ -14,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
@@ -47,6 +48,8 @@ class ProductImport extends AbstractProductImport implements WithConsoleProgress
     protected $updatedItemsCount = 0;
 
     protected bool $skipBroken = false;
+
+    private array $attributeTypesCache = [];
 
     public function isSkipBroken(): bool
     {
@@ -1046,6 +1049,52 @@ SQL;
                     update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
                 }
             }
+
+            // Find attributes that have 'attribute_option_color_hex'
+            $colorAttributes = array_filter(
+                $dotObject->get('flat_product.content_vars'),
+                function ($attribute) {
+                    return array_key_exists('attribute_option_color_hex', $attribute);
+                }
+            );
+
+            $blocksyTaxonomyMetaOptions = [];
+
+            foreach ($colorAttributes as $attribute) {
+                if (key_exists('attribute_id', $attribute)) {
+                    $attributeId = $attribute['attribute_id'];
+                    $attributeType = $this->getAttributeType($attributeId);
+                    $label = sanitize_title($attribute['label']);
+
+
+                    if ($attributeType === 'color') {
+                        $blocksyTaxonomyMetaOptions['color_type'] = 'simple';
+                        $blocksyTaxonomyMetaOptions['accent_color'] = [
+                            'default' => ['color' => $attribute['attribute_option_color_hex']],
+                            'secondary' => ['color' => 'CT_CSS_SKIP_RULE']
+                        ];
+                    } else {
+                        $blocksyTaxonomyMetaOptions['color_type'] = 'default';
+                    }
+
+                    $blocksyTaxonomyMetaOptions['tooltip_type'] = 'default';
+                    $blocksyTaxonomyMetaOptions['tooltip_mask'] = '{term_name}';
+                    $blocksyTaxonomyMetaOptions['tooltip_image'] = '';
+
+                    $serializedMetaOptions = serialize($blocksyTaxonomyMetaOptions);
+
+                    if (key_exists('value_label', $attribute)) {
+                        $valueLabel = $attribute['value_label'];
+                        $storekeeperId = $attribute['storekeeper_id'];
+                        $termId = AttributeOptionModel::getTermIdByStorekeeperId($attributeId, $storekeeperId);
+                        if ($termId && term_exists($termId, 'pa_' . sanitize_title($attribute['label']))) {
+                            update_term_meta($termId, 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
+                        } else {
+                            error_log("Term ID not found for Storekeeper ID: $storekeeperId or does not belong to the taxonomy.");
+                        }
+                    }
+                }
+            }
         }
 
         if ($dotObject->has('flat_product.product.has_addons')) {
@@ -1685,5 +1734,43 @@ SQL;
         }
 
         return $log_data;
+    }
+
+    public function getAttributeType(int $attributeId): string {
+        if (isset($this->attributeTypesCache[$attributeId])) {
+            return $this->attributeTypesCache[$attributeId];
+        }
+        try {
+            $BlogModule = $this->storekeeper_api->getModule('BlogModule');
+            $response = $BlogModule->listTranslatedAttributes(
+                0,
+                0,
+                1,
+                [
+                    [
+                        'name' => 'id',
+                        'dir' => 'desc',
+                    ],
+                ],
+                [
+                    [
+                        'name' => 'id__=',
+                        'val' => $attributeId,
+                    ],
+                ]
+            );
+
+            if (isset($response['data'][0])) {
+                $data = $response['data'][0];
+                $attributeType = $data['type'];
+                $this->attributeTypesCache[$attributeId] = $attributeType;
+                return $attributeType;
+            }
+
+            return 'unknown';
+
+        } catch (\Exception $e) {
+            error_log('Error retrieving attribute type: ' . $e->getMessage());
+        }
     }
 }

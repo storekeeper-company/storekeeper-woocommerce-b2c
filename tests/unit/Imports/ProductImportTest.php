@@ -86,7 +86,10 @@ class ProductImportTest extends AbstractTest
 
                             return null;
                         });
-                });
+                }
+            );
+
+        do_action('woocommerce_init');
 
         // Handle the product creation hook event
         $creationOptions = $this->handleHookRequest(
@@ -94,7 +97,6 @@ class ProductImportTest extends AbstractTest
             $dumpHookFile,
         );
 
-        // Retrieve the product from wordpress using the storekeeper id
         $products = wc_get_products(
             [
                 'post_type' => 'product',
@@ -108,7 +110,11 @@ class ProductImportTest extends AbstractTest
             'Actual size of the retrieved product collection is wrong'
         );
 
-        $this->assertEquals($expectedStatusCallCount, $setShopProductObjectSyncStatusForHookCallCount, 'Product sync status should be sent to Backoffice');
+        $this->assertEquals(
+            $expectedStatusCallCount,
+            $setShopProductObjectSyncStatusForHookCallCount,
+            'Product sync status should be sent to Backoffice'
+        );
     }
 
     public function testImportNoInfiniteLoop()
