@@ -4,7 +4,6 @@ namespace StoreKeeper\WooCommerce\B2C;
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
-use StoreKeeper\WooCommerce\B2C\Backoffice\MetaBoxes\OrderSyncMetaBox;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\ConnectBackend;
@@ -186,9 +185,9 @@ class Core
         }
 
         add_filter('woocommerce_shipping_settings', 'displayMinAmountField');
-        add_action('woocommerce_shipping_init', array($this, 'applyMinAmountToAllShippingMethods'));
-        add_action('woocommerce_review_order_after_shipping', array($this, 'displayShippingMinAmountContent'));
-        add_filter('woocommerce_package_rates', array($this, 'modifyShippingRates'), 10, 2);
+        add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
+        add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
+        add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
     }
 
     private function prepareCron()
@@ -200,11 +199,12 @@ class Core
         $processTask = new ProcessTaskCron();
         $this->loader->add_action(CronRegistrar::HOOK_PROCESS_TASK, $processTask, 'execute');
 
-        add_filter('cron_schedules', function($schedules) {
+        add_filter('cron_schedules', function ($schedules) {
             $schedules['every_day'] = [
                 'interval' => 86400,
-                'display'  => __('Every Day')
+                'display' => __('Every Day'),
             ];
+
             return $schedules;
         });
 
@@ -265,7 +265,7 @@ class Core
         return (defined('WP_DEBUG') && WP_DEBUG)
             || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
             || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-            ;
+        ;
     }
 
     public static function isDataDump(): bool
@@ -483,32 +483,28 @@ HTML;
         }
     }
 
-    /**
-     * @param $settings
-     * @return mixed
-     */
-    public function addExtraFieldsInShippingMethods($settings): mixed {
+    public function addExtraFieldsInShippingMethods($settings)
+    {
         // Add a new setting for Minimum Amount
         $new_settings = $settings;
         $currency_code = get_woocommerce_currency_symbol();
 
-        $new_settings['min_amount'] = array(
+        $new_settings['min_amount'] = [
             'title' => sprintf(__('Minimum Cost (%s)', I18N::DOMAIN), $currency_code),
-            'type'        => 'text',
+            'type' => 'text',
             'placeholder' => '100.00', // Adjusted to reflect decimal format
-            'default'     => '100.00', // Default value as a decimal
-            'custom_attributes' => array(
+            'default' => '100.00', // Default value as a decimal
+            'custom_attributes' => [
                 'min' => 0,
-                'step' => '0.01' // Allow decimal steps in the input
-            ),
-        );
+                'step' => '0.01', // Allow decimal steps in the input
+            ],
+        ];
+
         return $new_settings;
     }
 
-    /**
-     * @return void
-     */
-    public function displayShippingMinAmountContent(): void  {
+    public function displayShippingMinAmountContent(): void
+    {
         // Retrieve the shipping method selected by the user
         $chosen_shipping_method = WC()->session->get('chosen_shipping_methods')[0];
 
@@ -523,25 +519,18 @@ HTML;
         }
     }
 
-
-    /**
-     * @return void
-     */
-    public function applyMinAmountToAllShippingMethods(): void {
+    public function applyMinAmountToAllShippingMethods(): void
+    {
         // Manually add the filter for known methods, including Local Pickup
-        $shipping_methods = array('flat_rate', 'free_shipping', 'local_pickup');
+        $shipping_methods = ['flat_rate', 'free_shipping', 'local_pickup'];
 
         foreach ($shipping_methods as $method_id) {
-            add_filter("woocommerce_shipping_instance_form_fields_{$method_id}", array($this, 'addExtraFieldsInShippingMethods'), 10, 1);
+            add_filter("woocommerce_shipping_instance_form_fields_{$method_id}", [$this, 'addExtraFieldsInShippingMethods'], 10, 1);
         }
     }
 
-    /**
-     * @param $rates
-     * @param $package
-     * @return mixed
-     */
-    public function modifyShippingRates($rates, $package): mixed {
+    public function modifyShippingRates($rates, $package)
+    {
         // Get the formatted cart total using WooCommerce's functions and settings
         $total = WC()->cart->get_cart_contents_total();
 
@@ -549,11 +538,12 @@ HTML;
         $shipping_methods = WC()->shipping->get_shipping_methods();
 
         // Prepare the methods data, ensuring 'min_amount' is properly retrieved and formatted
-        $methods_data = array_map(function($method) {
+        $methods_data = array_map(function ($method) {
             $min_amount = isset($method->instance_settings['min_amount']) ? floatval($method->instance_settings['min_amount']) : 0;
+
             return [
                 'name' => $method->title,
-                'min_amount' => $min_amount
+                'min_amount' => $min_amount,
             ];
         }, $shipping_methods);
 
@@ -572,8 +562,8 @@ HTML;
         return $rates;
     }
 
-
-    public function syncAllPaidAndProcessingOrders() {
+    public function syncAllPaidAndProcessingOrders()
+    {
         $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
     }
