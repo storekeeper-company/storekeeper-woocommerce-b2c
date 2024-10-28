@@ -15,6 +15,7 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCategories;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCouponCodes;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCrossSellProductPage;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCrossSellProducts;
+use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceCustomers;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFeaturedAttributes;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceFullSync;
 use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceProductPage;
@@ -46,6 +47,7 @@ class SynCheckTab extends AbstractTab
     public const UP_SELL_PRODUCTS_TYPE = 'up-sell-products';
     public const CROSS_SELL_PRODUCTS_TYPE = 'cross-sell-products';
     public const SHIPPING_METHODS_TYPE = 'shipping-methods';
+    public const CUSTOMERS_TYPE = 'customers';
 
     public const SYNC_TYPES = [
         self::FULL_TYPE => SyncWoocommerceFullSync::class,
@@ -60,6 +62,7 @@ class SynCheckTab extends AbstractTab
         self::UP_SELL_PRODUCTS_TYPE => SyncWoocommerceUpsellProducts::class,
         self::CROSS_SELL_PRODUCTS_TYPE => SyncWoocommerceCrossSellProducts::class,
         self::SHIPPING_METHODS_TYPE => SyncWoocommerceShippingMethods::class,
+        self::CUSTOMERS_TYPE => SyncWoocommerceCustomers::class,
     ];
 
     public const OTHER_COMMANDS = [
@@ -103,6 +106,8 @@ class SynCheckTab extends AbstractTab
                 return __('Cross sell product sync', I18N::DOMAIN);
             case self::SHIPPING_METHODS_TYPE:
                 return __('Shipping methods sync', I18N::DOMAIN);
+            case self::CUSTOMERS_TYPE:
+                return __('Customers sync', I18N::DOMAIN);
             default:
                 return $type;
         }
