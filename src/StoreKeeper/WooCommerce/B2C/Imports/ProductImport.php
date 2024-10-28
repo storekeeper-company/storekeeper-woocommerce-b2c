@@ -14,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Helpers\Seo\YoastSeo;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Interfaces\WithConsoleProgressBarInterface;
+use StoreKeeper\WooCommerce\B2C\Models\AttributeOptionModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Options\WooCommerceOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
@@ -1041,6 +1042,14 @@ SQL;
                     return !key_exists('attribute_option_id', $attribute);
                 }
             );
+            foreach ($nonAttributeOptions as $attribute) {
+                if (key_exists('attribute_id', $attribute)) {
+                    $label = sanitize_title($attribute['label']);
+                    $attribute_id = $attribute['attribute_id'];
+                    update_post_meta($newProduct->get_id(), 'attribute_id_'.$attribute_id, $label);
+                }
+            }
+
             // Find attributes that have 'attribute_option_color_hex'
             $colorAttributes = array_filter(
                 $dotObject->get('flat_product.content_vars'),
@@ -1731,33 +1740,37 @@ SQL;
         if (isset($this->attributeTypesCache[$attributeId])) {
             return $this->attributeTypesCache[$attributeId];
         }
-        $BlogModule = $this->storekeeper_api->getModule('BlogModule');
-        $response = $BlogModule->listTranslatedAttributes(
-            0,
-            0,
-            1,
-            [
+        try {
+            $BlogModule = $this->storekeeper_api->getModule('BlogModule');
+            $response = $BlogModule->listTranslatedAttributes(
+                0,
+                0,
+                1,
                 [
-                    'name' => 'id',
-                    'dir' => 'desc',
+                    [
+                        'name' => 'id',
+                        'dir' => 'desc',
+                    ],
                 ],
-            ],
-            [
                 [
-                    'name' => 'id__=',
-                    'val' => $attributeId,
-                ],
-            ]
-        );
+                    [
+                        'name' => 'id__=',
+                        'val' => $attributeId,
+                    ],
+                ]
+            );
 
-        if (isset($response['data'][0])) {
-            $data = $response['data'][0];
-            $attributeType = $data['type'];
-            $this->attributeTypesCache[$attributeId] = $attributeType;
-            return $attributeType;
+            if (isset($response['data'][0])) {
+                $data = $response['data'][0];
+                $attributeType = $data['type'];
+                $this->attributeTypesCache[$attributeId] = $attributeType;
+                return $attributeType;
+            }
+
+            return 'unknown';
+
+        } catch (\Exception $e) {
+            error_log('Error retrieving attribute type: ' . $e->getMessage());
         }
-
-        // Return a default value or throw an exception if no data is found
-        return 'unknown'; // or throw new Exception("Attribute not found");
     }
 }

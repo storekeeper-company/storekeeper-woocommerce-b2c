@@ -86,7 +86,8 @@ class ProductImportTest extends AbstractTest
 
                             return null;
                         });
-                });
+                }
+            );
 
         do_action('woocommerce_init');
 
@@ -96,7 +97,6 @@ class ProductImportTest extends AbstractTest
             $dumpHookFile,
         );
 
-        // Retrieve the product from wordpress using the storekeeper id
         $products = wc_get_products(
             [
                 'post_type' => 'product',
@@ -110,7 +110,6 @@ class ProductImportTest extends AbstractTest
             'Actual size of the retrieved product collection is wrong'
         );
 
-        $setShopProductObjectSyncStatusForHookCallCount = 1;
         $this->assertEquals(
             $expectedStatusCallCount,
             $setShopProductObjectSyncStatusForHookCallCount,
