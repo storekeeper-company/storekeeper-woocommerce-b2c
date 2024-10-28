@@ -2,8 +2,6 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
-use StoreKeeper\ApiWrapper\Exception\GeneralException;
-use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 
 class Cron
@@ -25,10 +23,10 @@ class Cron
 
                 if ($noPaidOrder) {
                     try {
-                        $export = new \StoreKeeper\WooCommerce\B2C\Tools\OrderHandler();
+                        $export = new Tools\OrderHandler();
                         $export->create($orderId);
                     } catch (\Exception $e) {
-                        error_log('Failed to sync order ID ' . $order->get_id() . ': ' . $e->getMessage());
+                        error_log('Failed to sync order ID '.$order->get_id().': '.$e->getMessage());
                     }
                 }
             }
