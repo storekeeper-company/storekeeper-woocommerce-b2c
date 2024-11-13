@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-woocommerce-b2c\n"
 "POT-Creation-Date: 2022-11-08 17:26:28+00:00\n"
-"PO-Revision-Date: 2024-10-15 17:51+0300\n"
+"PO-Revision-Date: 2024-11-13 16:23+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -2508,3 +2508,66 @@ msgstr "Free Shipping"
 
 msgid "Minimum Cost (%s)"
 msgstr "Minumim Cost (%s)"
+
+msgid "Customer Segments"
+msgstr "Customer Segments"
+
+msgid "Customer Segment Prices"
+msgstr "Customer Segment Prices"
+
+msgid "Customer Segment"
+msgstr "Customer Segment"
+
+msgid "No items available."
+msgstr "No items available."
+
+msgid "Customer Segment Name"
+msgstr "Customer Segment Name"
+
+msgid "From quantity"
+msgstr "From quantity"
+
+msgid "Price"
+msgstr "Price"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "Import Customer Segment Prices"
+msgstr "Import Customer Segment Prices"
+
+msgid "Import Customer Segments"
+msgstr "Import Customer Segments"
+
+msgid "Show"
+msgstr "Show"
+
+msgid "Please upload a CSV file."
+msgstr "Please upload a CSV file."
+
+msgid "Row %s is missing expected columns"
+msgstr "Row %s is missing expected columns"
+
+msgid "CSV imported successfully!"
+msgstr "CSV imported successfully!"
+
+msgid "Failed to open the file."
+msgstr "Failed to open the file."
+
+msgid "Skipping duplicate segment with ID: %s"
+msgstr "Skipping duplicate segment with ID: %s"
+
+msgid "No segments found for customer: %s"
+msgstr "No segments found for customer: %s"
+
+msgid "From Qty"
+msgstr "From Qty"
+
+msgid "Select a variation to view segment prices."
+msgstr "Select a variation to view segment prices."
+
+msgid "No segment prices available for this product."
+msgstr "No segment prices available for this product."
+
+msgid "No segment prices available for this variation."
+msgstr "No segment prices available for this variation."

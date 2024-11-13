@@ -2699,3 +2699,82 @@ msgstr "Gratis Verzending"
 
 msgid "Minimum Cost (%s)"
 msgstr "Minimum Cost (%s)"
+
+
+msgid "Customer Segments"
+msgstr "Customer Segments"
+
+msgid "Customer Segment Prices"
+msgstr "Customer Segment Prices"
+
+msgid "Customer Segment"
+msgstr "Customer Segment"
+
+msgid "No items available."
+msgstr "No items available."
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Customer Segment Name"
+msgstr "Customer Segment Name"
+
+msgid "Product"
+msgstr "Product"
+
+msgid "From quantity"
+msgstr "From quantity"
+
+msgid "Price"
+msgstr "Price"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "Import Customer Segment Prices"
+msgstr "Import Customer Segment Prices"
+
+msgid "Import Customer Segments"
+msgstr "Import Customer Segments"
+
+msgid "Show"
+msgstr "Show"
+
+msgid "Customer Email"
+msgstr "Customer Email"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Please upload a CSV file."
+msgstr "Please upload a CSV file."
+
+msgid "Row %s is missing expected columns"
+msgstr "Row %s is missing expected columns"
+
+msgid "CSV imported successfully!"
+msgstr "CSV imported successfully!"
+
+msgid "Failed to open the file."
+msgstr "Failed to open the file."
+
+msgid "Skipping duplicate segment with ID: %s"
+msgstr "Skipping duplicate segment with ID: %s"
+
+msgid "No segments found for customer: %s"
+msgstr "No segments found for customer: %s"
+
+msgid "From Qty"
+msgstr "From Qty"
+
+msgid "Select a variation to view segment prices."
+msgstr "Select a variation to view segment prices."
+
+msgid "No segment prices available for this product."
+msgstr "No segment prices available for this product."
+
+msgid "No segment prices available for this variation."
+msgstr "No segment prices available for this variation."
