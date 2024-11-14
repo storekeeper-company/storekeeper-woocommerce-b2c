@@ -18,7 +18,6 @@ class V20241111122301CustomersSegments extends AbstractMigration
     {
         $wp = CustomersSegmentsModel::getWpPrefix();
         $name = CustomersSegmentsModel::getTableName();
-        $woocommerceCustomerForeignKey = CustomerSegmentPriceModel::getValidForeignFieldKey('customer_segment_id', $name);
 
         $query = <<<SQL
 CREATE TABLE `$name` (
@@ -33,7 +32,7 @@ CREATE TABLE `$name` (
         FOREIGN KEY (`customer_id`)
         REFERENCES `{$wp}users` (`ID`)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT `{$woocommerceCustomerForeignKey}`
+    CONSTRAINT `customer_segment_id`
         FOREIGN KEY (`customer_segment_id`)
         REFERENCES `{$wp}storekeeper_customer_segments` (`id`)
         ON DELETE CASCADE ON UPDATE CASCADE

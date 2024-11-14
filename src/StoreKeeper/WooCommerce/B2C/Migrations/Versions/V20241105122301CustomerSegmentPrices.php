@@ -15,8 +15,6 @@ class V20241105122301CustomerSegmentPrices extends AbstractMigration
     {
         $wp = CustomerSegmentPriceModel::getWpPrefix();
         $name = CustomerSegmentPriceModel::getTableName();
-        $woocommerceCustomerForeignKey = CustomerSegmentPriceModel::getValidForeignFieldKey('customer_segment_id', $name);
-        $woocommerceProductForeignKey = CustomerSegmentPriceModel::getValidForeignFieldKey('product_id', $name);
 
         $query = <<<SQL
         CREATE TABLE `$name` (
@@ -28,11 +26,11 @@ class V20241105122301CustomerSegmentPrices extends AbstractMigration
             `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
             `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
             PRIMARY KEY (`id`),
-            CONSTRAINT `{$woocommerceCustomerForeignKey}` 
+            CONSTRAINT `customer_segment_id`
                 FOREIGN KEY (`customer_segment_id`) 
                 REFERENCES `{$wp}storekeeper_customer_segments` (`id`)
                 ON DELETE CASCADE ON UPDATE CASCADE,
-            CONSTRAINT `{$woocommerceProductForeignKey}` 
+            CONSTRAINT `product_id`
                 FOREIGN KEY (`product_id`) 
                 REFERENCES `{$wp}posts` (`ID`)
                 ON DELETE CASCADE ON UPDATE CASCADE

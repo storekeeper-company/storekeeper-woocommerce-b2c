@@ -97,7 +97,7 @@ class SegmentPriceProductView
                 foreach ($segment_prices as $price) {
                     echo '<tr>';
                     echo '<td align="center">'.esc_html($price['from_qty']).'</td>';
-                    echo '<td align="center">'.wc_price($price['ppu_wt']).'</td>';
+                    echo '<td align="center">'.$price['ppu_wt'].'</td>';
                     echo '</tr>';
                 }
                 echo '</tbody>';
