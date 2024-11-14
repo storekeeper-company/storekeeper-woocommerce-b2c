@@ -61,7 +61,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegmentPrices;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegments;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122308CustomerSegments;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241111122301CustomersSegments;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
@@ -660,7 +660,7 @@ HTML;
         $tableCustomerSegmentsExists = $wpdb->get_var("SHOW TABLES LIKE '{$customerSegmentTable}'");
 
         if (!$tableCustomerSegmentsExists) {
-            $migrationCustomerSegments = new V20241105122301CustomerSegments();
+            $migrationCustomerSegments = new V20241105122308CustomerSegments();
             $migrationCustomerSegments->up(new DatabaseConnection());
         }
 

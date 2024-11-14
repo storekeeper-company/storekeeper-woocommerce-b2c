@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
 
-class V20241105122301CustomerSegments extends AbstractMigration
+class V20241105122308CustomerSegments extends AbstractMigration
 {
     /**
      * @param DatabaseConnection $connection
