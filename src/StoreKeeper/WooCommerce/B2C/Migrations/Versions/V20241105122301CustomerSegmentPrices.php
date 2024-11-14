@@ -26,11 +26,11 @@ class V20241105122301CustomerSegmentPrices extends AbstractMigration
             `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
             `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
             PRIMARY KEY (`id`),
-            CONSTRAINT `customer_segment_id`
+            CONSTRAINT `fk_customer_segment`
                 FOREIGN KEY (`customer_segment_id`) 
                 REFERENCES `{$wp}storekeeper_customer_segments` (`id`)
                 ON DELETE CASCADE ON UPDATE CASCADE,
-            CONSTRAINT `product_id`
+            CONSTRAINT `fk_product`
                 FOREIGN KEY (`product_id`) 
                 REFERENCES `{$wp}posts` (`ID`)
                 ON DELETE CASCADE ON UPDATE CASCADE
