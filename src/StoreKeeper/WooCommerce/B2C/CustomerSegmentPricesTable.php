@@ -119,7 +119,7 @@ class CustomerSegmentPricesTable extends \WP_List_Table
     /**
      * @return void
      */
-    public function prepare_items(): void
+    public function prepareItems(): void
     {
         $this->_column_headers = [$this->get_columns(), [], $this->get_sortable_columns()];
         $per_page = $this->get_items_per_page('items_per_page', 5);

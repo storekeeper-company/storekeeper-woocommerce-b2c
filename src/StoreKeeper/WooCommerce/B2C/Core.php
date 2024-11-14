@@ -611,7 +611,7 @@ HTML;
     public function customerSegmentPricesTable(): void
     {
         $customerSegmentPricesTable = new CustomerSegmentPricesTable();
-        $customerSegmentPricesTable->prepare_items();
+        $customerSegmentPricesTable->prepareItems();
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Customer Segment Prices', I18N::DOMAIN); ?></h1>
@@ -649,6 +649,9 @@ HTML;
         );
     }
 
+    /**
+     * @throws \Exception
+     */
     public function storekeeperRunMigration(): void
     {
         global $wpdb;
@@ -676,6 +679,11 @@ HTML;
         }
     }
 
+    /**
+     * @param $tableName
+     * @param $dbConnection
+     * @return bool
+     */
     public function tableExists($tableName, $dbConnection): bool
     {
         $query = "SHOW TABLES LIKE '".$tableName."'";
@@ -711,19 +719,25 @@ HTML;
         $quantity = intval($_POST['quantity']);
         $productId = intval($_POST['product_id']);
 
-        $customer = get_current_user_id();
-        $userData = get_userdata($customer);
-        $userEmail = $userData->user_email;
-        $customerSegment = new CustomerSegmentModel();
-        $customer = $customerSegment->findByEmail($userEmail);
-        $segmentPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
-        $product = wc_get_product($productId);
-        $regularPrice = $product ? wc_price($product->get_price()) : null;
+        $user = get_current_user_id();
 
-        if (null !== $segmentPrice) {
-            wp_send_json_success(['new_price' => wc_price($segmentPrice)]);
-        } else {
-            wp_send_json_success(['new_price' => $regularPrice]);
+        if ($user) {
+            $userData = get_userdata($user);
+            $userEmail = $userData->user_email;
+            $customerSegment = new CustomerSegmentModel();
+            $customer = $customerSegment->findByEmail($userEmail);
+
+            if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
+                $segmentPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
+                $product = wc_get_product($productId);
+                $regularPrice = $product ? wc_price($product->get_price()) : null;
+
+                if (null !== $segmentPrice) {
+                    wp_send_json_success(['new_price' => wc_price($segmentPrice)]);
+                } else {
+                    wp_send_json_success(['new_price' => $regularPrice]);
+                }
+            }
         }
     }
 
@@ -733,18 +747,31 @@ HTML;
             return;
         }
 
-        foreach ($cart->get_cart() as $cartItemKey => $cartItem) {
-            $productId = $cartItem['product_id'];
-            $quantity = $cartItem['quantity'];
-            $customer = get_current_user_id();
-            $userData = get_userdata($customer);
+        $user = get_current_user_id();
+
+        if ($user) {
+            $userData = get_userdata($user);
             $userEmail = $userData->user_email;
             $customerSegment = new CustomerSegmentModel();
             $customer = $customerSegment->findByEmail($userEmail);
-            $adjustedPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
 
-            if (null !== $adjustedPrice) {
-                $cartItem['data']->set_price($adjustedPrice);
+            if (is_object($customer)) {
+                $customerEmail = $customer->customer_email;
+            } else {
+                echo 'Customer not found.';
+            }
+
+            if (isset($customer->customer_email) && $userEmail == $customerEmail) {
+                foreach ($cart->get_cart() as $cartItemKey => $cartItem) {
+                    $productId = isset($cartItem['variation_id']) && 0 != $cartItem['variation_id']
+                        ? $cartItem['variation_id']
+                        : $cartItem['product_id'];
+                    $quantity = $cartItem['quantity'];
+                    $adjustedPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customerEmail, $quantity);
+                    if (null !== $adjustedPrice) {
+                        $cartItem['data']->set_price($adjustedPrice);
+                    }
+                }
             }
         }
     }
@@ -755,45 +782,50 @@ HTML;
     public function checkPriceMismatchOnOrder($orderId): void
     {
         $order = wc_get_order($orderId);
+        $user = get_current_user_id();
 
-        foreach ($order->get_items() as $itemId => $item) {
-            $product = $item->get_product();
-            $quantity = $item->get_quantity();
-            $user = get_current_user_id();
+        if ($user) {
             $userData = get_userdata($user);
             $userEmail = $userData->user_email;
             $customerSegment = new CustomerSegmentModel();
             $customer = $customerSegment->findByEmail($userEmail);
-            $segmentPrice = SegmentPriceProductBack::getSegmentPrice($product->get_id(), $customer->customer_email, $quantity);
-            $standardPrice = self::getStandardPrice($product);
-            $appliedPrice = $item->get_total() / $quantity;
+            if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
+                foreach ($order->get_items() as $itemId => $item) {
+                    $product = $item->get_product();
+                    $quantity = $item->get_quantity();
 
-            if (isset($segmentPrice) && $segmentPrice !== $appliedPrice) {
-                LoggerFactory::createErrorTask('no-customer-price-on-checkout',
-                    new \Exception('Price mismatch detected during checkout'),
-                    [
-                        'customer_email' => $order->get_billing_email(),
-                        'product_id' => $product->get_id(),
-                        'product_name' => $product->get_name(),
-                        'segment_price' => $segmentPrice,
-                        'standard_price' => $standardPrice,
-                        'applied_price' => $appliedPrice,
-                        'quantity' => $quantity,
-                    ]
-                );
+                    $segmentPrice = SegmentPriceProductBack::getSegmentPrice($product->get_id(), $customer->customer_email, $quantity);
+                    $standardPrice = self::getStandardPrice($product);
+                    $appliedPrice = $item->get_total() / $quantity;
 
-                $admin_email = get_option('admin_email');
-                $subject = 'Price Mismatch Detected';
-                $message = sprintf(
-                    'A mismatch was detected between the segment price and the applied price at checkout for product: %s (ID: %d). Segment Price: €%s vs Applied Price: €%s. Customer Email: %s, Quantity: %d',
-                    $product->get_name(),
-                    $product->get_id(),
-                    $segmentPrice,
-                    $appliedPrice,
-                    $order->get_billing_email(),
-                    $quantity
-                );
-                wp_mail($admin_email, $subject, $message);
+                    if (isset($segmentPrice) && $segmentPrice !== $appliedPrice) {
+                        LoggerFactory::createErrorTask('no-customer-price-on-checkout',
+                            new \Exception('Price mismatch detected during checkout'),
+                            [
+                                'customer_email' => $order->get_billing_email(),
+                                'product_id' => $product->get_id(),
+                                'product_name' => $product->get_name(),
+                                'segment_price' => $segmentPrice,
+                                'standard_price' => $standardPrice,
+                                'applied_price' => $appliedPrice,
+                                'quantity' => $quantity,
+                            ]
+                        );
+
+                        $admin_email = get_option('admin_email');
+                        $subject = 'Price Mismatch Detected';
+                        $message = sprintf(
+                            'A mismatch was detected between the segment price and the applied price at checkout for product: %s (ID: %d). Segment Price: €%s vs Applied Price: €%s. Customer Email: %s, Quantity: %d',
+                            $product->get_name(),
+                            $product->get_id(),
+                            $segmentPrice,
+                            $appliedPrice,
+                            $order->get_billing_email(),
+                            $quantity
+                        );
+                        wp_mail($admin_email, $subject, $message);
+                    }
+                }
             }
         }
     }
@@ -821,6 +853,10 @@ HTML;
         self::saveCustomerSegmentAsOrderMeta($orderId);
     }
 
+    /**
+     * @param $orderId
+     * @return void
+     */
     public function saveCustomerSegmentAsOrderMeta($orderId): void
     {
         global $wpdb;
@@ -858,6 +894,9 @@ HTML;
         }
     }
 
+    /**
+     * @return void
+     */
     public function showProductQtyBasedCart(): void
     {
         global $woocommerce;
@@ -879,17 +918,21 @@ HTML;
             }
         } elseif (is_product() && $productId) {
             $user = get_current_user_id();
-            $userData = get_userdata($user);
-            $userEmail = $userData->user_email;
-            $customerSegment = new CustomerSegmentModel();
-            $customer = $customerSegment->findByEmail($userEmail);
-            $segmentPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
-            $productPrice = wc_price($segmentPrice);
+            if ($user) {
+                $userData = get_userdata($user);
+                $userEmail = $userData->user_email;
+                $customerSegment = new CustomerSegmentModel();
+                $customer = $customerSegment->findByEmail($userEmail);
+                if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
+                    $segmentPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
+                    $productPrice = wc_price($segmentPrice);
 
-            foreach ($woocommerce->cart->get_cart() as $cartItemKey => $cartItem) {
-                if ($cartItem['product_id'] === $productId) {
-                    $quantity = $cartItem['quantity'];
-                    break;
+                    foreach ($woocommerce->cart->get_cart() as $cartItemKey => $cartItem) {
+                        if ($cartItem['product_id'] === $productId) {
+                            $quantity = $cartItem['quantity'];
+                            break;
+                        }
+                    }
                 }
             }
         }
