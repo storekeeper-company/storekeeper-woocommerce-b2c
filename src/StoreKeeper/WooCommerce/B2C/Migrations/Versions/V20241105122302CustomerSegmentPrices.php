@@ -6,7 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
 
-class V20241105122301CustomerSegmentPrices extends AbstractMigration
+class V20241105122302CustomerSegmentPrices extends AbstractMigration
 {
     /**
      * @throws \Exception

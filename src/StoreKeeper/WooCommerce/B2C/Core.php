@@ -60,8 +60,8 @@ use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegmentPrices;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122308CustomerSegments;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122302CustomerSegmentPrices;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegments;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241111122301CustomersSegments;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
@@ -660,7 +660,7 @@ HTML;
         $tableCustomerSegmentsExists = $wpdb->get_var("SHOW TABLES LIKE '{$customerSegmentTable}'");
 
         if (!$tableCustomerSegmentsExists) {
-            $migrationCustomerSegments = new V20241105122308CustomerSegments();
+            $migrationCustomerSegments = new V20241105122301CustomerSegments();
             $migrationCustomerSegments->up(new DatabaseConnection());
         }
 
@@ -674,7 +674,7 @@ HTML;
         $customersSegmentPricesTable = CustomerSegmentPriceModel::getTableName();
         $tableCustomersSegmentPricesExists = $wpdb->get_var("SHOW TABLES LIKE '{$customersSegmentPricesTable}'");
         if (!$tableCustomersSegmentPricesExists) {
-            $migrationCustomerSegmentPrices = new V20241105122301CustomerSegmentPrices();
+            $migrationCustomerSegmentPrices = new V20241105122302CustomerSegmentPrices();
             $migrationCustomerSegmentPrices->up(new DatabaseConnection());
         }
     }
