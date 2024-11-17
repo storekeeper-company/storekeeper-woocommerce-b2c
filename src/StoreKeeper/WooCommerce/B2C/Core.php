@@ -4,6 +4,8 @@ namespace StoreKeeper\WooCommerce\B2C;
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\CustomerSegmentPricesTable;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\CustomerSegmentTable;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\ConnectBackend;
@@ -52,20 +54,13 @@ use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
-use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\OrderTrackingMessage;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFilter;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerSegmentHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122302CustomerSegmentPrices;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegments;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241111122301CustomersSegments;
-use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
-use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
-use StoreKeeper\WooCommerce\B2C\Models\CustomersSegmentsModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -199,16 +194,10 @@ class Core
         add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
         add_action('admin_menu', [$this, 'customerSegmentsMenu']);
         add_action('admin_menu', [$this, 'customerSegmentPricesPage']);
-        add_action('plugins_loaded', [$this, 'storekeeperRunMigration']);
 
         new SegmentPriceProductView();
-
-        add_action('wp_enqueue_scripts', [$this, 'enqueueCustomQuantityScript']);
-        add_action('wp_enqueue_scripts', [$this, 'showProductQtyBasedCart']);
-        add_action('wp_ajax_adjust_price_based_on_quantity', [$this, 'adjustPriceBasedOnQuantityAjax']);
-        add_filter('woocommerce_before_calculate_totals', [$this, 'adjustCartItemPriceBasedOnQuantity']);
-        add_action('woocommerce_new_order', [$this, 'checkPriceMismatchOnCheckout']);
-        add_action('woocommerce_checkout_update_order_meta', [$this, 'saveCustomerSegmentAsOrderMeta']);
+        $segmentHandler = new CustomerSegmentHandler();
+        $segmentHandler->registerHooks();
     }
 
     private function prepareCron()
@@ -647,304 +636,5 @@ HTML;
             'customer_segment',
             [$this, 'customerSegmentPricesTable'],
         );
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function storekeeperRunMigration(): void
-    {
-        global $wpdb;
-
-        $customerSegmentTable = CustomerSegmentModel::getTableName();
-        $tableCustomerSegmentsExists = $wpdb->get_var("SHOW TABLES LIKE '{$customerSegmentTable}'");
-
-        if (!$tableCustomerSegmentsExists) {
-            $migrationCustomerSegments = new V20241105122301CustomerSegments();
-            $migrationCustomerSegments->up(new DatabaseConnection());
-        }
-
-        $customersSegmentsTable = CustomersSegmentsModel::getTableName();
-        $tableCustomersSegmentsExists = $wpdb->get_var("SHOW TABLES LIKE '{$customersSegmentsTable}'");
-        if (!$tableCustomersSegmentsExists) {
-            $migrationCustomersSegments = new V20241111122301CustomersSegments();
-            $migrationCustomersSegments->up(new DatabaseConnection());
-        }
-
-        $customersSegmentPricesTable = CustomerSegmentPriceModel::getTableName();
-        $tableCustomersSegmentPricesExists = $wpdb->get_var("SHOW TABLES LIKE '{$customersSegmentPricesTable}'");
-        if (!$tableCustomersSegmentPricesExists) {
-            $migrationCustomerSegmentPrices = new V20241105122302CustomerSegmentPrices();
-            $migrationCustomerSegmentPrices->up(new DatabaseConnection());
-        }
-    }
-
-    /**
-     * @param $tableName
-     * @param $dbConnection
-     * @return bool
-     */
-    public function tableExists($tableName, $dbConnection): bool
-    {
-        $query = "SHOW TABLES LIKE '".$tableName."'";
-        $result = $dbConnection->query($query);
-
-        return $result->rowCount() > 0;
-    }
-
-    public function enqueueCustomQuantityScript(): void
-    {
-        $jsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/frontend/price.js');
-
-        wp_enqueue_script(
-            'custom-quantity-script',
-            $jsUrl,
-            ['jquery'],
-            null,
-            true
-        );
-
-        wp_localize_script('custom-quantity-script', 'ajax_obj', [
-            'ajax_url' => admin_url('admin-ajax.php'),
-        ]);
-    }
-
-    public function adjustPriceBasedOnQuantityAjax(): void
-    {
-        if (!isset($_POST['quantity']) || !isset($_POST['product_id'])) {
-            error_log('Missing parameters in AJAX request.');
-            wp_send_json_error(['message' => 'Missing parameters']);
-        }
-
-        $quantity = intval($_POST['quantity']);
-        $productId = intval($_POST['product_id']);
-
-        $user = get_current_user_id();
-
-        if ($user) {
-            $userData = get_userdata($user);
-            $userEmail = $userData->user_email;
-            $customerSegment = new CustomerSegmentModel();
-            $customer = $customerSegment->findByEmail($userEmail);
-
-            if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
-                $segmentPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
-                $product = wc_get_product($productId);
-                $regularPrice = $product ? wc_price($product->get_price()) : null;
-
-                if (null !== $segmentPrice) {
-                    wp_send_json_success(['new_price' => wc_price($segmentPrice)]);
-                } else {
-                    wp_send_json_success(['new_price' => $regularPrice]);
-                }
-            }
-        }
-    }
-
-    public function adjustCartItemPriceBasedOnQuantity($cart): void
-    {
-        if (is_admin() && !defined('DOING_AJAX')) {
-            return;
-        }
-
-        $user = get_current_user_id();
-
-        if ($user) {
-            $userData = get_userdata($user);
-            $userEmail = $userData->user_email;
-            $customerSegment = new CustomerSegmentModel();
-            $customer = $customerSegment->findByEmail($userEmail);
-
-            if (is_object($customer)) {
-                $customerEmail = $customer->customer_email;
-            } else {
-                echo 'Customer not found.';
-            }
-
-            if (isset($customer->customer_email) && $userEmail == $customerEmail) {
-                foreach ($cart->get_cart() as $cartItemKey => $cartItem) {
-                    $productId = isset($cartItem['variation_id']) && 0 != $cartItem['variation_id']
-                        ? $cartItem['variation_id']
-                        : $cartItem['product_id'];
-                    $quantity = $cartItem['quantity'];
-                    $adjustedPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customerEmail, $quantity);
-                    if (null !== $adjustedPrice) {
-                        $cartItem['data']->set_price($adjustedPrice);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @throws WordpressException
-     */
-    public function checkPriceMismatchOnOrder($orderId): void
-    {
-        $order = wc_get_order($orderId);
-        $user = get_current_user_id();
-
-        if ($user) {
-            $userData = get_userdata($user);
-            $userEmail = $userData->user_email;
-            $customerSegment = new CustomerSegmentModel();
-            $customer = $customerSegment->findByEmail($userEmail);
-            if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
-                foreach ($order->get_items() as $itemId => $item) {
-                    $product = $item->get_product();
-                    $quantity = $item->get_quantity();
-
-                    $segmentPrice = SegmentPriceProductBack::getSegmentPrice($product->get_id(), $customer->customer_email, $quantity);
-                    $standardPrice = self::getStandardPrice($product);
-                    $appliedPrice = $item->get_total() / $quantity;
-
-                    if (isset($segmentPrice) && $segmentPrice !== $appliedPrice) {
-                        LoggerFactory::createErrorTask('no-customer-price-on-checkout',
-                            new \Exception('Price mismatch detected during checkout'),
-                            [
-                                'customer_email' => $order->get_billing_email(),
-                                'product_id' => $product->get_id(),
-                                'product_name' => $product->get_name(),
-                                'segment_price' => $segmentPrice,
-                                'standard_price' => $standardPrice,
-                                'applied_price' => $appliedPrice,
-                                'quantity' => $quantity,
-                            ]
-                        );
-
-                        $admin_email = get_option('admin_email');
-                        $subject = 'Price Mismatch Detected';
-                        $message = sprintf(
-                            'A mismatch was detected between the segment price and the applied price at checkout for product: %s (ID: %d). Segment Price: €%s vs Applied Price: €%s. Customer Email: %s, Quantity: %d',
-                            $product->get_name(),
-                            $product->get_id(),
-                            $segmentPrice,
-                            $appliedPrice,
-                            $order->get_billing_email(),
-                            $quantity
-                        );
-                        wp_mail($admin_email, $subject, $message);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @return float|mixed
-     */
-    public function getStandardPrice($product)
-    {
-        if ($product->is_type('variable')) {
-            $defaultVariation = $product->get_available_variations()[0];
-
-            return $defaultVariation['display_price'];
-        }
-
-        return (float) $product->get_regular_price();
-    }
-
-    /**
-     * @throws WordpressException
-     */
-    public function checkPriceMismatchOnCheckout($orderId): void
-    {
-        self::checkPriceMismatchOnOrder($orderId);
-        self::saveCustomerSegmentAsOrderMeta($orderId);
-    }
-
-    /**
-     * @param $orderId
-     * @return void
-     */
-    public function saveCustomerSegmentAsOrderMeta($orderId): void
-    {
-        global $wpdb;
-
-        $order = wc_get_order($orderId);
-        $customerEmail = $order->get_billing_email();
-
-        foreach ($order->get_items() as $itemId => $item) {
-            $productId = $item->get_product_id();
-            $qty = $item->get_quantity();
-            $segmentPricesTable = CustomerSegmentPriceModel::getTableName();
-            $customerSegmentsTable = CustomerSegmentModel::getTableName();
-
-            $sql = $wpdb->prepare(
-                "
-            SELECT cs.id, cs.name
-            FROM {$segmentPricesTable} sp
-            INNER JOIN {$customerSegmentsTable} cs ON sp.customer_segment_id = cs.id
-            WHERE sp.product_id = %d AND LOWER(cs.customer_email) = LOWER(%s) AND sp.from_qty <= %d 
-            ORDER BY sp.from_qty DESC
-            LIMIT 1
-            ",
-                $productId, $customerEmail, $qty
-            );
-
-            $segment = $wpdb->get_row($sql);
-
-            if ($segment) {
-                update_post_meta($orderId, '_customer_segment_id', $segment->id);
-                update_post_meta($orderId, '_customer_segment_name', $segment->name);
-            } else {
-                update_post_meta($orderId, '_customer_segment_id', 'No segment found');
-                update_post_meta($orderId, '_customer_segment_name', 'No segment found');
-            }
-        }
-    }
-
-    /**
-     * @return void
-     */
-    public function showProductQtyBasedCart(): void
-    {
-        global $woocommerce;
-
-        if (is_product()) {
-            $productId = get_the_ID();
-        } elseif (is_cart()) {
-            $productId = null;
-        }
-
-        $quantity = 0;
-
-        if (is_cart()) {
-            foreach ($woocommerce->cart->get_cart() as $cartItemKey => $cartItem) {
-                if (null === $productId || $cartItem['product_id'] === $productId) {
-                    $quantity = $cartItem['quantity'];
-                    break;
-                }
-            }
-        } elseif (is_product() && $productId) {
-            $user = get_current_user_id();
-            if ($user) {
-                $userData = get_userdata($user);
-                $userEmail = $userData->user_email;
-                $customerSegment = new CustomerSegmentModel();
-                $customer = $customerSegment->findByEmail($userEmail);
-                if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
-                    $segmentPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
-                    $productPrice = wc_price($segmentPrice);
-
-                    foreach ($woocommerce->cart->get_cart() as $cartItemKey => $cartItem) {
-                        if ($cartItem['product_id'] === $productId) {
-                            $quantity = $cartItem['quantity'];
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if ($quantity > 0) {
-            $jsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/frontend/price.js');
-
-            wp_enqueue_script('quantity-update-script', $jsUrl, ['jquery'], null, true);
-            wp_localize_script('quantity-update-script', 'productData', [
-                'quantity' => $quantity,
-                'price' => $productPrice ?? 0,
-            ]);
-        }
     }
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace StoreKeeper\WooCommerce\B2C;
+namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
-use StoreKeeper\WooCommerce\B2C\Models\CustomersSegmentsModel;
+use StoreKeeper\WooCommerce\B2C\Models\CustomersInSegmentsModel;
 
 class CustomerSegmentTable extends \WP_List_Table
 {
@@ -240,13 +240,14 @@ class CustomerSegmentTable extends \WP_List_Table
     {
         global $wpdb;
 
-        $customersInSegmentsTable = CustomersSegmentsModel::getTableName();
+        $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
         $customerSegmentsTable = CustomerSegmentModel::getTableName();
 
         if (($handle = fopen($csvFile, 'r')) !== false) {
-            fgetcsv($handle, 1000, ';');
+            fgetcsv($handle, 1000, ';'); // Skip header row
             $dataToInsert = [];
             $row = 1;
+
             while (($data = fgetcsv($handle, 1000, ';')) !== false) {
                 if (1 == count($data)) {
                     $data = explode(';', $data[0]);
@@ -254,74 +255,74 @@ class CustomerSegmentTable extends \WP_List_Table
 
                 if (isset($data[0]) && isset($data[1])) {
                     $customerEmail = sanitize_text_field($data[0]);
-                    $name = sanitize_text_field($data[1]);
-                    $dataToInsert[] = [$customerEmail, $name];
+                    $segmentName = sanitize_text_field($data[1]);
+                    $dataToInsert[] = [$customerEmail, $segmentName];
                 } else {
-                    echo '<div class="notice notice-error"><p>'.sprintf(__('Row %s is missing expected columns', I18N::DOMAIN), $row + 1).'</p></div>';
+                    echo '<div class="notice notice-error"><p>' . sprintf(__('Row %s is missing expected columns', I18N::DOMAIN), $row + 1) . '</p></div>';
                 }
 
                 ++$row;
             }
 
             if (!empty($dataToInsert)) {
-                $placeholders = array_fill(0, count($dataToInsert), '(%s, %s)');
-                $sql = "INSERT INTO $customerSegmentsTable (customer_email, name) VALUES ".implode(', ', $placeholders);
-                $flattenedData = [];
-
-                foreach ($dataToInsert as $rowData) {
-                    $flattenedData = array_merge($flattenedData, $rowData);
-                }
-
-                $wpdb->query($wpdb->prepare($sql, ...$flattenedData));
+                $relationshipsToInsert = [];
 
                 foreach ($dataToInsert as $rowData) {
                     $customerEmail = $rowData[0];
-                    $customerSegmentIds = $wpdb->get_col(
-                        $wpdb->prepare(
-                            "SELECT id FROM $customerSegmentsTable WHERE customer_email = %s",
-                            $customerEmail
-                        )
-                    );
+                    $segmentName = $rowData[1];
+
+                    // Check if customer exists
                     $customerId = $wpdb->get_var(
                         $wpdb->prepare("SELECT ID FROM {$wpdb->users} WHERE user_email = %s", $customerEmail)
                     );
 
-                    if (!empty($customerSegmentIds)) {
-                        foreach ($customerSegmentIds as $customerSegmentId) {
-                            $existingEntry = $wpdb->get_var(
-                                $wpdb->prepare(
-                                    "SELECT COUNT(*) FROM $customersInSegmentsTable WHERE customer_id = %d AND customer_segment_id = %d",
-                                    $customerId, $customerSegmentId
-                                )
-                            );
+                    if (!$customerId) {
+                        echo sprintf(__('Customer email %s does not exist in the users table.', I18N::DOMAIN), $customerEmail) . '<br>';
+                        continue;
+                    }
 
-                            if (0 == $existingEntry) {
-                                $wpdb->insert(
-                                    $customersInSegmentsTable,
-                                    [
-                                        'customer_id' => $customerId,
-                                        'customer_segment_id' => $customerSegmentId,
-                                    ],
-                                    [
-                                        '%d',
-                                        '%d',
-                                    ]
-                                );
-                            } else {
-                                echo sprintf(__('Skipping duplicate segment with ID: %s', I18N::DOMAIN), $customerSegmentId).'<br>';
-                            }
-                        }
+                    // Check if the segment exists, if not, insert it
+                    $segmentId = $wpdb->get_var(
+                        $wpdb->prepare("SELECT id FROM $customerSegmentsTable WHERE name = %s", $segmentName)
+                    );
+
+                    if (!$segmentId) {
+                        $wpdb->insert(
+                            $customerSegmentsTable,
+                            ['name' => $segmentName],
+                            ['%s']
+                        );
+                        $segmentId = $wpdb->insert_id;
+                    }
+
+                    // Check if the relationship exists
+                    $existingEntry = $wpdb->get_var(
+                        $wpdb->prepare(
+                            "SELECT COUNT(*) FROM $customersInSegmentsTable WHERE customer_id = %d AND customer_segment_id = %d",
+                            $customerId,
+                            $segmentId
+                        )
+                    );
+
+                    if (!$existingEntry) {
+                        $relationshipsToInsert[] = $wpdb->prepare("(%d, %d)", $customerId, $segmentId);
                     } else {
-                        echo sprintf(__('No segments found for customer: %s', I18N::DOMAIN), $customerEmail).'<br>';
+                        echo sprintf(__('Skipping duplicate relation: Customer ID %d and Segment ID %d', I18N::DOMAIN), $customerId, $segmentId) . '<br>';
                     }
                 }
 
-                echo '<div class="notice notice-success"><p>'.__('CSV imported successfully!', I18N::DOMAIN).'</p></div>';
+                // Insert multiple relationships at once
+                if (!empty($relationshipsToInsert)) {
+                    $sql = "INSERT INTO $customersInSegmentsTable (customer_id, customer_segment_id) VALUES " . implode(', ', $relationshipsToInsert);
+                    $wpdb->query($sql);
+                }
+
+                echo '<div class="notice notice-success"><p>' . __('CSV imported successfully!', I18N::DOMAIN) . '</p></div>';
             }
 
             fclose($handle);
         } else {
-            echo '<div class="notice notice-error"><p>'.__('Failed to open the file.', I18N::DOMAIN).'</p></div>';
+            echo '<div class="notice notice-error"><p>' . __('Failed to open the file.', I18N::DOMAIN) . '</p></div>';
         }
     }
 }

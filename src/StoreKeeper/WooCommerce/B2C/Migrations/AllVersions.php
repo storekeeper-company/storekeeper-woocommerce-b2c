@@ -25,7 +25,7 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20231204152300ShippingMetho
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20240307192301RetryTasks;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122302CustomerSegmentPrices;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegments;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241111122301CustomersSegments;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241111122301CustomersInSegments;
 
 class AllVersions implements VersionsInterface
 {
@@ -52,7 +52,7 @@ class AllVersions implements VersionsInterface
         V20231204152300ShippingMethods::class,
         V20240307192301RetryTasks::class,
         V20241105122301CustomerSegments::class,
-        V20241111122301CustomersSegments::class,
+        V20241111122301CustomersInSegments::class,
         V20241105122302CustomerSegmentPrices::class,
     ];
 

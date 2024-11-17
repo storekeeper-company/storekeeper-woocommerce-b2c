@@ -1,8 +1,12 @@
 <?php
 
-namespace StoreKeeper\WooCommerce\B2C;
+namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
+use function StoreKeeper\WooCommerce\B2C\__;
+use function StoreKeeper\WooCommerce\B2C\esc_html;
+use function StoreKeeper\WooCommerce\B2C\esc_sql;
+use function StoreKeeper\WooCommerce\B2C\get_option;
 
 class CustomerSegmentPricesTable extends \WP_List_Table
 {
@@ -72,11 +76,9 @@ class CustomerSegmentPricesTable extends \WP_List_Table
                 return $item[$column_name];
             case 'customer_segment_id':
                 $segment_name = $this->getCustomerSegmentName($item['customer_segment_id']);
-
                 return $segment_name ? esc_html($segment_name) : __('N/A', I18N::DOMAIN);
             case 'product_id':
                 $product_name = $this->getProductName($item['product_id']);
-
                 return $product_name ? esc_html($product_name) : __('N/A', I18N::DOMAIN);
             case 'from_qty':
                 return $item[$column_name];
@@ -163,7 +165,7 @@ class CustomerSegmentPricesTable extends \WP_List_Table
         global $wpdb;
         $product = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT post_title FROM {$wpdb->prefix}posts WHERE ID = %d AND post_type = 'product'",
+                "SELECT post_title FROM {$wpdb->prefix}posts WHERE ID = %d AND post_type = 'product'  OR post_type = 'product_variation'",
                 $product_id
             )
         );

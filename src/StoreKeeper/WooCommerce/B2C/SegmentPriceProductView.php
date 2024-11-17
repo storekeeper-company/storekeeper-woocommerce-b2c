@@ -2,30 +2,39 @@
 
 namespace StoreKeeper\WooCommerce\B2C;
 
+use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
+use StoreKeeper\WooCommerce\B2C\Models\CustomersInSegmentsModel;
 
-class SegmentPriceProductView
+class SegmentPriceProductView implements WithHooksInterface
 {
-    public function __construct()
+    public function registerHooks(): void
     {
         add_action('woocommerce_single_product_summary', [$this, 'showSegmentPricesTableView'], 25);
     }
 
-    public function getSegmentPricesForProductView($productId, $customerEmail): mixed
+    public function getSegmentPricesForProductView($productId, $userId): mixed
     {
         global $wpdb;
+
         $segmentPricesTable = CustomerSegmentPriceModel::getTableName();
         $customerSegmentsTable = CustomerSegmentModel::getTableName();
+        $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
+        $usersTable = 'wp_users';
 
         $sql = $wpdb->prepare(
-            "
-        SELECT sp.* 
-        FROM {$segmentPricesTable} sp
-        INNER JOIN {$customerSegmentsTable} cs ON sp.customer_segment_id = cs.id
-        WHERE sp.product_id = %d AND cs.customer_email = %s
-        ",
-            $productId, $customerEmail
+            "SELECT * FROM 
+                {$segmentPricesTable} sp
+            INNER JOIN 
+                {$customerSegmentsTable} cs ON sp.customer_segment_id = cs.id
+            INNER JOIN 
+                {$customersInSegmentsTable} cis ON cis.customer_segment_id = cs.id
+            INNER JOIN 
+                {$usersTable} u ON cis.customer_id = u.ID
+            WHERE 
+                sp.product_id = %d AND u.ID = %d",
+            $productId, $userId
         );
 
         return $wpdb->get_results($sql, ARRAY_A);
@@ -35,11 +44,7 @@ class SegmentPriceProductView
     {
         global $post;
         $productId = $post->ID;
-        $user = get_current_user_id();
-        $userData = get_userdata($user);
-        $userEmail = $userData->user_email;
-        $customerSegment = new CustomerSegmentModel();
-        $customer = $customerSegment->findByEmail($userEmail);
+        $userId = get_current_user_id();
         $product = wc_get_product($productId);
 
         if ($product->is_type('variable')) {
@@ -61,7 +66,7 @@ class SegmentPriceProductView
 
             foreach ($availableVariations as $variation) {
                 $variationId = $variation['variation_id'];
-                $segmentPrices = self::getSegmentPricesForProductView($variationId, $customer->customer_email);
+                $segmentPrices = self::getSegmentPricesForProductView($variationId, $userId);
                 if ($segmentPrices) {
                     $segmentPricesData[$variationId] = $segmentPrices;
                 }
@@ -82,7 +87,7 @@ class SegmentPriceProductView
                     'noSegmentPricesVariationMessage' => $noSegmentPricesVariationMessage,
                 ]);
         } else {
-            $segment_prices = self::getSegmentPricesForProductView($productId, $customer->customer_email);
+            $segment_prices = self::getSegmentPricesForProductView($productId, $userId);
 
             if ($segment_prices) {
                 echo '<h5>'.__('Customer Segment Prices', I18N::DOMAIN).'</h5>';

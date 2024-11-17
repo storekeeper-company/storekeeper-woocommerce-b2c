@@ -12,17 +12,34 @@ class CustomerSegmentModel extends AbstractModel implements IModelPurge
     {
         return [
             'id' => true,
-            'customer_email' => false,
             'name' => true,
             self::FIELD_DATE_CREATED => false,
             self::FIELD_DATE_UPDATED => false,
         ];
     }
 
-    public function findByEmail($email)
+    public static function findByUserId($userId)
     {
         global $wpdb;
-        $query = $wpdb->prepare("SELECT * FROM " . self::getTableName() . " WHERE customer_email = %s", $email);
-        return $wpdb->get_row($query);
+
+        $customerSegmentsTable = CustomerSegmentModel::getTableName();
+        $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
+
+        $usersTable = 'wp_users';
+        $query = $wpdb->prepare(
+            "SELECT 
+                    cs.id AS customer_segment_id
+                FROM 
+                    {$customerSegmentsTable} cs
+                INNER JOIN 
+                    {$customersInSegmentsTable} cis ON cis.customer_segment_id = cs.id
+                INNER JOIN 
+                    {$usersTable} u ON cis.customer_id = u.ID
+                WHERE 
+                    u.ID = %d;",
+            $userId,
+        );
+
+        return $wpdb->get_results($query);
     }
 }

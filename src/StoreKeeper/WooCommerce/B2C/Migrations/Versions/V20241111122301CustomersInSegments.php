@@ -4,10 +4,9 @@ namespace StoreKeeper\WooCommerce\B2C\Migrations\Versions;
 
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Migrations\AbstractMigration;
-use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
-use StoreKeeper\WooCommerce\B2C\Models\CustomersSegmentsModel;
+use StoreKeeper\WooCommerce\B2C\Models\CustomersInSegmentsModel;
 
-class V20241111122301CustomersSegments extends AbstractMigration
+class V20241111122301CustomersInSegments extends AbstractMigration
 {
     /**
      * @param DatabaseConnection $connection
@@ -16,8 +15,8 @@ class V20241111122301CustomersSegments extends AbstractMigration
      */
     public function up(DatabaseConnection $connection): ?string
     {
-        $wp = CustomersSegmentsModel::getWpPrefix();
-        $name = CustomersSegmentsModel::getTableName();
+        $wp = CustomersInSegmentsModel::getWpPrefix();
+        $name = CustomersInSegmentsModel::getTableName();
 
         $query = <<<SQL
 CREATE TABLE `$name` (

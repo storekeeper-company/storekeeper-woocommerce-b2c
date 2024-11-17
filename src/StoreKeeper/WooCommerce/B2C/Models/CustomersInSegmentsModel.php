@@ -4,7 +4,7 @@ namespace StoreKeeper\WooCommerce\B2C\Models;
 
 use StoreKeeper\WooCommerce\B2C\Interfaces\IModelPurge;
 
-class CustomersSegmentsModel extends AbstractModel implements IModelPurge
+class CustomersInSegmentsModel extends AbstractModel implements IModelPurge
 {
     public const TABLE_NAME = 'storekeeper_customer_in_segments';
 
@@ -17,12 +17,5 @@ class CustomersSegmentsModel extends AbstractModel implements IModelPurge
             self::FIELD_DATE_CREATED => false,
             self::FIELD_DATE_UPDATED => false,
         ];
-    }
-
-    public function findByEmail($email)
-    {
-        global $wpdb;
-        $query = $wpdb->prepare("SELECT * FROM " . self::getTableName() . " WHERE customer_email = %s", $email);
-        return $wpdb->get_row($query);
     }
 }
