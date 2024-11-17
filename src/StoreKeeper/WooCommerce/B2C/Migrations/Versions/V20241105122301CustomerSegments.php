@@ -22,7 +22,7 @@ CREATE TABLE `$name` (
     `name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
     `date_created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
     `date_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() NOT NULL,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
         $connection->querySql($query);
