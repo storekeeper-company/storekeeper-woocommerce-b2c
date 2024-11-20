@@ -24,8 +24,7 @@ class CustomerSegmentModel extends AbstractModel implements IModelPurge
 
         $customerSegmentsTable = CustomerSegmentModel::getTableName();
         $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
-
-        $usersTable = 'wp_users';
+        $usersTable = $wpdb->prefix . 'users';
         $query = $wpdb->prepare(
             "SELECT 
                     cs.id AS customer_segment_id

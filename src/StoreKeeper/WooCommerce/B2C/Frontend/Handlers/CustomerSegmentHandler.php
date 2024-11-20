@@ -7,6 +7,7 @@ use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
+use StoreKeeper\WooCommerce\B2C\Models\CustomersInSegmentsModel;
 use StoreKeeper\WooCommerce\B2C\SegmentPriceManager;
 
 class CustomerSegmentHandler implements WithHooksInterface
@@ -14,7 +15,8 @@ class CustomerSegmentHandler implements WithHooksInterface
     public function registerHooks(): void
     {
         add_action('wp_enqueue_scripts', [$this, 'enqueueCustomQuantityScript']);
-        add_action('wp_enqueue_scripts', [$this, 'showProductQtyBasedCart']);
+        add_action('wp_enqueue_scripts', [$this, 'showProductOnProductPage']);
+        add_action('wp_enqueue_scripts', [$this, 'showProductOnCart']);
         add_action('wp_ajax_adjust_price_based_on_quantity', [$this, 'adjustPriceBasedOnQuantityAjax']);
         add_filter('woocommerce_before_calculate_totals', [$this, 'adjustCartItemPriceBasedOnQuantity']);
         add_action('woocommerce_new_order', [$this, 'checkPriceMismatchOnCheckout']);
@@ -66,7 +68,7 @@ class CustomerSegmentHandler implements WithHooksInterface
 
     public function adjustCartItemPriceBasedOnQuantity($cart): void
     {
-        if (is_admin() && !defined('DOING_AJAX')) {
+        if (is_admin() && !wp_doing_ajax()) {
             return;
         }
 
@@ -159,14 +161,37 @@ class CustomerSegmentHandler implements WithHooksInterface
 
     public function saveCustomerSegmentAsOrderMeta($orderId): void
     {
+        global $wpdb;
+
         $order = wc_get_order($orderId);
-        $findSegment = CustomerSegmentModel::findByUserId(get_current_user_id());
+        $customerEmail = $order->get_billing_email();
+        $user = get_user_by('email', $customerEmail);
+        $userId = $user->ID;
 
         foreach ($order->get_items() as $itemId => $item) {
             $productId = $item->get_product_id();
             $qty = $item->get_quantity();
-            $findSegmentPrice = CustomerSegmentPriceModel::findByCustomerSegmentId($productId, $findSegment->customer_segment_id, $qty);
-            $segment = $findSegmentPrice;
+            $segmentPricesTable = CustomerSegmentPriceModel::getTableName();
+            $customerSegmentsTable = CustomerSegmentModel::getTableName();
+            $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
+            $usersTable = $wpdb->prefix . 'users';
+
+            $sql = $wpdb->prepare(
+                "SELECT * FROM 
+                    {$segmentPricesTable} sp
+                INNER JOIN 
+                    {$customerSegmentsTable} cs ON sp.customer_segment_id = cs.id
+                INNER JOIN 
+                    {$customersInSegmentsTable} cis ON cis.customer_segment_id = cs.id
+                INNER JOIN 
+                    {$usersTable} u ON cis.customer_id = u.ID
+                WHERE 
+                    sp.product_id = %d AND u.ID = %d AND sp.from_qty <= %d;
+             ",
+                $productId, $userId, $qty
+            );
+
+            $segment = $wpdb->get_row($sql);
 
             if ($segment) {
                 update_post_meta($orderId, '_customer_segment_id', $segment->id);
@@ -178,47 +203,64 @@ class CustomerSegmentHandler implements WithHooksInterface
         }
     }
 
-    public function showProductQtyBasedCart(): void
+    public function showProductOnProductPage(): void
     {
         global $woocommerce;
 
-        if (is_product()) {
-            $productId = get_the_ID();
-        } elseif (is_cart()) {
-            $productId = null;
+        if (!is_product()) {
+            return;
         }
 
+        $productId = get_the_ID();
         $quantity = 0;
 
-        if (is_cart()) {
-            foreach ($woocommerce->cart->get_cart() as $cartItemKey => $cartItem) {
-                if (null === $productId || $cartItem['product_id'] === $productId) {
-                    $quantity = $cartItem['quantity'];
-                    break;
-                }
-            }
-        } elseif (is_product() && $productId) {
+        if ($productId) {
             $userId = get_current_user_id();
             if ($userId) {
-                foreach ($woocommerce->cart->get_cart() as $cartItemKey => $cartItem) {
+                foreach ($woocommerce->cart->get_cart() as $cartItem) {
                     if ($cartItem['product_id'] === $productId) {
                         $quantity = $cartItem['quantity'];
                         break;
                     }
                 }
-                $segmentPrice = SegmentPriceManager::getSegmentPrice($productId, $userId, $quantity);
-                $productPrice = wc_price($segmentPrice);
+
+                if ($quantity > 0) {
+                    $segmentPrice = SegmentPriceManager::getSegmentPrice($productId, $userId, $quantity);
+                    $productPrice = wc_price($segmentPrice);
+
+                    $this->enqueueQuantityUpdateScript($quantity, $productPrice);
+                }
             }
+        }
+    }
+
+    public function showProductOnCart(): void
+    {
+        global $woocommerce;
+
+        if (!is_cart()) {
+            return;
+        }
+
+        $quantity = 0;
+
+        foreach ($woocommerce->cart->get_cart() as $cartItem) {
+            $quantity += $cartItem['quantity'];
         }
 
         if ($quantity > 0) {
-            $jsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/frontend/price.js');
-
-            wp_enqueue_script('quantity-update-script', $jsUrl, ['jquery'], null, true);
-            wp_localize_script('quantity-update-script', 'productData', [
-                'quantity' => $quantity,
-                'price' => $productPrice ?? 0,
-            ]);
+            $this->enqueueQuantityUpdateScript($quantity, 0);
         }
+    }
+
+    public function enqueueQuantityUpdateScript(int $quantity, $price): void
+    {
+        $jsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/frontend/price.js');
+
+        wp_enqueue_script('quantity-update-script', $jsUrl, ['jquery'], null, true);
+        wp_localize_script('quantity-update-script', 'productData', [
+            'quantity' => $quantity,
+            'price' => $price,
+        ]);
     }
 }

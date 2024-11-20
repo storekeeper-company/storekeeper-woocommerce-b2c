@@ -21,18 +21,17 @@ class CustomerSegmentPriceModel extends AbstractModel implements IModelPurge
         ];
     }
 
-    public static function findByCustomerSegmentId($productId, $customerSegmentId, $qty)
+    public static function findByCustomerSegmentIds($productId, $customerSegmentIds, $qty)
     {
         global $wpdb;
         $segmentPricesTable = CustomerSegmentPriceModel::getTableName();
         $customerSegmentsTable = CustomerSegmentModel::getTableName();
         $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
+        $usersTable = $wpdb->prefix . 'users';
+        $placeholders = implode(',', array_fill(0, count($customerSegmentIds), '%d'));
 
-        $usersTable = 'wp_users';
         $query = $wpdb->prepare(
-            "SELECT 
-                *
-                FROM 
+            "SELECT * FROM 
                     {$segmentPricesTable} sp
                 INNER JOIN 
                     {$customerSegmentsTable} cs ON sp.customer_segment_id = cs.id
@@ -41,13 +40,14 @@ class CustomerSegmentPriceModel extends AbstractModel implements IModelPurge
                 INNER JOIN 
                     {$usersTable} u ON cis.customer_id = u.ID
                 WHERE 
-                    sp.product_id = %d AND sp.customer_segment_id = %d AND sp.from_qty <= %d
+                    sp.product_id = %d 
+                    AND sp.customer_segment_id IN ($placeholders) 
+                    AND sp.from_qty <= %d
                 ORDER BY 
-                    sp.from_qty DESC
-                LIMIT 1",
-            $productId, $customerSegmentId, $qty
+                    sp.ppu_wt ASC, sp.from_qty DESC",
+            array_merge([$productId], $customerSegmentIds, [$qty])
         );
 
-        return $wpdb->get_row($query);
+        return $wpdb->get_results($query);
     }
 }

@@ -173,8 +173,12 @@ class CustomerSegmentTable extends \WP_List_Table
         $segmentPricesTable = CustomerSegmentPriceModel::getTableName();
         $customerSegmentsTable = CustomerSegmentModel::getTableName();
 
+        // Clear existing data from the tables
+        $wpdb->query("DELETE FROM $segmentPricesTable");
+        $wpdb->query("DELETE FROM $customerSegmentsTable");
+
         if (($handle = fopen($csv_file, 'r')) !== false) {
-            fgetcsv($handle, 1000, ';');
+            fgetcsv($handle, 1000, ';'); // Skip the header row
             $row = 1;
 
             while (($data = fgetcsv($handle, 1000, ';')) !== false) {
@@ -191,6 +195,7 @@ class CustomerSegmentTable extends \WP_List_Table
                 $productSku = sanitize_text_field($data[1]);
                 $fromQty = sanitize_text_field($data[2]);
                 $ppu_wt = sanitize_text_field($data[3]);
+
                 $customerSegmentId = $wpdb->get_var(
                     $wpdb->prepare(
                         "SELECT id FROM $customerSegmentsTable WHERE name = %s LIMIT 1",
@@ -222,7 +227,7 @@ class CustomerSegmentTable extends \WP_List_Table
                         ]
                     );
                 } else {
-                    echo '<div class="notice notice-error"><p>'.sprintf(__('Row %s is missing expected columns', I18N::DOMAIN), $row + 1).'</p></div>';
+                    echo '<div class="notice notice-error"><p>' . sprintf(__('Row %s is missing expected columns', I18N::DOMAIN), $row + 1) . '</p></div>';
                 }
 
                 ++$row;
@@ -230,9 +235,9 @@ class CustomerSegmentTable extends \WP_List_Table
 
             fclose($handle);
 
-            echo '<div class="notice notice-success"><p>'.__('CSV imported successfully!', I18N::DOMAIN).'</p></div>';
+            echo '<div class="notice notice-success"><p>' . __('CSV imported successfully!', I18N::DOMAIN) . '</p></div>';
         } else {
-            echo '<div class="notice notice-error"><p>'.__('Failed to open the file.', I18N::DOMAIN).'</p></div>';
+            echo '<div class="notice notice-error"><p>' . __('Failed to open the file.', I18N::DOMAIN) . '</p></div>';
         }
     }
 
@@ -242,6 +247,9 @@ class CustomerSegmentTable extends \WP_List_Table
 
         $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
         $customerSegmentsTable = CustomerSegmentModel::getTableName();
+
+        $wpdb->query("DELETE FROM $customersInSegmentsTable");
+        $wpdb->query("DELETE FROM $customerSegmentsTable");
 
         if (($handle = fopen($csvFile, 'r')) !== false) {
             fgetcsv($handle, 1000, ';'); // Skip header row

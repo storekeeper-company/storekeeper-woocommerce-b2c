@@ -21,7 +21,7 @@ class SegmentPriceProductView implements WithHooksInterface
         $segmentPricesTable = CustomerSegmentPriceModel::getTableName();
         $customerSegmentsTable = CustomerSegmentModel::getTableName();
         $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
-        $usersTable = 'wp_users';
+        $usersTable = $wpdb->prefix . 'users';
 
         $sql = $wpdb->prepare(
             "SELECT * FROM 

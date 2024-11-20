@@ -20,26 +20,25 @@ class SegmentPriceManager
         $findSegments = CustomerSegmentModel::findByUserId($userId);
 
         if (!empty($findSegments)) {
-            $prices = [];
-            foreach ($findSegments as $findSegment) {
-                $findSegmentPrice = CustomerSegmentPriceModel::findByCustomerSegmentId($productId, $findSegment->customer_segment_id, $qty);
+            $segmentIds = array_map('intval', array_column($findSegments, 'customer_segment_id'));
 
-                if ($findSegmentPrice) {
-                    $prices[] = $findSegmentPrice;
+            if (!empty($segmentIds)) {
+                $segmentPrices = CustomerSegmentPriceModel::findByCustomerSegmentIds($productId, $segmentIds, $qty);
+
+                if (!empty($segmentPrices)) {
+                    $filteredPrices = array_filter($segmentPrices, function ($item) use ($qty) {
+                        return $item->from_qty <= $qty;
+                    });
+
+                    if (!empty($filteredPrices)) {
+                        usort($filteredPrices, function ($a, $b) {
+                            return $b->from_qty <=> $a->from_qty;
+                        });
+
+                        return $filteredPrices[0]->ppu_wt;
+                    }
                 }
             }
-
-            if (!empty($prices)) {
-                $price = $prices[0];
-            } else {
-                $price = null;
-            }
-        } else {
-            $price = null;
-        }
-
-        if ($price) {
-            return $price->ppu_wt;
         }
 
         return null;
@@ -52,7 +51,7 @@ class SegmentPriceManager
     {
         $userId = get_current_user_id();
         $productId = $product->get_id();
-        $qty = isset($_REQUEST['quantity']) ? intval($_REQUEST['quantity']) : 2;
+        $qty = isset($_REQUEST['quantity']) ? intval($_REQUEST['quantity']) : 1;
 
         $regularPrice = $product ? wc_price($product->get_price()) : null;
         $segmentPrice = self::getSegmentPrice($productId, $userId, $qty);
