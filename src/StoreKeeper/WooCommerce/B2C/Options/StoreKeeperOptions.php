@@ -32,6 +32,8 @@ class StoreKeeperOptions extends AbstractOptions
 
     public const IMAGE_CDN_PREFIX = 'image_cdn_prefix';
 
+    public const SEGMENT_PRODUCT_VISIBILITY = 'segment-product-visibility';
+
     public const MODES_WITH_CUSTOMERS_SYNC = [
         StoreKeeperOptions::SYNC_MODE_FULL_SYNC,
         StoreKeeperOptions::SYNC_MODE_ORDER_ONLY,

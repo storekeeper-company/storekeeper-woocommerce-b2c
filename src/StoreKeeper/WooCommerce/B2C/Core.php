@@ -4,6 +4,8 @@ namespace StoreKeeper\WooCommerce\B2C;
 
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use StoreKeeper\WooCommerce\B2C\Backoffice\BackofficeCore;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\CustomerSegmentPricesTable;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\CustomerSegmentTable;
 use StoreKeeper\WooCommerce\B2C\Commands\CleanWoocommerceEnvironment;
 use StoreKeeper\WooCommerce\B2C\Commands\CommandRunner;
 use StoreKeeper\WooCommerce\B2C\Commands\ConnectBackend;
@@ -56,6 +58,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFi
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerSegmentHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -188,6 +191,17 @@ class Core
         add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
         add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
         add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+        $segmentVisibilityEnabled = get_option('storekeeper-woocommerce-b2c_segment-product-visibility', 'no') === 'yes';
+
+        if ($segmentVisibilityEnabled) {
+            add_action('admin_menu', [$this, 'customerSegmentsMenu']);
+            add_action('admin_menu', [$this, 'customerSegmentPricesPage']);
+             $table = new SegmentPriceProductView();
+            $table->registerHooks();
+
+            $segmentHandler = new CustomerSegmentHandler();
+            $segmentHandler->registerHooks();
+        }
     }
 
     private function prepareCron()
@@ -562,9 +576,69 @@ HTML;
         return $rates;
     }
 
-    public function syncAllPaidAndProcessingOrders()
+    public function syncAllPaidAndProcessingOrders(): void
     {
         $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
+    }
+
+    public function customerSegmentTable(): void
+    {
+        $customerSegmentsTable = new CustomerSegmentTable();
+        $customerSegmentsTable->prepareItems();
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Customer Segments', I18N::DOMAIN); ?></h1>
+            <?php
+            $customerSegmentsTable->showImportForm();
+        ?>
+            <form method="post">
+                <?php
+            $customerSegmentsTable->display();
+        ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    public function customerSegmentPricesTable(): void
+    {
+        $customerSegmentPricesTable = new CustomerSegmentPricesTable();
+        $customerSegmentPricesTable->prepareItems();
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Customer Segment Prices', I18N::DOMAIN); ?></h1>
+            <form method="post">
+                <?php
+                $customerSegmentPricesTable->display();
+        ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    public function customerSegmentsMenu(): void
+    {
+        add_menu_page(
+            'Customer Segments',
+            'Customer Segments',
+            'manage_options',
+            'customer-segments',
+            [$this, 'CustomerSegmentTable'],
+            'dashicons-admin-users',
+            56
+        );
+    }
+
+    public function customerSegmentPricesPage(): void
+    {
+        add_submenu_page(
+            null,
+            __('Customer Segment Prices', I18N::DOMAIN),
+            __('Customer Segment', I18N::DOMAIN),
+            'manage_options',
+            'customer_segment',
+            [$this, 'customerSegmentPricesTable'],
+        );
     }
 }
