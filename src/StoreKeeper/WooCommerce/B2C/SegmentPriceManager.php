@@ -26,16 +26,16 @@ class SegmentPriceManager
                 $segmentPrices = CustomerSegmentPriceModel::findByCustomerSegmentIds($productId, $segmentIds, $qty);
 
                 if (!empty($segmentPrices)) {
-                    $filteredPrices = array_filter($segmentPrices, function ($item) use ($qty) {
-                        return $item->from_qty <= $qty;
-                    });
+                    $segmentPrices = CustomerSegmentPriceModel::findByCustomerSegmentIds($productId, $segmentIds, $qty);
 
-                    if (!empty($filteredPrices)) {
-                        usort($filteredPrices, function ($a, $b) {
-                            return $b->from_qty <=> $a->from_qty;
+                    if (!empty($segmentPrices)) {
+                        $filteredPrices = array_filter($segmentPrices, function ($item) use ($qty) {
+                            return $item->from_qty <= $qty;
                         });
 
-                        return $filteredPrices[0]->ppu_wt;
+                        if (!empty($filteredPrices)) {
+                            return $filteredPrices[0]->ppu_wt;
+                        }
                     }
                 }
             }

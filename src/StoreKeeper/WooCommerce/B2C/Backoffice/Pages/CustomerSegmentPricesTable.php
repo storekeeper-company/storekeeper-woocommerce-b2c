@@ -3,10 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Backoffice\Pages;
 
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
-use function StoreKeeper\WooCommerce\B2C\__;
-use function StoreKeeper\WooCommerce\B2C\esc_html;
-use function StoreKeeper\WooCommerce\B2C\esc_sql;
-use function StoreKeeper\WooCommerce\B2C\get_option;
+
 
 class CustomerSegmentPricesTable extends \WP_List_Table
 {
@@ -61,7 +58,7 @@ class CustomerSegmentPricesTable extends \WP_List_Table
      */
     public function no_items(): void
     {
-        __('No items available.', I18N::DOMAIN);
+        _e('No items available.', I18N::DOMAIN);
     }
 
     /**

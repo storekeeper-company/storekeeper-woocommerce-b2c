@@ -79,7 +79,7 @@ class CustomerSegmentTable extends \WP_List_Table
 
     public function no_items(): void
     {
-        __('No items available.', I18N::DOMAIN);
+        _e('No items available.', I18N::DOMAIN);
     }
 
     public function column_default($item, $column_name): string

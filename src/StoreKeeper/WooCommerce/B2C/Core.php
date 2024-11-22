@@ -51,7 +51,6 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
-use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\OrderTrackingMessage;
@@ -192,12 +191,17 @@ class Core
         add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
         add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
         add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
-        add_action('admin_menu', [$this, 'customerSegmentsMenu']);
-        add_action('admin_menu', [$this, 'customerSegmentPricesPage']);
+        $segmentVisibilityEnabled = get_option('storekeeper-woocommerce-b2c_segment-product-visibility', 'no') === 'yes';
 
-        new SegmentPriceProductView();
-        $segmentHandler = new CustomerSegmentHandler();
-        $segmentHandler->registerHooks();
+        if ($segmentVisibilityEnabled) {
+            add_action('admin_menu', [$this, 'customerSegmentsMenu']);
+            add_action('admin_menu', [$this, 'customerSegmentPricesPage']);
+             $table = new SegmentPriceProductView();
+            $table->registerHooks();
+
+            $segmentHandler = new CustomerSegmentHandler();
+            $segmentHandler->registerHooks();
+        }
     }
 
     private function prepareCron()

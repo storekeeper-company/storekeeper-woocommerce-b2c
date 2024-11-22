@@ -3,6 +3,7 @@
 namespace StoreKeeper\WooCommerce\B2C\Frontend\Handlers;
 
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
@@ -16,10 +17,9 @@ class CustomerSegmentHandler implements WithHooksInterface
     {
         add_action('wp_enqueue_scripts', [$this, 'enqueueCustomQuantityScript']);
         add_action('wp_enqueue_scripts', [$this, 'showProductOnProductPage']);
-        add_action('wp_enqueue_scripts', [$this, 'showProductOnCart']);
         add_action('wp_ajax_adjust_price_based_on_quantity', [$this, 'adjustPriceBasedOnQuantityAjax']);
         add_filter('woocommerce_before_calculate_totals', [$this, 'adjustCartItemPriceBasedOnQuantity']);
-        add_action('woocommerce_new_order', [$this, 'checkPriceMismatchOnCheckout']);
+        add_action('woocommerce_checkout_update_order_meta', [$this, 'checkPriceMismatchOnCheckout']);
         add_action('woocommerce_checkout_update_order_meta', [$this, 'saveCustomerSegmentAsOrderMeta']);
     }
 
@@ -100,8 +100,13 @@ class CustomerSegmentHandler implements WithHooksInterface
             foreach ($order->get_items() as $itemId => $item) {
                 $product = $item->get_product();
                 $quantity = $item->get_quantity();
+                if ($product->is_type('variation')) {
+                    $productId = $item->get_variation_id();
+                } else {
+                    $productId = $product->get_id();
+                }
 
-                $segmentPrice = SegmentPriceManager::getSegmentPrice($product->get_id(), $userId, $quantity);
+                $segmentPrice = SegmentPriceManager::getSegmentPrice($productId, $userId, $quantity);
                 $standardPrice = self::getStandardPrice($product);
                 $appliedPrice = $item->get_total() / $quantity;
 
@@ -110,7 +115,7 @@ class CustomerSegmentHandler implements WithHooksInterface
                         new \Exception('Price mismatch detected during checkout'),
                         [
                             'customer_email' => $order->get_billing_email(),
-                            'product_id' => $product->get_id(),
+                            'product_id' => $productId,
                             'product_name' => $product->get_name(),
                             'segment_price' => $segmentPrice,
                             'standard_price' => $standardPrice,
@@ -124,7 +129,7 @@ class CustomerSegmentHandler implements WithHooksInterface
                     $message = sprintf(
                         'A mismatch was detected between the segment price and the applied price at checkout for product: %s (ID: %d). Segment Price: €%s vs Applied Price: €%s. Customer Email: %s, Quantity: %d',
                         $product->get_name(),
-                        $product->get_id(),
+                        $productId,
                         $segmentPrice,
                         $appliedPrice,
                         $order->get_billing_email(),
@@ -155,8 +160,8 @@ class CustomerSegmentHandler implements WithHooksInterface
      */
     public function checkPriceMismatchOnCheckout($orderId): void
     {
-        self::checkPriceMismatchOnOrder($orderId);
         self::saveCustomerSegmentAsOrderMeta($orderId);
+        self::checkPriceMismatchOnOrder($orderId);
     }
 
     public function saveCustomerSegmentAsOrderMeta($orderId): void
@@ -164,43 +169,58 @@ class CustomerSegmentHandler implements WithHooksInterface
         global $wpdb;
 
         $order = wc_get_order($orderId);
-        $customerEmail = $order->get_billing_email();
-        $user = get_user_by('email', $customerEmail);
-        $userId = $user->ID;
+        if (!$order) {
+            error_log("Order not found for ID: $orderId");
+            return;
+        }
+
+        $userId = $order->get_customer_id();
+
+        $segmentsMeta = [];
+        $appliedSegments = [];
 
         foreach ($order->get_items() as $itemId => $item) {
-            $productId = $item->get_product_id();
+            $product = $item->get_product();
+            $productId = $product->get_id();
+            if ($product->is_type('variation')) {
+                $productId = $item->get_variation_id();
+            }
             $qty = $item->get_quantity();
+
             $segmentPricesTable = CustomerSegmentPriceModel::getTableName();
             $customerSegmentsTable = CustomerSegmentModel::getTableName();
             $customersInSegmentsTable = CustomersInSegmentsModel::getTableName();
             $usersTable = $wpdb->prefix . 'users';
 
             $sql = $wpdb->prepare(
-                "SELECT * FROM 
-                    {$segmentPricesTable} sp
-                INNER JOIN 
-                    {$customerSegmentsTable} cs ON sp.customer_segment_id = cs.id
-                INNER JOIN 
-                    {$customersInSegmentsTable} cis ON cis.customer_segment_id = cs.id
-                INNER JOIN 
-                    {$usersTable} u ON cis.customer_id = u.ID
-                WHERE 
-                    sp.product_id = %d AND u.ID = %d AND sp.from_qty <= %d;
-             ",
+                "SELECT sp.*, cs.name AS segment_name, cs.id AS segment_id
+            FROM {$segmentPricesTable} sp
+            INNER JOIN {$customerSegmentsTable} cs ON sp.customer_segment_id = cs.id
+            INNER JOIN {$customersInSegmentsTable} cis ON cis.customer_segment_id = cs.id
+            INNER JOIN {$usersTable} u ON cis.customer_id = u.ID
+            WHERE sp.product_id = %d AND u.ID = %d AND sp.from_qty <= %d
+            ORDER BY sp.from_qty DESC;",
                 $productId, $userId, $qty
             );
 
-            $segment = $wpdb->get_row($sql);
-
-            if ($segment) {
-                update_post_meta($orderId, '_customer_segment_id', $segment->id);
-                update_post_meta($orderId, '_customer_segment_name', $segment->name);
+            $segments = $wpdb->get_results($sql);
+            if (!empty($segments)) {
+                $bestSegment = $segments[0];
+                $segmentsMeta[$productId] = [
+                    'segment_id' => $bestSegment->segment_id,
+                    'segment_name' => $bestSegment->segment_name,
+                ];
+                $appliedSegments[$bestSegment->segment_id] = $bestSegment->segment_name;
             } else {
-                update_post_meta($orderId, '_customer_segment_id', 'No segment found');
-                update_post_meta($orderId, '_customer_segment_name', 'No segment found');
+                $segmentsMeta[$productId] = [
+                    'segment_id' => 'No segment found',
+                    'segment_name' => 'No segment found',
+                ];
             }
         }
+
+        update_post_meta($orderId, '_customer_segments', $segmentsMeta);
+        update_post_meta($orderId, '_applied_segments', $appliedSegments);
     }
 
     public function showProductOnProductPage(): void
@@ -218,6 +238,10 @@ class CustomerSegmentHandler implements WithHooksInterface
             $userId = get_current_user_id();
             if ($userId) {
                 foreach ($woocommerce->cart->get_cart() as $cartItem) {
+                    if (isset($cartItem[OrderExport::CART_FIELD_PARENT_ID])) {
+                        continue;
+                    }
+
                     if ($cartItem['product_id'] === $productId) {
                         $quantity = $cartItem['quantity'];
                         break;
@@ -231,25 +255,6 @@ class CustomerSegmentHandler implements WithHooksInterface
                     $this->enqueueQuantityUpdateScript($quantity, $productPrice);
                 }
             }
-        }
-    }
-
-    public function showProductOnCart(): void
-    {
-        global $woocommerce;
-
-        if (!is_cart()) {
-            return;
-        }
-
-        $quantity = 0;
-
-        foreach ($woocommerce->cart->get_cart() as $cartItem) {
-            $quantity += $cartItem['quantity'];
-        }
-
-        if ($quantity > 0) {
-            $this->enqueueQuantityUpdateScript($quantity, 0);
         }
     }
 

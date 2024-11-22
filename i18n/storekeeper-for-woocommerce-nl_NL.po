@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-11-13 16:24+0200\n"
+"PO-Revision-Date: 2024-11-22 11:31+0200\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n"
 "Language: nl_NL\n"
@@ -2489,3 +2489,9 @@ msgstr "No segment prices available for this product."
 
 msgid "No segment prices available for this variation."
 msgstr "No segment prices available for this variation."
+
+msgid "Segment-specific product visibility"
+msgstr "Segment-specific product visibility"
+
+msgid "Allow segment customers to see only products with assigned custom prices."
+msgstr "Allow segment customers to see only products with assigned custom prices."

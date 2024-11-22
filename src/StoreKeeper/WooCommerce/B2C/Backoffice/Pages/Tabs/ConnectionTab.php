@@ -185,6 +185,7 @@ class ConnectionTab extends AbstractTab
         $this->renderBackorderSetting();
         $this->renderBarcodeModeSetting();
         $this->renderCategoryOptions();
+        $this->renderSegmentProductVisibilityOptions();
 
         $this->renderFormActionGroup(
             $this->getFormButton(
@@ -271,10 +272,12 @@ class ConnectionTab extends AbstractTab
         $orderSyncFromDate = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_SYNC_FROM_DATE);
         $barcode = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
         $categoryHtml = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
+        $segmentProduct = StoreKeeperOptions::getConstant(StoreKeeperOptions::SEGMENT_PRODUCT_VISIBILITY);
 
         $data = [
             $backorder => 'on' === sanitize_key($_POST[$backorder]) ? 'yes' : 'no',
             $categoryHtml => 'on' === sanitize_key($_POST[$categoryHtml]) ? 'yes' : 'no',
+            $segmentProduct => 'on' === sanitize_key($_POST[$segmentProduct]) ? 'yes' : 'no',
         ];
 
         if (in_array($_POST[$mode], StoreKeeperOptions::MODES_WITH_PAYMENTS, true)) {
@@ -545,6 +548,21 @@ HTML;
                 'yes' === StoreKeeperOptions::get($backorderName)
             ).' '.__(
                 "When checked, imported or updated products will have the backorder status set to 'Allow, but notify customer', else I will be set to 'Allow'",
+                I18N::DOMAIN
+            )
+        );
+    }
+
+    private function renderSegmentProductVisibilityOptions(): void
+    {
+        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::SEGMENT_PRODUCT_VISIBILITY);
+        $this->renderFormGroup(
+            __('Segment-specific product visibility', I18N::DOMAIN),
+            $this->getFormCheckbox(
+                $name,
+                StoreKeeperOptions::getBoolOption($name, false)
+            ).' '.__(
+                'Allow segment customers to see only products with assigned custom prices.',
                 I18N::DOMAIN
             )
         );

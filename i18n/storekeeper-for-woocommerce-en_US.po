@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-woocommerce-b2c\n"
 "POT-Creation-Date: 2022-11-08 17:26:28+00:00\n"
-"PO-Revision-Date: 2024-11-13 16:23+0200\n"
+"PO-Revision-Date: 2024-11-22 11:31+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -2571,3 +2571,9 @@ msgstr "No segment prices available for this product."
 
 msgid "No segment prices available for this variation."
 msgstr "No segment prices available for this variation."
+
+msgid "Segment-specific product visibility"
+msgstr "Segment-specific product visibility"
+
+msgid "Allow segment customers to see only products with assigned custom prices."
+msgstr "Allow segment customers to see only products with assigned custom prices."
