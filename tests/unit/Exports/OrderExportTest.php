@@ -1835,10 +1835,15 @@ class OrderExportTest extends AbstractOrderExportTest
             ];
 
             if ('NL' === $wc_order->get_shipping_country()) {
-                $splitStreet = OrderExport::splitStreetNumber($new_order['shipping_address_house_number']);
-                $expect_shipping['contact_address']['streetnumber'] = $splitStreet['streetnumber'];
-                $expect_shipping['contact_address']['flatnumber'] = $splitStreet['flatnumber'];
+                if (isset($new_order['shipping_address_house_number'])) {
+                    $splitStreet = OrderExport::splitStreetNumber($new_order['shipping_address_house_number']);
+                    $expect_shipping['contact_address']['streetnumber'] = $splitStreet['streetnumber'];
+                    $expect_shipping['contact_address']['flatnumber'] = $splitStreet['flatnumber'];
+                } else {
+                    error_log('Shipping address house number is missing for order ID: ' . $wc_order->get_id());
+                }
             }
+
         }
 
         if (!empty($new_order['shipping_company'])) {
