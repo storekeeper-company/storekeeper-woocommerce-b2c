@@ -31,7 +31,7 @@ $wishlists = getUserWishlists($userId);
 
 <div class="wishlist-title" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
     <div>
-        <h1><?php __('Orderlijsten', I18N::DOMAIN); ?></h1>
+        <h1><?php echo __('Orderlijsten', I18N::DOMAIN); ?></h1>
     </div>
     <div class="wishlist-count">
         <?php echo sprintf(
@@ -80,7 +80,7 @@ $wishlists = getUserWishlists($userId);
                 <div class="wishlist-add">
                     <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/images/plus.png'); ?>"
                          alt="Plus" class="plus-icon">
-                    <span><?php __('Nieuwe lijst', I18N::DOMAIN); ?></span>
+                    <span><?php echo __('Nieuwe lijst', I18N::DOMAIN); ?></span>
                 </div>
             </div>
 
@@ -88,11 +88,11 @@ $wishlists = getUserWishlists($userId);
             <div id="new-wishlist-modal" class="wishlist-modal">
                 <div class="wishlist-modal-content">
                     <span class="wishlist-close">&times;</span>
-                    <h2><?php __('Create wishlist', I18N::DOMAIN); ?></h2>
+                    <h2><?php echo __('Create wishlist', I18N::DOMAIN); ?></h2>
                     <form id="new-wishlist-form" method="POST" action="<?php
                     echo esc_url(admin_url('admin-post.php?action=create_wishlist')); ?>">
-                        <input type="text" name="wishlist_name" placeholder="<?php __('Wishlist Name', I18N::DOMAIN); ?>" required>
-                        <button type="submit" class="submit-wishlist"><?php __('Create Wishlist', I18N::DOMAIN); ?></button>
+                        <input type="text" name="wishlist_name" placeholder="<?php echo __('Wishlist Name', I18N::DOMAIN); ?>" required>
+                        <button type="submit" class="submit-wishlist"><?php echo __('Create Wishlist', I18N::DOMAIN); ?></button>
                     </form>
                 </div>
             </div>
