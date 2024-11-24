@@ -14,6 +14,8 @@ class WishlistHandler implements WithHooksInterface
         add_action('woocommerce_single_product_summary', [$this, 'addWishlistButtonToProductPage']);
         add_action('admin_post_create_wishlist', [$this, 'handleCreateWishlist']);
         add_action('admin_post_nopriv_create_wishlist', [$this, 'handleCreateWishlist']);
+        add_action('wp_ajax_delete_wishlist_item', [$this, 'deleteWishlistItem']);
+        add_action('wp_ajax_nopriv_delete_wishlist_item', [$this, 'deleteWishlistItem']);
     }
 
     public function createWishlistPostType(): void
@@ -224,5 +226,18 @@ class WishlistHandler implements WithHooksInterface
         }, array_keys($data), $data));
 
         return count($valid_products);
+    }
+
+    public function deleteWishlistItem(): void
+    {
+        if (isset($_POST['wishlist_id'])) {
+            $wishlistId = intval($_POST['wishlist_id']);
+
+            $deleted = wp_delete_post($wishlistId);
+
+            if ($deleted) {
+                wp_send_json_success();
+            }
+        }
     }
 }

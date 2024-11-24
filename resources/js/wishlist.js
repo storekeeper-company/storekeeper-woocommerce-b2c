@@ -76,3 +76,31 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+
+jQuery(document).ready(function ($) {
+    $('.delete-button').on('click', function () {
+        const wishlistId = $(this).data('wishlist-id');
+        const listItem = $(this).closest('.wishlist-item');
+        $.ajax({
+            url: ajax_obj.admin_url,
+            type: 'POST',
+            data: {
+                action: 'delete_wishlist_item',
+                wishlist_id: wishlistId,
+            },
+            success: function (response) {
+                if (response.success) {
+                    listItem.fadeOut(function () {
+                        $(this).remove();
+                    });
+                } else {
+                    alert('Error: ' + (response.data.message || 'Could not delete wishlist.'));
+                }
+            },
+            error: function () {
+                alert('AJAX request failed.');
+            }
+        });
+    });
+});
