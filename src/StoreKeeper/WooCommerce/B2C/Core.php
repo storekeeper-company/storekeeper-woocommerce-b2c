@@ -56,6 +56,8 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFi
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderListHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\WishlistHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -188,6 +190,17 @@ class Core
         add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
         add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
         add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+
+        $wishlistHandler = new WishlistHandler();
+        $wishlistHandler->registerHooks();
+
+        $orderlistHandler = new OrderListHandler();
+        $orderlistHandler->registerHooks();
+
+        add_action('plugins_loaded', [$this, 'createWishlistsPageOnPluginActivation']);
+        add_filter('wp_nav_menu_items', [$this, 'addWishlistLinkToMenu']);
+        add_action('template_redirect', [$this, 'changeWishlistPageHtml']);
+        add_action('wp_enqueue_scripts', [$this, 'customModalScriptsWishlist']);
     }
 
     private function prepareCron()
@@ -566,5 +579,68 @@ HTML;
     {
         $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
+    }
+
+    public function customModalScriptsWishlist(): void
+    {
+        $cssUrl = plugins_url('storekeeper-for-woocommerce/resources/css/wishlist.css');
+        $wishlistJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/wishlist.js');
+        $orderJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/order.js');
+
+        wp_enqueue_script('jquery');
+        wp_enqueue_style('custom-modal-css', $cssUrl);
+        wp_enqueue_script('wishlist-js', $wishlistJsUrl, array('jquery'), null, true);
+        wp_enqueue_script('order-js', $orderJsUrl, array('jquery'), null, true);
+        wp_localize_script('order-js', 'ajax_obj', array(
+            'admin_url' => admin_url('admin-ajax.php')
+        ));
+    }
+
+    public function createWishlistsPageOnPluginActivation(): void
+    {
+        $page_check = get_page_by_path('wishlists');
+        if (!$page_check) {
+            $new_page = array(
+                'post_title' => 'Wishlists',
+                'post_content' => '[wishlists_list]',
+                'post_status' => 'publish',
+                'post_type' => 'page',
+            );
+            wp_insert_post($new_page);
+        }
+    }
+
+    public function addWishlistLinkToMenu($items, $args): mixed
+    {
+        if (is_user_logged_in() && 'primary' === $args->theme_location) {
+            $wishlists_page = get_page_by_path('wishlists');
+            if ($wishlists_page) {
+                $wishlist_url = get_permalink($wishlists_page->ID);
+                $wishlist_link = '<li><a href="' . esc_url($wishlist_url) . '">' . __('My Wishlist', I18N::DOMAIN) . '</a></li>';
+                $items .= $wishlist_link;
+            }
+        }
+        return $items;
+    }
+
+    public function changeWishlistPageHtml(): void
+    {
+        $current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $last_segment = basename(parse_url($current_url, PHP_URL_PATH));
+        if ($last_segment == 'wishlists') {
+            $template_path = plugin_dir_path(__FILE__) . 'Frontend/page-wishlists.php';
+            if (file_exists($template_path)) {
+                include($template_path);
+                exit;
+            }
+        }
+
+        if (strpos($current_url, '/wishlists/') !== false) {
+            $template_path = plugin_dir_path(__FILE__) . 'Frontend/page-wishlist-products.php';
+            if (file_exists($template_path)) {
+                include($template_path);
+                exit;
+            }
+        }
     }
 }
