@@ -233,6 +233,10 @@ h1 {
     flex-grow: 1;
 }
 
+.wishlist-info a {
+    color:black;
+}
+
 .last-edit-time {
     margin-left: auto;
     font-size: 0.9rem;
