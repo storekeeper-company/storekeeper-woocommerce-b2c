@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-woocommerce-b2c\n"
 "POT-Creation-Date: 2022-11-08 17:26:28+00:00\n"
-"PO-Revision-Date: 2024-11-24 16:44+0200\n"
+"PO-Revision-Date: 2024-11-27 23:09+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -2652,3 +2652,30 @@ msgstr "Lijst opslaan"
 
 msgid "Alles toevoegen aan winkelmand "
 msgstr "Alles toevoegen aan winkelmand "
+
+msgid "File upload failed"
+msgstr "File upload failed"
+
+msgid "Nonce verification failed"
+msgstr "Nonce verification failed"
+
+msgid "No file uploaded"
+msgstr "No file uploaded"
+
+msgid "Would you like a text on the product?"
+msgstr "Would you like a text on the product?"
+
+msgid "free"
+msgstr "free"
+
+msgid "Upload Image"
+msgstr "Upload Image"
+
+msgid "Would you like an image on the product?"
+msgstr "Would you like an image on the product?"
+
+msgid "Select an image"
+msgstr "Select an image"
+
+msgid "Upload"
+msgstr "Upload"

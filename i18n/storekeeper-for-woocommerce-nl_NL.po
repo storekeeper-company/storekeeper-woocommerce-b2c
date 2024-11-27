@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-11-24 16:45+0200\n"
+"PO-Revision-Date: 2024-11-27 23:09+0200\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n"
 "Language: nl_NL\n"
@@ -2570,3 +2570,30 @@ msgstr "Lijst opslaan"
 
 msgid "Alles toevoegen aan winkelmand "
 msgstr "Alles toevoegen aan winkelmand "
+
+msgid "File upload failed"
+msgstr "File upload failed"
+
+msgid "Nonce verification failed"
+msgstr "Nonce verification failed"
+
+msgid "No file uploaded"
+msgstr "No file uploaded"
+
+msgid "Would you like a text on the product?"
+msgstr "Would you like a text on the product?"
+
+msgid "free"
+msgstr "free"
+
+msgid "Upload Image"
+msgstr "Upload Image"
+
+msgid "Would you like an image on the product?"
+msgstr "Would you like an image on the product?"
+
+msgid "Select an image"
+msgstr "Select an image"
+
+msgid "Upload"
+msgstr "Upload"

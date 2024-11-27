@@ -49,16 +49,23 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
+use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\OrderTrackingMessage;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFilter;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderListHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\WishlistHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegmentPrices;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegments;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241111122301CustomersSegments;
+use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
+use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
+use StoreKeeper\WooCommerce\B2C\Models\CustomersSegmentsModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -150,7 +157,7 @@ class Core
         // Declare HPOS compabitility
         add_action('before_woocommerce_init', static function () {
             if (class_exists(FeaturesUtil::class)) {
-                FeaturesUtil::declare_compatibility('custom_order_tables', STOREKEEPER_FOR_WOOCOMMERCE_NAME.'/'.STOREKEEPER_WOOCOMMERCE_B2C_NAME.'.php');
+                FeaturesUtil::declare_compatibility('custom_order_tables', STOREKEEPER_FOR_WOOCOMMERCE_NAME . '/' . STOREKEEPER_WOOCOMMERCE_B2C_NAME . '.php');
             }
         });
 
@@ -186,21 +193,27 @@ class Core
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
 
-        add_filter('woocommerce_shipping_settings', 'displayMinAmountField');
+//        add_filter('woocommerce_shipping_settings', 'displayMinAmountField');
         add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
         add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
         add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+        add_action('admin_menu', [$this, 'customerSegmentsMenu']);
+        add_action('admin_menu', [$this, 'customerSegmentPricesPage']);
+        add_action('plugins_loaded', [$this, 'storekeeperRunMigration']);
 
-        $wishlistHandler = new WishlistHandler();
-        $wishlistHandler->registerHooks();
+        new SegmentPriceProductView();
 
-        $orderlistHandler = new OrderListHandler();
-        $orderlistHandler->registerHooks();
+        add_action('wp_enqueue_scripts', [$this, 'enqueueCustomQuantityScript']);
+        add_action('wp_enqueue_scripts', [$this, 'showProductQtyBasedCart']);
+        add_action('wp_ajax_adjust_price_based_on_quantity', [$this, 'adjustPriceBasedOnQuantityAjax']);
+        add_filter('woocommerce_before_calculate_totals', [$this, 'adjustCartItemPriceBasedOnQuantity']);
+        add_action('woocommerce_new_order', [$this, 'checkPriceMismatchOnCheckout']);
+        add_action('woocommerce_checkout_update_order_meta', [$this, 'saveCustomerSegmentAsOrderMeta']);
 
-        add_action('plugins_loaded', [$this, 'createWishlistsPageOnPluginActivation']);
-        add_filter('wp_nav_menu_items', [$this, 'addWishlistLinkToMenu']);
-        add_action('template_redirect', [$this, 'changeWishlistPageHtml']);
-        add_action('wp_enqueue_scripts', [$this, 'customModalScriptsWishlist']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueueMediaUploaderScripts']);
+        add_action('wp_ajax_upload_product_image', [$this, 'handleProductImageUpload']);
+        add_action('wp_ajax_nopriv_upload_product_image', [$this, 'handleProductImageUpload']);
+
     }
 
     private function prepareCron()
@@ -277,8 +290,7 @@ class Core
     {
         return (defined('WP_DEBUG') && WP_DEBUG)
             || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
-            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-        ;
+            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG']);
     }
 
     public static function isDataDump(): bool
@@ -303,7 +315,7 @@ class Core
             throw new \RuntimeException('Cannot find writable directory, for dumping api calls. Set define(\'STOREKEEPER_WOOCOMMERCE_API_DUMP\', false); to in your wp-config.php prevent dumping api calls.');
         }
 
-        return $tmp.'/dumps/';
+        return $tmp . '/dumps/';
     }
 
     private function registerAddressFormatting(): void
@@ -470,12 +482,12 @@ HTML;
             $dirs[] = "/home/$user/tmp";
         }
         if (!empty($_SERVER['HOME'])) {
-            $dirs[] = $_SERVER['HOME'].'/tmp';
+            $dirs[] = $_SERVER['HOME'] . '/tmp';
         }
 
-        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_FOR_WOOCOMMERCE_NAME;
-        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_WOOCOMMERCE_B2C_NAME;
-        $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.DIRECTORY_SEPARATOR.'tmp';
+        $dirs[] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . STOREKEEPER_FOR_WOOCOMMERCE_NAME;
+        $dirs[] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . STOREKEEPER_WOOCOMMERCE_B2C_NAME;
+        $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH . DIRECTORY_SEPARATOR . 'tmp';
 
         return $dirs;
     }
@@ -565,7 +577,7 @@ HTML;
                 foreach ($methods_data as $method_data) {
                     if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
                         $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= ': '.__('Free Shipping', I18N::DOMAIN);
+                        $rates[$rate_key]->label .= ': ' . __('Free Shipping', I18N::DOMAIN);
                         break;
                     }
                 }
@@ -575,72 +587,386 @@ HTML;
         return $rates;
     }
 
-    public function syncAllPaidAndProcessingOrders()
+    public function syncAllPaidAndProcessingOrders(): void
     {
         $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
     }
 
-    public function customModalScriptsWishlist(): void
+    public function customerSegmentTable(): void
     {
-        $cssUrl = plugins_url('storekeeper-for-woocommerce/resources/css/wishlist.css');
-        $wishlistJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/wishlist.js');
-        $orderJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/order.js');
+        $customerSegmentsTable = new CustomerSegmentTable();
+        $customerSegmentsTable->prepareItems();
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Customer Segments', I18N::DOMAIN); ?></h1>
+            <?php
+            $customerSegmentsTable->showImportForm();
+            ?>
+            <form method="post">
+                <?php
+                $customerSegmentsTable->display();
+                ?>
+            </form>
+        </div>
+        <?php
+    }
 
+    public function customerSegmentPricesTable(): void
+    {
+        $customerSegmentPricesTable = new CustomerSegmentPricesTable();
+        $customerSegmentPricesTable->prepare_items();
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Customer Segment Prices', I18N::DOMAIN); ?></h1>
+            <form method="post">
+                <?php
+                $customerSegmentPricesTable->display();
+                ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    public function customerSegmentsMenu(): void
+    {
+        add_menu_page(
+            'Customer Segments',
+            'Customer Segments',
+            'manage_options',
+            'customer-segments',
+            [$this, 'CustomerSegmentTable'],
+            'dashicons-admin-users',
+            56
+        );
+    }
+
+    public function customerSegmentPricesPage(): void
+    {
+        add_submenu_page(
+            null,
+            __('Customer Segment Prices', I18N::DOMAIN),
+            __('Customer Segment', I18N::DOMAIN),
+            'manage_options',
+            'customer_segment',
+            [$this, 'customerSegmentPricesTable'],
+        );
+    }
+
+    public function storekeeperRunMigration(): void
+    {
+        global $wpdb;
+
+        $customerSegmentTable = CustomerSegmentModel::getTableName();
+        $tableCustomerSegmentsExists = $wpdb->get_var("SHOW TABLES LIKE '{$customerSegmentTable}'");
+
+        if (!$tableCustomerSegmentsExists) {
+            $migrationCustomerSegments = new V20241105122301CustomerSegments();
+            $migrationCustomerSegments->up(new DatabaseConnection());
+        }
+
+        $customersSegmentsTable = CustomersSegmentsModel::getTableName();
+        $tableCustomersSegmentsExists = $wpdb->get_var("SHOW TABLES LIKE '{$customersSegmentsTable}'");
+        if (!$tableCustomersSegmentsExists) {
+            $migrationCustomersSegments = new V20241111122301CustomersSegments();
+            $migrationCustomersSegments->up(new DatabaseConnection());
+        }
+
+        $customersSegmentPricesTable = CustomerSegmentPriceModel::getTableName();
+        $tableCustomersSegmentPricesExists = $wpdb->get_var("SHOW TABLES LIKE '{$customersSegmentPricesTable}'");
+        if (!$tableCustomersSegmentPricesExists) {
+            $migrationCustomerSegmentPrices = new V20241105122301CustomerSegmentPrices();
+            $migrationCustomerSegmentPrices->up(new DatabaseConnection());
+        }
+    }
+
+    public function tableExists($tableName, $dbConnection): bool
+    {
+        $query = "SHOW TABLES LIKE '" . $tableName . "'";
+        $result = $dbConnection->query($query);
+
+        return $result->rowCount() > 0;
+    }
+
+    public function enqueueCustomQuantityScript(): void
+    {
+        $jsUrl = plugins_url('storekeeper-for-woocommerce/assets/js/price.js');
+
+        wp_enqueue_script(
+            'custom-quantity-script',
+            $jsUrl,
+            ['jquery'],
+            null,
+            true
+        );
+
+        wp_localize_script('custom-quantity-script', 'ajax_obj', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+        ]);
+    }
+
+    public function adjustPriceBasedOnQuantityAjax(): void
+    {
+        if (!isset($_POST['quantity']) || !isset($_POST['product_id'])) {
+            error_log('Missing parameters in AJAX request.');
+            wp_send_json_error(['message' => 'Missing parameters']);
+        }
+
+        $quantity = intval($_POST['quantity']);
+        $productId = intval($_POST['product_id']);
+
+        $user = get_current_user_id();
+        if ($user) {
+            $userData = get_userdata($user);
+            $userEmail = $userData->user_email;
+            $customerSegment = new CustomerSegmentModel();
+            $customer = $customerSegment->findByEmail($userEmail);
+            if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
+                $segmentPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
+                $product = wc_get_product($productId);
+                $regularPrice = $product ? wc_price($product->get_price()) : null;
+                if (null !== $segmentPrice) {
+                    wp_send_json_success(['new_price' => wc_price($segmentPrice)]);
+                } else {
+                    wp_send_json_success(['new_price' => $regularPrice]);
+                }
+            }
+        }
+
+    }
+
+    public function adjustCartItemPriceBasedOnQuantity($cart): void
+    {
+        if (is_admin() && !defined('DOING_AJAX')) {
+            return;
+        }
+
+        $user = get_current_user_id();
+        if ($user) {
+            $userData = get_userdata($user);
+            $userEmail = $userData->user_email;
+            $customerSegment = new CustomerSegmentModel();
+            $customer = $customerSegment->findByEmail($userEmail);
+            if (is_object($customer)) {
+                $customerEmail = $customer->customer_email; // Assuming 'email' is the property you need
+            } else {
+                echo "Customer not found.";
+            }
+
+            if (isset($customer->customer_email) && $userEmail == $customerEmail) {
+                foreach ($cart->get_cart() as $cartItemKey => $cartItem) {
+                    $productId = isset($cartItem['variation_id']) && $cartItem['variation_id'] != 0
+                        ? $cartItem['variation_id']
+                        : $cartItem['product_id'];
+                    $quantity = $cartItem['quantity'];
+                    $adjustedPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customerEmail, $quantity);
+                    if (null !== $adjustedPrice) {
+                        $cartItem['data']->set_price($adjustedPrice);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @throws WordpressException
+     */
+    public function checkPriceMismatchOnOrder($orderId): void
+    {
+        $order = wc_get_order($orderId);
+        $user = get_current_user_id();
+
+        if ($user) {
+            $userData = get_userdata($user);
+            $userEmail = $userData->user_email;
+            $customerSegment = new CustomerSegmentModel();
+            $customer = $customerSegment->findByEmail($userEmail);
+            if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
+                foreach ($order->get_items() as $itemId => $item) {
+                    $product = $item->get_product();
+                    $quantity = $item->get_quantity();
+
+                    $segmentPrice = SegmentPriceProductBack::getSegmentPrice($product->get_id(), $customer->customer_email, $quantity);
+                    $standardPrice = self::getStandardPrice($product);
+                    $appliedPrice = $item->get_total() / $quantity;
+
+                    if (isset($segmentPrice) && $segmentPrice !== $appliedPrice) {
+                        LoggerFactory::createErrorTask('no-customer-price-on-checkout',
+                            new \Exception('Price mismatch detected during checkout'),
+                            [
+                                'customer_email' => $order->get_billing_email(),
+                                'product_id' => $product->get_id(),
+                                'product_name' => $product->get_name(),
+                                'segment_price' => $segmentPrice,
+                                'standard_price' => $standardPrice,
+                                'applied_price' => $appliedPrice,
+                                'quantity' => $quantity,
+                            ]
+                        );
+
+                        $admin_email = get_option('admin_email');
+                        $subject = 'Price Mismatch Detected';
+                        $message = sprintf(
+                            'A mismatch was detected between the segment price and the applied price at checkout for product: %s (ID: %d). Segment Price: €%s vs Applied Price: €%s. Customer Email: %s, Quantity: %d',
+                            $product->get_name(),
+                            $product->get_id(),
+                            $segmentPrice,
+                            $appliedPrice,
+                            $order->get_billing_email(),
+                            $quantity
+                        );
+                        wp_mail($admin_email, $subject, $message);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @return float|mixed
+     */
+    public function getStandardPrice($product)
+    {
+        if ($product->is_type('variable')) {
+            $defaultVariation = $product->get_available_variations()[0];
+
+            return $defaultVariation['display_price'];
+        }
+
+        return (float)$product->get_regular_price();
+    }
+
+    /**
+     * @throws WordpressException
+     */
+    public function checkPriceMismatchOnCheckout($orderId): void
+    {
+        self::checkPriceMismatchOnOrder($orderId);
+        self::saveCustomerSegmentAsOrderMeta($orderId);
+    }
+
+    public function saveCustomerSegmentAsOrderMeta($orderId): void
+    {
+        global $wpdb;
+
+        $order = wc_get_order($orderId);
+        $customerEmail = $order->get_billing_email();
+
+        foreach ($order->get_items() as $itemId => $item) {
+            $productId = $item->get_product_id();
+            $qty = $item->get_quantity();
+            $segmentPricesTable = CustomerSegmentPriceModel::getTableName();
+            $customerSegmentsTable = CustomerSegmentModel::getTableName();
+
+            $sql = $wpdb->prepare(
+                "
+            SELECT cs.id, cs.name
+            FROM {$segmentPricesTable} sp
+            INNER JOIN {$customerSegmentsTable} cs ON sp.customer_segment_id = cs.id
+            WHERE sp.product_id = %d AND LOWER(cs.customer_email) = LOWER(%s) AND sp.from_qty <= %d 
+            ORDER BY sp.from_qty DESC
+            LIMIT 1
+            ",
+                $productId, $customerEmail, $qty
+            );
+
+            $segment = $wpdb->get_row($sql);
+
+            if ($segment) {
+                update_post_meta($orderId, '_customer_segment_id', $segment->id);
+                update_post_meta($orderId, '_customer_segment_name', $segment->name);
+            } else {
+                update_post_meta($orderId, '_customer_segment_id', 'No segment found');
+                update_post_meta($orderId, '_customer_segment_name', 'No segment found');
+            }
+        }
+    }
+
+    public function showProductQtyBasedCart(): void
+    {
+        global $woocommerce;
+
+        if (is_product()) {
+            $productId = get_the_ID();
+        } elseif (is_cart()) {
+            $productId = null;
+        }
+
+        $quantity = 0;
+
+        if (is_cart()) {
+            foreach ($woocommerce->cart->get_cart() as $cartItemKey => $cartItem) {
+                if (null === $productId || $cartItem['product_id'] === $productId) {
+                    $quantity = $cartItem['quantity'];
+                    break;
+                }
+            }
+        } elseif (is_product() && $productId) {
+            $user = get_current_user_id();
+            if ($user) {
+                $userData = get_userdata($user);
+                $userEmail = $userData->user_email;
+                $customerSegment = new CustomerSegmentModel();
+                $customer = $customerSegment->findByEmail($userEmail);
+                if (isset($customer->customer_email) && $userEmail == $customer->customer_email) {
+                    $segmentPrice = SegmentPriceProductBack::getSegmentPrice($productId, $customer->customer_email, $quantity);
+                    $productPrice = wc_price($segmentPrice);
+
+                    foreach ($woocommerce->cart->get_cart() as $cartItemKey => $cartItem) {
+                        if ($cartItem['product_id'] === $productId) {
+                            $quantity = $cartItem['quantity'];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($quantity > 0) {
+            $jsUrl = plugins_url('storekeeper-for-woocommerce/assets/js/price.js');
+
+            wp_enqueue_script('quantity-update-script', $jsUrl, ['jquery'], null, true);
+            wp_localize_script('quantity-update-script', 'productData', [
+                'quantity' => $quantity,
+                'price' => $productPrice ?? 0,
+            ]);
+        }
+    }
+
+    public function enqueueMediaUploaderScripts()
+    {
+        $jsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/upload-image.js');
         wp_enqueue_script('jquery');
-        wp_enqueue_style('custom-modal-css', $cssUrl);
-        wp_enqueue_script('wishlist-js', $wishlistJsUrl, array('jquery'), null, true);
-        wp_enqueue_script('order-js', $orderJsUrl, array('jquery'), null, true);
-        wp_localize_script('order-js', 'ajax_obj', array(
-            'admin_url' => admin_url('admin-ajax.php')
+        wp_enqueue_script('image-upload-script', $jsUrl, array('jquery'), null, true);
+
+        wp_localize_script('image-upload-script', 'ajax_object', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('upload_product_image_nonce')
         ));
     }
 
-    public function createWishlistsPageOnPluginActivation(): void
+    public function handleProductImageUpload()
     {
-        $page_check = get_page_by_path('wishlists');
-        if (!$page_check) {
-            $new_page = array(
-                'post_title' => 'Wishlists',
-                'post_content' => '[wishlists_list]',
-                'post_status' => 'publish',
-                'post_type' => 'page',
-            );
-            wp_insert_post($new_page);
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'upload_product_image_nonce')) {
+            wp_send_json_error(['message' => __('Nonce verification failed', I18N::DOMAIN)]);
+            return;
+        }
+        
+        if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
+            $uploaded_file = $_FILES['file'];
+
+            $upload_dir = wp_upload_dir();
+            $upload_path = $upload_dir['path'] . '/' . basename($uploaded_file['name']);
+
+            if (move_uploaded_file($uploaded_file['tmp_name'], $upload_path)) {
+                $image_url = $upload_dir['url'] . '/' . basename($uploaded_file['name']);
+                wp_send_json_success(['url' => $image_url]);
+            } else {
+                wp_send_json_error(['message' => __('File upload failed', I18N::DOMAIN)]);
+            }
+        } else {
+            wp_send_json_error(['message' => __('No file uploaded', I18N::DOMAIN)]);
         }
     }
 
-    public function addWishlistLinkToMenu($items, $args): mixed
-    {
-        if (is_user_logged_in() && 'primary' === $args->theme_location) {
-            $wishlists_page = get_page_by_path('wishlists');
-            if ($wishlists_page) {
-                $wishlist_url = get_permalink($wishlists_page->ID);
-                $wishlist_link = '<li><a href="' . esc_url($wishlist_url) . '">' . __('My Wishlist', I18N::DOMAIN) . '</a></li>';
-                $items .= $wishlist_link;
-            }
-        }
-        return $items;
-    }
-
-    public function changeWishlistPageHtml(): void
-    {
-        $current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $last_segment = basename(parse_url($current_url, PHP_URL_PATH));
-        if ($last_segment == 'wishlists') {
-            $template_path = plugin_dir_path(__FILE__) . 'Frontend/page-wishlists.php';
-            if (file_exists($template_path)) {
-                include($template_path);
-                exit;
-            }
-        }
-
-        if (strpos($current_url, '/wishlists/') !== false) {
-            $template_path = plugin_dir_path(__FILE__) . 'Frontend/page-wishlist-products.php';
-            if (file_exists($template_path)) {
-                include($template_path);
-                exit;
-            }
-        }
-    }
 }

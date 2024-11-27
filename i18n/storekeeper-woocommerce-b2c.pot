@@ -1,17 +1,19 @@
 # Copyright (C) 2024 StoreKeeper for WooCommerce
 # This file is distributed under the same license as the StoreKeeper for WooCommerce package.
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
 "woocommerce\n"
-"POT-Creation-Date: 2024-05-01 14:34:55+00:00\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-11-27 23:10+0200\n"
 "PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.5\n"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:116
 msgid "Your allowed memory size has been exhausted."
@@ -2693,173 +2695,179 @@ msgstr ""
 msgid "woocommerce,e-commerce, woo,sales,store"
 msgstr ""
 
-
 msgid "Free Shipping"
-msgstr "Gratis Verzending"
+msgstr ""
 
 msgid "Minimum Cost (%s)"
-msgstr "Minimum Cost (%s)"
-
+msgstr ""
 
 msgid "Customer Segments"
-msgstr "Customer Segments"
+msgstr ""
 
 msgid "Customer Segment Prices"
-msgstr "Customer Segment Prices"
+msgstr ""
 
 msgid "Customer Segment"
-msgstr "Customer Segment"
+msgstr ""
 
 msgid "No items available."
-msgstr "No items available."
-
-msgid "ID"
-msgstr "ID"
+msgstr ""
 
 msgid "Customer Segment Name"
-msgstr "Customer Segment Name"
-
-msgid "Product"
-msgstr "Product"
+msgstr ""
 
 msgid "From quantity"
-msgstr "From quantity"
+msgstr ""
 
 msgid "Price"
-msgstr "Price"
+msgstr ""
 
 msgid "N/A"
-msgstr "N/A"
+msgstr ""
 
 msgid "Import Customer Segment Prices"
-msgstr "Import Customer Segment Prices"
+msgstr ""
 
 msgid "Import Customer Segments"
-msgstr "Import Customer Segments"
+msgstr ""
 
 msgid "Show"
-msgstr "Show"
-
-msgid "Customer Email"
-msgstr "Customer Email"
-
-msgid "Name"
-msgstr "Name"
-
-msgid "Action"
-msgstr "Action"
+msgstr ""
 
 msgid "Please upload a CSV file."
-msgstr "Please upload a CSV file."
+msgstr ""
 
 msgid "Row %s is missing expected columns"
-msgstr "Row %s is missing expected columns"
+msgstr ""
 
 msgid "CSV imported successfully!"
-msgstr "CSV imported successfully!"
+msgstr ""
 
 msgid "Failed to open the file."
-msgstr "Failed to open the file."
+msgstr ""
 
 msgid "Skipping duplicate segment with ID: %s"
-msgstr "Skipping duplicate segment with ID: %s"
+msgstr ""
 
 msgid "No segments found for customer: %s"
-msgstr "No segments found for customer: %s"
+msgstr ""
 
 msgid "From Qty"
-msgstr "From Qty"
+msgstr ""
 
 msgid "Select a variation to view segment prices."
-msgstr "Select a variation to view segment prices."
+msgstr ""
 
 msgid "No segment prices available for this product."
-msgstr "No segment prices available for this product."
+msgstr ""
 
 msgid "No segment prices available for this variation."
-msgstr "No segment prices available for this variation."
-
+msgstr ""
 
 msgid "My Wishlist"
-msgstr "My Wishlist"
+msgstr ""
 
 msgid "Add to wishlist"
-msgstr "Add to wishlist"
+msgstr ""
 
 msgid "Login to Add to Wishlist"
-msgstr "Login to Add to Wishlist"
+msgstr ""
 
 msgid "Or Create a new Wishlist"
-msgstr "Or Create a new Wishlist"
+msgstr ""
 
 msgid "Create wishlist"
-msgstr "Create wishlist"
+msgstr ""
 
 msgid "Add product to your wishlists"
-msgstr "Add product to your wishlists"
+msgstr ""
 
 msgid "Select from your wishlist"
-msgstr "Select from your wishlist"
+msgstr ""
 
 msgid "Select the option"
-msgstr "Select the option"
+msgstr ""
 
 msgid "Select Wishlist"
-msgstr "Select Wishlist"
+msgstr ""
 
 msgid "New wishlist %s created successfully!"
-msgstr "New wishlist %s created successfully!"
+msgstr ""
 
 msgid "There was an error creating the wishlist."
-msgstr "There was an error creating the wishlist."
+msgstr ""
 
 msgid "Invalid order ID."
-msgstr "Invalid order ID."
+msgstr ""
 
 msgid "Order not found."
-msgstr "Order not found."
+msgstr ""
 
 msgid "No products found in this order."
-msgstr "No products found in this order."
+msgstr ""
 
 msgid "Products added to wishlist."
-msgstr "Products added to wishlist."
+msgstr ""
 
 msgid "Orderlijsten"
-msgstr "Orderlijsten"
+msgstr ""
 
 msgid "%d lijsten"
-msgstr "%d lijsten"
+msgstr ""
 
 msgid "Last edited: %s"
-msgstr "Last edited: %s"
+msgstr ""
 
 msgid "Nieuwe lijst"
-msgstr "Nieuwe lijst"
+msgstr ""
 
 msgid "Wishlist Name"
-msgstr "Wishlist Name"
+msgstr ""
 
 msgid "No wishlists found."
-msgstr "No wishlists found."
+msgstr ""
 
 msgid "Wishlist not found."
-msgstr "Wishlist not found."
+msgstr ""
 
 msgid "Orders importeren"
-msgstr "Orders importeren"
+msgstr ""
 
 msgid "Zoek naar producten op basis van de titel, SKU..."
-msgstr "Zoek naar producten op basis van de titel, SKU..."
+msgstr ""
 
 msgid "Zoek naar ID, Datum"
-msgstr "Zoek naar ID, Datum"
-
-msgid "Products"
-msgstr "Products"
+msgstr ""
 
 msgid "Lijst opslaan"
-msgstr "Lijst opslaan"
+msgstr ""
 
 msgid "Alles toevoegen aan winkelmand "
-msgstr "Alles toevoegen aan winkelmand "
+msgstr ""
+
+msgid "File upload failed"
+msgstr ""
+
+msgid "Nonce verification failed"
+msgstr ""
+
+msgid "No file uploaded"
+msgstr ""
+
+msgid "Would you like a text on the product?"
+msgstr ""
+
+msgid "free"
+msgstr ""
+
+msgid "Upload Image"
+msgstr ""
+
+msgid "Would you like an image on the product?"
+msgstr ""
+
+msgid "Select an image"
+msgstr ""
+
+msgid "Upload"
+msgstr ""
