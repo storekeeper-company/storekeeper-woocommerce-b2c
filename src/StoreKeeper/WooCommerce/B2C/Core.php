@@ -583,13 +583,23 @@ HTML;
 
     public function enqueueMediaUploaderScripts()
     {
+        $cssUrl = plugins_url('storekeeper-for-woocommerce/resources/css/customized-orders.css');
+        wp_enqueue_style('image-upload-style', $cssUrl, array(), null);
+
         $jsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/upload-image.js');
         wp_enqueue_script('jquery');
         wp_enqueue_script('image-upload-script', $jsUrl, array('jquery'), null, true);
 
         wp_localize_script('image-upload-script', 'ajax_object', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('upload_product_image_nonce')
+            'nonce' => wp_create_nonce('upload_product_image_nonce'),
+            'translations' => array(
+                'please_select_image' => __('Please select an image first.', I18N::DOMAIN),
+                'image_too_small' => __('Image is too small. Minimum dimensions are {width}x{height}.', I18N::DOMAIN),
+                'image_too_large' => __('Image is too large. Maximum dimensions are {width}x{height}.', I18N::DOMAIN),
+                'upload_success' => __('Image uploaded successfully!', I18N::DOMAIN),
+                'upload_error' => __('An error occurred while uploading the image.', I18N::DOMAIN),
+            ),
         ));
     }
 

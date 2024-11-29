@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-11-27 23:09+0200\n"
+"PO-Revision-Date: 2024-11-29 10:28+0200\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n"
 "Language: nl_NL\n"
@@ -2597,3 +2597,18 @@ msgstr "Select an image"
 
 msgid "Upload"
 msgstr "Upload"
+
+msgid "Please select an image first."
+msgstr "Please select an image first."
+
+msgid "Image is too small. Minimum dimensions are {width}x{height}."
+msgstr "Image is too small. Minimum dimensions are {width}x{height}."
+
+msgid "Image is too large. Maximum dimensions are {width}x{height}."
+msgstr "Image is too large. Maximum dimensions are {width}x{height}."
+
+msgid "Image uploaded successfully!"
+msgstr "Image uploaded successfully!"
+
+msgid "An error occurred while uploading the image."
+msgstr "An error occurred while uploading the image."

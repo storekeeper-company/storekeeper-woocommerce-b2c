@@ -5,11 +5,11 @@ use StoreKeeper\WooCommerce\B2C\I18N;
 
 $max_text_length = isset($addon['max_text_length']) ? $addon['max_text_length'] : '';
 
-echo '<div class="sk-addon-select sk-addon-' . esc_attr($addon['type']) . '" 
+echo '<div class="sk-addon-select-text sk-addon-' . esc_attr($addon['type']) . '" 
     ' . ProductAddOnHandler::FORM_DATA_SK_ADDON_GROUP_ID . '="' . esc_attr($addon['product_addon_group_id']) . '">';
 
 echo '<label for="agree">
-        <input type="checkbox" name="agree" id="agree" checked disabled> 
+        <input type="checkbox" name="agree" id="agree-text" checked disabled> 
         <strong style="vertical-align: middle">' . __(
         'Required Text', I18N::DOMAIN
     ) . '</strong>
@@ -21,30 +21,13 @@ foreach ($addon['options'] as $option) {
     echo esc_html($option['title']) .
         '<span style="font-size: 0.8em;">' .
         ($option['ppu_wt'] > 0
-            ? '+' . get_woocommerce_currency_symbol(get_woocommerce_currency()) . ' ' . esc_html($option['ppu_wt'])
+            ? '+' .esc_html(strip_tags(wc_price($option['ppu_wt'])))
             : ' (' . __('free', I18N::DOMAIN) . ')') .
         '</span>';
     echo '<textarea name="addon_text[' . esc_attr($addon['product_addon_group_id']) . '][' . esc_attr($option['id']) . '][' . esc_attr(ProductAddOnHandler::ADDON_TYPE_REQUIRED_TEXT) . ']" 
             class="addon-text required" maxlength="' . esc_attr($max_text_length) . '" required></textarea>';
-    echo '<div id="validation-message-' . esc_attr($option['id']) . '" class="validation-message" style="margin-top: 10px;"></div>';
     echo '</li>';
 }
 echo '</ul>';
 echo '</div>';
 ?>
-
-<style>
-    .addon-text {
-        height: 10%;
-        width: 100%;
-    }
-
-    li {
-        list-style: none;
-    }
-    
-    .validation-message {
-        color: red;
-        font-size: 0.9em;
-    }
-</style>

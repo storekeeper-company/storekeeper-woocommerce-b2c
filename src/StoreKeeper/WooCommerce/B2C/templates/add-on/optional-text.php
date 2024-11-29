@@ -20,7 +20,7 @@ foreach ($addon['options'] as $option) {
     echo esc_html($option['title']) .
         '<span style="font-size: 0.8em;">' .
         ($option['ppu_wt'] > 0
-            ? '+' . get_woocommerce_currency_symbol(get_woocommerce_currency()) . ' ' . esc_html($option['ppu_wt'])
+            ? '+' .esc_html(strip_tags(wc_price($option['ppu_wt'])))
             : ' (' . __('free',  I18N::DOMAIN) . ')') .
         '</span>';
     echo '<textarea name="addon_text[' . esc_attr($addon['product_addon_group_id']) . '][' . esc_attr($option['id']) . '][' . esc_attr(ProductAddOnHandler::ADDON_TYPE_REQUIRED_TEXT) . ']" 
@@ -30,13 +30,3 @@ foreach ($addon['options'] as $option) {
 echo '</ul>';
 echo '</div>';
 ?>
-
-<style>
-    .addon-text {
-        height: 10%;
-        width: 100%;
-    }
-    li {
-        list-style: none;
-    }
-</style>

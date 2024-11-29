@@ -510,7 +510,6 @@ class ProductAddOnHandler implements WithHooksInterface
 
     protected function getAddOnsForProduct(\WC_Product $product): array
     {
-        $log_file = ABSPATH . 'wp-content/uploads/wc-logs/fatal-errors-2024-11-26-7e3e3941286e646fe7954a90133ffb99.log';
         $addons = $this->getAddOnsFromApiWithWcProducts($product);
         /* @var \WC_Product $wc_product */
         $result = [];
@@ -599,9 +598,7 @@ class ProductAddOnHandler implements WithHooksInterface
             }
             $result[] = $addon;
         }
-
-
-        error_log("RESULT: " . print_r($result, true) . "\n", 3, $log_file);
+        
         return $result;
     }
 
@@ -616,7 +613,6 @@ class ProductAddOnHandler implements WithHooksInterface
     {
         $required_price = 0;
         $price_addon_changes = [];
-        $log_file = ABSPATH . 'wp-content/uploads/wc-logs/fatal-errors-2024-11-26-7e3e3941286e646fe7954a90133ffb99.log';
         foreach ($addons as $addon) {
             $type = $addon['type'];
             if ($this->isRequiredType($type)) {
@@ -630,9 +626,6 @@ class ProductAddOnHandler implements WithHooksInterface
                 }
             }
         }
-
-        error_log("Price Addon Changes: " . print_r($price_addon_changes, true) . "\n", 3, $log_file);
-
         return [$required_price, $price_addon_changes];
     }
 
@@ -760,44 +753,26 @@ class ProductAddOnHandler implements WithHooksInterface
 
         foreach ($_POST['addon_text'] as $addon_group_id => $options) {
             foreach ($options as $option_id => $addon_text_data) {
-                $requiredText = isset($addon_text_data[self::ADDON_TYPE_REQUIRED_TEXT])
-                    ? $addon_text_data[self::ADDON_TYPE_REQUIRED_TEXT]
-                    : null;
-                if ($requiredText) {
+
+                if (!empty($addon_text_data[self::ADDON_TYPE_REQUIRED_TEXT])) {
                     $all_selected_option_ids[] = $option_id;
-                } else {
-                    $all_selected_option_ids[] = '';
                 }
-                $optionalText = isset($addon_text_data[self::ADDON_TYPE_TEXT])
-                    ? $addon_text_data[self::ADDON_TYPE_TEXT]
-                    : null;
-                if ($optionalText) {
+
+                if (!empty($addon_text_data[self::ADDON_TYPE_TEXT])) {
                     $all_selected_option_ids[] = $option_id;
-                } else {
-                    $all_selected_option_ids[] = '';
                 }
             }
         }
 
         foreach ($_POST['addon_image'] as $addon_group_id => $options) {
             foreach ($options as $option_id => $addon_image_data) {
-                $requiredImage = isset($addon_image_data[self::ADDON_TYPE_REQUIRED_IMAGE])
-                    ? $addon_image_data[self::ADDON_TYPE_REQUIRED_IMAGE]
-                    : null;
 
-                if ($requiredImage) {
+                if (!empty($addon_image_data[self::ADDON_TYPE_REQUIRED_IMAGE])) {
                     $all_selected_option_ids[] = $option_id;
-                } else {
-                    $all_selected_option_ids[] = '';
                 }
 
-                $optionalImage = isset($addon_image_data[self::ADDON_TYPE_IMAGE])
-                    ? $addon_image_data[self::ADDON_TYPE_IMAGE]
-                    : null;
-                if ($optionalImage) {
+                if (!empty($addon_image_data[self::ADDON_TADDON_TYPE_IMAGE])) {
                     $all_selected_option_ids[] = $option_id;
-                } else {
-                    $all_selected_option_ids[] = '';
                 }
             }
         }
