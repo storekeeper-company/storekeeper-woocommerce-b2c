@@ -382,6 +382,38 @@ class EventsHandler
         }
     }
 
+    private function handleShopInfoEvents($events): void
+    {
+        $taskData = ['storekeeper_id' => (int) $this->getId()];
+        $module = $this->getModule();
+
+        foreach ($events as $event) {
+            $scope = $event['scope'] ?? null;
+            $eventType = $event['event'];
+            $fullEventType = "$module::$eventType";
+
+            $this->handleShopInfoLocationEvents($fullEventType, $taskData, $scope);
+        }
+    }
+
+    private function handleShopInfoLocationEvents(string $eventType, array $taskData, ?string $scope = null): void
+    {
+        switch ($eventType) {
+            case 'RelationsModule::Location::updated':
+                if (null !== $scope && '' !== ($scope = trim($scope))) {
+                    $taskData['scope'] = $scope;
+                }
+                TaskHandler::scheduleTask(TaskHandler::LOCATION_UPDATE, $this->getId(), $taskData, true);
+                break;
+            case 'RelationsModule::Location::activated':
+                TaskHandler::scheduleTask(TaskHandler::LOCATION_ACTIVATED, $this->getId(), $taskData, true);
+                break;
+            case 'RelationsModule::Location::deactivated':
+                TaskHandler::scheduleTask(TaskHandler::LOCATION_DEACTIVATED, $this->getId(), $taskData, true);
+                break;
+        }
+    }
+
     private function processEvents($events)
     {
         try {
@@ -394,6 +426,7 @@ class EventsHandler
             if (StoreKeeperOptions::SYNC_MODE_PRODUCT_ONLY === StoreKeeperOptions::getSyncMode()) {
                 $this->processProductOnlyEvents($events);
             }
+            $this->handleShopInfoEvents($events);
         } catch (\Throwable $exception) {
             $this->logger->error(
                 'Failed to handle events',

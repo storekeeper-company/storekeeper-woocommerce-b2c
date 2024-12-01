@@ -565,6 +565,21 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 );
             }
         );
+
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) {
+                $module->shouldReceive('listLocationsForHook')->andReturnUsing(
+                    function ($got) {
+                        return [
+                            'data' => [],
+                            'total' => 0,
+                            'count' => 0
+                        ];
+                    }
+                );
+            }
+        );
     }
 
     protected function mockSyncWoocommerceBlogModule()

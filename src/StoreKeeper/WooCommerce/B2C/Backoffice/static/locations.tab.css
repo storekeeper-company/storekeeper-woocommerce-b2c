@@ -1,0 +1,36 @@
+.storekeeper-page-storekeeper-locations .storekeeper-status {
+    display: inline-block;
+}
+.storekeeper-page-storekeeper-locations .storekeeper-status .storekeeper-status-danger {
+    border-radius: 0;
+    margin-right: 0;
+}
+.storekeeper-page-storekeeper-locations .storekeeper-location-heading {
+    clear: both;
+}
+.storekeeper-page-storekeeper-locations .storekeeper-location-heading .storekeeper-status {
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.storekeeper-page-storekeeper-locations .storekeeper-status .storekeeper-status-default {
+    background-color: #2271b1;
+    border-radius: 4px;
+    color: white;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500; 
+    line-height: 18px;
+    padding: 3px 8px;
+}
+.storekeeper-page-storekeeper-locations .storekeeper-body-name .storekeeper-status,
+.storekeeper-page-storekeeper-locations .storekeeper-location-heading .storekeeper-status {
+    margin-left: 10px;
+    vertical-align: middle;
+}
+.storekeeper-page-storekeeper-locations .storekeeper-location-heading .button-locations {
+    float: right;
+}
+.storekeeper-page-storekeeper-locations .storekeeper-location-heading .button-locations::before {
+    content: '\276E';
+    margin-right: 6px;
+}

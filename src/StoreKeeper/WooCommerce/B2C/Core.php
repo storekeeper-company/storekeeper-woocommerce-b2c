@@ -62,6 +62,7 @@ use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
 use StoreKeeper\WooCommerce\B2C\Tools\Media;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
+use StoreKeeper\WooCommerce\B2C\Blocks\BlockTypesController;
 
 class Core
 {
@@ -172,6 +173,8 @@ class Core
             $PaymentGateway = new PaymentGateway();
             $PaymentGateway->registerHooks();
         }
+
+        new BlockTypesController;
 
         $this->versionChecks();
         $this->registerMarkDown();

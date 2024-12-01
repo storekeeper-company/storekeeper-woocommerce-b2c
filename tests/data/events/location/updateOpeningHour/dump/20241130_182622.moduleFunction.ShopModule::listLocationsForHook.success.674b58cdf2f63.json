@@ -1,0 +1,122 @@
+{
+    "success": true,
+    "call_id": "674b58cdf2f63",
+    "module_name": "ShopModule",
+    "function": "listLocationsForHook",
+    "params": [
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__=",
+                "val": 2
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "address": {
+                    "id": 26,
+                    "relation_data_id": 2,
+                    "date_created": "2024-11-07 10:00:45+01:00",
+                    "deleted": false,
+                    "state": "Gelderland",
+                    "city": "Zutphen",
+                    "zipcode": "7202 BV",
+                    "street": "Pollaan",
+                    "streetnumber": "43",
+                    "date_updated": "2024-11-30 19:08:37+01:00",
+                    "country_iso2": "NL",
+                    "published": false,
+                    "contact_set_id": 21,
+                    "contact_set": {
+                        "id": 21,
+                        "relation_data_id": 2,
+                        "date_created": "2024-11-08 08:59:01+01:00",
+                        "deleted": false,
+                        "email": "contact@backstage-it.nl",
+                        "phone": "++3157 57 57 113",
+                        "www": "https:\/\/backstage-it.nl",
+                        "date_updated": "2024-11-30 19:08:37+01:00",
+                        "allow_general_communication": false,
+                        "allow_offer_communication": false,
+                        "allow_special_communication": false
+                    }
+                },
+                "opening_hour": {
+                    "id": 1,
+                    "relation_data_id": 2,
+                    "regular_periods": [
+                        {
+                            "open_day": "monday",
+                            "open_time": "08:00",
+                            "close_time": "17:00"
+                        },
+                        {
+                            "open_day": "tuesday",
+                            "open_time": "08:00",
+                            "close_time": "17:00"
+                        },
+                        {
+                            "open_day": "wednesday",
+                            "open_time": "08:00",
+                            "close_time": "17:00"
+                        },
+                        {
+                            "open_day": "thursday",
+                            "open_time": "08:00",
+                            "close_time": "17:00"
+                        },
+                        {
+                            "open_day": "friday",
+                            "open_time": "08:00",
+                            "close_time": "17:00"
+                        }
+                    ],
+                    "date_created": "2024-11-07 10:01:41+01:00",
+                    "date_updated": "2024-11-07 10:01:41+01:00",
+                    "location_id": 2
+                },
+                "id": 2,
+                "relation_data_id": 2,
+                "name": "Backstage IT B.V.",
+                "is_default": false,
+                "is_active": true,
+                "address_id": 26,
+                "date_created": "2024-11-07 10:00:45+01:00",
+                "date_updated": "2024-11-07 10:00:45+01:00",
+                "object_instance_id": 215,
+                "opening_special_hours": [
+                    {
+                        "id": 10,
+                        "location_id": 2,
+                        "date": "2024-12-31",
+                        "is_open": true,
+                        "periods": [
+                            {
+                                "open_time": "11:00",
+                                "close_time": "16:30"
+                            }
+                        ],
+                        "date_created": "2024-11-18 07:48:14+01:00",
+                        "date_updated": "2024-11-19 15:58:02+01:00",
+                        "name": "TEST"
+                    }
+                ]
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_type": "moduleFunction",
+    "time_ms": 224.0,
+    "_version": "1.0",
+    "_timestamp": "2024-11-30T18:26:22+00:00"
+}

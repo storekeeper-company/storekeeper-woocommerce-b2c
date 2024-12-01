@@ -1,15 +1,14 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: StoreKeeper for WooCommerce\n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-10-15 17:52+0300\n"
-"Last-Translator: lokalise.com\n"
-"Language-Team: lokalise.com\n"
-"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: lokalise.com\n"
+"Project-Id-Version: StoreKeeper for WooCommerce\n"
+"PO-Revision-Date: 2024-11-28 16:44\n"
+"Last-Translator: lokalise.com\n"
+"Language-Team: lokalise.com\n\n"
+"Language: de_DE\n"
 
 #: storekeeper-woocommerce-b2c.php:35
 msgid "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
@@ -356,12 +355,8 @@ msgid "Sql on %s::%s operation: %s"
 msgstr "SQL für %s::%s-Operation: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:153
-msgid ""
-"Stating payment %s\n"
-" eid: %s, trx: %s"
-msgstr ""
-"Angabe der Zahlung %s\n"
-" eid: %s, trx: %s"
+msgid "Stating payment %s\n eid: %s, trx: %s"
+msgstr "Angabe der Zahlung %s\n eid: %s, trx: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:32
 msgid "StoreKeeper Seo"
@@ -400,12 +395,8 @@ msgid "Tag import"
 msgstr "Tag-Import"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:166
-msgid ""
-"The order\\'s payment status received: %s\n"
-"trx=%s"
-msgstr ""
-"Zahlungsstatus der Bestellung erhalten: %s\n"
-"trx=%s"
+msgid "The order\\'s payment status received: %s\ntrx=%s"
+msgstr "Zahlungsstatus der Bestellung erhalten: %s\ntrx=%s"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:54
 msgid "The payment has been canceled, please try again"
@@ -514,9 +505,3 @@ msgstr "umleiten"
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"
 msgstr "woocommerce,e-commerce, woo,verkauf,store,geschaft"
-
-msgid "Free Shipping"
-msgstr "Free Shipping"
-
-msgid "Minimum Cost (%s)"
-msgstr "Minimum Cost (%s)"

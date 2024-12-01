@@ -37,6 +37,9 @@ use StoreKeeper\WooCommerce\B2C\Tasks\ShippingMethodImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TagDeleteTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TagImportTask;
 use StoreKeeper\WooCommerce\B2C\Tasks\TriggerVariationSaveActionTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\LocationActivateTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\LocationDeactivateTask;
+use StoreKeeper\WooCommerce\B2C\Tasks\LocationUpdateTask;
 
 class TaskHandler
 {
@@ -60,6 +63,11 @@ class TaskHandler
 
     public const REDIRECT_IMPORT = 'redirect-import';
     public const REDIRECT_DELETE = 'redirect-delete';
+
+    public const LOCATION_UPDATE = 'location-update';
+    public const LOCATION_ACTIVATED = 'location-activated';
+    public const LOCATION_DEACTIVATED = 'location-deactivated';
+    public const LOCATION_DELETE = 'location-delete';
 
     public const CATEGORY_DELETE = 'category-delete';
     public const PRODUCT_DELETE = 'product-delete';
@@ -106,6 +114,7 @@ class TaskHandler
     public const PARENT_PRODUCT_RECALCULATION_TYPE_GROUP = 'parent-product-recalculation';
     public const SHIPPING_METHOD_GROUP = 'shipping-method';
     public const REPORT_ERROR_TYPE_GROUP = 'report-error';
+    public const LOCATION_TYPE_GROUP = 'location';
 
     public const TYPE_GROUPS = [
         self::OTHER_TYPE_GROUP,
@@ -121,6 +130,7 @@ class TaskHandler
         self::PARENT_PRODUCT_RECALCULATION_TYPE_GROUP,
         self::SHIPPING_METHOD_GROUP,
         self::REPORT_ERROR_TYPE_GROUP,
+        self::LOCATION_TYPE_GROUP
     ];
 
     protected $trashed_tasks = [];
@@ -218,6 +228,10 @@ class TaskHandler
                 return self::SHIPPING_METHOD_GROUP;
             case self::REPORT_ERROR:
                 return self::REPORT_ERROR_TYPE_GROUP;
+            case self::LOCATION_ACTIVATED:
+            case self::LOCATION_DEACTIVATED:
+            case self::LOCATION_UPDATE:
+                return self::LOCATION_TYPE_GROUP;
             default:
                 return self::OTHER_TYPE_GROUP;
         }
@@ -250,6 +264,8 @@ class TaskHandler
                 return __('Shipping method', I18N::DOMAIN);
             case self::REPORT_ERROR_TYPE_GROUP:
                 return __('Report error', I18N::DOMAIN);
+            case self::OTHER_TYPE_GROUP:
+                return __('Location', I18N::DOMAIN);
             default:
                 return __('Other', I18N::DOMAIN);
         }
@@ -342,6 +358,15 @@ class TaskHandler
                 break;
             case self::REPORT_ERROR:
                 $title = __('Report error', I18N::DOMAIN)."(task_id=$id)";
+                break;
+            case self::LOCATION_ACTIVATED:
+                $title = __('Location activated', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::LOCATION_DEACTIVATED:
+                $title = __('Location deactivated', I18N::DOMAIN)."(id=$id)";
+                break;
+            case self::LOCATION_UPDATE:
+                $title = __('Location update', I18N::DOMAIN)."(id=$id)";
                 break;
             default:
                 $title = "$type (id=$id)";
@@ -516,6 +541,15 @@ class TaskHandler
                 break;
             case self::SHIPPING_METHOD_DELETE:
                 $import = new ShippingMethodDeleteTask();
+                break;
+            case self::LOCATION_ACTIVATED:
+                $import = new LocationActivateTask;
+                break;
+            case self::LOCATION_DEACTIVATED:
+                $import = new LocationDeactivateTask;
+                break;
+            case self::LOCATION_UPDATE:
+                $import = new LocationUpdateTask;
                 break;
             case self::REPORT_ERROR:
                 return; // nothing to handle

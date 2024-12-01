@@ -1,0 +1,50 @@
+{
+    "name": "storekeeper/location",
+    "title": "Location",
+    "category": "storekeeper",
+    "icon": "store",
+    "keywords": [ "StoreKeeper", "Locations" ],
+    "description": "Display one or more locations.",
+    "textdomain": "storekeeper",
+    "apiVersion": 2,
+    "editorScript": "file:./block.js",
+    "style": "file:./style.css",
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "attributes": {
+        "location": {
+            "type": "integer"
+        },
+        "show_address": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_opening_hour": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_opening_special_hours": {
+            "type": "boolean",
+            "default": true
+        }
+    },
+    "supports": {
+        "align": true,
+        "color": {
+            "background": true,
+            "text": true,
+            "heading": true,
+            "link": true
+        },
+        "html": false,
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "textAlign": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true
+        }
+    }
+}

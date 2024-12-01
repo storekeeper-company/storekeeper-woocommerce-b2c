@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
 "woocommerce\n"
-"POT-Creation-Date: 2024-05-01 14:34:55+00:00\n"
+"POT-Creation-Date: 2024-11-28 15:43:54+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -56,80 +56,100 @@ msgid ""
 "your memory limit."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:75
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:76
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:54
+msgid "Woocommerce Builder cannot be loaded."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:55
+msgid " It was tested with version builder version: %s. "
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:66
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:67
+#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypesController.php:69
 msgid "StoreKeeper"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:102
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:93
 msgid "Webshop Builder"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:117
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:108
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/DashboardPage.php:13
 msgid "Dashboard"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:123
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:114
 msgid "Logs"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:127
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:118
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/LocationsPage.php:14
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:470
+msgid "Locations"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:122
 msgid "Tools"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:131
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:126
 msgid "Settings"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:135
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:130
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StatusPage.php:13
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:204
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:127
 msgid "Status"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:23
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:26
+msgid "Order sync"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:51
 msgid "%s sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:44
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:73
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:41
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:97
 msgid "Backoffice ID"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:47
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:76
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:44
 msgid "Last sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:55
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:84
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:52
 msgid "Open in backoffice"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:62
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:91
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:59
 msgid "Force sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:66
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:95
 msgid ""
 "All orders won't be synced automatically with your currently selected "
 "Synchronization mode, but you can do it manually using the Force sync button"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:108
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:129
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:143
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:168
 msgid "Failed to sync order"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:108
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:143
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:136
 msgid "Please try again"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:137
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:180
 msgid "Order was synced successfully."
 msgstr ""
 
@@ -187,19 +207,19 @@ msgstr ""
 msgid "attribute term"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:149
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:152
 msgid ""
 "This order is marked as completed, any changes might not be synced to the "
 "backoffice"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:166
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:176
 msgid ""
 "This %s is synced from the backoffice, thus any changes won't be synced back "
 "and can be overwritten when made in WooCommerce!"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:244
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:254
 msgid ""
 "It seems that its been %s ago since the process tasks cron has been running, "
 "Contact your system administrator to solve this problem."
@@ -770,7 +790,7 @@ msgid "attributes"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:201
-#: src/StoreKeeper/WooCommerce/B2C/Imports/AttributeOptionImport.php:111
+#: src/StoreKeeper/WooCommerce/B2C/Imports/AttributeOptionImport.php:112
 msgid "attribute options"
 msgstr ""
 
@@ -779,7 +799,7 @@ msgid "product blueprints"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:203
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1665
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1716
 msgid "products"
 msgstr ""
 
@@ -898,6 +918,119 @@ msgid ""
 "product images are stored on the web-shop server that way)"
 msgstr ""
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:101
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:22
+msgid "Name"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:106
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:533
+msgid "Address"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:111
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:502
+#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/template.php:67
+msgid "Regular opening hours"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:116
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:509
+#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/template.php:98
+msgid "Special opening hours"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:121
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:136
+msgid "Action"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:299
+msgid "Activated"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:299
+msgid "Deactivated"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:358
+#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/template.php:70
+msgid "Location is closed."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:382
+msgid "No special opening hours set."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:407
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:408
+msgid "View"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:471
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:268
+msgid "Location"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:474
+msgid "ID#%s"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:497
+msgid "Opening hours"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:537
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:81
+msgid "Street name"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:541
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:185
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:191
+msgid "House number"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:545
+msgid "Flat number"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:549
+msgid "Zipcode"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:553
+msgid "City"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:557
+msgid "State"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:561
+msgid "Country"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:568
+msgid "Telephone"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:575
+msgid "E-mail address"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:582
+msgid "Website"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:589
+msgid "GLN (Global Location Number)"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:692
+msgid "default"
+msgstr ""
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:61
 msgid "Total tasks"
 msgstr ""
@@ -947,10 +1080,6 @@ msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LogPurgerTab.php:182
 msgid "%s webhooks has been successfully purged"
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:22
-msgid "Name"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:26
@@ -1243,10 +1372,6 @@ msgstr ""
 msgid "Times ran"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:136
-msgid "Action"
-msgstr ""
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:190
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:419
 msgid "Retry"
@@ -1359,6 +1484,10 @@ msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/ToolsPage.php:21
 msgid "Log purger"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/Renderer.php:32
+msgid "The location is deactivated."
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/AbstractCommand.php:77
@@ -1660,42 +1789,6 @@ msgid ""
 "process-all-tasks instead."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueCheck.php:17
-msgid "Checks if there are any issues with the sync."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueCheck.php:22
-msgid ""
-"This command checks if there are any issues with the sync. When it returns "
-"nothing it means there is nothing wrong. Otherwise, there is an issue."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:19
-msgid "Fix if there are known issues with the sync."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:31
-msgid ""
-"This command fixes any known issues with the sync possible. Not all issues "
-"can be fixed using this command."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:40
-msgid ""
-"Requires the --password parameters to be set. This field is required if you "
-"want to fix the \"products active in backend not active in woocommerce\" "
-"issues. It uses this one to authenticate and call ProductsModule::"
-"listConfigurableAssociatedProducts."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:46
-msgid ""
-"Requires the --email parameters to be set. This field is required if you "
-"want to fix the \"products active in backend not active in woocommerce\" "
-"issues. It uses this one to authenticate and call ProductsModule::"
-"listConfigurableAssociatedProducts."
-msgstr ""
-
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptionPage.php:13
 msgid "Sync product attribute options with limit and offset."
 msgstr ""
@@ -1950,17 +2043,17 @@ msgid ""
 "checkout."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShopInfo.php:14
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShopInfo.php:15
 msgid "Sync shop details."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShopInfo.php:19
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShopInfo.php:20
 msgid ""
 "Sync shop details from Storekeeper Backoffice to WooCommerce (address, "
 "currency, email, etc.)."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShopInfo.php:74
+#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceShopInfo.php:77
 msgid "Done synchronizing shop information"
 msgstr ""
 
@@ -1991,14 +2084,26 @@ msgstr ""
 msgid "upsell products"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:228
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:208
+msgid "Every Day"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:255
 msgid "%s: You need to have WooCommerce installed for this add-on to work"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:294
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:321
 msgid ""
 "Your WooCommerce version (%s) is lower then the minimum required %s which "
 "could cause unexpected behaviour"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:496
+msgid "Minimum Cost (%s)"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:558
+msgid "Free Shipping"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:33
@@ -2057,6 +2162,30 @@ msgstr ""
 msgid "Postcode and house number parameter is required."
 msgstr ""
 
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:57
+msgid "Unique identifier for the location."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:80
+msgid "Invalid user ID."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:190
+msgid "Limit results to those matching active filter."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:196
+msgid "Order sort attribute ascending or descending."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:203
+msgid "Sort collection by user attribute."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:227
+msgid "Sorry, you are not allowed to list locations."
+msgstr ""
+
 #: src/StoreKeeper/WooCommerce/B2C/Exceptions/TableOperationSqlException.php:18
 msgid "Sql on %s::%s operation: %s"
 msgstr ""
@@ -2071,20 +2200,20 @@ msgid ""
 "manually."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:118
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:144
 msgid "Customer Email"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:120
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:146
 msgid "Customer phone number"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1048
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:304
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1064
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:309
 msgid "Refund via Wordpress plugin (Refund #%s)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1163
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1179
 msgid "Wordpress plugin"
 msgstr ""
 
@@ -2130,27 +2259,29 @@ msgstr ""
 msgid "Street address"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:81
-msgid "Street name"
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:185
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:191
-msgid "House number"
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:41
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CustomerEmailHandler.php:23
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CustomerEmailHandler.php:36
 msgid "Please provide a valid email address."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:74
-msgid "Emballage fee"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/OrderHookHandler.php:30
 msgid ""
 "To check your parcel status, go to <a href=\"%s\">Track & Trace page</a>."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:488
+msgid "No %s selected"
+msgstr ""
+
+#. translators: 1: product name 2: quantity in stock
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:847
+msgid ""
+"You cannot add that amount of &quot;%1$s&quot; to the cart because there is "
+"not enough stock (%2$s remaining)."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:898
+msgid "Emballage fee"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:27
@@ -2215,6 +2346,22 @@ msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/FileExportTypeHelper.php:76
 msgid "All"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:67
+msgid "Closed"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:70
+msgid "Opened"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:72
+msgid "until %s"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:74
+msgid "from %s"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/PluginConflictChecker.php:60
@@ -2341,6 +2488,10 @@ msgstr ""
 msgid "featured attributes"
 msgstr ""
 
+#: src/StoreKeeper/WooCommerce/B2C/Imports/LocationImport.php:696
+msgid "location"
+msgstr ""
+
 #: src/StoreKeeper/WooCommerce/B2C/Imports/MenuItemImport.php:429
 msgid "menu items"
 msgstr ""
@@ -2349,7 +2500,7 @@ msgstr ""
 msgid "orders"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1567
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1618
 msgid "Done processing %s items of %s (%s new / %s updated)"
 msgstr ""
 
@@ -2361,7 +2512,7 @@ msgstr ""
 msgid "redirect"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ShippingMethodImport.php:340
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ShippingMethodImport.php:341
 msgid "shipping methods"
 msgstr ""
 
@@ -2481,175 +2632,187 @@ msgstr ""
 msgid "Unable to set php configuration option %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:134
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:144
 msgid "New"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:136
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:146
 msgid "Processing"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:138
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:148
 msgid "Success"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:140
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:150
 msgid "Failed"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:230
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:244
 msgid "Product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:232
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:246
 msgid "Category"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:234
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:248
 msgid "Product stock"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:236
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:250
 msgid "Tag"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:238
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:252
 msgid "Coupon code"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:240
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:254
 msgid "Menu item"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:242
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:256
 msgid "Redirect"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:244
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:258
 msgid "Order"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:246
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:316
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:260
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:332
 msgid "Trigger variation save actions"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:248
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:319
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:262
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:335
 msgid "Parent product recalculation"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:250
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:264
 msgid "Shipping method"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:252
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:344
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:266
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:360
 msgid "Report error"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:254
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:270
 msgid "Other"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:262
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:278
 msgid "Full import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:265
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:281
 msgid "Attribute import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:268
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:284
 msgid "Category import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:271
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:287
 msgid "Product import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:274
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:290
 msgid "Product update"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:277
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:293
 msgid "Product stock update"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:280
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:296
 msgid "Tag import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:283
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:299
 msgid "Coupon code import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:286
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:302
 msgid "Order export"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:289
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:305
 msgid "Order import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:292
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:308
 msgid "Order payment status change"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:295
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:311
 msgid "Delete category"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:298
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:314
 msgid "Delete product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:301
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:317
 msgid "Deactiveer product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:304
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:320
 msgid "Activeer product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:307
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:323
 msgid "Delete tag"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:310
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:326
 msgid "Delete order"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:313
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:329
 msgid "Delete coupon code"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:322
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:338
 msgid "Menu item import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:325
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:341
 msgid "Menu item delete"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:328
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:344
 msgid "Redirect import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:331
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:347
 msgid "Redirect delete"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:335
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:351
 msgid "Shipping method import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:337
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:353
 msgid "All shipping method import"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:341
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:357
 msgid "Shipping method delete"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:363
+msgid "Location activated"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:366
+msgid "Location deactivated"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:369
+msgid "Location update"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:30
@@ -2666,7 +2829,13 @@ msgstr ""
 msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
 msgstr ""
 
-#: storekeeper-woocommerce-b2c.php:54
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-multiple-choice.php:5
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-multiple-choice.php:34
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-single-choice.php:22
+msgid "Out of stock"
+msgstr ""
+
+#: storekeeper-woocommerce-b2c.php:55
 msgid ""
 "%s: Your PHP Version is lower then the minimum required %s, Thus the "
 "activation of this plugin will not continue."
@@ -2692,10 +2861,3 @@ msgstr ""
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"
 msgstr ""
-
-
-msgid "Free Shipping"
-msgstr "Gratis Verzending"
-
-msgid "Minimum Cost (%s)"
-msgstr "Minimum Cost (%s)"

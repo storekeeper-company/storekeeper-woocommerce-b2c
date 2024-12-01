@@ -108,5 +108,7 @@ class EndpointLoader
                 );
             }
         }
+
+        (new WebService\LocationsEndpoint($namespace))->register_routes();
     }
 }

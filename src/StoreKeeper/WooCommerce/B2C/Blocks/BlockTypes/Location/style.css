@@ -1,0 +1,18 @@
+.wp-block-storekeeper-location address .url,
+.wp-block-storekeeper-location address .email,
+.wp-block-storekeeper-location address .telephone {
+    display: inline-block;
+    width: 100%;
+}
+.wp-block-storekeeper-location .opening-hours,
+.wp-block-storekeeper-location .opening-special-hours {
+    ul {
+        list-style-type: none;
+        margin-left: 0;
+        padding-left: 0;
+    }
+}
+.wp-block-storekeeper-location .opening-hours h4,
+.wp-block-storekeeper-location .opening-special-hours h4 {
+    margin-bottom: .1em;
+}
