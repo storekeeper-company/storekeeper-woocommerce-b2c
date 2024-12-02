@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-11-24 16:43+0200\n"
+"PO-Revision-Date: 2024-12-02 15:20+0200\n"
 "Last-Translator: lokalise.com\n"
 "Language-Team: lokalise.com\n"
 "Language: de_DE\n"
@@ -630,7 +630,7 @@ msgid "New wishlist %s created successfully!"
 msgstr "New wishlist %s created successfully!"
 
 msgid "There was an error creating the wishlist."
-msgstr "There was an error creating the wishlist."
+msgstr ""
 
 msgid "Invalid order ID."
 msgstr "Invalid order ID."
@@ -642,7 +642,7 @@ msgid "No products found in this order."
 msgstr "No products found in this order."
 
 msgid "Products added to wishlist."
-msgstr "Products added to wishlist."
+msgstr ""
 
 msgid "Orderlijsten"
 msgstr "Orderlijsten"
@@ -682,3 +682,45 @@ msgstr "Lijst opslaan"
 
 msgid "Alles toevoegen aan winkelmand"
 msgstr "Alles toevoegen aan winkelmand"
+
+msgid "Could not delete wishlist."
+msgstr "Could not delete wishlist."
+
+msgid "AJAX request failed."
+msgstr "AJAX request failed."
+
+msgid "Product added to wishlist!"
+msgstr "Product added to wishlist!"
+
+msgid "Failed to add product to wishlist."
+msgstr "Failed to add product to wishlist."
+
+msgid "No results found"
+msgstr "No results found"
+
+msgid "Failed to update quantity."
+msgstr "Failed to update quantity."
+
+msgid "An error occurred"
+msgstr "An error occurred"
+
+msgid "Wishlist saved successfully!"
+msgstr "Wishlist saved successfully!"
+
+msgid "Something went wrong."
+msgstr "Something went wrong."
+
+msgid "Invalid wishlist data."
+msgstr "Invalid wishlist data."
+
+msgid "Product not found in wishlist."
+msgstr "Product not found in wishlist."
+
+msgid "Wilt u het verwijderen?"
+msgstr "Wilt u het verwijderen?"
+
+msgid "Ja"
+msgstr "Ja"
+
+msgid "Nee"
+msgstr "Nee"

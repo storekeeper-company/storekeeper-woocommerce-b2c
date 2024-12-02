@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-woocommerce-b2c\n"
 "POT-Creation-Date: 2022-11-08 17:26:28+00:00\n"
-"PO-Revision-Date: 2024-11-24 16:44+0200\n"
+"PO-Revision-Date: 2024-12-02 15:20+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -2652,3 +2652,45 @@ msgstr "Lijst opslaan"
 
 msgid "Alles toevoegen aan winkelmand "
 msgstr "Alles toevoegen aan winkelmand "
+
+msgid "Could not delete wishlist."
+msgstr "Could not delete wishlist."
+
+msgid "AJAX request failed."
+msgstr "AJAX request failed."
+
+msgid "Product added to wishlist!"
+msgstr "Product added to wishlist!"
+
+msgid "Failed to add product to wishlist."
+msgstr "Failed to add product to wishlist."
+
+msgid "No results found"
+msgstr "No results found"
+
+msgid "Failed to update quantity."
+msgstr "Failed to update quantity."
+
+msgid "An error occurred"
+msgstr "An error occurred"
+
+msgid "Wishlist saved successfully!"
+msgstr "Wishlist saved successfully!"
+
+msgid "Something went wrong."
+msgstr "Something went wrong."
+
+msgid "Invalid wishlist data."
+msgstr "Invalid wishlist data."
+
+msgid "Product not found in wishlist."
+msgstr "Product not found in wishlist."
+
+msgid "Wilt u het verwijderen?"
+msgstr "Wilt u het verwijderen?"
+
+msgid "Ja"
+msgstr "Ja"
+
+msgid "Nee"
+msgstr "Nee"

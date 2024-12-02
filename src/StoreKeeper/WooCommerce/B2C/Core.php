@@ -56,7 +56,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFi
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderListHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderlistHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\WishlistHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
@@ -194,7 +194,7 @@ class Core
         $wishlistHandler = new WishlistHandler();
         $wishlistHandler->registerHooks();
 
-        $orderlistHandler = new OrderListHandler();
+        $orderlistHandler = new OrderlistHandler();
         $orderlistHandler->registerHooks();
 
         add_action('plugins_loaded', [$this, 'createWishlistsPageOnPluginActivation']);
@@ -277,8 +277,7 @@ class Core
     {
         return (defined('WP_DEBUG') && WP_DEBUG)
             || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
-            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-        ;
+            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG']);
     }
 
     public static function isDataDump(): bool
@@ -575,7 +574,7 @@ HTML;
         return $rates;
     }
 
-    public function syncAllPaidAndProcessingOrders()
+    public function syncAllPaidAndProcessingOrders(): void
     {
         $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
@@ -585,14 +584,34 @@ HTML;
     {
         $cssUrl = plugins_url('storekeeper-for-woocommerce/resources/css/wishlist.css');
         $wishlistJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/wishlist.js');
-        $orderJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/order.js');
+        $orderJsUrl = plugins_url('storekeeper-for-woocommerce/resouces/js/order.js');
 
         wp_enqueue_script('jquery');
         wp_enqueue_style('custom-modal-css', $cssUrl);
         wp_enqueue_script('wishlist-js', $wishlistJsUrl, array('jquery'), null, true);
+        wp_localize_script('wishlist-js', 'ajax_object', array(
+            'admin_url'     => admin_url('admin-ajax.php'),
+            'wishlistNonce' => wp_create_nonce('wishlist_action'),
+            'cart_url'      => wc_get_cart_url(),
+            'translations' => [
+                'wishlist_not_deleted' => __('Could not delete wishlist.', I18N::DOMAIN),
+                'ajax_failed' => __('AJAX request failed.', I18N::DOMAIN),
+                'product_added_to_wishlist' => __('Product added to wishlist!', I18N::DOMAIN),
+                'product_added_to_wishlist_failed' => __('Failed to add product to wishlist.', I18N::DOMAIN),
+                'no_results' => __('No results found', I18N::DOMAIN),
+                'failed_quantity_update' => __('Failed to update quantity.', I18N::DOMAIN),
+                'error_occurred' => __('An error occurred', I18N::DOMAIN),
+                'wishlist_saved' => __('Wishlist saved successfully!', I18N::DOMAIN),
+            ],
+        ));
         wp_enqueue_script('order-js', $orderJsUrl, array('jquery'), null, true);
         wp_localize_script('order-js', 'ajax_obj', array(
-            'admin_url' => admin_url('admin-ajax.php')
+            'admin_url'     => admin_url('admin-ajax.php'),
+            'wishlistNonce' => wp_create_nonce('wishlist_action_nonce'),
+            'translations' => [
+                'added_product' => __('Products added to wishlist.', I18N::DOMAIN),
+                'error_product' => __('Something went wrong.', I18N::DOMAIN),
+            ]
         ));
     }
 
@@ -600,12 +619,12 @@ HTML;
     {
         $page_check = get_page_by_path('wishlists');
         if (!$page_check) {
-            $new_page = array(
+            $new_page = [
                 'post_title' => 'Wishlists',
                 'post_content' => '[wishlists_list]',
                 'post_status' => 'publish',
                 'post_type' => 'page',
-            );
+            ];
             wp_insert_post($new_page);
         }
     }
@@ -616,29 +635,30 @@ HTML;
             $wishlists_page = get_page_by_path('wishlists');
             if ($wishlists_page) {
                 $wishlist_url = get_permalink($wishlists_page->ID);
-                $wishlist_link = '<li><a href="' . esc_url($wishlist_url) . '">' . __('My Wishlist', I18N::DOMAIN) . '</a></li>';
+                $wishlist_link = '<li><a href="'.esc_url($wishlist_url).'">'.__('My Wishlist', I18N::DOMAIN).'</a></li>';
                 $items .= $wishlist_link;
             }
         }
+
         return $items;
     }
 
     public function changeWishlistPageHtml(): void
     {
-        $current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $current_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
         $last_segment = basename(parse_url($current_url, PHP_URL_PATH));
-        if ($last_segment == 'wishlists') {
-            $template_path = plugin_dir_path(__FILE__) . 'Frontend/page-wishlists.php';
+        if ('wishlists' == $last_segment) {
+            $template_path = plugin_dir_path(__FILE__).'Frontend/page-wishlists.php';
             if (file_exists($template_path)) {
-                include($template_path);
+                include $template_path;
                 exit;
             }
         }
 
-        if (strpos($current_url, '/wishlists/') !== false) {
-            $template_path = plugin_dir_path(__FILE__) . 'Frontend/page-wishlist-products.php';
+        if (false !== strpos($current_url, '/wishlists/')) {
+            $template_path = plugin_dir_path(__FILE__).'Frontend/page-wishlist-products.php';
             if (file_exists($template_path)) {
-                include($template_path);
+                include $template_path;
                 exit;
             }
         }

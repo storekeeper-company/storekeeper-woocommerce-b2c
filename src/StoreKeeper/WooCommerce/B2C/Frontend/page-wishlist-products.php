@@ -1,4 +1,5 @@
 <?php
+
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\WishlistHandler;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
@@ -33,11 +34,23 @@ function getWishlistProducts($wishlistId)
         return [];
     }
 
-    $validProducts = array_map(function ($productId, $qty) {
-        $product = wc_get_product($productId);
+    $validProducts = array_map(function ($item) {
+        if (isset($item['product_id'], $item['qty'])) {
+            $product = wc_get_product($item['product_id']);
 
-        return $product ? ['product' => $product, 'qty' => $qty] : null;
-    }, array_keys($data), $data);
+            if ($product) {
+                return [
+                    'product' => $product,
+                    'qty' => $item['qty'],
+                    'variation_id' => isset($item['variation_id']) ? $item['variation_id'] : 0,
+                ];
+            }
+        }
+
+        return null;
+    }, $data);
+
+    $validProducts = array_filter($validProducts);
 
     return $validProducts;
 }
@@ -66,85 +79,152 @@ function groupProductsByCategory($productsQty)
 /**
  * Render product list HTML.
  */
-function renderProductList($products)
+function renderProductList($products, $wishlist)
 {
+    $displayedParent = false;
+    $displayedVariations = [];
+
     foreach ($products as $productData) {
         $product = $productData['product'];
         $qty = $productData['qty'];
-        if ($product->is_type('variable')) {
-            ?>
-            <li class="wishlist-item-orderlist wishlist-parent-item">
-                <div class="wishlist-info">
-                    <a href="<?php echo esc_url(get_permalink($product->get_id())); ?>">
-                        <?php
-                        $productImage = wp_get_attachment_image_src($product->get_image_id(), 'thumbnail');
-            $productImageUrl = $productImage ? $productImage[0] : '';
-            if ($productImageUrl) { ?>
-                            <img src="<?php echo esc_url($productImageUrl); ?>" alt="<?php echo esc_attr($product->get_name()); ?>" class="wishlist-product-image"/>
-                        <?php } ?>
-                        <?php echo esc_html($product->get_name()); ?>
-                    </a>
-                </div>
-            </li>
-            <?php
 
-            $variations = $product->get_children(); // Get variation IDs
-            foreach ($variations as $variationId) {
-                $variation = wc_get_product($variationId); // Get the variation object
-                $variationImage = wp_get_attachment_image_src($variation->get_image_id(), 'thumbnail');
-                $variationImageUrl = $variationImage ? $variationImage[0] : $productImageUrl;
-                $variationPrice = $variation->get_price_html();
-                $variationAttributes = wc_get_formatted_variation($variation, true);
+        $productImage = wp_get_attachment_image_src($product->get_image_id(), 'thumbnail');
+        $productImageUrl = $productImage ? $productImage[0] : '';
+
+        if ($product->is_type('variable')) {
+            $wishlistVariations = get_post_meta($wishlist->ID, '_wishlist_products', true);
+            $wishlistVariations = maybe_unserialize($wishlistVariations);
+
+            if (!$displayedParent) {
                 ?>
-                <li class="wishlist-item-orderlist wishlist-child-item">
-                    <div class="wishlist-info">
-                        <a href="<?php echo esc_url(get_permalink($variation->get_id())); ?>">
-                            <?php if ($variationImageUrl) { ?>
-                                <img src="<?php echo esc_url($variationImageUrl); ?>"
-                                     alt="<?php echo esc_attr($variation->get_name()); ?>" class="wishlist-product-image"/>
-                            <?php } ?>
-                            <?php echo esc_html($product->get_name().' - '.$variationAttributes); ?>
-                        </a>
-                        <?php if ($variationPrice) { ?>
-                            <span class="wishlist-product-price last-edit-time"><?php echo $variationPrice; ?></span>
-                        <?php } ?>
-                        <div class="product-qty">
-                            <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/images/minus.png'); ?>"
-                                 alt="Minus" class="minus-icon">
-                            <?php echo esc_html($qty); ?>
-                            <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/images/plus-black.png'); ?>"
-                                 alt="Plus" class="plus-icon">
+                <li class="wishlist-item-orderlist wishlist-parent-item">
+                    <div class="wishlist-info main-product">
+                        <div class="wishlist-product-image-container">
+                            <img src="<?php echo esc_url($productImageUrl); ?>"
+                                 alt="<?php echo esc_attr($product->get_name()); ?>"
+                                 class="wishlist-product-image"/>
                         </div>
+                        <a href="<?php echo esc_url(get_permalink($product->get_id())); ?>"
+                           class="wishlist-item-link">
+                            <div class="wishlist-product-name"><?php echo esc_html($product->get_name()); ?></div>
+                        </a>
                     </div>
                 </li>
-            <?php } ?>
-        <?php } else { ?>
-            <li class="wishlist-item-orderlist wishlist-single-item">
+                <?php
+                $displayedParent = true;
+            }
+
+            $variations = $product->get_children();
+
+            if (!empty($variations)) {
+                foreach ($variations as $variationId) {
+                    foreach ($wishlistVariations as $wishlistItem) {
+                        if (is_array($wishlistItem) && $wishlistItem['variation_id'] == $variationId) {
+                            if (in_array($variationId, $displayedVariations)) {
+                                continue;
+                            }
+
+                            $displayedVariations[] = $variationId;
+                            $variationProduct = wc_get_product($variationId);
+                            $variationImage = wp_get_attachment_image_src($variationProduct->get_image_id(), 'thumbnail');
+                            $variationImageUrl = $variationImage ? $variationImage[0] : $productImageUrl;
+                            $variationPrice = $variationProduct->get_price_html();
+                            ?>
+                            <!-- Variation Item -->
+                            <li class="wishlist-item-orderlist wishlist-child-item"
+                                data-product-id="<?php echo esc_attr($product->get_id()); ?>"
+                                data-variation-id="<?php echo esc_attr($variationId); ?>">
+                                <div class="wishlist-info">
+                                    <input type="hidden" name="variation_id" class="variation_id"
+                                           value="<?php echo esc_attr($variationId); ?>">
+                                    <div class="wishlist-product-image-container">
+                                        <img src="<?php echo esc_url($variationImageUrl); ?>"
+                                             alt="<?php echo esc_attr($variationProduct->get_name()); ?>"
+                                             class="wishlist-product-image"/>
+                                        <div class="wishlist-item-delete-product"
+                                             style="background-image: url('<?php echo plugins_url('storekeeper-for-woocommerce/assets/trash-xmark.png'); ?>');">
+                                            <button class="delete-button-product"
+                                                    data-product-id="<?php echo esc_attr($product->get_id()); ?>"
+                                                    data-variation-id="<?php echo esc_attr($variationId); ?>"></button>
+                                            <div class="tooltip-container-product">
+                                                <p class="tooltip-product-message"><?php echo __('Wilt u het verwijderen?', I18N::DOMAIN); ?><br>
+                                                    <span class="tooltip-option-product yes"><?php echo __('Ja', I18N::DOMAIN); ?></span> / <span
+                                                        class="tooltip-option-product no"><?php echo __('Nee', I18N::DOMAIN); ?></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a href="<?php echo esc_url(get_permalink($variationProduct->get_id())); ?>"
+                                       class="wishlist-item-link">
+                                        <div
+                                            class="wishlist-product-name"><?php echo esc_html($variationProduct->get_name()); ?></div>
+                                    </a>
+                                    <?php if ($variationPrice) { ?>
+                                        <span class="wishlist-product-price"><?php echo $variationPrice; ?></span>
+                                    <?php } ?>
+                                    <div class="product-qty">
+                                        <img
+                                            src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/minus.png'); ?>"
+                                            alt="Minus" class="minus-icon"
+                                            data-product-id="<?php echo esc_attr($variationProduct->get_id()); ?>"
+                                            data-variation-id="<?php echo esc_attr($variationId); ?>"
+                                            data-action="decrease">
+                                        <span class="qty-value"><?php echo esc_html($qty); ?></span>
+                                        <img
+                                            src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/plus-black.png'); ?>"
+                                            alt="Plus" class="plus-icon"
+                                            data-product-id="<?php echo esc_attr($variationProduct->get_id()); ?>"
+                                            data-variation-id="<?php echo esc_attr($variationId); ?>"
+                                            data-action="increase">
+                                    </div>
+                                </div>
+                            </li>
+                            <?php
+                        }
+                    }
+                }
+            }
+        } else { ?>
+            <li class="wishlist-item-orderlist wishlist-single-item"
+                data-product-id="<?php echo esc_attr($product->get_id()); ?>">
                 <div class="wishlist-info">
-                    <a href="<?php echo esc_url(get_permalink($product->get_id())); ?>">
-                        <?php
-                        $productImage = wp_get_attachment_image_src($product->get_image_id(), 'thumbnail');
-            $productImageUrl = $productImage ? $productImage[0] : '';
-            if ($productImageUrl) { ?>
-                            <img src="<?php echo esc_url($productImageUrl); ?>" alt="<?php echo esc_attr($product->get_name()); ?>" class="wishlist-product-image"/>
-                        <?php } ?>
-                        <?php echo esc_html($product->get_name()); ?>
+                    <div class="wishlist-product-image-container">
+                        <img src="<?php echo esc_url($productImageUrl); ?>"
+                             alt="<?php echo esc_attr($product->get_name()); ?>"
+                             class="wishlist-product-image"/>
+                        <div class="wishlist-item-delete-product"
+                             style="background-image: url('<?php echo plugins_url('storekeeper-for-woocommerce/assets/trash-xmark.png'); ?>');">
+                            <button class="delete-button-product"
+                                    data-product-id="<?php echo esc_attr($product->get_id()); ?>"></button>
+                            <div class="tooltip-container-product">
+                                <p class="tooltip-product-message"><?php echo __('Wilt u het verwijderen?', I18N::DOMAIN); ?><br>
+                                    <span class="tooltip-option-product yes"><?php echo __('Ja', I18N::DOMAIN); ?></span> / <span
+                                        class="tooltip-option-product no"><?php echo __('Nee', I18N::DOMAIN); ?></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="<?php echo esc_url(get_permalink($product->get_id())); ?>" class="wishlist-item-link">
+                        <div class="wishlist-product-name"><?php echo esc_html($product->get_name()); ?></div>
                     </a>
                     <?php if ($product->get_price_html()) { ?>
-                        <span class="wishlist-product-price last-edit-time"><?php echo $product->get_price_html(); ?></span>
+                        <span class="wishlist-product-price"><?php echo $product->get_price_html(); ?></span>
                     <?php } ?>
                     <div class="product-qty">
-                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/images/minus.png'); ?>"
-                             alt="Minus" class="minus-icon">
-                        <?php echo esc_html($qty); ?>
-                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/images/plus-black.png'); ?>"
-                             alt="Plus" class="plus-icon">
+                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/minus.png'); ?>"
+                             alt="Minus" class="minus-icon"
+                             data-product-id="<?php echo esc_attr($product->get_id()); ?>"
+                             data-action="decrease">
+                        <span class="qty-value"><?php echo esc_html($qty); ?></span>
+                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/plus-black.png'); ?>"
+                             alt="Plus" class="plus-icon"
+                             data-product-id="<?php echo esc_attr($product->get_id()); ?>"
+                             data-action="increase">
                     </div>
                 </div>
             </li>
-        <?php } ?>
-        <?php
-    }
+        <?php }
+        }
 }
 
 /**
@@ -160,15 +240,30 @@ function renderWishlistHeader($wishlist, $orders)
         </div>
 
         <div style="display: flex; align-items: center;">
-            <input type="text" name="search" placeholder="<?php __('Zoek naar producten op basis van de titel, SKU...', I18N::DOMAIN); ?>" style="margin-right: 10px;">
+            <div style="position: relative; flex: 1; margin-right:10px;">
+                <input
+                    type="text"
+                    class="product-search-input"
+                    name="search"
+                    placeholder="<?php echo esc_attr(__('Zoek naar producten op basis van de titel, SKU...', I18N::DOMAIN)); ?>"
+                    style="margin-right: 10px;"
+                    autocomplete="off"
+                >
+                <ul class="dropdown-list-search">
+                    <!-- Products will be populated here via AJAX -->
+                </ul>
+            </div>
+
             <div class="custom-dropdown" style="display: flex; align-items: center;">
                 <button class="dropdown-button"><?php echo __('Orders importeren', I18N::DOMAIN); ?></button>
                 <div class="dropdown-menu">
-                    <input type="text" placeholder="<?php __('Zoek naar ID, Datum', I18N::DOMAIN); ?>" class="dropdown-search">
+                    <input type="text" placeholder="<?php __('Zoek naar ID, Datum', I18N::DOMAIN); ?>"
+                           class="dropdown-search">
                     <ul class="dropdown-list">
                         <?php foreach ($orders as $order) { ?>
                             <li data-order-id="<?php echo $order->get_id(); ?>" class="order-item">
-                                #<?php echo $order->get_id(); ?> - <?php echo $order->get_date_created()->date('d F Y'); ?>
+                                #<?php echo $order->get_id(); ?>
+                                - <?php echo $order->get_date_created()->date('d F Y'); ?>
                             </li>
                         <?php } ?>
                     </ul>
@@ -180,19 +275,25 @@ function renderWishlistHeader($wishlist, $orders)
             <span><?php echo (new WishlistHandler())->getWishlistProductCount($wishlist->ID).' '.__('Products', I18N::DOMAIN); ?></span>
             <div>
                 <button class="item-action store-act"><?php echo __('Lijst opslaan', I18N::DOMAIN); ?></button>
-                <button class="item-action cart-act"><?php echo __('Alles toevoegen aan winkelmand', I18N::DOMAIN).'('.(new WishlistHandler())->getWishlistProductCount($wishlist->ID); ?>)</button>
+                <button class="item-action cart-act">
+                    <?php echo __('Alles toevoegen aan winkelmand', I18N::DOMAIN).'('.(new WishlistHandler())->getWishlistProductCount($wishlist->ID); ?>
+                    )
+                </button>
             </div>
+
+        </div>
+        <div class="success-message" style="color: green;">
+            <p></p>
         </div>
         <input type="hidden" id="wishlist_id" value="<?php echo $wishlist->ID; ?>">
     </div>
+
     <?php
 }
 
-// Fetch wishlist products
 $productsWithqty = getWishlistProducts($wishlist->ID);
 $groupedProducts = groupProductsByCategory($productsWithqty);
 
-// Fetch user orders
 $userId = get_current_user_id();
 $ordersQuery = new WC_Order_Query([
     'customer_id' => $userId,
@@ -203,27 +304,29 @@ $orders = $ordersQuery->get_orders();
 
 renderWishlistHeader($wishlist, $orders);
 ?>
-<ul class="wishlist-children">
-    <?php foreach ($groupedProducts as $categorySlug => $categoryProducts) { ?>
-        <li class="wishlist-category">
-            <div class="wishlist-category-name">
-                <h4 class="category-title"><?php echo esc_html(get_term_by('slug', $categorySlug, 'product_cat')->name); ?></h4>
+    <ul class="wishlist-children">
+        <?php foreach ($groupedProducts as $categorySlug => $categoryProducts) { ?>
+            <li class="wishlist-category">
+                <div class="wishlist-category-name">
+                    <h4 class="category-title"><?php echo esc_html(get_term_by('slug', $categorySlug, 'product_cat')->name); ?></h4>
+                </div>
+                <ul class="wishlist-category-products">
+                    <?php renderProductList($categoryProducts, $wishlist); ?>
+                </ul>
+            </li>
+        <?php } ?>
+    </ul>
+    <div class="wishlist-title">
+        <div class="products-actions">
+            <span><?php echo (new WishlistHandler())->getWishlistProductCount($wishlist->ID).' '.__('Products', I18N::DOMAIN); ?></span>
+            <div>
+                <button class="item-action store-act"><?php echo __('Lijst opslaan', I18N::DOMAIN); ?></button>
+                <button
+                    class="item-action cart-act"><?php echo __('Alles toevoegen aan winkelmand', I18N::DOMAIN).'('.(new WishlistHandler())->getWishlistProductCount($wishlist->ID); ?>
+                    )
+                </button>
             </div>
-            <ul class="wishlist-category-products">
-                <?php renderProductList($categoryProducts); ?>
-            </ul>
-        </li>
-    <?php } ?>
-</ul>
-<div class="wishlist-title">
-    <div class="products-actions">
-        <span><?php echo (new WishlistHandler())->getWishlistProductCount($wishlist->ID).' '.__('Products', I18N::DOMAIN); ?></span>
-        <div>
-            <button class="item-action store-act"><?php echo __('Lijst opslaan', I18N::DOMAIN); ?></button>
-            <button class="item-action cart-act"><?php echo __('Alles toevoegen aan winkelmand', I18N::DOMAIN).'('.(new WishlistHandler())->getWishlistProductCount($wishlist->ID); ?>)</button>
         </div>
     </div>
-</div>
 
 <?php get_footer(); ?>
-

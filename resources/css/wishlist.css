@@ -59,7 +59,7 @@
     width: 100%;
     max-width: 1150px;
     margin:auto;]
-    padding-bottom: 10px;
+padding-bottom: 10px;
     border-bottom: 1px solid #F3F3F3;
 }
 .wishlist-count {
@@ -67,6 +67,10 @@
     border: 1px solid #F3F3F3;
     padding: 5px;
     text-align: right;
+}
+
+.wishlist-info a {
+    color:black;
 }
 
 @media (max-width: 768px) {
@@ -233,10 +237,6 @@ h1 {
     flex-grow: 1;
 }
 
-.wishlist-info a {
-    color:black;
-}
-
 .last-edit-time {
     margin-left: auto;
     font-size: 0.9rem;
@@ -253,7 +253,7 @@ h1 {
     color: white;
     border: 1px solid #F3F3F3;
     padding: 5px;
-    border-radius: 50%;
+    border-radius: 40%;
     cursor: pointer;
     position: absolute;
     right: 10px;
@@ -305,7 +305,7 @@ h1 {
 }
 
 .wishlist-product-price {
-    margin-right: 10px;
+    margin-left: auto;
 }
 
 .custom-dropdown {
@@ -317,7 +317,7 @@ h1 {
 .dropdown-button {
     margin-right: 10px;
     width: 100%;
-    padding: 10px;
+    padding: 7px;
     border: 1px solid #ccc;
     background: #f9f9f9;
     cursor: pointer;
@@ -399,3 +399,150 @@ h1 {
     display: flex;
     gap: 10px;
 }
+
+.tooltip-container {
+    border-radius: 10px;
+    background-color: black;
+    color: white;
+    visibility: hidden;
+    margin-right: -50px;
+    padding: 10px;
+    transform: translateY(-70%);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: visibility 0.3s, opacity 0.3s;
+}
+
+.delete-button:hover .tooltip-container,
+.tooltip-container.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip-container p {
+    margin: 0 0 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.tooltip-option {
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tooltip-option:hover {
+    color: red;
+}
+
+#product-search-dropdown {
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.search-result-item:hover {
+    background: #f8f8f8;
+}
+
+.wishlist-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.wishlist-item-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.wishlist-product-image-container {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+}
+
+.wishlist-product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.dropdown-list-search {
+    background-color:white;
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 0;
+    list-style: none;
+    border: 1px solid #E0E8EC;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 999;
+}
+
+.wishlist-item-delete-product {
+    background-repeat: no-repeat; background-position: center center;
+    width: 100%;
+    height: 100%;
+    display: none;
+    position: absolute;
+    top: 1px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.wishlist-product-image-container:hover .wishlist-item-delete-product {
+    display: block;
+}
+
+.wishlist-item-delete-product .delete-button-product {
+    background: red;
+    border: none;
+    cursor: pointer;
+}
+
+.wishlist-item-delete-product .delete-icon-product {
+    width: 20px;
+    height: 20px;
+}
+
+.tooltip-container-product {
+    display: none;
+    background-color: black;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    transform: translateY(-120px);
+    z-index: 10;
+}
+
+.wishlist-item-delete-product:hover .tooltip-container-product {
+    display: block;
+}
+
+.wishlist-product-name {
+    font-size: 14px;
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+.tooltip-product-message {
+    margin:0px;
+    color: white;
+}
+
+.tooltip-option-product:hover {
+    color: red;
+}
+
+.main-product {
+    justify-content: normal;
+}
+

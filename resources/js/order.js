@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     jQuery(document).ready(function ($) {
         $('.order-item').on('click', function () {
-            console.log(3)
             const orderId = $(this).data('order-id');
             const wishlistId = $('#wishlist_id').val();
             $.ajax({
@@ -37,10 +36,30 @@ document.addEventListener('DOMContentLoaded', function () {
                     wishlist_id: wishlistId,
                 },
                 success: function (response) {
-                    alert(response.success ? 'Products added to wishlist.' : (response.data.message || 'Something went wrong.'));
+                    const message = response.success
+                        ? ajax_obj.translations.added_product
+                        : (response.data?.message || ajax_obj.translations.added_product);
+
+                    const successMessageDiv = $('.success-message p');
+                    successMessageDiv.text(message);
+                    $('.success-message').fadeIn();
+
+                    setTimeout(function () {
+                        $('.success-message').fadeOut();
+                    }, 5000);
                 },
                 error: function () {
-                    alert('AJAX request failed.');
+                    const message = response.success
+                        ? ajax_obj.translations.error_product
+                        : (response.data?.message || ajax_obj.translations.error_product);
+
+                    const errorMessageDiv = $('.error-message p');
+                    errorMessageDiv.text(message);
+                    $('.error-message').fadeIn();
+
+                    setTimeout(function () {
+                        $('.error-message').fadeOut();
+                    }, 5000);
                 }
             });
         });

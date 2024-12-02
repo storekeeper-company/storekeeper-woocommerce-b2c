@@ -16,12 +16,23 @@ class WishlistHandler implements WithHooksInterface
         add_action('admin_post_nopriv_create_wishlist', [$this, 'handleCreateWishlist']);
         add_action('wp_ajax_delete_wishlist_item', [$this, 'deleteWishlistItem']);
         add_action('wp_ajax_nopriv_delete_wishlist_item', [$this, 'deleteWishlistItem']);
+        add_action('wp_ajax_search_products_by_sku_name', [$this, 'handleProductSearchAjax']);
+        add_action('wp_ajax_nopriv_search_products_by_sku_name', [$this, 'handleProductSearchAjax']);
+        add_action('wp_ajax_add_product_to_wishlist', [$this,'addProductToWishlist']);
+        add_action('wp_ajax_update_wishlist_quantity', [$this, 'updateWishlistQuantity']);
+        add_action('wp_ajax_nopriv_update_wishlist_quantity', [$this, 'updateWishlistQuantity']);
+        add_action('wp_ajax_store_wishlist', [$this, 'storeWishlistCallback']);
+        add_action('wp_ajax_nopriv_store_wishlist', [$this, 'storeWishlistCallback']);
+        add_action('wp_ajax_add_products_to_cart', [$this, 'addProductsToCart']);
+        add_action('wp_ajax_nopriv_add_products_to_cart', [$this, 'addProductsToCart']);
+        add_action('wp_ajax_delete_product_from_wishlist', [$this, 'deleteProductFromWishlist']);
+        add_action('wp_ajax_nopriv_delete_product_from_wishlist', [$this, 'deleteProductFromWishlist']);
     }
 
     public function createWishlistPostType(): void
     {
-        $args = array(
-            'labels' => array(
+        $args = [
+            'labels' => [
                 'name' => 'Wishlists',
                 'singular_name' => 'Wishlist',
                 'add_new' => 'Add New',
@@ -35,7 +46,7 @@ class WishlistHandler implements WithHooksInterface
                 'all_items' => 'All Wishlists',
                 'menu_name' => 'Wishlists',
                 'name_admin_bar' => 'Wishlist',
-            ),
+            ],
             'public' => true,
             'has_archive' => true,
             'show_ui' => true,
@@ -44,7 +55,7 @@ class WishlistHandler implements WithHooksInterface
             'supports' => array('title', 'editor', 'author', 'custom-fields'),
             'rewrite' => array('slug' => 'wishlists'),
             'capability_type' => 'post',
-        );
+        ];
 
         register_post_type('wishlist', $args);
     }
@@ -133,25 +144,25 @@ class WishlistHandler implements WithHooksInterface
         }
     }
 
-    public function createWishlist($wishlist_name, $product_id): void
+    public function createWishlist($wishlistName, $productId): void
     {
         if (is_user_logged_in()) {
-            $user_id = get_current_user_id();
-            $wishlist_name = sanitize_text_field($wishlist_name);
-            $new_wishlist = array(
-                'post_title' => $wishlist_name,
+            $userId = get_current_user_id();
+            $wishlistName = sanitize_text_field($wishlistName);
+            $newWishlist = array(
+                'post_title' => $wishlistName,
                 'post_content' => '',
                 'post_status' => 'publish',
-                'post_author' => $user_id,
+                'post_author' => $userId,
                 'post_type' => 'wishlist',
             );
-            $wishlist_id = wp_insert_post($new_wishlist);
-            self::addProductsToExistingWishlistWithQty($wishlist_id, $product_id, 1);
+            $wishlistId = wp_insert_post($newWishlist);
+            self::addProductsToExistingWishlistWithQty($wishlistId, $productId, 1);
 
-            if ($wishlist_id) {
+            if ($wishlistId) {
                 echo '<p style="text-align: center;color: green;">' . sprintf(
                         __('New wishlist %s created successfully!', I18N::DOMAIN),
-                        esc_html($wishlist_name)
+                        esc_html($wishlistName)
                     ) . '</p>';
             } else {
                 echo '<p style="text-align: center;color: red;">' . __('There was an error creating the wishlist.', I18N::DOMAIN) . '</p>';
@@ -161,71 +172,73 @@ class WishlistHandler implements WithHooksInterface
         }
     }
 
-    public function addProductsToExistingWishlistWithQty($wishlist_id, $product_ids, $quantities = [])
+    public function addProductsToExistingWishlistWithQty($wishlistId, $productIds, $quantities = [])
     {
         if (is_user_logged_in()) {
-            $wishlist_id = intval($wishlist_id);
-            $product_ids = array_map('intval', (array) $product_ids);
+            $wishlistId = intval($wishlistId);
+            $productIds = array_map('intval', (array) $productIds);
             $quantities = array_map('intval', (array) $quantities);
-            $user_id = get_current_user_id();
-            $wishlist_post = get_post($wishlist_id);
+            $existingProducts = get_post_meta($wishlistId, '_wishlist_products', true);
+            $existingProducts = $existingProducts ? (array) $existingProducts : [];
 
-            if (!$wishlist_post || $wishlist_post->post_author != $user_id) {
-                return ['status' => 'error', 'message' => __('You do not have permission to add products to this wishlist.', 'text-domain')];
-            }
-
-            $existing_products = get_post_meta($wishlist_id, '_wishlist_products', true);
-            $existing_products = $existing_products ? (array) $existing_products : [];
-
-            foreach ($product_ids as $index => $product_id) {
+            foreach ($productIds as $index => $productId) {
                 $quantity = isset($quantities[$index]) ? $quantities[$index] : 1;
 
-                if (isset($existing_products[$product_id])) {
-                    $existing_products[$product_id] += $quantity;
+                if (isset($existingProducts[$productId])) {
+                    $existingProducts[$productId] += $quantity;
                 } else {
-                    $existing_products[$product_id] = $quantity;
+                    $existingProducts[$productId] = $quantity;
                 }
             }
 
-            update_post_meta($wishlist_id, '_wishlist_products', $existing_products);
+            update_post_meta($wishlistId, '_wishlist_products', $existingProducts);
         }
     }
 
     public function handleCreateWishlist(): void
     {
         if (isset($_POST['wishlist_name'])) {
-            $wishlist_name = sanitize_text_field($_POST['wishlist_name']);
-            $wishlist_post = array(
-                'post_title'   => $wishlist_name,
+            $wishlistName = sanitize_text_field($_POST['wishlist_name']);
+            $wishlistPost = array(
+                'post_title'   => $wishlistName,
                 'post_type'    => 'wishlist',
                 'post_status'  => 'publish',
                 'post_author'  => get_current_user_id(),
             );
 
-            $post_id = wp_insert_post($wishlist_post);
+            $postId = wp_insert_post($wishlistPost);
 
-            if ($post_id) {
-                wp_redirect(get_permalink($post_id));
+            if ($postId) {
+                wp_redirect(get_permalink($postId));
                 exit;
             } else {
-                wp_die('There was an error creating the wishlist.');
+                wp_die(__('There was an error creating the wishlist.', I18N::DOMAIN));
             }
         }
     }
 
-   public function getWishlistProductCount($wishlist_id): int
-   {
-        $serialized_data = get_post_meta($wishlist_id, '_wishlist_products', true);
-        $data = is_string($serialized_data) && is_serialized($serialized_data) ? unserialize($serialized_data) : $serialized_data;
+    public function getWishlistProductCount($wishlistId): int
+    {
+        $serializedData = get_post_meta($wishlistId, '_wishlist_products', true);
+        $data = is_string($serializedData) && is_serialized($serializedData) ? unserialize($serializedData) : $serializedData;
 
         if (!is_array($data)) return 0;
 
-        $valid_products = array_filter(array_map(function($product_id, $qty) {
-            $product = wc_get_product($product_id);
-            return $product ? ['product' => $product, 'qty' => $qty] : null;
-        }, array_keys($data), $data));
+        $productIds = [];
 
-        return count($valid_products);
+        foreach ($data as $wishlistItem) {
+            if (isset($wishlistItem['product_id'])) {
+                $productIds[] = $wishlistItem['product_id'];
+
+                if (isset($wishlistItem['variation_id']) && $wishlistItem['variation_id'] != 0) {
+                    $productIds[] = $wishlistItem['variation_id'];
+                }
+            }
+        }
+
+        $unique_product_ids = array_unique($productIds);
+
+        return count($unique_product_ids);
     }
 
     public function deleteWishlistItem(): void
@@ -239,5 +252,267 @@ class WishlistHandler implements WithHooksInterface
                 wp_send_json_success();
             }
         }
+    }
+
+    public function handleProductSearchAjax()
+    {
+        if (isset($_POST['search_term']) && !empty($_POST['search_term'])) {
+            global $wpdb;
+
+            $searchTerm = sanitize_text_field($_POST['search_term']);
+
+            $args = [
+                'limit' => -1,
+                's' => $searchTerm,
+                'meta_query' => [
+                    [
+                        'key' => '_sku',
+                        'value' => $searchTerm,
+                        'compare' => 'LIKE'
+                    ]
+                ]
+            ];
+
+            $products = wc_get_products($args);
+
+            foreach ($products as $product) {
+                $productImageUrl = wp_get_attachment_url($product->get_image_id());
+                $results[] = [
+                    'id' => $product->get_id(),
+                    'sku' => $product->get_sku(),
+                    'name' => $product->get_name(),
+                    'price' => wc_price($product->get_price()),
+                    'image' => $productImageUrl,
+                    'permalink' => get_permalink($product->get_id()),
+                ];
+            }
+
+            wp_send_json_success(['products' => $results]);
+        }
+    }
+
+    public function updateWishlistQuantity()
+    {
+        $productId = absint($_POST['product_id']);
+        $newQty = absint($_POST['qty']);
+
+        if ($newQty < 1) {
+            return;
+        }
+
+        $product = wc_get_product($productId);
+
+        if (!$product) {
+            wp_send_json_error(['message' => 'Product not found']);
+            return;
+        }
+        $wishlist = get_user_meta(get_current_user_id(), '_wishlist', true);
+
+        if (!is_array($wishlist)) {
+            $wishlist = [];
+        }
+
+
+        foreach ($wishlist as &$item) {
+            if ($item['product_id'] == $productId) {
+                $item['qty'] = $newQty;
+                break;
+            }
+        }
+
+        update_user_meta(get_current_user_id(), '_wishlist', $wishlist);
+    }
+
+    public function storeWishlistCallback() {
+        $wishlistId = intval($_POST['wishlist_id']);
+        $products = $_POST['products'];
+        $existingProducts = get_post_meta($wishlistId, '_wishlist_products', true);
+
+        if (is_string($existingProducts)) {
+            $existingProducts = @unserialize($existingProducts);
+        }
+
+        if (!is_array($existingProducts)) {
+            $existingProducts = [];
+        }
+
+        foreach ($products as $productData) {
+            $productId = intval($productData['product_id']);
+            $qty = intval($productData['qty']);
+
+            if ($productId <= 0 || $qty <= 0) continue;
+
+            $product = wc_get_product($productId);
+
+            if (!$product) continue;
+
+            if ($product->is_type('variable')) {
+                $variations = $product->get_available_variations();
+
+                foreach ($variations as $variation) {
+                    $variationId = $variation['variation_id'];
+                    $productExists = false;
+
+                    foreach ($existingProducts as &$existingProduct) {
+                        if ($existingProduct['product_id'] == $productId && $existingProduct['variation_id'] == $variationId) {
+                            $existingProduct['qty'] += $qty;
+                            $productExists = true;
+                            break;
+                        }
+                    }
+
+                    if (!$productExists) {
+                        $existingProducts[] = [
+                            'product_id'   => $productId,
+                            'variation_id' => $variationId,
+                            'qty'          => $qty
+                        ];
+                    }
+                }
+            } else {
+                $productExists = false;
+
+                foreach ($existingProducts as &$existingProduct) {
+                    if ($existingProduct['product_id'] == $productId && $existingProduct['variation_id'] == 0) {
+                        $existingProduct['qty'] += $qty;
+                        $productExists = true;
+                        break;
+                    }
+                }
+
+                if (!$productExists) {
+                    $existingProducts[] = [
+                        'product_id'   => $productId,
+                        'variation_id' => 0,
+                        'qty'          => $qty
+                    ];
+                }
+            }
+        }
+
+        update_post_meta($wishlistId, '_wishlist_products', serialize($existingProducts));
+    }
+
+    public function addProductsToCart()
+    {
+        if (isset($_POST['wishlist_id']) && isset($_POST['products'])) {
+            $products = $_POST['products'];
+
+            foreach ($products as $productData) {
+                $productId = intval($productData['product_id']);
+                $variationId = intval($productData['variation_id']);
+                $quantity = intval($productData['qty']);
+
+                if ($productId <= 0 || $quantity <= 0) continue;
+
+                if ($variationId > 0) {
+                    WC()->cart->add_to_cart($productId, $quantity, $variationId);
+                } else {
+                    WC()->cart->add_to_cart($productId, $quantity);
+                }
+            }
+
+            wp_send_json_success(['cart_url' => wc_get_cart_url()]);
+        }
+    }
+
+    public function addProductToWishlist() {
+        $wishlistId = intval($_POST['wishlist_id']);
+        $productId = intval($_POST['product_id']);
+        $product = wc_get_product($productId);
+
+        if (!$product) {
+            wp_send_json_error(['message' => 'Invalid product']);
+            return;
+        }
+
+        $existingProducts = get_post_meta($wishlistId, '_wishlist_products', true);
+
+        if ($existingProducts) {
+            $existingProducts = maybe_unserialize($existingProducts);
+        } else {
+            $existingProducts = [];
+        }
+
+        if ($product->is_type('variable')) {
+            $variations = $product->get_available_variations();
+
+            foreach ($variations as $variation) {
+                $variationId = $variation['variation_id'];
+                $productExists = false;
+
+                foreach ($existingProducts as &$existingProduct) {
+                    if (isset($existingProduct['product_id'], $existingProduct['variation_id'], $existingProduct['qty']) &&
+                        $existingProduct['product_id'] == $productId &&
+                        $existingProduct['variation_id'] == $variationId) {
+                        $existingProduct['qty'] += 1;
+                        $productExists = true;
+                        break;
+                    }
+                }
+
+                if (!$productExists) {
+                    $newProduct = [
+                        'product_id'   => $productId,
+                        'variation_id' => $variationId,
+                        'qty'          => 1
+                    ];
+                    $existingProducts[] = $newProduct;
+                }
+            }
+        } else {
+            $productExists = false;
+            foreach ($existingProducts as &$existingProduct) {
+                if (isset($existingProduct['product_id'], $existingProduct['variation_id'], $existingProduct['qty']) &&
+                    $existingProduct['product_id'] == $productId && $existingProduct['variation_id'] == 0) {
+                    $existingProduct['qty'] += 1;
+                    $productExists = true;
+                    break;
+                }
+            }
+
+            if (!$productExists) {
+                $newProduct = [
+                    'product_id'   => $productId,
+                    'variation_id' => 0,
+                    'qty'          => 1
+                ];
+                $existingProducts[] = $newProduct;
+            }
+        }
+
+        update_post_meta($wishlistId, '_wishlist_products', maybe_serialize($existingProducts));
+    }
+
+    public function deleteProductFromWishlist()
+    {
+        $wishlistId = intval($_POST['wishlist_id']);
+        $productId = intval($_POST['product_id']);
+        $variationId = intval($_POST['variation_id']);
+        $serializedProducts = get_post_meta($wishlistId, '_wishlist_products', true);
+        $existingProducts = maybe_unserialize($serializedProducts);
+
+        if (!is_array($existingProducts)) {
+            wp_send_json_error(array('message' => __('Invalid wishlist data.', I18N::DOMAIN)));
+        }
+
+        $found = false;
+
+        foreach ($existingProducts as $key => $productData) {
+            if (is_array($productData) &&
+                $productData['product_id'] == $productId &&
+                $productData['variation_id'] == $variationId
+            ) {
+                unset($existingProducts[$key]);
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            wp_send_json_error(array('message' => __('Product not found in wishlist.', I18N::DOMAIN)));
+        }
+
+        update_post_meta($wishlistId, '_wishlist_products', $existingProducts);
     }
 }
