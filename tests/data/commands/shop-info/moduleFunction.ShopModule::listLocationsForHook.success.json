@@ -1,0 +1,310 @@
+{
+    "success": true,
+    "module_name": "ShopModule",
+    "function": "listLocationsForHook",
+    "params": [
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        []
+    ],
+    "return": {
+        "data": [
+            {
+                "address": {
+                    "id": 2,
+                    "relation_data_id": 2,
+                    "date_created": "2024-09-16 14:37:48+02:00",
+                    "deleted": false,
+                    "state": "Overijssel",
+                    "city": "Rijssen",
+                    "zipcode": "7461 AK",
+                    "street": "Reggesingel",
+                    "streetnumber": "44",
+                    "date_updated": "2024-11-27 10:43:41+01:00",
+                    "country_iso2": "NL",
+                    "published": false,
+                    "contact_set_id": 23,
+                    "contact_set": {
+                        "id": 23,
+                        "relation_data_id": 2,
+                        "date_created": "2024-11-27 10:41:44+01:00",
+                        "deleted": false,
+                        "email": "hello@storekeeper.nl",
+                        "phone": "085 016 8008",
+                        "www": "https:\/\/www.storekeeper.com\/",
+                        "date_updated": "2024-11-27 10:41:44+01:00",
+                        "allow_general_communication": false,
+                        "allow_offer_communication": false,
+                        "allow_special_communication": false
+                    }
+                },
+                "opening_hour": {
+                    "id": 3,
+                    "relation_data_id": 2,
+                    "regular_periods": [
+                        {
+                            "open_day": "monday",
+                            "open_time": "08:30",
+                            "close_time": "17:30"
+                        },
+                        {
+                            "open_day": "tuesday",
+                            "open_time": "08:30",
+                            "close_time": "17:30"
+                        },
+                        {
+                            "open_day": "wednesday",
+                            "open_time": "08:30",
+                            "close_time": "17:30"
+                        },
+                        {
+                            "open_day": "thursday",
+                            "open_time": "08:30",
+                            "close_time": "17:30"
+                        },
+                        {
+                            "open_day": "friday",
+                            "open_time": "08:30",
+                            "close_time": "17:30"
+                        }
+                    ],
+                    "date_created": "2024-11-27 10:43:24+01:00",
+                    "date_updated": "2024-11-27 10:43:24+01:00",
+                    "location_id": 1
+                },
+                "id": 1,
+                "relation_data_id": 2,
+                "name": "StoreKeeper B.V.",
+                "is_default": false,
+                "is_active": true,
+                "address_id": 2,
+                "date_created": "2024-09-16 14:37:48+02:00",
+                "date_updated": "2024-09-16 14:37:48+02:00",
+                "object_instance_id": 194
+            },
+            {
+                "address": {
+                    "id": 26,
+                    "relation_data_id": 2,
+                    "date_created": "2024-11-07 10:00:45+01:00",
+                    "deleted": false,
+                    "state": "Chishinau",
+                    "city": "Chishinau",
+                    "zipcode": "2012",
+                    "street": "Columna",
+                    "streetnumber": "102",
+                    "date_updated": "2024-11-27 10:52:54+01:00",
+                    "country_iso2": "MD",
+                    "published": false,
+                    "contact_set_id": 21,
+                    "contact_set": {
+                        "id": 21,
+                        "relation_data_id": 2,
+                        "date_created": "2024-11-08 08:59:01+01:00",
+                        "deleted": false,
+                        "phone": "+37369499934",
+                        "www": "https:\/\/backstage-it.nl",
+                        "date_updated": "2024-11-27 10:52:54+01:00",
+                        "allow_general_communication": false,
+                        "allow_offer_communication": false,
+                        "allow_special_communication": false
+                    }
+                },
+                "opening_hour": {
+                    "id": 1,
+                    "relation_data_id": 2,
+                    "regular_periods": [
+                        {
+                            "open_day": "monday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        },
+                        {
+                            "open_day": "tuesday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        },
+                        {
+                            "open_day": "wednesday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        },
+                        {
+                            "open_day": "thursday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        },
+                        {
+                            "open_day": "friday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        }
+                    ],
+                    "date_created": "2024-11-07 10:01:41+01:00",
+                    "date_updated": "2024-11-07 10:01:41+01:00",
+                    "location_id": 2
+                },
+                "id": 2,
+                "relation_data_id": 2,
+                "name": "Backstage-IT",
+                "is_default": false,
+                "is_active": true,
+                "address_id": 26,
+                "date_created": "2024-11-07 10:00:45+01:00",
+                "date_updated": "2024-11-07 10:00:45+01:00",
+                "object_instance_id": 215,
+                "opening_special_hours": [
+                    {
+                        "id": 10,
+                        "location_id": 2,
+                        "date": "2024-12-31",
+                        "is_open": true,
+                        "periods": [
+                            {
+                                "open_time": "11:00",
+                                "close_time": "16:30"
+                            }
+                        ],
+                        "date_created": "2024-11-18 07:48:14+01:00",
+                        "date_updated": "2024-11-19 15:58:02+01:00",
+                        "name": "TEST"
+                    }
+                ]
+            },
+            {
+                "address": {
+                    "id": 27,
+                    "relation_data_id": 2,
+                    "date_created": "2024-11-12 14:53:21+01:00",
+                    "deleted": false,
+                    "city": "Zuthen",
+                    "zipcode": "7202BV",
+                    "street": "Pollaan",
+                    "streetnumber": "43",
+                    "flatnumber": "",
+                    "date_updated": "2024-11-15 15:04:53+01:00",
+                    "published": false,
+                    "contact_set_id": 22,
+                    "gln": "1",
+                    "contact_set": {
+                        "id": 22,
+                        "relation_data_id": 2,
+                        "date_created": "2024-11-12 14:53:21+01:00",
+                        "deleted": false,
+                        "email": "magento@best4u.nl",
+                        "phone": "0575 512 125",
+                        "www": "https:\/\/www.best4u.nl\/",
+                        "date_updated": "2024-11-12 14:53:21+01:00",
+                        "allow_general_communication": false,
+                        "allow_offer_communication": false,
+                        "allow_special_communication": false
+                    }
+                },
+                "opening_hour": {
+                    "id": 2,
+                    "relation_data_id": 2,
+                    "regular_periods": [
+                        {
+                            "open_day": "tuesday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        },
+                        {
+                            "open_day": "wednesday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        },
+                        {
+                            "open_day": "thursday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        },
+                        {
+                            "open_day": "friday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        },
+                        {
+                            "open_day": "saturday",
+                            "open_time": "09:00",
+                            "close_time": "18:00"
+                        }
+                    ],
+                    "date_created": "2024-11-21 12:28:45+01:00",
+                    "date_updated": "2024-11-21 12:28:45+01:00",
+                    "location_id": 3
+                },
+                "location_shipping_setting": {
+                    "id": 1,
+                    "location_id": 3,
+                    "is_pickup": true,
+                    "pickup_next_day_cutoff_time": "07:00:00",
+                    "is_truck_delivery": false,
+                    "date_created": "2024-11-12 15:21:42+01:00",
+                    "date_updated": "2024-11-12 15:21:42+01:00",
+                    "is_pickup_next_day": true,
+                    "is_truck_delivery_next_day": false
+                },
+                "id": 3,
+                "relation_data_id": 2,
+                "name": "Best4u Media B.V.",
+                "is_default": true,
+                "is_active": true,
+                "address_id": 27,
+                "date_created": "2024-11-12 14:53:21+01:00",
+                "date_updated": "2024-11-12 14:53:21+01:00",
+                "object_instance_id": 216,
+                "opening_special_hours": [
+                    {
+                        "id": 8,
+                        "location_id": 3,
+                        "date": "2024-12-23",
+                        "is_open": true,
+                        "periods": [
+                            {
+                                "open_time": "00:00",
+                                "close_time": "12:00"
+                            }
+                        ],
+                        "date_created": "2024-11-15 15:07:44+01:00",
+                        "date_updated": "2024-11-15 15:07:44+01:00",
+                        "name": "Vacancy"
+                    },
+                    {
+                        "id": 9,
+                        "location_id": 3,
+                        "date": "2024-12-24",
+                        "is_open": true,
+                        "periods": [
+                            {
+                                "open_time": "09:46",
+                                "close_time": "14:00"
+                            }
+                        ],
+                        "date_created": "2024-11-18 07:46:57+01:00",
+                        "date_updated": "2024-11-18 07:46:57+01:00"
+                    },
+                    {
+                        "id": 12,
+                        "location_id": 3,
+                        "date": "2024-12-25",
+                        "is_open": false,
+                        "date_created": "2024-11-27 10:47:01+01:00",
+                        "date_updated": "2024-11-27 10:47:01+01:00",
+                        "name": "Test"
+                    }
+                ]
+            }
+        ],
+        "total": 3,
+        "count": 3
+    },
+    "_type": "moduleFunction",
+    "_version": "1.0"
+}

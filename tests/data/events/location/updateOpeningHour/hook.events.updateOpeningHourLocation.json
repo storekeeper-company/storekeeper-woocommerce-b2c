@@ -1,0 +1,36 @@
+{
+    "success": true,
+    "call_id": "674b584f84645",
+    "request": {
+        "headers": {
+            "content_length": [
+                "286"
+            ],
+            "upxhooktoken": [
+                "4bdf16e519ee6ec4bc06c896fa1873989d014253e1ade0060221bd8b16daae5f"
+            ],
+            "content_type": [
+                "application\/json"
+            ],
+            "user_agent": [
+                "GuzzleHttp\/7"
+            ],
+            "host": [
+                "storekeeper.best4u.dev"
+            ]
+        },
+        "body": "{\"action\":\"events\",\"payload\":{\"date_newest\":\"2024-11-30 19:24:09+01\",\"backref\":\"RelationsModule::Location(id=2)\",\"events\":{\"1264\":{\"id\":1264,\"event\":\"updated\",\"scope\":\"opening_hour\",\"date\":\"2024-11-30 19:24:09+01\"},\"1268\":{\"id\":1268,\"event\":\"updated\",\"date\":\"2024-11-30 19:24:09+01\"}}}}",
+        "route": "\/storekeeper-woocommerce-b2c\/v1\/webhook",
+        "method": "POST",
+        "query_params": {
+            "rest_route": "\/storekeeper-woocommerce-b2c\/v1\/webhook\/"
+        },
+        "file_params": []
+    },
+    "hook_action": "events",
+    "return": true,
+    "_type": "hook",
+    "time_ms": 200.0,
+    "_version": "1.0",
+    "_timestamp": "2024-11-30T18:24:15+00:00"
+}

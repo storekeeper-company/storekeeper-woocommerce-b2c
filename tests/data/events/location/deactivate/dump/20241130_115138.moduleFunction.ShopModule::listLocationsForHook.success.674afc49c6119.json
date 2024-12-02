@@ -1,0 +1,31 @@
+{
+    "success": true,
+    "call_id": "674afc49c6119",
+    "module_name": "ShopModule",
+    "function": "listLocationsForHook",
+    "params": [
+        0,
+        100,
+        [
+            {
+                "name": "id",
+                "dir": "asc"
+            }
+        ],
+        [
+            {
+                "name": "id__=",
+                "val": 2
+            }
+        ]
+    ],
+    "return": {
+        "data": [],
+        "total": 0,
+        "count": 0
+    },
+    "_type": "moduleFunction",
+    "time_ms": 503.0,
+    "_version": "1.0",
+    "_timestamp": "2024-11-30T11:51:38+00:00"
+}
