@@ -56,7 +56,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFi
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
-use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderlistHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderListHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\WishlistHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
