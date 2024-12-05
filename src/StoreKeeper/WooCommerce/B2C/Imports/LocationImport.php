@@ -8,6 +8,8 @@ use StoreKeeper\WooCommerce\B2C\Models\LocationModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\AddressModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningHourModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningSpecialHoursModel;
+use StoreKeeper\WooCommerce\B2C\Models\Location\ShippingSettingModel;
+use StoreKeeper\WooCommerce\B2C\Cache\LocationShippingCache;
 
 class LocationImport extends AbstractImport
 {
@@ -119,6 +121,7 @@ class LocationImport extends AbstractImport
             $this->processLocationAddress($dotObject, $locationId);
             $this->processLocationOpeningHours($dotObject, $locationId);
             $this->processLocationSpecialOpeningHours($dotObject, $locationId);
+            $this->processLocationShippingSetting($dotObject, $locationId);
 
             return LocationModel::getStoreKeeperId($locationId);
         }
@@ -590,6 +593,79 @@ class LocationImport extends AbstractImport
     }
 
     /**
+     * Process location shipping setting
+     *
+     * @param Dot $dotObject
+     * @param int $locationId
+     * @return LocationImport
+     */
+    protected function processLocationShippingSetting(Dot $dotObject, int $locationId)
+    {
+        global $wpdb;
+
+        $this->debug('Processing location shipping settings', $dotObject->get('location_shipping_setting', []));
+
+        $locationStoreKeeperId = $this->getStoreKeeperId($dotObject);
+
+        $shippingSettingStoreKeeperId = $dotObject->get('location_shipping_setting.id');
+
+        $deleteQuery = ShippingSettingModel::getDeleteHelper()
+            ->where('location_id = :location_id')
+            ->bindValues(['location_id' => $locationId]);
+
+        if (is_numeric($shippingSettingStoreKeeperId)) {
+            $deleteQuery
+                ->where('storekeeper_id != :storekeeper_id')
+                ->bindValues(['storekeeper_id' => (int) $shippingSettingStoreKeeperId]);
+
+            $shippingSetting = ShippingSettingModel::getByLocationId($locationId, $shippingSettingStoreKeeperId);
+
+            $data = array_merge(
+                array_intersect_key(
+                    $dotObject->get('location_shipping_setting', []),
+                    array_diff_key(
+                        array_fill_keys(array_keys(ShippingSettingModel::getFieldsWithRequired()), null),
+                        [
+                            ShippingSettingModel::PRIMARY_KEY => null,
+                            ShippingSettingModel::FIELD_DATE_CREATED => null,
+                            ShippingSettingModel::FIELD_DATE_UPDATED => null,
+                            'location_id' => null
+                        ]
+                    )
+                ),
+                [
+                    'location_id' => $locationId,
+                    'storekeeper_id' => (int) $shippingSettingStoreKeeperId
+                ]
+            );
+
+            ShippingSettingModel::upsert($data, $shippingSetting);
+
+            if (null === $shippingSetting) {
+                $this->debug(
+                    sprintf(
+                        'Shipping setting id=%d of location id=%s was successfully created',
+                        $shippingSettingStoreKeeperId,
+                        $locationStoreKeeperId
+                    )
+                );
+            } else {
+                $this->debug(
+                    sprintf(
+                        'Shipping setting id=%d of location id=%s was successfully updated',
+                        $shippingSettingStoreKeeperId,
+                        $locationStoreKeeperId
+                    )
+                );
+            }
+        }
+
+        $wpdb->query(ShippingSettingModel::prepareQuery($deleteQuery));
+
+        return $this;
+    }
+
+    /**
      * Get location opening hours mapped by day of week
      *
      * @param int $locationId
@@ -718,6 +794,12 @@ class LocationImport extends AbstractImport
             }
 
             $wpdb->query(LocationModel::prepareQuery($deleteQuery));
+        }
+
+        if (wp_cache_supports('flush_group')) {
+            wp_cache_flush_group(STOREKEEPER_WOOCOMMERCE_B2C_NAME . LocationShippingCache::getCacheGroup());
+        } else {
+            wp_cache_flush();
         }
 
         parent::afterRun($storeKeeperIds);

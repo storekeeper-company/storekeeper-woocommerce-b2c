@@ -27,6 +27,7 @@ use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241113000000Location;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241113000010LocationAddress;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241113000020LocationOpeningHour;
 use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241113000030LocationOpeningSpecialHours;
+use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241202000000LocationShippingSetting;
 
 class AllVersions implements VersionsInterface
 {
@@ -55,7 +56,8 @@ class AllVersions implements VersionsInterface
         V20241113000000Location::class,
         V20241113000010LocationAddress::class,
         V20241113000020LocationOpeningHour::class,
-        V20241113000030LocationOpeningSpecialHours::class
+        V20241113000030LocationOpeningSpecialHours::class,
+        V20241202000000LocationShippingSetting::class
     ];
 
     public function getVersionId(string $class): int

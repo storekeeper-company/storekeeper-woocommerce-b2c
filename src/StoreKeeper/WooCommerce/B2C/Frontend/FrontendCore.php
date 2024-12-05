@@ -11,6 +11,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderHookHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\ProductAddOnHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\StoreKeeperSeoHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\SubscribeHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\LocationShippingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\FormShortCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -62,6 +63,8 @@ class FrontendCore
 
         $markdown = new MarkdownHandler();
         $markdown->registerHooks();
+
+        (new LocationShippingHandler)->registerHooks();
 
         $this->loader->run();
 

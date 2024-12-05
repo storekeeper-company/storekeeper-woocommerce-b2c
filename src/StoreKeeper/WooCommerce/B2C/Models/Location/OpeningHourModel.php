@@ -33,7 +33,8 @@ class OpeningHourModel extends AbstractModel implements IModelPurge
         $select
             ->cols(array_keys(self::getFieldsWithRequired()))
             ->where('location_id = :location_id')
-            ->bindValue('location_id', (int) $locationId);
+            ->bindValue('location_id', (int) $locationId)
+            ->orderBy(['open_day ASC']);
 
         $query = static::prepareQuery($select);
 

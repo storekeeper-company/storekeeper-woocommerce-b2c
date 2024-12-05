@@ -7,9 +7,11 @@ use StoreKeeper\WooCommerce\B2C\Models\LocationModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\AddressModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningHourModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningSpecialHoursModel;
+use StoreKeeper\WooCommerce\B2C\Models\Location\ShippingSettingModel;
 use StoreKeeper\WooCommerce\B2C\Helpers\Location\AddressHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\Location\OpeningSpecialHour as OpeningSpecialHourHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
+use StoreKeeper\WooCommerce\B2C\Helpers\Location\ShippingSetting as ShippingSettingHelper;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\TableRenderer;
 use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 
@@ -432,6 +434,7 @@ class LocationsTab extends AbstractLogsTab
                 $this->renderLocationViewHeader($location);
                 $this->renderLocationOpeningHours($location);
                 $this->renderLocationAddress($location);
+                $this->renderLocationShippingSetting($location);
             } else {
                 $this->clearArgs();
             }
@@ -595,6 +598,56 @@ class LocationsTab extends AbstractLogsTab
     }
 
     /**
+     * Render location shipping setting view action
+     *
+     * @param array $location
+     * @return void
+     */
+    protected function renderLocationShippingSetting($location)
+    {
+        $shippingSetting = ShippingSettingModel::getByLocationId((int) $location[LocationModel::PRIMARY_KEY]);
+
+        $table = new TableRenderer();
+        $table->addColumn(__('Own delivery/pickup options', I18N::DOMAIN), 'title');
+        $table->addColumn('', 'value');
+        $table->render(
+            [
+                [
+                    'title' => __('Pickup options', I18N::DOMAIN),
+                    'value' => null,
+                    'function::value' => function() use ($shippingSetting) {
+                        if (null === $shippingSetting || !$shippingSetting['is_pickup'] ||
+                            !$shippingSetting['pickup_next_day_cutoff_time']) {
+                            esc_html_e('No pick-up in this location', I18N::DOMAIN);
+                        } else {
+                            printf(
+                                __('Orders made before %s can be picked up next open business day', I18N::DOMAIN),
+                                $this->formatCutoffTime($shippingSetting['pickup_next_day_cutoff_time'])
+                            );
+                        }
+                    }
+                ],
+                [
+                    'title' => __('Own delivery options', I18N::DOMAIN),
+                    'value' => null,
+                    'function::value' => function () use ($shippingSetting) {
+                        if (!$shippingSetting || !$shippingSetting['is_truck_delivery'] ||
+                            !$shippingSetting['truck_delivery_next_day_cutoff_time']) {
+                            esc_html_e('No own delivery from this location', I18N::DOMAIN);
+                        } else {
+                            printf(
+                                __('Orders made before %s will be delivered next open business day', I18N::DOMAIN),
+                                $this->formatCutoffTime($shippingSetting['truck_delivery_next_day_cutoff_time'])
+                            );
+                        }
+                    }
+                ]
+            ]
+        );
+        unset($table);
+    }
+
+    /**
      * Render location address country
      *
      * @param null|string $phone
@@ -696,6 +749,26 @@ class LocationsTab extends AbstractLogsTab
         }
 
         return $defaultHtml;
+    }
+
+    /**
+     * Format cut-off time
+     *
+     * @param string $cutoffTime
+     * @return string
+     */
+    protected function formatCutoffTime($cutoffTime)
+    {
+        $timeFormat = get_option(DateTimeHelper::WORDPRESS_TIME_FORMAT_OPTION);
+        if (!$timeFormat) {
+            $timeFormat = 'g:i a';
+        }
+
+        $time = (new \DateTime)
+            ->setTimezone(wp_timezone())
+            ->setTimestamp(strtotime($cutoffTime));
+
+        return $time->format($timeFormat);
     }
 
     /**

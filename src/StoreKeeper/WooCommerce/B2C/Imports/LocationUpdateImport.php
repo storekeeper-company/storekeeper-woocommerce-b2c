@@ -9,11 +9,12 @@ class LocationUpdateImport extends LocationImport
 {
 
     /**#@+
-     * Location scopes
+     * Location update scopes
      */
     public const ADDRESS_SCOPE = 'address';
     public const OPENING_HOUR_SCOPE = 'opening_hour';
     public const OPENING_SPECIAL_HOUR_SCOPE = 'opening_special_hour';
+    public const SHIPPING_SETTING_SCOPE = 'location_shipping_setting';
     /**#@-*/
 
     /**
@@ -68,6 +69,10 @@ class LocationUpdateImport extends LocationImport
 
             if (in_array(self::OPENING_SPECIAL_HOUR_SCOPE, $this->scope)) {
                 $this->processLocationSpecialOpeningHours($dotObject, $locationId);
+            }
+
+            if (in_array(self::SHIPPING_SETTING_SCOPE, $this->scope)) {
+                $this->processLocationShippingSetting($dotObject, $locationId);
             }
         }
 
