@@ -188,6 +188,10 @@ class Core
         add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
         add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
         add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+
+        add_action('wp_enqueue_scripts', [$this, 'enqueueMediaUploaderScripts']);
+        add_action('wp_ajax_upload_product_image', [$this, 'handleProductImageUpload']);
+        add_action('wp_ajax_nopriv_upload_product_image', [$this, 'handleProductImageUpload']);
     }
 
     private function prepareCron()
@@ -264,8 +268,7 @@ class Core
     {
         return (defined('WP_DEBUG') && WP_DEBUG)
             || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
-            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-        ;
+            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG']);
     }
 
     public static function isDataDump(): bool
@@ -552,7 +555,7 @@ HTML;
                 foreach ($methods_data as $method_data) {
                     if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
                         $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= ': '.__('Free Shipping', I18N::DOMAIN);
+                        $rates[$rate_key]->label .= ': '. esc_html__('Free Shipping', I18N::DOMAIN);
                         break;
                     }
                 }
@@ -562,9 +565,62 @@ HTML;
         return $rates;
     }
 
-    public function syncAllPaidAndProcessingOrders()
+    public function syncAllPaidAndProcessingOrders(): void
     {
         $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
+    }
+
+    public function enqueueMediaUploaderScripts()
+    {
+        $cssUrl = plugins_url('storekeeper-for-woocommerce/resources/css/customized-orders.css');
+        wp_enqueue_style('image-upload-style', $cssUrl, [], null);
+
+        $jsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/upload-image.js');
+        wp_enqueue_script('jquery');
+        wp_enqueue_script('image-upload-script', $jsUrl, ['jquery'], null, true);
+
+        wp_localize_script('image-upload-script', 'ajax_object', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('upload_product_image_nonce'),
+            'translations' => [
+                'please_select_image' => esc_html__('Please select an image first.', I18N::DOMAIN),
+                'image_too_small' => esc_html__('Image is too small. Minimum dimensions are {width}x{height}.', I18N::DOMAIN),
+                'image_too_large' => esc_html__('Image is too large. Maximum dimensions are {width}x{height}.', I18N::DOMAIN),
+                'upload_success' => esc_html__('Image uploaded successfully!', I18N::DOMAIN),
+                'upload_error' => esc_html__('An error occurred while uploading the image.', I18N::DOMAIN),
+            ],
+        ]);
+    }
+
+    public function handleProductImageUpload()
+    {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'upload_product_image_nonce')) {
+            wp_send_json_error(['message' => esc_html__('Nonce verification failed', I18N::DOMAIN)]);
+            return;
+        }
+
+        if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
+            $uploadedFile = $_FILES['file'];
+
+            $uploadDir = wp_upload_dir();
+            $uploadPath = $uploadDir['path'].'/'.basename($uploadedFile['name']);
+            $allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            $fileMimeType = mime_content_type($uploadedFile['tmp_name']);
+
+            if (!in_array($fileMimeType, $allowedMimeTypes)) {
+                wp_redirect(add_query_arg('upload_error', 'invalid_file_type', wp_get_referer()));
+                exit;
+            }
+
+            if (move_uploaded_file($uploadedFile['tmp_name'], $uploadPath)) {
+                $image_url = $uploadDir['url'].'/'.basename($uploadedFile['name']);
+                wp_send_json_success(['url' => $image_url]);
+            } else {
+                wp_send_json_error(['message' => esc_html__('File upload failed', I18N::DOMAIN)]);
+            }
+        } else {
+            wp_send_json_error(['message' => esc_html__('No file uploaded', I18N::DOMAIN)]);
+        }
     }
 }
