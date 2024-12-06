@@ -56,6 +56,8 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFi
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\OrderListHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\WishlistHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -188,6 +190,17 @@ class Core
         add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
         add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
         add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+
+        $wishlistHandler = new WishlistHandler();
+        $wishlistHandler->registerHooks();
+
+        $orderlistHandler = new OrderlistHandler();
+        $orderlistHandler->registerHooks();
+
+        add_action('plugins_loaded', [$this, 'createWishlistsPageOnPluginActivation']);
+        add_filter('wp_nav_menu_items', [$this, 'addWishlistLinkToMenu']);
+        add_action('template_redirect', [$this, 'changeWishlistPageHtml']);
+        add_action('wp_enqueue_scripts', [$this, 'customModalScriptsWishlist']);
     }
 
     private function prepareCron()
@@ -264,8 +277,7 @@ class Core
     {
         return (defined('WP_DEBUG') && WP_DEBUG)
             || (defined('STOREKEEPER_WOOCOMMERCE_B2C_DEBUG') && STOREKEEPER_WOOCOMMERCE_B2C_DEBUG)
-            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG'])
-        ;
+            || !empty($_ENV['STOREKEEPER_WOOCOMMERCE_B2C_DEBUG']);
     }
 
     public static function isDataDump(): bool
@@ -552,7 +564,7 @@ HTML;
                 foreach ($methods_data as $method_data) {
                     if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
                         $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= ': '.__('Free Shipping', I18N::DOMAIN);
+                        $rates[$rate_key]->label .= ': '.esc_html__('Free Shipping', I18N::DOMAIN);
                         break;
                     }
                 }
@@ -562,9 +574,93 @@ HTML;
         return $rates;
     }
 
-    public function syncAllPaidAndProcessingOrders()
+    public function syncAllPaidAndProcessingOrders(): void
     {
         $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
+    }
+
+    public function customModalScriptsWishlist(): void
+    {
+        $cssUrl = plugins_url('storekeeper-for-woocommerce/resources/css/wishlist.css');
+        $wishlistJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/wishlist.js');
+        $orderJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/order.js');
+
+        wp_enqueue_script('jquery');
+        wp_enqueue_style('custom-modal-css', $cssUrl);
+        wp_enqueue_script('wishlist-js', $wishlistJsUrl, array('jquery'), null, true);
+        wp_localize_script('wishlist-js', 'ajax_object', array(
+            'admin_url'     => admin_url('admin-ajax.php'),
+            'wishlistNonce' => wp_create_nonce('wishlist_action'),
+            'cart_url'      => wc_get_cart_url(),
+            'translations' => [
+                'wishlist_not_deleted' => esc_html__('Could not delete wishlist.', I18N::DOMAIN),
+                'ajax_failed' => esc_html__('AJAX request failed.', I18N::DOMAIN),
+                'product_added_to_wishlist' => esc_html__('Product added to wishlist!', I18N::DOMAIN),
+                'product_added_to_wishlist_failed' => esc_html__('Failed to add product to wishlist.', I18N::DOMAIN),
+                'no_results' => esc_html__('No results found', I18N::DOMAIN),
+                'failed_quantity_update' => esc_html__('Failed to update quantity.', I18N::DOMAIN),
+                'error_occurred' => esc_html__('An error occurred', I18N::DOMAIN),
+                'wishlist_saved' => esc_html__('Wishlist saved successfully!', I18N::DOMAIN),
+            ],
+        ));
+        wp_enqueue_script('order-js', $orderJsUrl, array('jquery'), null, true);
+        wp_localize_script('order-js', 'ajax_obj', array(
+            'admin_url'     => admin_url('admin-ajax.php'),
+            'wishlistNonce' => wp_create_nonce('wishlist_action_nonce'),
+            'translations' => [
+                'added_product' => esc_html__('Products added to wishlist.', I18N::DOMAIN),
+                'error_product' => esc_html__('Something went wrong.', I18N::DOMAIN),
+            ]
+        ));
+    }
+
+    public function createWishlistsPageOnPluginActivation(): void
+    {
+        $page_check = get_page_by_path('wishlists');
+        if (!$page_check) {
+            $new_page = [
+                'post_title' => 'Wishlists',
+                'post_content' => '[wishlists_list]',
+                'post_status' => 'publish',
+                'post_type' => 'page',
+            ];
+            wp_insert_post($new_page);
+        }
+    }
+
+    public function addWishlistLinkToMenu($items, $args): mixed
+    {
+        if (is_user_logged_in() && 'primary' === $args->theme_location) {
+            $wishlists_page = get_page_by_path('wishlists');
+            if ($wishlists_page) {
+                $wishlist_url = get_permalink($wishlists_page->ID);
+                $wishlist_link = '<li><a href="'.esc_url($wishlist_url).'">' . esc_html__('My Wishlist', I18N::DOMAIN).'</a></li>';
+                $items .= $wishlist_link;
+            }
+        }
+
+        return $items;
+    }
+
+    public function changeWishlistPageHtml(): void
+    {
+        $current_url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        $last_segment = basename(parse_url($current_url, PHP_URL_PATH));
+        if ('wishlists' == $last_segment) {
+            $template_path = plugin_dir_path(__FILE__).'Frontend/page-wishlists.php';
+            if (file_exists($template_path)) {
+                include $template_path;
+                exit;
+            }
+        }
+
+        if (false !== strpos($current_url, '/wishlists/')) {
+            $template_path = plugin_dir_path(__FILE__).'Frontend/page-wishlist-products.php';
+            if (file_exists($template_path)) {
+                include $template_path;
+                exit;
+            }
+        }
     }
 }
