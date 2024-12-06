@@ -82,11 +82,12 @@ jQuery(document).ready(function ($) {
                                 $('#success-message').fadeOut();
                             }, 2000);
                         } else {
-                            $(validationMessageId).html(`<span style="color: red;">${response.data.message}</span>`);
+                            const escapedMessage = escapeHtml(response.data.message);
+                            $(validationMessageId).html(`<span style="color: red;">${escapedMessage}</span>`);
                         }
                     },
                     error: function () {
-                        $(validationMessageId).html('<span style="color: red;">ajax_object.translations.upload_error</span>');
+                        $(validationMessageId).html(`<span style="color: red;">ajax_object.translations.upload_error</span>`);
                     }
                 });
             };
@@ -115,8 +116,8 @@ jQuery(document).ready(function ($) {
 document.addEventListener('DOMContentLoaded', function () {
     const imageCheckbox = document.getElementById('agree-images');
     const textCheckbox = document.getElementById('agree-text');
-    const imageOptionsList = document.querySelectorAll('.sk-addon-select-images ul');
-    const textOptionsList = document.querySelectorAll('.sk-addon-select-text ul');
+    const imageOptionsList = document.querySelectorAll('.addon-image-optional ul');
+    const textOptionsList = document.querySelectorAll('.addon-text-optional ul');
     const allOptionsList = [...imageOptionsList, ...textOptionsList];
 
     allOptionsList.forEach(ul => {

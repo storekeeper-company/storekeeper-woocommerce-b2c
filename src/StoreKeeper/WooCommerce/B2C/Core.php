@@ -49,23 +49,14 @@ use StoreKeeper\WooCommerce\B2C\Commands\SyncWoocommerceUpsellProducts;
 use StoreKeeper\WooCommerce\B2C\Commands\WpCliCommandRunner;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Cron\ProcessTaskCron;
-use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 use StoreKeeper\WooCommerce\B2C\Endpoints\EndpointLoader;
 use StoreKeeper\WooCommerce\B2C\Exceptions\BootError;
-use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
-use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\OrderTrackingMessage;
 use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFilter;
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegmentPrices;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241105122301CustomerSegments;
-use StoreKeeper\WooCommerce\B2C\Migrations\Versions\V20241111122301CustomersSegments;
-use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentModel;
-use StoreKeeper\WooCommerce\B2C\Models\CustomerSegmentPriceModel;
-use StoreKeeper\WooCommerce\B2C\Models\CustomersSegmentsModel;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -157,7 +148,7 @@ class Core
         // Declare HPOS compabitility
         add_action('before_woocommerce_init', static function () {
             if (class_exists(FeaturesUtil::class)) {
-                FeaturesUtil::declare_compatibility('custom_order_tables', STOREKEEPER_FOR_WOOCOMMERCE_NAME . '/' . STOREKEEPER_WOOCOMMERCE_B2C_NAME . '.php');
+                FeaturesUtil::declare_compatibility('custom_order_tables', STOREKEEPER_FOR_WOOCOMMERCE_NAME.'/'.STOREKEEPER_WOOCOMMERCE_B2C_NAME.'.php');
             }
         });
 
@@ -193,7 +184,7 @@ class Core
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
 
-//        add_filter('woocommerce_shipping_settings', 'displayMinAmountField');
+        add_filter('woocommerce_shipping_settings', 'displayMinAmountField');
         add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
         add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
         add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
@@ -201,7 +192,6 @@ class Core
         add_action('wp_enqueue_scripts', [$this, 'enqueueMediaUploaderScripts']);
         add_action('wp_ajax_upload_product_image', [$this, 'handleProductImageUpload']);
         add_action('wp_ajax_nopriv_upload_product_image', [$this, 'handleProductImageUpload']);
-
     }
 
     private function prepareCron()
@@ -303,7 +293,7 @@ class Core
             throw new \RuntimeException('Cannot find writable directory, for dumping api calls. Set define(\'STOREKEEPER_WOOCOMMERCE_API_DUMP\', false); to in your wp-config.php prevent dumping api calls.');
         }
 
-        return $tmp . '/dumps/';
+        return $tmp.'/dumps/';
     }
 
     private function registerAddressFormatting(): void
@@ -470,12 +460,12 @@ HTML;
             $dirs[] = "/home/$user/tmp";
         }
         if (!empty($_SERVER['HOME'])) {
-            $dirs[] = $_SERVER['HOME'] . '/tmp';
+            $dirs[] = $_SERVER['HOME'].'/tmp';
         }
 
-        $dirs[] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . STOREKEEPER_FOR_WOOCOMMERCE_NAME;
-        $dirs[] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . STOREKEEPER_WOOCOMMERCE_B2C_NAME;
-        $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH . DIRECTORY_SEPARATOR . 'tmp';
+        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_FOR_WOOCOMMERCE_NAME;
+        $dirs[] = sys_get_temp_dir().DIRECTORY_SEPARATOR.STOREKEEPER_WOOCOMMERCE_B2C_NAME;
+        $dirs[] = STOREKEEPER_WOOCOMMERCE_B2C_ABSPATH.DIRECTORY_SEPARATOR.'tmp';
 
         return $dirs;
     }
@@ -565,7 +555,7 @@ HTML;
                 foreach ($methods_data as $method_data) {
                     if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
                         $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= ': ' . __('Free Shipping', I18N::DOMAIN);
+                        $rates[$rate_key]->label .= ': '. esc_html__('Free Shipping', I18N::DOMAIN);
                         break;
                     }
                 }
@@ -584,47 +574,53 @@ HTML;
     public function enqueueMediaUploaderScripts()
     {
         $cssUrl = plugins_url('storekeeper-for-woocommerce/resources/css/customized-orders.css');
-        wp_enqueue_style('image-upload-style', $cssUrl, array(), null);
+        wp_enqueue_style('image-upload-style', $cssUrl, [], null);
 
         $jsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/upload-image.js');
         wp_enqueue_script('jquery');
-        wp_enqueue_script('image-upload-script', $jsUrl, array('jquery'), null, true);
+        wp_enqueue_script('image-upload-script', $jsUrl, ['jquery'], null, true);
 
-        wp_localize_script('image-upload-script', 'ajax_object', array(
+        wp_localize_script('image-upload-script', 'ajax_object', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('upload_product_image_nonce'),
-            'translations' => array(
-                'please_select_image' => __('Please select an image first.', I18N::DOMAIN),
-                'image_too_small' => __('Image is too small. Minimum dimensions are {width}x{height}.', I18N::DOMAIN),
-                'image_too_large' => __('Image is too large. Maximum dimensions are {width}x{height}.', I18N::DOMAIN),
-                'upload_success' => __('Image uploaded successfully!', I18N::DOMAIN),
-                'upload_error' => __('An error occurred while uploading the image.', I18N::DOMAIN),
-            ),
-        ));
+            'translations' => [
+                'please_select_image' => esc_html__('Please select an image first.', I18N::DOMAIN),
+                'image_too_small' => esc_html__('Image is too small. Minimum dimensions are {width}x{height}.', I18N::DOMAIN),
+                'image_too_large' => esc_html__('Image is too large. Maximum dimensions are {width}x{height}.', I18N::DOMAIN),
+                'upload_success' => esc_html__('Image uploaded successfully!', I18N::DOMAIN),
+                'upload_error' => esc_html__('An error occurred while uploading the image.', I18N::DOMAIN),
+            ],
+        ]);
     }
 
     public function handleProductImageUpload()
     {
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'upload_product_image_nonce')) {
-            wp_send_json_error(['message' => __('Nonce verification failed', I18N::DOMAIN)]);
+            wp_send_json_error(['message' => esc_html__('Nonce verification failed', I18N::DOMAIN)]);
             return;
         }
-        
+
         if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
-            $uploaded_file = $_FILES['file'];
+            $uploadedFile = $_FILES['file'];
 
-            $upload_dir = wp_upload_dir();
-            $upload_path = $upload_dir['path'] . '/' . basename($uploaded_file['name']);
+            $uploadDir = wp_upload_dir();
+            $uploadPath = $uploadDir['path'].'/'.basename($uploadedFile['name']);
+            $allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            $fileMimeType = mime_content_type($uploadedFile['tmp_name']);
 
-            if (move_uploaded_file($uploaded_file['tmp_name'], $upload_path)) {
-                $image_url = $upload_dir['url'] . '/' . basename($uploaded_file['name']);
+            if (!in_array($fileMimeType, $allowedMimeTypes)) {
+                wp_redirect(add_query_arg('upload_error', 'invalid_file_type', wp_get_referer()));
+                exit;
+            }
+
+            if (move_uploaded_file($uploadedFile['tmp_name'], $uploadPath)) {
+                $image_url = $uploadDir['url'].'/'.basename($uploadedFile['name']);
                 wp_send_json_success(['url' => $image_url]);
             } else {
-                wp_send_json_error(['message' => __('File upload failed', I18N::DOMAIN)]);
+                wp_send_json_error(['message' => esc_html__('File upload failed', I18N::DOMAIN)]);
             }
         } else {
-            wp_send_json_error(['message' => __('No file uploaded', I18N::DOMAIN)]);
+            wp_send_json_error(['message' => esc_html__('No file uploaded', I18N::DOMAIN)]);
         }
     }
-
 }

@@ -1277,7 +1277,6 @@ class OrderExport extends AbstractExport
 
     protected function getOrderLineMeta(\WC_Order_Item $orderItemProduct): array
     {
-        $log_file = ABSPATH . 'wp-content/uploads/wc-logs/test.log';
         $metaData = $orderItemProduct->get_meta_data();
         $meta = [];
         foreach ($metaData as $metaDatum) {

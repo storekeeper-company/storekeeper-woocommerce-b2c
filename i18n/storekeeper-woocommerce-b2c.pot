@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
 "woocommerce\n"
-"POT-Creation-Date: 2024-11-27 23:10+0200\n"
+"POT-Creation-Date: 2024-12-06 11:52+0200\n"
 "PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2873,16 +2873,19 @@ msgid "Upload"
 msgstr ""
 
 msgid "Please select an image first."
-msgstr "Please select an image first."
+msgstr ""
 
 msgid "Image is too small. Minimum dimensions are {width}x{height}."
-msgstr "Image is too small. Minimum dimensions are {width}x{height}."
+msgstr ""
 
 msgid "Image is too large. Maximum dimensions are {width}x{height}."
-msgstr "Image is too large. Maximum dimensions are {width}x{height}."
+msgstr ""
 
 msgid "Image uploaded successfully!"
-msgstr "Image uploaded successfully!"
+msgstr ""
 
 msgid "An error occurred while uploading the image."
-msgstr "An error occurred while uploading the image."
+msgstr ""
+
+msgid "Invalid file type. Please upload a valid image."
+msgstr ""

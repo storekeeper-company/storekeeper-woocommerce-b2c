@@ -7,9 +7,16 @@ $image_min_w = $addon['image_min_w'];
 $image_max_h = $addon['image_max_h'];
 $image_max_w = $addon['image_max_w'];
 
-echo '<div class="sk-addon-select sk-addon-'.$addon['type'].'" '.ProductAddOnHandler::FORM_DATA_SK_ADDON_GROUP_ID.'="'.$addon['product_addon_group_id'].'">';
+$is_required = ($addon['type'] === ProductAddOnHandler::ADDON_TYPE_REQUIRED_IMAGE);
+
+echo '<div class="sk-addon-select sk-addon-'.$addon['type'].'" '.ProductAddOnHandler::FORM_DATA_SK_ADDON_GROUP_ID.'="'.$addon['product_addon_group_id'].' ' . (!$is_required ? 'addon-image-optional' : '') .'">';
 echo '<label for="agree-images">
-        <input type="checkbox" name="agree" id="agree" checked disabled> <strong>' . __('Required Image', I18N::DOMAIN) . '</strong>
+        <input type="checkbox" name="agree" id="agree" '.($is_required ? 'checked disabled' : '').'> 
+        <strong>' . esc_html(
+        $is_required
+            ? __('Required Image', I18N::DOMAIN)
+            : __('Would you like an image on the product?', I18N::DOMAIN)
+    ) . '</strong>
       </label>';
 echo '<input type="hidden" id="product-id" value="' . get_the_ID() . '">';
 echo '<ul>';
@@ -19,12 +26,11 @@ foreach ($addon['options'] as $option) {
         '<span style="font-size: 0.8em;">' .
         ($option['ppu_wt'] > 0
             ? '+' .esc_html(strip_tags(wc_price($option['ppu_wt'])))
-            : ' (' . __('free', I18N::DOMAIN) . ')') .
+            : ' (' . esc_html__('free', I18N::DOMAIN) . ')') .
         '</span>';
 
-    echo '<br><button type="button" class="upload-image-btn" data-option-id="' . esc_attr($option['id']) . '">Upload Image</button>';
+    echo '<br><button type="button" class="upload-image-btn" data-option-id="' . esc_attr($option['id']) . '">' . esc_html__('Upload Image', I18N::DOMAIN) . '</button>';
     echo '<div class="image-preview-container" id="image-preview-container-' . esc_attr($option['id']) . '" style="margin-top: 10px;">';
-    $image_url = '';
     echo '<a href="" class="uploaded-image" id="image-preview-' . esc_attr($option['id']) . '"></a>';
     echo '</div>';
     echo '<input type="hidden" id="uploaded_image_url_' . esc_attr($option['id']) . '" 
@@ -41,13 +47,13 @@ echo '</div>';
 <div id="image-upload-popup" class="image-upload-popup" style="display:none;">
     <div class="popup-content">
         <span class="popup-close">&times;</span>
-        <h2><?php echo __(
+        <h2><?php echo esc_html__(
                 'Select an image', I18N::DOMAIN
             ) ?>
         </h2>
         <input type="file" id="image-upload-input" accept="image/*">
         <button type="button" id="upload-image-btn-popup">
-            <?php echo __(
+            <?php echo esc_html__(
                 'Upload', I18N::DOMAIN
             ) ?>
         </button>
