@@ -564,7 +564,7 @@ HTML;
                 foreach ($methods_data as $method_data) {
                     if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
                         $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= ': '.__('Free Shipping', I18N::DOMAIN);
+                        $rates[$rate_key]->label .= ': '.esc_html__('Free Shipping', I18N::DOMAIN);
                         break;
                     }
                 }
@@ -584,7 +584,7 @@ HTML;
     {
         $cssUrl = plugins_url('storekeeper-for-woocommerce/resources/css/wishlist.css');
         $wishlistJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/wishlist.js');
-        $orderJsUrl = plugins_url('storekeeper-for-woocommerce/resouces/js/order.js');
+        $orderJsUrl = plugins_url('storekeeper-for-woocommerce/resources/js/order.js');
 
         wp_enqueue_script('jquery');
         wp_enqueue_style('custom-modal-css', $cssUrl);
@@ -594,14 +594,14 @@ HTML;
             'wishlistNonce' => wp_create_nonce('wishlist_action'),
             'cart_url'      => wc_get_cart_url(),
             'translations' => [
-                'wishlist_not_deleted' => __('Could not delete wishlist.', I18N::DOMAIN),
-                'ajax_failed' => __('AJAX request failed.', I18N::DOMAIN),
-                'product_added_to_wishlist' => __('Product added to wishlist!', I18N::DOMAIN),
-                'product_added_to_wishlist_failed' => __('Failed to add product to wishlist.', I18N::DOMAIN),
-                'no_results' => __('No results found', I18N::DOMAIN),
-                'failed_quantity_update' => __('Failed to update quantity.', I18N::DOMAIN),
-                'error_occurred' => __('An error occurred', I18N::DOMAIN),
-                'wishlist_saved' => __('Wishlist saved successfully!', I18N::DOMAIN),
+                'wishlist_not_deleted' => esc_html__('Could not delete wishlist.', I18N::DOMAIN),
+                'ajax_failed' => esc_html__('AJAX request failed.', I18N::DOMAIN),
+                'product_added_to_wishlist' => esc_html__('Product added to wishlist!', I18N::DOMAIN),
+                'product_added_to_wishlist_failed' => esc_html__('Failed to add product to wishlist.', I18N::DOMAIN),
+                'no_results' => esc_html__('No results found', I18N::DOMAIN),
+                'failed_quantity_update' => esc_html__('Failed to update quantity.', I18N::DOMAIN),
+                'error_occurred' => esc_html__('An error occurred', I18N::DOMAIN),
+                'wishlist_saved' => esc_html__('Wishlist saved successfully!', I18N::DOMAIN),
             ],
         ));
         wp_enqueue_script('order-js', $orderJsUrl, array('jquery'), null, true);
@@ -609,8 +609,8 @@ HTML;
             'admin_url'     => admin_url('admin-ajax.php'),
             'wishlistNonce' => wp_create_nonce('wishlist_action_nonce'),
             'translations' => [
-                'added_product' => __('Products added to wishlist.', I18N::DOMAIN),
-                'error_product' => __('Something went wrong.', I18N::DOMAIN),
+                'added_product' => esc_html__('Products added to wishlist.', I18N::DOMAIN),
+                'error_product' => esc_html__('Something went wrong.', I18N::DOMAIN),
             ]
         ));
     }
@@ -635,7 +635,7 @@ HTML;
             $wishlists_page = get_page_by_path('wishlists');
             if ($wishlists_page) {
                 $wishlist_url = get_permalink($wishlists_page->ID);
-                $wishlist_link = '<li><a href="'.esc_url($wishlist_url).'">'.__('My Wishlist', I18N::DOMAIN).'</a></li>';
+                $wishlist_link = '<li><a href="'.esc_url($wishlist_url).'">' . esc_html__('My Wishlist', I18N::DOMAIN).'</a></li>';
                 $items .= $wishlist_link;
             }
         }

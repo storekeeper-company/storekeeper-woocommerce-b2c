@@ -70,12 +70,12 @@ $wishlists = getUserWishlists($userId);
                             </div>
                             <div class="wishlist-item-delete">
                                 <button class="delete-button" data-wishlist-id="<?php echo $wishlist->ID; ?>">
-                                    <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/trash-xmark.png'); ?>"
+                                    <img src="<?php echo plugins_url('storekeeper-for-woocommerce/resources/img/trash-xmark.png'); ?>"
                                          alt="Delete" class="delete-icon">
                                 </button>
                                 <div class="tooltip-container">
-                                    <p>Wilt u het verwijderen? <br>
-                                        <span class="tooltip-option yes">Ja</span> / <span class="tooltip-option no">Nee</span>
+                                    <p><?php echo esc_html__('Wilt u het verwijderen?', I18N::DOMAIN); ?><br>
+                                        <span class="tooltip-option yes"><?php echo esc_html__('Ja', I18N::DOMAIN); ?></span> / <span class="tooltip-option no"><?php echo esc_html__('Nee', I18N::DOMAIN); ?></span>
                                     </p>
                                 </div>
                             </div>
@@ -85,25 +85,25 @@ $wishlists = getUserWishlists($userId);
 
                 <div class="add-new-wishlist">
                     <div class="wishlist-add">
-                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/plus.png'); ?>"
+                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/resources/img/plus.png'); ?>"
                              alt="Plus" class="plus-icon">
-                        <span><?php echo __('Nieuwe lijst', I18N::DOMAIN); ?></span>
+                        <span><?php echo esc_html__('Nieuwe lijst', I18N::DOMAIN); ?></span>
                     </div>
                 </div>
 
                 <div id="new-wishlist-modal" class="wishlist-modal">
                     <div class="wishlist-modal-content">
                         <span class="wishlist-close">&times;</span>
-                        <h2><?php echo __('Create wishlist', I18N::DOMAIN); ?></h2>
+                        <h2><?php echo esc_html__('Create wishlist', I18N::DOMAIN); ?></h2>
                         <form id="new-wishlist-form" method="POST" action="<?php
                         echo esc_url(admin_url('admin-post.php?action=create_wishlist')); ?>">
-                            <input type="text" name="wishlist_name" placeholder="<?php echo __('Wishlist Name', I18N::DOMAIN); ?>" required>
-                            <button type="submit" class="submit-wishlist"><?php echo __('Create Wishlist', I18N::DOMAIN); ?></button>
+                            <input type="text" name="wishlist_name" placeholder="<?php echo esc_html__('Wishlist Name', I18N::DOMAIN); ?>" required>
+                            <button type="submit" class="submit-wishlist"><?php echo esc_html__('Create Wishlist', I18N::DOMAIN); ?></button>
                         </form>
                     </div>
                 </div>
             <?php } else { ?>
-                <p><?php echo __('No wishlists found.', I18N::DOMAIN); ?></p>
+                <p><?php echo esc_html__('No wishlists found.', I18N::DOMAIN); ?></p>
             <?php } ?>
         </div>
     </div>

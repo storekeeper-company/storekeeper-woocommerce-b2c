@@ -23,7 +23,7 @@ class OrderListHandler implements WithHooksInterface
                 error_log('Invalid order ID');
                 wp_send_json_error(
                     [
-                        'message' => __('Invalid order ID.', I18N::DOMAIN),
+                        'message' => esc_html__('Invalid order ID.', I18N::DOMAIN),
                     ]
                 );
             }
@@ -33,7 +33,7 @@ class OrderListHandler implements WithHooksInterface
                 error_log('Order not found: ' . $orderId);
                 wp_send_json_error(
                     [
-                        'message' => __('Order not found', I18N::DOMAIN),
+                        'message' => esc_html__('Order not found', I18N::DOMAIN),
                     ]
                 );
             }
@@ -43,7 +43,7 @@ class OrderListHandler implements WithHooksInterface
                 error_log('No products found in order: ' . $orderId);
                 wp_send_json_error(
                     [
-                        'message' => __('No products found in this order.', I18N::DOMAIN),
+                        'message' => esc_html__('No products found in this order.', I18N::DOMAIN),
                     ]
                 );
             }
@@ -62,7 +62,7 @@ class OrderListHandler implements WithHooksInterface
 
             wp_send_json_success(
                 [
-                    'message' => __('Products added to wishlist.'),
+                    'message' => esc_html__('Products added to wishlist.'),
                 ]
             );
         }

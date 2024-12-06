@@ -147,9 +147,9 @@ function renderProductList($products, $wishlist)
                                                     data-product-id="<?php echo esc_attr($product->get_id()); ?>"
                                                     data-variation-id="<?php echo esc_attr($variationId); ?>"></button>
                                             <div class="tooltip-container-product">
-                                                <p class="tooltip-product-message"><?php echo __('Wilt u het verwijderen?', I18N::DOMAIN); ?><br>
-                                                    <span class="tooltip-option-product yes"><?php echo __('Ja', I18N::DOMAIN); ?></span> / <span
-                                                        class="tooltip-option-product no"><?php echo __('Nee', I18N::DOMAIN); ?></span>
+                                                <p class="tooltip-product-message"><?php echo esc_html__('Wilt u het verwijderen?', I18N::DOMAIN); ?><br>
+                                                    <span class="tooltip-option-product yes"><?php echo esc_html__('Ja', I18N::DOMAIN); ?></span> / <span
+                                                        class="tooltip-option-product no"><?php echo esc_html__('Nee', I18N::DOMAIN); ?></span>
                                                 </p>
                                             </div>
                                         </div>
@@ -164,14 +164,14 @@ function renderProductList($products, $wishlist)
                                     <?php } ?>
                                     <div class="product-qty">
                                         <img
-                                            src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/minus.png'); ?>"
+                                            src="<?php echo plugins_url('storekeeper-for-woocommerce/resources/img/minus.png'); ?>"
                                             alt="Minus" class="minus-icon"
                                             data-product-id="<?php echo esc_attr($variationProduct->get_id()); ?>"
                                             data-variation-id="<?php echo esc_attr($variationId); ?>"
                                             data-action="decrease">
                                         <span class="qty-value"><?php echo esc_html($qty); ?></span>
                                         <img
-                                            src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/plus-black.png'); ?>"
+                                            src="<?php echo plugins_url('storekeeper-for-woocommerce/resources/img/plus-black.png'); ?>"
                                             alt="Plus" class="plus-icon"
                                             data-product-id="<?php echo esc_attr($variationProduct->get_id()); ?>"
                                             data-variation-id="<?php echo esc_attr($variationId); ?>"
@@ -197,9 +197,9 @@ function renderProductList($products, $wishlist)
                             <button class="delete-button-product"
                                     data-product-id="<?php echo esc_attr($product->get_id()); ?>"></button>
                             <div class="tooltip-container-product">
-                                <p class="tooltip-product-message"><?php echo __('Wilt u het verwijderen?', I18N::DOMAIN); ?><br>
-                                    <span class="tooltip-option-product yes"><?php echo __('Ja', I18N::DOMAIN); ?></span> / <span
-                                        class="tooltip-option-product no"><?php echo __('Nee', I18N::DOMAIN); ?></span>
+                                <p class="tooltip-product-message"><?php echo esc_html__('Wilt u het verwijderen?', I18N::DOMAIN); ?><br>
+                                    <span class="tooltip-option-product yes"><?php echo esc_html__('Ja', I18N::DOMAIN); ?></span> / <span
+                                        class="tooltip-option-product no"><?php echo esc_html__('Nee', I18N::DOMAIN); ?></span>
                                 </p>
                             </div>
                         </div>
@@ -211,12 +211,12 @@ function renderProductList($products, $wishlist)
                         <span class="wishlist-product-price"><?php echo $product->get_price_html(); ?></span>
                     <?php } ?>
                     <div class="product-qty">
-                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/minus.png'); ?>"
+                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/resources/img/minus.png'); ?>"
                              alt="Minus" class="minus-icon"
                              data-product-id="<?php echo esc_attr($product->get_id()); ?>"
                              data-action="decrease">
                         <span class="qty-value"><?php echo esc_html($qty); ?></span>
-                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/assets/plus-black.png'); ?>"
+                        <img src="<?php echo plugins_url('storekeeper-for-woocommerce/resources/img/plus-black.png'); ?>"
                              alt="Plus" class="plus-icon"
                              data-product-id="<?php echo esc_attr($product->get_id()); ?>"
                              data-action="increase">
@@ -235,7 +235,7 @@ function renderWishlistHeader($wishlist, $orders)
     ?>
     <div class="wishlist-title">
         <div style="display: flex; align-items: center;">
-            <h4 class="order-list"><?php echo __('Orderlijsten', I18N::DOMAIN); ?>:</h4>
+            <h4 class="order-list"><?php echo esc_html__('Orderlijsten', I18N::DOMAIN); ?>:</h4>
             <h4 class="product-title"><?php echo $wishlist->post_title; ?></h4>
         </div>
 
@@ -245,7 +245,7 @@ function renderWishlistHeader($wishlist, $orders)
                     type="text"
                     class="product-search-input"
                     name="search"
-                    placeholder="<?php echo esc_attr(__('Zoek naar producten op basis van de titel, SKU...', I18N::DOMAIN)); ?>"
+                    placeholder="<?php echo esc_attr(esc_html__('Zoek naar producten op basis van de titel, SKU...', I18N::DOMAIN)); ?>"
                     style="margin-right: 10px;"
                     autocomplete="off"
                 >
@@ -255,9 +255,9 @@ function renderWishlistHeader($wishlist, $orders)
             </div>
 
             <div class="custom-dropdown" style="display: flex; align-items: center;">
-                <button class="dropdown-button"><?php echo __('Orders importeren', I18N::DOMAIN); ?></button>
+                <button class="dropdown-button"><?php echo esc_html__('Orders importeren', I18N::DOMAIN); ?></button>
                 <div class="dropdown-menu">
-                    <input type="text" placeholder="<?php __('Zoek naar ID, Datum', I18N::DOMAIN); ?>"
+                    <input type="text" placeholder="<?php esc_html__('Zoek naar ID, Datum', I18N::DOMAIN); ?>"
                            class="dropdown-search">
                     <ul class="dropdown-list">
                         <?php foreach ($orders as $order) { ?>
@@ -272,11 +272,11 @@ function renderWishlistHeader($wishlist, $orders)
         </div>
         <hr>
         <div class="products-actions">
-            <span><?php echo (new WishlistHandler())->getWishlistProductCount($wishlist->ID).' '.__('Products', I18N::DOMAIN); ?></span>
+            <span><?php echo (new WishlistHandler())->getWishlistProductCount($wishlist->ID).' '.esc_html__('Products', I18N::DOMAIN); ?></span>
             <div>
-                <button class="item-action store-act"><?php echo __('Lijst opslaan', I18N::DOMAIN); ?></button>
+                <button class="item-action store-act"><?php echo esc_html__('Lijst opslaan', I18N::DOMAIN); ?></button>
                 <button class="item-action cart-act">
-                    <?php echo __('Alles toevoegen aan winkelmand', I18N::DOMAIN).'('.(new WishlistHandler())->getWishlistProductCount($wishlist->ID); ?>
+                    <?php echo esc_html__('Alles toevoegen aan winkelmand', I18N::DOMAIN).'('.(new WishlistHandler())->getWishlistProductCount($wishlist->ID); ?>
                     )
                 </button>
             </div>
@@ -320,9 +320,9 @@ renderWishlistHeader($wishlist, $orders);
         <div class="products-actions">
             <span><?php echo (new WishlistHandler())->getWishlistProductCount($wishlist->ID).' '.__('Products', I18N::DOMAIN); ?></span>
             <div>
-                <button class="item-action store-act"><?php echo __('Lijst opslaan', I18N::DOMAIN); ?></button>
+                <button class="item-action store-act"><?php echo esc_html__('Lijst opslaan', I18N::DOMAIN); ?></button>
                 <button
-                    class="item-action cart-act"><?php echo __('Alles toevoegen aan winkelmand', I18N::DOMAIN).'('.(new WishlistHandler())->getWishlistProductCount($wishlist->ID); ?>
+                    class="item-action cart-act"><?php echo esc_html__('Alles toevoegen aan winkelmand', I18N::DOMAIN).'('.(new WishlistHandler())->getWishlistProductCount($wishlist->ID); ?>
                     )
                 </button>
             </div>

@@ -63,9 +63,9 @@ class WishlistHandler implements WithHooksInterface
     public function addWishlistButtonToProductPage(): void
     {
         if (is_user_logged_in()) {
-            echo '<p><a href="' . get_permalink() . '?create_wishlist=true">' . __('Add to wishlist', I18N::DOMAIN) . '</a></p>';
+            echo '<p><a href="' . get_permalink() . '?create_wishlist=true">' . esc_html__('Add to wishlist', I18N::DOMAIN) . '</a></p>';
         } else {
-            echo '<a href="' . wp_login_url(get_permalink()) . '">' . __('Login to Add to Wishlist', I18N::DOMAIN) . '</a>';
+            echo '<a href="' . wp_login_url(get_permalink()) . '">' . esc_html__('Login to Add to Wishlist', I18N::DOMAIN) . '</a>';
         }
     }
 
@@ -98,7 +98,7 @@ class WishlistHandler implements WithHooksInterface
                 echo '</div>';
                 $this->handleWishlistFormSubmissions();
             } else {
-                echo '<p>' . __('Login to Add to Wishlist', I18N::DOMAIN) . '</p>';
+                echo '<p>' . esc_html__('Login to Add to Wishlist', I18N::DOMAIN) . '</p>';
             }
         }
     }
@@ -108,9 +108,9 @@ class WishlistHandler implements WithHooksInterface
         global $post;
         echo '<form action="" method="POST">';
         echo '    <input type="hidden" name="product_id" value="' . $post->ID . '">';
-        echo '    <label for="wishlist_name"><strong>' . __('Or Create a new Wishlist', I18N::DOMAIN) . '</strong></label>';
+        echo '    <label for="wishlist_name"><strong>' . esc_html__('Or Create a new Wishlist', I18N::DOMAIN) . '</strong></label>';
         echo '    <input type="text" name="wishlist_name" id="wishlist_name" required class="wishlist-name"><br>';
-        echo '<input type="submit" name="create_wishlist" value="' . __('Create Wishlist', I18N::DOMAIN) . '">';
+        echo '<input type="submit" name="create_wishlist" value="' . esc_html__('Create Wishlist', I18N::DOMAIN) . '">';
         echo '</form>';
     }
 
@@ -120,15 +120,15 @@ class WishlistHandler implements WithHooksInterface
         echo '<h4>' . __('Add product to your wishlists', I18N::DOMAIN) . ':</h4>';
         echo '<form action="" method="POST">';
         echo '    <input type="hidden" name="product_id" value="'.  $post->ID . '">';
-        echo '    <label for="wishlist_id"><strong>' . __('Select from your wishlist', I18N::DOMAIN) . '</strong></label>';
+        echo '    <label for="wishlist_id"><strong>' . esc_html__('Select from your wishlist', I18N::DOMAIN) . '</strong></label>';
         echo '    <select name="wishlist_id" id="wishlist-select" class="wishlist-select">';
-        echo '        <option>' . __('Select the option', I18N::DOMAIN) . '</option>';
+        echo '        <option>' . esc_html__('Select the option', I18N::DOMAIN) . '</option>';
         while ($wishlists->have_posts()) {
             $wishlists->the_post();
             echo '        <option value="' . get_the_ID() . '">' . get_the_title() . '</option>';
         }
         echo '    </select><br>';
-        echo '    <input type="submit" name="select_wishlist" value="' . __('Select the option', I18N::DOMAIN) . '">';
+        echo '    <input type="submit" name="select_wishlist" value="' . esc_html__('Select the option', I18N::DOMAIN) . '">';
         echo '</form>';
     }
 
@@ -161,11 +161,11 @@ class WishlistHandler implements WithHooksInterface
 
             if ($wishlistId) {
                 echo '<p style="text-align: center;color: green;">' . sprintf(
-                        __('New wishlist %s created successfully!', I18N::DOMAIN),
+                        esc_html__('New wishlist %s created successfully!', I18N::DOMAIN),
                         esc_html($wishlistName)
                     ) . '</p>';
             } else {
-                echo '<p style="text-align: center;color: red;">' . __('There was an error creating the wishlist.', I18N::DOMAIN) . '</p>';
+                echo '<p style="text-align: center;color: red;">' . esc_html__('There was an error creating the wishlist.', I18N::DOMAIN) . '</p>';
             }
         } else {
             echo '<p>' . __('Login to Add to Wishlist', I18N::DOMAIN) . '</p>';
@@ -493,7 +493,7 @@ class WishlistHandler implements WithHooksInterface
         $existingProducts = maybe_unserialize($serializedProducts);
 
         if (!is_array($existingProducts)) {
-            wp_send_json_error(array('message' => __('Invalid wishlist data.', I18N::DOMAIN)));
+            wp_send_json_error(array('message' => esc_html__('Invalid wishlist data.', I18N::DOMAIN)));
         }
 
         $found = false;
@@ -510,7 +510,7 @@ class WishlistHandler implements WithHooksInterface
         }
 
         if (!$found) {
-            wp_send_json_error(array('message' => __('Product not found in wishlist.', I18N::DOMAIN)));
+            wp_send_json_error(array('message' => esc_html__('Product not found in wishlist.', I18N::DOMAIN)));
         }
 
         update_post_meta($wishlistId, '_wishlist_products', $existingProducts);
