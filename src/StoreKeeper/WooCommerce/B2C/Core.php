@@ -600,27 +600,30 @@ HTML;
             return;
         }
 
-        if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
-            $uploadedFile = $_FILES['file'];
 
-            $uploadDir = wp_upload_dir();
-            $uploadPath = $uploadDir['path'].'/'.basename($uploadedFile['name']);
+        if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
+            $uploaded_file = $_FILES['file'];
+            $upload_dir = wp_upload_dir();
+            $upload_path = $upload_dir['path'] . '/' . basename($uploaded_file['name']);
+            $image_info = getimagesize($uploaded_file['tmp_name']);
+            if ($image_info === false) {
+                wp_send_json_error(['message' => esc_html__('Invalid image file. Please upload a valid image.', I18N::DOMAIN)]);
+            }
+
+            $fileMimeType = $image_info['mime'];
             $allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            $fileMimeType = mime_content_type($uploadedFile['tmp_name']);
 
             if (!in_array($fileMimeType, $allowedMimeTypes)) {
-                wp_redirect(add_query_arg('upload_error', 'invalid_file_type', wp_get_referer()));
-                exit;
-            }
-
-            if (move_uploaded_file($uploadedFile['tmp_name'], $uploadPath)) {
-                $image_url = $uploadDir['url'].'/'.basename($uploadedFile['name']);
-                wp_send_json_success(['url' => $image_url]);
+                wp_send_json_error(['message' => esc_html__('Invalid file type. Please upload a valid image.', I18N::DOMAIN)]);
             } else {
-                wp_send_json_error(['message' => esc_html__('File upload failed', I18N::DOMAIN)]);
+                if (move_uploaded_file($uploaded_file['tmp_name'], $upload_path)) {
+                    wp_send_json_success(['url' => $upload_dir['url'] . '/' . basename($uploaded_file['name'])]);
+                } else {
+                    wp_send_json_error(['message' => esc_html__('File upload failed', I18N::DOMAIN)]);
+                }
             }
         } else {
-            wp_send_json_error(['message' => esc_html__('No file uploaded', I18N::DOMAIN)]);
+            wp_send_json_error(['message' => __('No file uploaded', I18N::DOMAIN)]);
         }
     }
 }

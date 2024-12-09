@@ -1,3 +1,12 @@
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 jQuery(document).ready(function ($) {
     $('.upload-image-btn').click(function (e) {
         e.preventDefault();
@@ -47,7 +56,7 @@ jQuery(document).ready(function ($) {
                 }
 
                 if (validationMessage) {
-                    $(validationMessageId).html(`<span style="color: red;">${validationMessage}</span>`);
+                    $(validationMessageId).html(`<span style="color: red;">${escapeHtml(validationMessage)}</span>`);
                     return;
                 }
 
@@ -72,11 +81,15 @@ jQuery(document).ready(function ($) {
 
                             var fileUrl = response.data.url;
                             var filename = fileUrl.split('/').pop();
-                            $('#image-preview-' + currentOptionId) .attr('href', response.data.url).text(filename);
+                            $('#image-preview-' + currentOptionId)
+                                .attr('href', response.data.url)
+                                .text(escapeHtml(filename));
 
                             $('#image-upload-input').val('');
 
-                            $('#success-message').text(ajax_object.translations.upload_success).fadeIn();
+                            $('#success-message')
+                                .text(escapeHtml(ajax_object.translations.upload_success))
+                                .fadeIn();
                             setTimeout(function () {
                                 $('#image-upload-popup').fadeOut();
                                 $('#success-message').fadeOut();
@@ -87,12 +100,12 @@ jQuery(document).ready(function ($) {
                         }
                     },
                     error: function () {
-                        $(validationMessageId).html(`<span style="color: red;">ajax_object.translations.upload_error</span>`);
+                        $(validationMessageId).html(`<span style="color: red;">${escapeHtml(ajax_object.translations.upload_error)}</span>`);
                     }
                 });
             };
         });
-        
+
         $('#image-upload-input').val('');
         $(validationMessageId).html('');
     });
@@ -108,31 +121,23 @@ jQuery(document).ready(function ($) {
             $('#image-preview').hide();
         }
     });
-    
+
     $('.popup-close').click(function () {
         $('#image-upload-popup').fadeOut();
     });
-});
-document.addEventListener('DOMContentLoaded', function () {
-    const imageCheckbox = document.getElementById('agree-images');
-    const textCheckbox = document.getElementById('agree-text');
-    const imageOptionsList = document.querySelectorAll('.addon-image-optional ul');
-    const textOptionsList = document.querySelectorAll('.addon-text-optional ul');
-    const allOptionsList = [...imageOptionsList, ...textOptionsList];
 
-    allOptionsList.forEach(ul => {
-        ul.style.display = 'none';
+    const imageCheckbox = jQuery('#agree-images');
+    const textCheckbox = jQuery('#agree-text');
+    const imageOptionsList = jQuery('.addon-image-optional ul');
+    const textOptionsList = jQuery('.addon-text-optional ul');
+    const allOptionsList = imageOptionsList.add(textOptionsList);
+
+    allOptionsList.hide();
+    imageCheckbox.on('change', function () {
+        imageOptionsList.toggle(this.checked);
     });
 
-    imageCheckbox.addEventListener('change', function () {
-        imageOptionsList.forEach(ul => {
-            ul.style.display = imageCheckbox.checked ? 'block' : 'none';
-        });
-    });
-
-    textCheckbox.addEventListener('change', function () {
-        textOptionsList.forEach(ul => {
-            ul.style.display = textCheckbox.checked ? 'block' : 'none';
-        });
+    textCheckbox.on('change', function () {
+        textOptionsList.toggle(this.checked);
     });
 });

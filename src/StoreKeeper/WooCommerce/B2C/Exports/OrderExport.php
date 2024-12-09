@@ -1262,7 +1262,10 @@ class OrderExport extends AbstractExport
             $orderItem['extra'][self::EXTRA_ROW_MD5_KEY] = $this->calculateRowMd5($orderItem);
             $addonImage = $wcItemProduct->get_meta('sk_addon_image');
             if (!empty($addonImage)) {
-                $orderItem['customer_image_url'] = $addonImage;
+                if (preg_match('/<img\s[^>]*src=["\']([^"\']+)["\']/', $addonImage, $matches)) {
+                    $cleanUrl = $matches[1];
+                    $orderItem['customer_image_url'] = $cleanUrl;
+                }
             }
 
             $addonText = $wcItemProduct->get_meta('sk_addon_text');
