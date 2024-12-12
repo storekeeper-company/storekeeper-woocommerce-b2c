@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-woocommerce\n"
-"POT-Creation-Date: 2024-12-12 16:49+0200\n"
+"POT-Creation-Date: 2024-12-12 16:56+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -2689,7 +2689,214 @@ msgstr ""
 msgid "Minimum Cost (%s)"
 msgstr ""
 
+msgid "Customer Segments"
+msgstr ""
+
+msgid "Customer Segment Prices"
+msgstr ""
+
+msgid "Customer Segment"
+msgstr ""
+
+msgid "No items available."
+msgstr ""
+
+msgid "ID"
+msgstr ""
+
+msgid "Customer Segment Name"
+msgstr ""
+
+msgid "Product"
+msgstr ""
+
+msgid "From quantity"
+msgstr ""
+
+msgid "Price"
+msgstr ""
+
+msgid "N/A"
+msgstr ""
+
+msgid "Import Customer Segment Prices"
+msgstr ""
+
+msgid "Import Customer Segments"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "Customer Email"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Action"
+msgstr ""
+
+msgid "Please upload a CSV file."
+msgstr ""
+
+msgid "Row %s is missing expected columns"
+msgstr ""
+
+msgid "CSV imported successfully!"
+msgstr ""
+
+msgid "Failed to open the file."
+msgstr ""
+
+msgid "Skipping duplicate segment with ID: %s"
+msgstr ""
+
+msgid "No segments found for customer: %s"
+msgstr ""
+
+msgid "From Qty"
+msgstr ""
+
+msgid "Select a variation to view segment prices."
+msgstr ""
+
+msgid "No segment prices available for this product."
+msgstr ""
+
+msgid "No segment prices available for this variation."
+msgstr ""
+
+msgid "My Wishlist"
+msgstr ""
+
+msgid "Add to wishlist"
+msgstr ""
+
+msgid "Login to Add to Wishlist"
+msgstr ""
+
+msgid "Or Create a new Wishlist"
+msgstr ""
+
+msgid "Create wishlist"
+msgstr ""
+
+msgid "Add product to your wishlists"
+msgstr ""
+
+msgid "Select from your wishlist"
+msgstr ""
+
+msgid "Select the option"
+msgstr ""
+
+msgid "Select Wishlist"
+msgstr ""
+
+msgid "New wishlist %s created successfully!"
+msgstr ""
+
+msgid "There was an error creating the wishlist."
+msgstr ""
+
+msgid "Invalid order ID."
+msgstr ""
+
+msgid "Order not found."
+msgstr ""
+
+msgid "No products found in this order."
+msgstr ""
+
+msgid "Products added to wishlist."
+msgstr ""
+
+msgid "Orderlijsten"
+msgstr ""
+
+msgid "%d lijsten"
+msgstr ""
+
+msgid "Last edited: %s"
+msgstr ""
+
+msgid "Nieuwe lijst"
+msgstr ""
+
+msgid "Wishlist Name"
+msgstr ""
+
+msgid "No wishlists found."
+msgstr ""
+
+msgid "Wishlist not found."
+msgstr ""
+
+msgid "Orders importeren"
+msgstr ""
+
+msgid "Zoek naar producten op basis van de titel, SKU..."
+msgstr ""
+
+msgid "Zoek naar ID, Datum"
+msgstr ""
+
+msgid "Products"
+msgstr ""
+
+msgid "Lijst opslaan"
+msgstr ""
+
+msgid "Alles toevoegen aan winkelmand"
+msgstr ""
+
+msgid "File upload failed"
+msgstr ""
+
+msgid "Nonce verification failed"
+msgstr ""
+
+msgid "No file uploaded"
+msgstr ""
+
+msgid "Would you like a text on the product?"
+msgstr ""
+
+msgid "free"
+msgstr ""
+
+msgid "Upload Image"
+msgstr ""
+
+msgid "Would you like an image on the product?"
+msgstr ""
+
+msgid "Select an image"
+msgstr ""
+
+msgid "Upload"
+msgstr ""
+
+msgid "Please select an image first."
+msgstr ""
+
+msgid "Image is too small. Minimum dimensions are {width}x{height}."
+msgstr ""
+
+msgid "Image is too large. Maximum dimensions are {width}x{height}."
+msgstr ""
+
+msgid "Image uploaded successfully!"
+msgstr ""
+
+msgid "An error occurred while uploading the image."
+msgstr ""
+
 msgid "Delivery Address"
+msgstr ""
+
+msgid "Invalid file type. Please upload a valid image."
 msgstr ""
 
 msgid "Delivery Date"
