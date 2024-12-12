@@ -803,6 +803,7 @@ class OrderExport extends AbstractExport
             }
         }
 
+
         $this->debug('Added product items', ['count' => count($orderItems)]);
 
         /**
@@ -841,10 +842,64 @@ class OrderExport extends AbstractExport
 
     public function getShippingOrderItems(\WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
     {
+        global $wpdb;
+
         $orderItems = [];
         /**
          * @var $shipping_method \WC_Order_Item_Shipping
          */
+
+
+        $order_id = $order->get_id();
+
+        $order_item_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT order_item_id 
+             FROM {$wpdb->prefix}woocommerce_order_items 
+             WHERE order_id = %d AND order_item_type = 'line_item'",
+            $order_id
+        )
+        );
+
+        if ($order_item_id) {
+            $shipping_location_id = $wpdb->get_var($wpdb->prepare(
+                "SELECT meta_value 
+                 FROM {$wpdb->prefix}woocommerce_order_itemmeta 
+                 WHERE order_item_id = %d AND meta_key = 'shipping_location_id'",
+                $order_item_id
+            )
+            );
+            $shipping_method_id = $wpdb->get_var($wpdb->prepare(
+                "SELECT meta_value 
+                 FROM {$wpdb->prefix}woocommerce_order_itemmeta 
+                 WHERE order_item_id = %d AND meta_key = 'shipping_method_id'",
+                $order_item_id
+            )
+            );
+            $shipping_pickup_delivery_date = $wpdb->get_var($wpdb->prepare(
+                "SELECT meta_value 
+                 FROM {$wpdb->prefix}woocommerce_order_itemmeta 
+                 WHERE order_item_id = %d AND meta_key = 'shipping_pickup_delivery_date'",
+                $order_item_id
+            )
+            );
+
+            $shipping_truck_delivery_date = $wpdb->get_var($wpdb->prepare(
+                "SELECT meta_value 
+                 FROM {$wpdb->prefix}woocommerce_order_itemmeta 
+                 WHERE order_item_id = %d AND meta_key = 'shipping_truck_delivery_date'",
+                $order_item_id
+            )
+            );
+
+            if($shipping_pickup_delivery_date) {
+                $shipping_delivery_date_value = $shipping_pickup_delivery_date;
+            }
+
+            if($shipping_truck_delivery_date) {
+                $shipping_delivery_date_value = $shipping_truck_delivery_date;
+            }
+        }
+
         foreach ($order->get_shipping_methods() as $shipping_method) {
             $data = [
                 'sku' => strtolower($shipping_method->get_name(self::CONTEXT)),
@@ -852,7 +907,18 @@ class OrderExport extends AbstractExport
                 'quantity' => $shipping_method->get_quantity(),
                 'name' => $shipping_method->get_name(self::CONTEXT),
                 'is_shipping' => true,
+                'shipping_method_id' => $shipping_method_id ?? '',
+                'shipping_location_id' => $shipping_location_id ?? '',
             ];
+            if ($shipping_delivery_date_value) {
+                if ($shipping_pickup_delivery_date) {
+                    $data['pickup_date'] = $shipping_pickup_delivery_date;
+                }
+
+                if ($shipping_truck_delivery_date) {
+                    $data['track_delivery_date'] = $shipping_truck_delivery_date;
+                }
+            }
 
             $shippingMethodData = $shipping_method->get_data();
             if ($excludeTaxesTotalOnMd5 || !$this->already_exported()) {

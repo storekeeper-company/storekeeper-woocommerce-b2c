@@ -56,6 +56,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\Filters\PrepareProductCategorySummaryFi
 use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
+use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\LocationShippingSettingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
@@ -195,6 +196,9 @@ class Core
         add_action('wp_enqueue_scripts', [$this, 'enqueueMediaUploaderScripts']);
         add_action('wp_ajax_upload_product_image', [$this, 'handleProductImageUpload']);
         add_action('wp_ajax_nopriv_upload_product_image', [$this, 'handleProductImageUpload']);
+
+        $shippingLocationHandler = new LocationShippingSettingHandler();
+        $shippingLocationHandler->registerHooks();
     }
 
     private function prepareCron()
