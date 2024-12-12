@@ -1221,6 +1221,7 @@ class OrderExport extends AbstractExport
         array $orderItem,
         array &$orderItems
     ): void {
+
         $added_to_items = false;
         $orderItemId = $wcItemProduct->get_meta(self::CART_FIELD_ID);
         if (!empty($orderItemId)) {
@@ -1231,6 +1232,20 @@ class OrderExport extends AbstractExport
             if (!empty($addonGroupId)) {
                 $orderItem['extra']['product_addon_group_id'] = $addonGroupId;
             }
+
+            $addonImage = $wcItemProduct->get_meta('sk_addon_image');
+            if (!empty($addonImage)) {
+                if (preg_match('/<img\s[^>]*src=["\']([^"\']+)["\']/', $addonImage, $matches)) {
+                    $cleanUrl = $matches[1];
+                    $orderItem['customer_image_url'] = $cleanUrl;
+                }
+            }
+
+            $addonText = $wcItemProduct->get_meta('sk_addon_text');
+            if (!empty($addonText)) {
+                $orderItem['customer_text'] = $addonText;
+            }
+
             if (array_key_exists($orderItemParentId, $orderItemIds)) {
                 $parent = &$orderItems[$orderItemIds[$orderItemParentId]];
                 if (!isset($parent['subitems'])) {
@@ -1245,10 +1260,22 @@ class OrderExport extends AbstractExport
 
         if (!$added_to_items) {
             $orderItem['extra'][self::EXTRA_ROW_MD5_KEY] = $this->calculateRowMd5($orderItem);
+            $addonImage = $wcItemProduct->get_meta('sk_addon_image');
+            if (!empty($addonImage)) {
+                if (preg_match('/<img\s[^>]*src=["\']([^"\']+)["\']/', $addonImage, $matches)) {
+                    $cleanUrl = $matches[1];
+                    $orderItem['customer_image_url'] = $cleanUrl;
+                }
+            }
+
+            $addonText = $wcItemProduct->get_meta('sk_addon_text');
+            if (!empty($addonText)) {
+                $orderItem['customer_text'] = $addonText;
+            }
             $orderItems[$orderItemIndex] = $orderItem;
         }
         ++$orderItemIndex;
-        $this->debug($orderItemIndex.' Added product item', $orderItem);
+        $this->debug($orderItemIndex . ' Added product item', $orderItem);
     }
 
     protected function getOrderLineMeta(\WC_Order_Item $orderItemProduct): array
