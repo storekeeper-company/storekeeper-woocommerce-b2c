@@ -849,53 +849,47 @@ class OrderExport extends AbstractExport
          * @var $shipping_method \WC_Order_Item_Shipping
          */
 
-
         $order_id = $order->get_id();
 
         $order_item_id = $wpdb->get_var($wpdb->prepare(
             "SELECT order_item_id 
-             FROM {$wpdb->prefix}woocommerce_order_items 
-             WHERE order_id = %d AND order_item_type = 'line_item'",
+         FROM {$wpdb->prefix}woocommerce_order_items 
+         WHERE order_id = %d AND order_item_type = 'line_item'",
             $order_id
-        )
-        );
+        ));
+
+        $shipping_delivery_date_value = null;
 
         if ($order_item_id) {
             $shipping_location_id = $wpdb->get_var($wpdb->prepare(
                 "SELECT meta_value 
-                 FROM {$wpdb->prefix}woocommerce_order_itemmeta 
-                 WHERE order_item_id = %d AND meta_key = 'shipping_location_id'",
+             FROM {$wpdb->prefix}woocommerce_order_itemmeta 
+             WHERE order_item_id = %d AND meta_key = 'shipping_location_id'",
                 $order_item_id
-            )
-            );
+            ));
             $shipping_method_id = $wpdb->get_var($wpdb->prepare(
                 "SELECT meta_value 
-                 FROM {$wpdb->prefix}woocommerce_order_itemmeta 
-                 WHERE order_item_id = %d AND meta_key = 'shipping_method_id'",
+             FROM {$wpdb->prefix}woocommerce_order_itemmeta 
+             WHERE order_item_id = %d AND meta_key = 'shipping_method_id'",
                 $order_item_id
-            )
-            );
+            ));
             $shipping_pickup_delivery_date = $wpdb->get_var($wpdb->prepare(
                 "SELECT meta_value 
-                 FROM {$wpdb->prefix}woocommerce_order_itemmeta 
-                 WHERE order_item_id = %d AND meta_key = 'shipping_pickup_delivery_date'",
+             FROM {$wpdb->prefix}woocommerce_order_itemmeta 
+             WHERE order_item_id = %d AND meta_key = 'shipping_pickup_delivery_date'",
                 $order_item_id
-            )
-            );
-
+            ));
             $shipping_truck_delivery_date = $wpdb->get_var($wpdb->prepare(
                 "SELECT meta_value 
-                 FROM {$wpdb->prefix}woocommerce_order_itemmeta 
-                 WHERE order_item_id = %d AND meta_key = 'shipping_truck_delivery_date'",
+             FROM {$wpdb->prefix}woocommerce_order_itemmeta 
+             WHERE order_item_id = %d AND meta_key = 'shipping_truck_delivery_date'",
                 $order_item_id
-            )
-            );
+            ));
 
-            if($shipping_pickup_delivery_date) {
+            if ($shipping_pickup_delivery_date) {
                 $shipping_delivery_date_value = $shipping_pickup_delivery_date;
             }
-
-            if($shipping_truck_delivery_date) {
+            if ($shipping_truck_delivery_date) {
                 $shipping_delivery_date_value = $shipping_truck_delivery_date;
             }
         }
