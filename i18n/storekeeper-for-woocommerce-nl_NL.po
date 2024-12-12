@@ -1,5 +1,11 @@
 msgid ""
 msgstr ""
+"Project-Id-Version: StoreKeeper for WooCommerce\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2024-10-15 17:51+0300\n"
+"Last-Translator: lokalise.com\n"
+"Language-Team: lokalise.com\n"
+"Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2408,3 +2414,9 @@ msgstr "woocommerce, e-commerce, woo, verkoop, winkel"
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:42
 msgid "years"
 msgstr "jaren"
+
+msgid "Free Shipping"
+msgstr "Gratis Verzending"
+
+msgid "Minimum Cost (%s)"
+msgstr "Kosten Minimaal (%s)"

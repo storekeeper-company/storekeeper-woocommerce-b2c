@@ -15,6 +15,10 @@ class ProductAddOnHandler implements WithHooksInterface
     public const ADDON_TYPE_SINGLE_CHOICE = 'single-choice';
     public const ADDON_TYPE_MULTIPLE_CHOICE = 'multiple-choice';
     public const ADDON_TYPE_REQUIRED_ADDON = 'required-addon';
+    public const ADDON_TYPE_REQUIRED_IMAGE = 'required-image';
+    public const ADDON_TYPE_REQUIRED_TEXT = 'required-text';
+    public const ADDON_TYPE_TEXT = 'text';
+    public const ADDON_TYPE_IMAGE = 'image';
     public const ADDON_TYPE_BUNDLE = 'bundle';
     public const FIELD_PREFIX = 'sk_add_on';
     public const FIELD_CHOICE = self::FIELD_PREFIX.'_choice_select';
@@ -29,6 +33,8 @@ class ProductAddOnHandler implements WithHooksInterface
     public const CART_FIELD_NAME = OrderExport::CART_FIELD_NAME;
     public const CART_FIELD_SHOP_PRODUCT_ID = OrderExport::CART_FIELD_SHOP_PRODUCT_ID;
     public const CART_FIELD_ADDON_GROUP_ID = OrderExport::CART_FIELD_ADDON_GROUP_ID;
+    public const CART_FIELD_TEXT = 'text';
+    public const CART_FIELD_IMAGE = 'image';
 
     public const CART_FIELDS = [
         self::CART_FIELD_SELECTED_IDS,
@@ -129,7 +135,6 @@ class ProductAddOnHandler implements WithHooksInterface
 
         $addons = $this->getAddOnsForProduct($product);
         $template_path = Core::plugin_abspath().'templates/';
-
         foreach ($addons as $addon) {
             $type = $addon['type'];
             if ($this->isRequiredType($type)) {
@@ -144,7 +149,16 @@ class ProductAddOnHandler implements WithHooksInterface
                 wc_get_template('add-on/form-multiple-choice.php', [
                     'addon' => $addon,
                 ], '', $template_path);
+            } elseif (in_array($type, [self::ADDON_TYPE_REQUIRED_TEXT, self::ADDON_TYPE_TEXT], true)) {
+                wc_get_template('add-on/text-addon.php', [
+                    'addon' => $addon,
+                ], '', $template_path);
+            } elseif (in_array($type, [self::ADDON_TYPE_REQUIRED_IMAGE, self::ADDON_TYPE_IMAGE], true)) {
+                wc_get_template('add-on/image-addon.php', [
+                    'addon' => $addon,
+                ], '', $template_path);
             }
+
         }
     }
 
@@ -202,8 +216,9 @@ class ProductAddOnHandler implements WithHooksInterface
                 isset($_POST[self::FIELD_CHOICE])
                 && is_array($_POST[self::FIELD_CHOICE])
             ) {
-                $cart_item_data[self::CART_FIELD_SELECTED_IDS] = $this->getSelectedOptionFromPost();
-                $has_add_ons = true;
+                $selectedOptions = $this->getSelectedOptionFromPost();
+                $cart_item_data[self::CART_FIELD_SELECTED_IDS] = $selectedOptions;
+                $has_add_ons = !empty($selectedOptions);
             }
             if ($has_add_ons) {
                 $cart_item_data[self::CART_FIELD_ID] = uniqid();
@@ -225,13 +240,36 @@ class ProductAddOnHandler implements WithHooksInterface
             $product = wc_get_product($product_id);
 
             $all_selected_option_ids = $cart_item_data[self::CART_FIELD_SELECTED_IDS];
+
             foreach ($this->getAddOnsForProduct($product) as $addon) {
                 $type = $addon['type'];
                 foreach ($addon['options'] as $option) {
                     $selected = $this->isRequiredType($type)
-                        || in_array($option['id'], $all_selected_option_ids)
-                    ;
+                        || in_array($option['id'], $all_selected_option_ids);
+
                     if ($selected) {
+                        $addon_text = '';
+                        $option_text = $_POST['addon_text'][$addon['product_addon_group_id']][$option['id']] ?? [];
+
+                        if (!empty($option_text['required-text'])) {
+                            $addon_text = sanitize_text_field($_POST['addon_text'][$addon['product_addon_group_id']][$option['id']]['required-text']);
+                        }
+
+                        if (!empty($option_text['text'])) {
+                            $addon_text = sanitize_text_field($_POST['addon_text'][$addon['product_addon_group_id']][$option['id']]['text']);
+                        }
+
+                        $addon_image = '';
+                        $option_image = $_POST['addon_text'][$addon['product_addon_group_id']][$option['id']] ?? [];
+
+                        if (!empty($option_image['required-image'])) {
+                            $addon_image = $_POST['addon_image'][$addon['product_addon_group_id']][$option['id']]['required-image'];
+                        }
+
+                        if (!empty($option_image['image'])) {
+                            $addon_image = $_POST['addon_image'][$addon['product_addon_group_id']][$option['id']]['image'];
+                        }
+
                         $addon_item_data = [
                             self::CART_FIELD_ID => uniqid(),
                             self::CART_FIELD_PARENT_ID => $cart_item_data[self::CART_FIELD_ID],
@@ -239,7 +277,10 @@ class ProductAddOnHandler implements WithHooksInterface
                             self::CART_FIELD_NAME => $option['title'],
                             self::CART_FIELD_SHOP_PRODUCT_ID => $option['shop_product_id'],
                             self::CART_FIELD_ADDON_GROUP_ID => $addon['product_addon_group_id'],
+                            self::CART_FIELD_TEXT => $addon_text,
+                            self::CART_FIELD_IMAGE => $addon_image,
                         ];
+
                         WC()->cart->add_to_cart(
                             $option[self::KEY_WC_PRODUCT]->get_id(),
                             $quantity,
@@ -317,6 +358,17 @@ class ProductAddOnHandler implements WithHooksInterface
                     $item->add_meta_data($field_name, $cart_item_data[$field_name]);
                 }
             }
+        }
+
+        if (!empty($cart_item_data['text'])) {
+            $meta_key = sprintf('sk_addon_text');
+            $item->add_meta_data($meta_key, $cart_item_data['text']);
+        }
+
+        if (!empty($cart_item_data['image'])) {
+            $image_html = '<img src="'.esc_url($cart_item_data['image']).'" alt="Addon Image" style="max-width: 150px; height: auto;">';
+            $meta_key = sprintf('sk_addon_image');
+            $item->add_meta_data($meta_key, $image_html);
         }
     }
 
@@ -405,6 +457,11 @@ class ProductAddOnHandler implements WithHooksInterface
                     'product_addon_group_id' => $product_addon_group_id,
                     'title' => $group['product_addon_group']['title'],
                     'type' => $group['product_addon_group']['type'],
+                    'image_min_h' => $group['product_addon_group']['image_min_h'],
+                    'image_min_w' => $group['product_addon_group']['image_min_w'],
+                    'image_max_h' => $group['product_addon_group']['image_max_h'],
+                    'image_max_w' => $group['product_addon_group']['image_max_w'],
+                    'max_text_length' => $group['product_addon_group']['max_text_length'],
                     'options' => [],
                     'order' => $group['product_addon_group']['order'],
                     'shop_product_ids' => [],
@@ -458,7 +515,6 @@ class ProductAddOnHandler implements WithHooksInterface
     protected function getAddOnsForProduct(\WC_Product $product): array
     {
         $addons = $this->getAddOnsFromApiWithWcProducts($product);
-
         /* @var \WC_Product $wc_product */
         $result = [];
         foreach ($addons as $addon) {
@@ -512,6 +568,66 @@ class ProductAddOnHandler implements WithHooksInterface
                         'custom_attributes' => $attributes,
                     ];
                 }
+            } elseif (self::ADDON_TYPE_REQUIRED_IMAGE === $type) {
+                foreach ($addon['options'] as &$option) {
+                    $field_options[$option['id']] = $option[self::OPTION_TITLE];
+                }
+                $addon[self::KEY_FORM_OPTIONS] = [
+                    'type' => 'image',
+                    'class' => ['sk-addon-input'],
+                    'label' => $addon['title'],
+                    'required' => false,
+                    'options' => $field_options,
+                    'custom_attributes' => $attributes,
+                ];
+            } elseif (self::ADDON_TYPE_IMAGE === $type) {
+                foreach ($addon['options'] as &$option) {
+                    $field_options[$option['id']] = $option[self::OPTION_TITLE];
+                }
+                $addon[self::KEY_FORM_OPTIONS] = [
+                    'type' => 'image',
+                    'class' => ['sk-addon-input'],
+                    'label' => $addon['title'],
+                    'required' => false,
+                    'options' => $field_options,
+                    'custom_attributes' => $attributes,
+                ];
+            } elseif (self::ADDON_TYPE_REQUIRED_TEXT === $type) {
+                $field_options = [];
+
+                foreach ($addon['options'] as &$option) {
+                    $field_options[$option['id']] = $option[self::OPTION_TITLE];
+                }
+
+                $addon[self::KEY_FORM_OPTIONS] = [
+                    'type' => 'textarea',
+                    'class' => ['sk-addon-input'],
+                    'label' => $addon['title'],
+                    'required' => true,
+                    'options' => $field_options,
+                    'custom_attributes' => array_merge($attributes, [
+                        'placeholder' => __('Enter your required text here...', I18N::DOMAIN),
+                        'maxlength' => $addon['max_text_length'] ?? 255,
+                    ]),
+                ];
+            } elseif (self::ADDON_TYPE_TEXT === $type) {
+                $field_options = [];
+
+                foreach ($addon['options'] as &$option) {
+                    $field_options[$option['id']] = $option[self::OPTION_TITLE];
+                }
+
+                $addon[self::KEY_FORM_OPTIONS] = [
+                    'type' => 'textarea',
+                    'class' => ['sk-addon-input'],
+                    'label' => $addon['title'],
+                    'required' => true,
+                    'options' => $field_options,
+                    'custom_attributes' => array_merge($attributes, [
+                        'placeholder' => __('Enter your required text here...', I18N::DOMAIN),
+                        'maxlength' => $addon['max_text_length'] ?? 255,
+                    ]),
+                ];
             }
             $result[] = $addon;
         }
@@ -536,7 +652,9 @@ class ProductAddOnHandler implements WithHooksInterface
                 foreach ($addon['options'] as $option) {
                     $required_price += $option['ppu_wt'];
                 }
-            } elseif (self::ADDON_TYPE_SINGLE_CHOICE === $type || self::ADDON_TYPE_MULTIPLE_CHOICE === $type) {
+            } elseif (self::ADDON_TYPE_SINGLE_CHOICE === $type || self::ADDON_TYPE_MULTIPLE_CHOICE === $type
+                || self::ADDON_TYPE_REQUIRED_IMAGE === $type || self::ADDON_TYPE_REQUIRED_TEXT === $type
+                || self::ADDON_TYPE_IMAGE === $type || self::ADDON_TYPE_TEXT === $type) {
                 foreach ($addon['options'] as $option) {
                     $price_addon_changes[$option['id']] = $option['ppu_wt'];
                 }
@@ -602,8 +720,7 @@ class ProductAddOnHandler implements WithHooksInterface
                 $type = $addon['type'];
                 foreach ($addon['options'] as $option) {
                     $selected = $this->isRequiredType($type)
-                        || in_array($option['id'], $all_selected_option_ids)
-                    ;
+                        || in_array($option['id'], $all_selected_option_ids);
                     if ($selected) {
                         $product_id = $option[self::KEY_WC_PRODUCT]->get_id();
                         if (!isset($set_product_quantities[$product_id])) {
@@ -668,7 +785,30 @@ class ProductAddOnHandler implements WithHooksInterface
                 }
             }
         }
-        $all_selected_option_ids = array_filter($all_selected_option_ids);
+
+        foreach ($_POST['addon_text'] as $addon_group_id => $options) {
+            foreach ($options as $option_id => $addon_text_data) {
+                if (!empty($addon_text_data[self::ADDON_TYPE_REQUIRED_TEXT])) {
+                    $all_selected_option_ids[] = $option_id;
+                }
+
+                if (!empty($addon_text_data[self::ADDON_TYPE_TEXT])) {
+                    $all_selected_option_ids[] = $option_id;
+                }
+            }
+        }
+
+        foreach ($_POST['addon_image'] as $addon_group_id => $options) {
+            foreach ($options as $option_id => $addon_image_data) {
+                if (!empty($addon_image_data[self::ADDON_TYPE_REQUIRED_IMAGE])) {
+                    $all_selected_option_ids[] = $option_id;
+                }
+
+                if (!empty($addon_image_data[self::ADDON_TYPE_IMAGE])) {
+                    $all_selected_option_ids[] = $option_id;
+                }
+            }
+        }
 
         return $all_selected_option_ids;
     }

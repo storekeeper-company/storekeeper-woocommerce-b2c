@@ -1,5 +1,11 @@
 msgid ""
 msgstr ""
+"Project-Id-Version: StoreKeeper for WooCommerce\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2024-10-15 17:52+0300\n"
+"Last-Translator: lokalise.com\n"
+"Language-Team: lokalise.com\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -505,3 +511,9 @@ msgstr "umleiten"
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"
 msgstr "woocommerce,e-commerce, woo,verkauf,store,geschaft"
+
+msgid "Free Shipping"
+msgstr "Free Shipping"
+
+msgid "Minimum Cost (%s)"
+msgstr "Minimum Cost (%s)"
