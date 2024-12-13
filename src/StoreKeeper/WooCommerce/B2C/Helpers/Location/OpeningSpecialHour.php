@@ -5,6 +5,7 @@ namespace StoreKeeper\WooCommerce\B2C\Helpers\Location;
 use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningSpecialHoursModel;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
+use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
 
 class OpeningSpecialHour
 {
@@ -26,14 +27,6 @@ class OpeningSpecialHour
 
         if (is_numeric($openingSpecialHour)) {
             $openingSpecialHour = OpeningSpecialHoursModel::get((int) $openingSpecialHour);
-
-            if ($args['echo']) {
-                return;
-            }
-
-            if (!$openingSpecialHour) {
-                return false;
-            }
         }
 
         if (is_object($openingSpecialHour) && ($openingSpecialHour instanceof \stdClass ||
@@ -52,16 +45,17 @@ class OpeningSpecialHour
         try {
             OpeningSpecialHoursModel::validateData($openingSpecialHour);
 
-            $dateFormat = get_option(DateTimeHelper::WORDPRESS_DATE_FORMAT_OPTION);
-            $date = \DateTime::createFromFormat(DateTimeHelper::MYSQL_DATE_FORMAT, $openingSpecialHour['date'])
-                ->setTimezone(wp_timezone());
-
-            $class = $args['item_class'] ? $args['item_class'] : '';
+            $date = DatabaseConnection::formatFromDatabaseDateIfNotEmpty($openingSpecialHour['date']);
+            $class = $args['item_class'] ?: '';
 
             if ($openingSpecialHour['name']) {
-                $label = sprintf('%s (%s)', $date->format($dateFormat), $openingSpecialHour['name']);
+                $label = sprintf(
+                    '%s (%s)',
+                    DateTimeHelper::formatTheDateForDisplay($date),
+                    $openingSpecialHour['name']
+                );
             } else {
-                $label = $date->format($dateFormat);
+                $label = DateTimeHelper::formatTheDateForDisplay($date);
             }
 
             if (!$openingSpecialHour['is_open']) {

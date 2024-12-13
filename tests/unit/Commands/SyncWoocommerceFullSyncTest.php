@@ -45,8 +45,16 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
         );
 
         $locationDumpData = $this->getMergedDataDump('ShopModule::listLocationsForHook');
-        $this->assertSame(count($locationDumpData), LocationModel::count());
-        $this->assertSame(count($locationDumpData), AddressModel::count());
+        $this->assertSame(
+            count($locationDumpData),
+            LocationModel::count(),
+            'The locations from dump response should match those stored in database'
+        );
+        $this->assertSame(
+            count($locationDumpData),
+            AddressModel::count(),
+            'The location addresses from dump response should match those stored in database'
+        );
         $this->assertSame(
             array_reduce(
                 $locationDumpData,
@@ -60,7 +68,8 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
                 },
                 0
             ),
-            OpeningHourModel::count()
+            OpeningHourModel::count(),
+            'The location opening hours from dump response should match those stored in database'
         );
         $this->assertSame(
             array_reduce(
@@ -75,7 +84,8 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
                 },
                 0
             ),
-            OpeningSpecialHoursModel::count()
+            OpeningSpecialHoursModel::count(),
+            'The location opening special hours from dump response should match those stored in database'
         );
         unset($locationDumpData);
 

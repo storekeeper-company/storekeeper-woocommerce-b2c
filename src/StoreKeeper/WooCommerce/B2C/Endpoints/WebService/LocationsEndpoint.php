@@ -106,7 +106,7 @@ class LocationsEndpoint extends \WP_REST_Controller
         $select = LocationModel::getSelectHelper()
             ->cols(array_keys(LocationModel::getFieldsWithRequired()));
 
-        if ($request->has_param('search') && '' !== ($search = trim($request->get_param('search')))) {
+        if ($request->has_param('search') && '' !== ($search = sanitize_text_field($request->get_param('search')))) {
             $select->where('name LIKE :search');
             $select->bindValue('search', '%' . $search . '%');
         }
@@ -117,8 +117,8 @@ class LocationsEndpoint extends \WP_REST_Controller
         }
 
         if ($request->has_param('orderby') && $request->has_param('order') &&
-            '' !== ($orderBy = trim($request->get_param('orderby'))) &&
-            '' !== ($orderDirection = trim($request->get_param('order')))) {
+            '' !== ($orderBy = sanitize_text_field($request->get_param('orderby'))) &&
+            '' !== ($orderDirection = sanitize_text_field($request->get_param('order')))) {
             $select->orderBy(["$orderBy $orderDirection"]);
         }
 

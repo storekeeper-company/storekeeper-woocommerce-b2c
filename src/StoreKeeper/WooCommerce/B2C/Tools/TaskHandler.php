@@ -543,13 +543,13 @@ class TaskHandler
                 $import = new ShippingMethodDeleteTask();
                 break;
             case self::LOCATION_ACTIVATED:
-                $import = new LocationActivateTask;
+                $import = new LocationActivateTask();
                 break;
             case self::LOCATION_DEACTIVATED:
-                $import = new LocationDeactivateTask;
+                $import = new LocationDeactivateTask();
                 break;
             case self::LOCATION_UPDATE:
-                $import = new LocationUpdateTask;
+                $import = new LocationUpdateTask();
                 break;
             case self::REPORT_ERROR:
                 return; // nothing to handle

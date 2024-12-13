@@ -3,26 +3,32 @@
 namespace StoreKeeper\WooCommerce\B2C\Blocks;
 
 use StoreKeeper\WooCommerce\B2C\I18N;
-use Psr\Log\NullLogger;
+use Psr\Log\LoggerAwareTrait;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 
-abstract class AbstractBlockTypeRegistrar
+abstract class AbstractBlockTypeRegistrar implements BlockTypeRegistrarInterface
 {
 
+    use LoggerAwareTrait;
+
     /**
-     * Logger instance
+     * Initialize
      *
-     * @var null|NullLogger
+     * @return void
      */
-    protected static $logger;
+    public function __construct()
+    {
+        $this->setLogger(LoggerFactory::create('block-type'));
+    }
 
     /**
      * Retrieve block type name
      *
      * @return null|string
      */
-    public static function getName()
+    protected function getName()
     {
-        $blockType = self::getBlockType();
+        $blockType = $this->getBlockType();
 
         if ($blockType instanceof \WP_Block_Type && $blockType->name) {
             return $blockType->name;
@@ -47,18 +53,22 @@ abstract class AbstractBlockTypeRegistrar
     }
 
     /**
-     * Register StoreKeeper block type
-     *
-     * @return void
+     * @inheritDoc
      */
-    final public static function register()
+    final public function register()
     {
-        if (self::isEnabled() && null !== ($name = static::getName()) && ($namespace = strtok($name, '/')) &&
+        if ($this->isEnabled() && null !== ($name = $this->getName()) && ($namespace = strtok($name, '/')) &&
             $namespace === BlockTypesController::NAMESPACE) {
-            if (false === register_block_type(static::getBlockType(), static::getArgs())) {
-                static::getLogger()->debug(sprintf('Block type %s couldn\'t be registered.', $name));
+            $blockType = register_block_type($this->getBlockType(), $this->getArgs());
+
+            if ($blockType instanceof \WP_Block_Type) {
+                return $blockType;
             }
+
+            $this->logger->error(sprintf('Block type %s couldn\'t be registered.', $name));
         }
+
+        return false;
     }
 
     /**
@@ -66,10 +76,10 @@ abstract class AbstractBlockTypeRegistrar
      *
      * @return array
      */
-    public static function getArgs()
+    protected function getArgs()
     {
         return [
-            'name' => static::getName(),
+            'name' => $this->getName(),
             'category' => BlockTypesController::BLOCK_CATEGORY,
             'textdomain' => I18N::DOMAIN
         ];
@@ -80,7 +90,7 @@ abstract class AbstractBlockTypeRegistrar
      *
      * @return string|\WP_Block_Type
      */
-    public static function getBlockType()
+    protected function getBlockType()
     {
         $blockType = substr(get_called_class(), strrpos(get_called_class(), '\\') + 1);
         return __DIR__ . DIRECTORY_SEPARATOR . 'BlockTypes' . DIRECTORY_SEPARATOR . $blockType
@@ -92,22 +102,8 @@ abstract class AbstractBlockTypeRegistrar
      *
      * @return bool
      */
-    public static function isEnabled()
+    protected function isEnabled()
     {
         return true;
-    }
-
-    /**
-     * Get logger
-     *
-     * @return NullLogger
-     */
-    protected function getLogger(): NullLogger
-    {
-        if (null === self::$logger) {
-            self::$logger = new NullLogger;
-        }
-
-        return self::$logger;
     }
 }

@@ -11,7 +11,7 @@ class Location extends AbstractBlockTypeRegistrar
     /**
      * @inheritDoc
      */
-    public static function getArgs()
+    public function getArgs()
     {
         return \array_merge(
             parent::getArgs(),

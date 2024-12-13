@@ -25,6 +25,11 @@ class BlockTypesController
     ];
 
     /**
+     * StoreKeeper's initialized block types
+     */
+    protected $registeredBlockTypes = [];
+
+    /**
      * Initialize
      */
     public function __construct()
@@ -45,11 +50,21 @@ class BlockTypesController
      */
     public function registerBlocks()
     {
-        foreach ($this->getRegisterHandlers() as $registrar) {
-            if (is_a($registrar, AbstractBlockTypeRegistrar::class, true)) {
-                call_user_func([$registrar, 'register']);
-            }
-        }
+        $this->registeredBlockTypes = array_reduce(
+            $this->getRegisterHandlers(),
+            function (array $blockTypes, $registrar) {
+                if (is_a($registrar, BlockTypeRegistrarInterface::class, true)) {
+                    $blockType = (new $registrar())->register();
+
+                    if ($blockType) {
+                        $blockTypes[$blockType->name] = $blockType;
+                    }
+
+                    return $blockTypes;
+                }
+            },
+            $this->registeredBlockTypes
+        );
     }
 
     /**

@@ -8,6 +8,7 @@ use StoreKeeper\WooCommerce\B2C\Models\LocationModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\AddressModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningHourModel;
 use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningSpecialHoursModel;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LocationImportException;
 
 class LocationImport extends AbstractImport
 {
@@ -109,7 +110,7 @@ class LocationImport extends AbstractImport
     /**
      * @param Dot $dotObject
      * @param array $options
-     * @throws \Exception
+     * @throws LocationImportException|\Exception
      */
     protected function processItem($dotObject, array $options = []): ?int
     {
@@ -133,12 +134,12 @@ class LocationImport extends AbstractImport
      *
      * @param Dot $dotObject
      * @return int
-     * @throws \Exception
+     * @throws LocationImportException
      */
     protected function getStoreKeeperId(Dot $dotObject): int
     {
         if (null === $dotObject->get('id') || !($storeKeeperId = (int) $dotObject->get('id'))) {
-            throw new \Exception('No location ID provided.');
+            throw new LocationImportException('No location ID provided.', 'location.id');
         }
 
         return $storeKeeperId;
@@ -149,7 +150,7 @@ class LocationImport extends AbstractImport
      *
      * @param Dot $dotObject
      * @return null|int
-     * @throws \Exception
+     * @throws LocationImportException
      */
     protected function processLocation(Dot $dotObject): ?int
     {
@@ -167,12 +168,11 @@ class LocationImport extends AbstractImport
                     LocationModel::delete($locationId);
                     $this->debug(sprintf('Location id=%d has been successfully deleted.', $storeKeeperId));
                 } catch (\Exception $e) {
-                    $this->debug(
-                        sprintf('Location id=%d couldn\'t be deleted.', $storeKeeperId),
-                        [
-                            'exception' => $e
-                        ]
-                    );
+                    $message = sprintf('Location id=%d couldn\'t be deleted.', $storeKeeperId);
+
+                    $this->debug($message, ['exception' => $e]);
+
+                    throw new LocationImportException($message, 'location.delete', $e);
                 }
             } else {
                 $this->debug(sprintf('There is no location id=%d to be deleted.', $storeKeeperId));
@@ -182,7 +182,10 @@ class LocationImport extends AbstractImport
         }
 
         if (null === $dotObject->get('name') || '' === ($name = trim((string) $dotObject->get('name')))) {
-            throw new \Exception('No location name provided for location id=' . $storeKeeperId);
+            throw new LocationImportException(
+                'No location name provided for location id=' . $storeKeeperId,
+                'location.name'
+            );
         }
 
         $location = LocationModel::getByStoreKeeperId($storeKeeperId);
@@ -200,8 +203,25 @@ class LocationImport extends AbstractImport
             $data['is_active'] = (bool) $dotObject->get('is_active');
         }
 
-        $locationId = LocationModel::upsert($data, $location);
-        if ($locationId && isset($data['is_default']) && $data['is_default'] &&
+        try {
+            $locationId = LocationModel::upsert($data, $location);
+
+            if (null === $location) {
+                $this->debug(sprintf('Location id=%d successfully created', $storeKeeperId));
+            } else {
+                $this->debug(sprintf('Location id=%d successfully updated', $storeKeeperId));
+            }
+        } catch (\Exception $e) {
+            if (null === $location) {
+                $message = sprintf('Location id=%d couldn\'t be created', $storeKeeperId);
+            } else {
+                $message = sprintf('Location id=%d couldn\'t be updated', $storeKeeperId);
+            }
+
+            throw new LocationImportException($message, 'location', $e);
+        }
+
+        if (isset($data['is_default']) && $data['is_default'] &&
             (!$location || !$location['is_default'])) {
             $updateQuery = LocationModel::getUpdateHelper()
                 ->cols(['is_default' => false])
@@ -213,12 +233,6 @@ class LocationImport extends AbstractImport
             unset($updateQuery);
         }
 
-        if (null === $location) {
-            $this->debug(sprintf('Location id=%d successfully created', $storeKeeperId));
-        } else {
-            $this->debug(sprintf('Location id=%d successfully updated', $storeKeeperId));
-        }
-
         return $locationId;
     }
 
@@ -228,7 +242,7 @@ class LocationImport extends AbstractImport
      * @param Dot $dotObject
      * @param int $locationId
      * @return null|int
-     * @throws \Exception
+     * @throws LocationImportException
      */
     protected function processLocationAddress(Dot $dotObject, int $locationId): ?int
     {
@@ -238,7 +252,10 @@ class LocationImport extends AbstractImport
 
         $locationStoreKeeperId = $this->getStoreKeeperId($dotObject);
         if (!$dotObject->has('address')) {
-            throw new \Exception('No location address provided for location id=' . $locationStoreKeeperId);
+            throw new LocationImportException(
+                'No location address provided for location id=' . $locationStoreKeeperId,
+                'address.no-provided'
+            );
         }
 
         $addressStoreKeeperId = (int) $dotObject->get('address.id');
@@ -270,16 +287,15 @@ class LocationImport extends AbstractImport
                     );
                 }
             } catch (\Exception $e) {
-                $this->debug(
-                    sprintf(
-                        'Address id=%d of location id=%d couldn\'t be deleted.',
-                        $addressStoreKeeperId,
-                        $locationStoreKeeperId
-                    ),
-                    [
-                        'exception' => $e
-                    ]
+                $message = sprintf(
+                    'Address id=%d of location id=%d couldn\'t be deleted.',
+                    $addressStoreKeeperId,
+                    $locationStoreKeeperId
                 );
+
+                $this->debug($message, ['exception' => $e]);
+
+                throw new LocationImportException($message, 'address.delete', $e);
             }
 
             unset($deleteQuery);
@@ -308,24 +324,42 @@ class LocationImport extends AbstractImport
             $data[$field] = $dotObject->get($path);
         }
 
-        $addressId = AddressModel::upsert($data, $addressData);
+        try {
+            $addressId = AddressModel::upsert($data, $addressData);
 
-        if (null === $addressData) {
-            $this->debug(
-                sprintf(
-                    'Address id=%d of location id=%s was successfully created',
+            if (null === $addressData) {
+                $this->debug(
+                    sprintf(
+                        'Address id=%d of location id=%s was successfully created',
+                        $addressStoreKeeperId,
+                        $locationStoreKeeperId
+                    )
+                );
+            } else {
+                $this->debug(
+                    sprintf(
+                        'Address id=%d of location id=%s was successfully updated',
+                        $addressStoreKeeperId,
+                        $locationStoreKeeperId
+                    )
+                );
+            }
+        } catch (\Exception $e) {
+            if (null === $addressData) {
+                $message = sprintf(
+                    'Address id=%d of location id=%s couldn\'t be created',
                     $addressStoreKeeperId,
                     $locationStoreKeeperId
-                )
-            );
-        } else {
-            $this->debug(
-                sprintf(
-                    'Address id=%d of location id=%s was successfully updated',
+                );
+            } else {
+                $message = sprintf(
+                    'Address id=%d of location id=%s couldn\'t be updated',
                     $addressStoreKeeperId,
                     $locationStoreKeeperId
-                )
-            );
+                );
+            }
+
+            throw new LocationImportException($message, 'address', $e);
         }
 
         return $addressId;
@@ -398,30 +432,22 @@ class LocationImport extends AbstractImport
                     }
                 } catch (\Exception $e) {
                     if (null === $openingHour) {
-                        $this->debug(
-                            sprintf(
-                                'The opening hour of location id=%d for the day of \'%s\' couldn\'t be created',
-                                $this->getStoreKeeperId($dotObject),
-                                $openDays[$openDay]
-                            ),
-                            [
-                                'period' => $period,
-                                'exception' => $e
-                            ]
+                        $message = sprintf(
+                            'The opening hour of location id=%d for the day of \'%s\' couldn\'t be created',
+                            $this->getStoreKeeperId($dotObject),
+                            $openDays[$openDay]
                         );
                     } else {
-                        $this->debug(
-                            sprintf(
-                                'The opening hour of location id=%d for the day of \'%s\' couldn\'t be updated',
-                                $this->getStoreKeeperId($dotObject),
-                                $openDays[$openDay]
-                            ),
-                            [
-                                'period' => $period,
-                                'exception' => $e
-                            ]
+                        $message = sprintf(
+                            'The opening hour of location id=%d for the day of \'%s\' couldn\'t be updated',
+                            $this->getStoreKeeperId($dotObject),
+                            $openDays[$openDay]
                         );
                     }
+
+                    $this->debug($message, ['period' => $period, 'exception' => $e]);
+
+                    throw new LocationImportException($message, 'opening_hour', $e);
                 }
 
                 unset($period, $openDay, $openingHour, $openingHourId);
@@ -444,17 +470,14 @@ class LocationImport extends AbstractImport
                 ]
             );
         } catch (\Exception $e) {
-            $this->debug(
-                sprintf(
-                    'The opening hours of location id=%d couldn\'t be cleaned.',
-                    $this->getStoreKeeperId($dotObject),
-                ),
-                [
-                    'days_of_week' => $closedDays,
-                    'opening_hours' => $toRemove,
-                    'exception' => $e
-                ]
+            $message = sprintf(
+                'The opening hours of location id=%d couldn\'t be cleaned.',
+                $this->getStoreKeeperId($dotObject)
             );
+
+            $this->debug($message, ['days_of_week' => $closedDays, 'opening_hours' => $toRemove, 'exception' => $e]);
+
+            throw new LocationImportException($message, 'opening_hour', $e);
         }
 
         unset($deleteQuery, $openDays, $openingHours, $closedDays, $toRemove);
@@ -525,17 +548,15 @@ class LocationImport extends AbstractImport
                         ]
                     );
                 } catch (\Exception $e) {
-                    $this->debug(
-                        sprintf(
-                            'The special opening hour id=%d of location id=%d couldn\'t be updated.',
-                            $storeKeeperId,
-                            $locationStoreKeeperId,
-                        ),
-                        [
-                            'special_opening_hour' => $openingSpecialHour,
-                            'exception' => $e
-                        ]
+                    $message = sprintf(
+                        'The special opening hour id=%d of location id=%d couldn\'t be updated.',
+                        $storeKeeperId,
+                        $locationStoreKeeperId
                     );
+
+                    $this->debug($message, ['special_opening_hour' => $openingSpecialHour, 'exception' => $e]);
+
+                    throw new LocationImportException($message, 'special_opening_hour', $e);
                 }
             } else {
                 try {
@@ -554,17 +575,15 @@ class LocationImport extends AbstractImport
                         ]
                     );
                 } catch (\Exception $e) {
-                    $this->debug(
-                        sprintf(
-                            'The special opening hour id=%d of location id=%d couldn\'t be created.',
-                            $storeKeeperId,
-                            $locationStoreKeeperId,
-                        ),
-                        [
-                            'special_opening_hour' => $openingSpecialHour,
-                            'exception' => $e
-                        ]
+                    $message = sprintf(
+                        'The special opening hour id=%d of location id=%d couldn\'t be created.',
+                        $storeKeeperId,
+                        $locationStoreKeeperId
                     );
+
+                    $this->debug($message, ['special_opening_hour' => $openingSpecialHour, 'exception' => $e]);
+
+                    throw new LocationImportException($message, 'special_opening_hour', $e);
                 }
             }
 

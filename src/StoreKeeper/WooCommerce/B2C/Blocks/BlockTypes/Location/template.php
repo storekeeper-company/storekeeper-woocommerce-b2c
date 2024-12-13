@@ -36,7 +36,7 @@ $extraAttributes = [
     <?php if (isset($attributes['show_address']) && $attributes['show_address'] && !empty($address)): ?>
     <address>
         <span itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
-            <?php echo AddressHelper::getFormattedAddress($address, ', ') ?>
+            <?php echo esc_html(AddressHelper::getFormattedAddress($address, ', ')) ?>
         </span>
 
         <?php if (isset($address['url']) && null !== $address['url'] && '' !== ($website = trim($address['url'])) &&

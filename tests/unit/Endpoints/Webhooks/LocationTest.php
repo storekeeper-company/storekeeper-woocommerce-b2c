@@ -127,34 +127,29 @@ class LocationTest extends AbstractTest
 
         $location = LocationModel::getByStoreKeeperId($storeKeeperId);
 
-        $this->assertIsArray($location);
-        $this->assertTrue((bool) $location['is_active']);
+        $this->assertIsArray($location, 'The location from dump response should be stored in database');
+        $this->assertTrue(
+            (bool) $location['is_active'],
+            'The location status from dump response should match the one stored in database'
+        );
 
         $this->deactivateLocation();
 
         $location = LocationModel::getByStoreKeeperId($storeKeeperId);
 
-        $this->assertFalse((bool) $location['is_active']);
+        $this->assertFalse(
+            (bool) $location['is_active'],
+            'The location status from dump response should match the one stored in database'
+        );
 
         $this->activateLocation();
 
         $location = LocationModel::getByStoreKeeperId($storeKeeperId);
 
-        $this->assertTrue((bool) $location['is_active']);
-    }
-
-    /**
-     * Testing location deactivate task
-     */
-    public function testLocationDeactivated()
-    {
-        $this->initApiConnection();
-
-        $storeKeeperId = $this->deactivateLocation();
-
-        $location = LocationModel::getByStoreKeeperId($storeKeeperId);
-
-        $this->assertNull($location);
+        $this->assertTrue(
+            (bool) $location['is_active'],
+            'The location status from dump response should match the one stored in database'
+        );
     }
 
     /**

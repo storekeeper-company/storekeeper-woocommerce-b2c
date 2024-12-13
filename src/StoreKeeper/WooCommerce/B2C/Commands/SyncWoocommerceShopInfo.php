@@ -72,7 +72,7 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
                 StoreKeeperOptions::update(StoreKeeperOptions::IMAGE_CDN_PREFIX, $shopData->get('image_cdn_prefix'));
             }
 
-            (new LocationImport(['debug' => true]))->run();
+            (new LocationImport())->run();
 
             WpCliHelper::attemptSuccessOutput(__('Done synchronizing shop information', I18N::DOMAIN));
         }

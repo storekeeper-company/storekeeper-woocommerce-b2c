@@ -355,7 +355,7 @@ class LocationsTab extends AbstractLogsTab
             }
             echo '</ul>';
         } else {
-            _e('Location is closed.', I18N::DOMAIN);
+            esc_html_e('Location is closed.', I18N::DOMAIN);
         }
     }
 
@@ -379,7 +379,7 @@ class LocationsTab extends AbstractLogsTab
             }
             echo '</ul>';
         } else {
-            _e('No special opening hours set.', I18N::DOMAIN);
+            esc_html_e('No special opening hours set.', I18N::DOMAIN);
         }
 
         unset($openingSpecialHours);
@@ -467,8 +467,8 @@ class LocationsTab extends AbstractLogsTab
             unset($args);
         }
 
-        $locationsLabel = esc_html(__('Locations', I18N::DOMAIN));
-        $locationTxtLabel = esc_html(__('Location', I18N::DOMAIN));
+        $locationsLabel = esc_html__('Locations', I18N::DOMAIN);
+        $locationTxtLabel = esc_html__('Location', I18N::DOMAIN);
         $locationStatusHtml = $this->renderStatus($location['is_active'], false);
         $locationName = esc_html($location['name']);
         $locationIdTxt = esc_html(sprintf(__('ID#%s', I18N::DOMAIN), $location['storekeeper_id']));
@@ -689,7 +689,7 @@ class LocationsTab extends AbstractLogsTab
         $defaultHtml = '';
 
         if ($location['is_default']) {
-            $label = esc_html(__('default', I18N::DOMAIN));
+            $label = esc_html__('default', I18N::DOMAIN);
             $defaultHtml = <<<HTML
             <span class="storekeeper-status"><span class="storekeeper-status-default">{$label}</span></span>
             HTML;

@@ -174,7 +174,7 @@ class Core
             $PaymentGateway->registerHooks();
         }
 
-        new BlockTypesController;
+        new BlockTypesController();
 
         $this->versionChecks();
         $this->registerMarkDown();
@@ -273,7 +273,7 @@ class Core
 
     public static function isDataDump(): bool
     {
-        return STOREKEEPER_WOOCOMMERCE_API_DUMP && !self::isTest();
+        return defined('STOREKEEPER_WOOCOMMERCE_API_DUMP') && STOREKEEPER_WOOCOMMERCE_API_DUMP && !self::isTest();
     }
 
     public static function isTest(): bool

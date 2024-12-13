@@ -10,6 +10,8 @@ class DateTimeHelper
     public const MYSQL_DATE_FORMAT = 'Y-m-d';
     public const WORDPRESS_DATE_FORMAT_OPTION = 'date_format';
     public const WORDPRESS_TIME_FORMAT_OPTION = 'time_format';
+    public const DEFAULT_DATE_FORMAT = 'F j, Y';
+    public const DEFAULT_TIME_FORMAT = 'g:i a';
 
     /**
      * Get current date and time
@@ -37,18 +39,28 @@ class DateTimeHelper
             return '-';
         }
 
-        $dateFormat = get_option(self::WORDPRESS_DATE_FORMAT_OPTION);
-        $timeFormat = get_option(self::WORDPRESS_TIME_FORMAT_OPTION);
-
-        if (!$dateFormat) {
-            $dateFormat = 'F j, Y';
-        }
-
-        if (!$timeFormat) {
-            $timeFormat = 'g:i a';
-        }
+        $dateFormat = self::getDateFormat();
+        $timeFormat = self::getTimeFormat();
 
         return $dateTime->setTimezone(wp_timezone())->format("$dateFormat $timeFormat");
+    }
+
+    public static function formatTheDateForDisplay(?\DateTime $dateTime = null)
+    {
+        if (null === $dateTime) {
+            $dateTime = self::currentDateTime();
+        }
+
+        return (clone $dateTime)->setTimezone(wp_timezone())->format(self::getDateFormat());
+    }
+
+    public static function formatTheTimeForDisplay(?\DateTime $dateTime = null)
+    {
+        if (null === $dateTime) {
+            $dateTime = self::currentDateTime();
+        }
+
+        return (clone $dateTime)->setTimezone(wp_timezone())->format(self::getTimeFormat());
     }
 
     public static function dateDiff(\DateTime $datetime1, $maximumInactiveMinutes = 15)
@@ -90,5 +102,15 @@ class DateTimeHelper
                 }
             }
         }
+    }
+
+    protected static function getDateFormat()
+    {
+        return get_option(self::WORDPRESS_DATE_FORMAT_OPTION) ?: self::DEFAULT_DATE_FORMAT;
+    }
+
+    protected static function getTimeFormat()
+    {
+        return get_option(self::WORDPRESS_TIME_FORMAT_OPTION) ?: self::DEFAULT_TIME_FORMAT;
     }
 }
