@@ -83,7 +83,7 @@ class LocationTest extends AbstractTest
     {
         return [
             [
-                null,
+                null, // Scope is null, update all
                 [
                     'isLocationUpdated' => true,
                     'isAddressUpdated' => false,
@@ -95,10 +95,10 @@ class LocationTest extends AbstractTest
                 ]
             ],
             [
-                LocationUpdateImport::ADDRESS_SCOPE,
+                LocationUpdateImport::ADDRESS_SCOPE, // Scope is address
                 [
                     'isLocationUpdated' => false,
-                    'isAddressUpdated' => true,
+                    'isAddressUpdated' => true, // Address should be updated
                     'areOpeningHoursUpdated' => false,
                     'areOpeningSpecialHoursUpdated' => false,
                     'address' => true,
@@ -107,11 +107,11 @@ class LocationTest extends AbstractTest
                 ]
             ],
             [
-                LocationUpdateImport::OPENING_HOUR_SCOPE,
+                LocationUpdateImport::OPENING_HOUR_SCOPE, // Scope is opening hours
                 [
                     'isLocationUpdated' => false,
                     'isAddressUpdated' => false,
-                    'areOpeningHoursUpdated' => true,
+                    'areOpeningHoursUpdated' => true, // Opening hours should be updated
                     'areOpeningSpecialHoursUpdated' => false,
                     'address' => false,
                     'opening_hour' => true,
@@ -119,12 +119,12 @@ class LocationTest extends AbstractTest
                 ]
             ],
             [
-                LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE,
+                LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE, // Scope is special opening hours
                 [
                     'isLocationUpdated' => false,
                     'isAddressUpdated' => false,
                     'areOpeningHoursUpdated' => false,
-                    'areOpeningSpecialHoursUpdated' => true,
+                    'areOpeningSpecialHoursUpdated' => true, // Special hours should be updated
                     'address' => false,
                     'opening_hour' => false,
                     'opening_special_hour' => true,
