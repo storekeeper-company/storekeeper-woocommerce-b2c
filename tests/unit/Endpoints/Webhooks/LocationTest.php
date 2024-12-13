@@ -33,12 +33,6 @@ class LocationTest extends AbstractTest
         LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE => 'hook.events.updateOpeningSpecialHourLocation.json'
     ];
 
-    /**
-     * Testing location update task
-     */
-    /**
-     * @dataProvider locationUpdateDataProvider
-     */
     public function testLocationUpdated()
     {
         $this->initApiConnection();
