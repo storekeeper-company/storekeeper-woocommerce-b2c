@@ -227,7 +227,7 @@ class LocationShippingHandler implements WithHooksInterface
         if (\is_checkout() && !\WC_Blocks_Utils::has_block_in_page(\get_the_ID(), 'woocommerce/checkout')) {
             wp_enqueue_script(
                 'sk-checkout-location',
-                Core::plugin_url() . '/assets/checkout/location.js',
+                Core::plugin_url() . '/resources/js/checkout/location.js',
                 [
                     'wc-checkout'
                 ],
