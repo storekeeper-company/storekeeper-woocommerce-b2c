@@ -67,7 +67,7 @@ $extraAttributes = [
         <h4><?php esc_html_e('Regular opening hours') ?></h4>
 
         <?php if (empty($opening_hours)): ?>
-        <p><?php _e('Location is closed.', I18N::DOMAIN); ?></p>
+        <p><?php esc_html_e('Location is closed.', I18N::DOMAIN); ?></p>
         <?php else: ?>
             <ul>
                 <?php foreach ($opening_hours as $opening_hour): ?>

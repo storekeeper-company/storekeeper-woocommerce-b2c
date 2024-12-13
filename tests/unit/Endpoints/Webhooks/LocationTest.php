@@ -36,12 +36,11 @@ class LocationTest extends AbstractTest
     /**
      * Testing location update task
      */
-    public function testLocationUpdated()
+    public function testLocationUpdated($scope, $expectedResults)
     {
         $this->initApiConnection();
 
-        $storeKeeperId = $this->activateLocation(); //create location
-
+        $storeKeeperId = $this->activateLocation();
         $location = LocationModel::getByStoreKeeperId($storeKeeperId);
 
         $this->assertIsArray($location);
@@ -50,70 +49,27 @@ class LocationTest extends AbstractTest
         $openingHours = OpeningHourModel::getByLocationId($location[LocationModel::PRIMARY_KEY]);
         $openingSpecialHours = OpeningSpecialHoursModel::getByLocationId($location[LocationModel::PRIMARY_KEY]);
 
-        foreach (array_merge([null], array_keys(self::SCOPED_UPDATE_LOCATION_DUMP_FILES)) as $scope) {
-            sleep(1);
+        sleep(1);
+        $this->updateLocation($scope);
 
-            $this->updateLocation($scope);
+        $updatedLocation = LocationModel::getByStoreKeeperId($storeKeeperId);
 
-            $updatedLocation = LocationModel::getByStoreKeeperId($storeKeeperId);
+        $this->assertIsArray($updatedLocation);
 
-            $this->assertIsArray($updatedLocation);
+        $updatedAddress = AddressModel::getByLocationId($updatedLocation[LocationModel::PRIMARY_KEY]);
+        $updatedOpeningHours = OpeningHourModel::getByLocationId($updatedLocation[LocationModel::PRIMARY_KEY]);
+        $updatedOpeningSpecialHours = OpeningSpecialHoursModel::getByLocationId(
+            $updatedLocation[LocationModel::PRIMARY_KEY]
+        );
 
-            $updatedAddress = AddressModel::getByLocationId($updatedLocation[LocationModel::PRIMARY_KEY]);
-            $updatedOpeningHours = OpeningHourModel::getByLocationId($updatedLocation[LocationModel::PRIMARY_KEY]);
-            $updatedOpeningSpecialHours = OpeningSpecialHoursModel::getByLocationId(
-                $updatedLocation[LocationModel::PRIMARY_KEY]
-            );
-
-            $isLocationUpdated = $this->isEntityUpdated($location, $updatedLocation);
-            $isAddressUpdated = $this->isEntityUpdated($address, $updatedAddress, AddressModel::FIELD_DATE_UPDATED);
-            $areOpeningHoursUpdated = $this->areLocationOpeningHoursUpdated($openingHours, $updatedOpeningHours);
-            $areOpeningSpecialHoursUpdated = $this->areLocationOpeningHoursUpdated(
-                $openingSpecialHours,
-                $updatedOpeningSpecialHours,
-                OpeningSpecialHoursModel::class
-            );
-
-            if (null === $scope) {
-                $this->assertTrue($isLocationUpdated);
-                $this->assertFalse($isAddressUpdated);
-                $this->assertFalse($areOpeningHoursUpdated);
-                $this->assertFalse($areOpeningSpecialHoursUpdated);
-            } else if (LocationUpdateImport::ADDRESS_SCOPE === $scope) {
-                $this->assertFalse($isLocationUpdated);
-                $this->assertTrue($isAddressUpdated);
-                $this->assertFalse($areOpeningHoursUpdated);
-                $this->assertFalse($areOpeningSpecialHoursUpdated);
-            } else if (LocationUpdateImport::OPENING_HOUR_SCOPE === $scope) {
-                $this->assertFalse($isLocationUpdated);
-                $this->assertFalse($isAddressUpdated);
-                $this->assertTrue($areOpeningHoursUpdated);
-                $this->assertFalse($areOpeningSpecialHoursUpdated);
-            } else if (LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE === $scope) {
-                $this->assertFalse($isLocationUpdated);
-                $this->assertFalse($isAddressUpdated);
-                $this->assertFalse($areOpeningHoursUpdated);
-                $this->assertTrue($areOpeningSpecialHoursUpdated);
-            }
-
-            $location = $updatedLocation;
-            $address = $updatedAddress;
-            $openingHours = $updatedOpeningHours;
-            $openingSpecialHours = $updatedOpeningSpecialHours;
-
-            unset(
-                $updatedLocation,
-                $scope,
-                $updatedLocation,
-                $updatedAddress,
-                $updatedOpeningHours,
-                $updatedOpeningSpecialHours,
-                $isLocationUpdated,
-                $isAddressUpdated,
-                $areOpeningHoursUpdated,
-                $areOpeningSpecialHoursUpdated
-            );
-        }
+        $this->assertSame($expectedResults['isLocationUpdated'], $this->isEntityUpdated($location, $updatedLocation));
+        $this->assertSame($expectedResults['isAddressUpdated'], $this->isEntityUpdated($address, $updatedAddress, AddressModel::FIELD_DATE_UPDATED));
+        $this->assertSame($expectedResults['areOpeningHoursUpdated'], $this->areLocationOpeningHoursUpdated($openingHours, $updatedOpeningHours));
+        $this->assertSame($expectedResults['areOpeningSpecialHoursUpdated'], $this->areLocationOpeningHoursUpdated(
+            $openingSpecialHours,
+            $updatedOpeningSpecialHours,
+            OpeningSpecialHoursModel::class
+        ));
     }
 
     /**
@@ -213,13 +169,31 @@ class LocationTest extends AbstractTest
         if (count($hookFile->getBody()['payload']['events'])) {
             $taskIds = TaskModel::getTasksByStoreKeeperId((int) $backrefData[1]['id']);
 
-            $this->assertNotNull($taskIds);
-            $this->assertSame(count($hookFile->getBody()['payload']['events']), count($taskIds));
+            $this->assertNotNull(
+                $taskIds,
+                'The task IDs should not be null. This indicates that tasks were not found in the database for the given StoreKeeper ID.'
+            );
+
+            $this->assertSameSize(
+                count($hookFile->getBody()['payload']['events']),
+                count($taskIds),
+                'The number of events from the payload should match the number of tasks retrieved from the database by storekeeper ID.'
+            );
 
             foreach ($taskIds as $taskId) {
                 $task = TaskModel::get($taskId);
 
-                $this->assertSame($expectedType, $task['type']);
+                $this->assertSame(
+                    $expectedType,
+                    $task['type'],
+                    sprintf(
+                        'The task type should match the expected type. Expected: %s, Actual: %s, Task ID: %d',
+                        $expectedType,
+                        $task['type'],
+                        $taskId
+                    )
+                );
+
 
                 unset($taskId, $task);
             }
@@ -324,5 +298,39 @@ class LocationTest extends AbstractTest
         ksort($openingHours, SORT_NUMERIC);
 
         return $openingHours;
+    }
+
+    public function locationUpdateScopesProvider(): array
+    {
+        return [
+            'No scope (null)' => [
+                'scope' => null,
+                'expectedLocationUpdated' => true,
+                'expectedAddressUpdated' => false,
+                'expectedOpeningHoursUpdated' => false,
+                'expectedOpeningSpecialHoursUpdated' => false,
+            ],
+            'Address scope' => [
+                'scope' => LocationUpdateImport::ADDRESS_SCOPE,
+                'expectedLocationUpdated' => false,
+                'expectedAddressUpdated' => true,
+                'expectedOpeningHoursUpdated' => false,
+                'expectedOpeningSpecialHoursUpdated' => false,
+            ],
+            'Opening hour scope' => [
+                'scope' => LocationUpdateImport::OPENING_HOUR_SCOPE,
+                'expectedLocationUpdated' => false,
+                'expectedAddressUpdated' => false,
+                'expectedOpeningHoursUpdated' => true,
+                'expectedOpeningSpecialHoursUpdated' => false,
+            ],
+            'Opening special hour scope' => [
+                'scope' => LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE,
+                'expectedLocationUpdated' => false,
+                'expectedAddressUpdated' => false,
+                'expectedOpeningHoursUpdated' => false,
+                'expectedOpeningSpecialHoursUpdated' => true,
+            ],
+        ];
     }
 }
