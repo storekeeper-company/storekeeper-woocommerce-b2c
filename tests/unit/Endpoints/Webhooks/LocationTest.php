@@ -90,7 +90,7 @@ class LocationTest extends AbstractTest
                     'areOpeningHoursUpdated' => false,
                     'areOpeningSpecialHoursUpdated' => false,
                     'address' => true,
-                    'opening_hour' => false,
+                    'opening_hour' => true,
                     'opening_special_hour' => false,
                 ]
             ],
