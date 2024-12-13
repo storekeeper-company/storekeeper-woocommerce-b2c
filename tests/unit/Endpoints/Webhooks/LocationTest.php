@@ -36,6 +36,9 @@ class LocationTest extends AbstractTest
     /**
      * Testing location update task
      */
+    /**
+     * @dataProvider locationUpdateDataProvider
+     */
     public function testLocationUpdated($scope, $expectedResults)
     {
         $this->initApiConnection();
@@ -70,6 +73,16 @@ class LocationTest extends AbstractTest
             $updatedOpeningSpecialHours,
             OpeningSpecialHoursModel::class
         ));
+    }
+
+    public function locationUpdateDataProvider()
+    {
+        return [
+            [null, ['isLocationUpdated' => true, 'isAddressUpdated' => false, 'areOpeningHoursUpdated' => false, 'areOpeningSpecialHoursUpdated' => false]],
+            [LocationUpdateImport::ADDRESS_SCOPE, ['isLocationUpdated' => false, 'isAddressUpdated' => true, 'areOpeningHoursUpdated' => false, 'areOpeningSpecialHoursUpdated' => false]],
+            [LocationUpdateImport::OPENING_HOUR_SCOPE, ['isLocationUpdated' => false, 'isAddressUpdated' => false, 'areOpeningHoursUpdated' => true, 'areOpeningSpecialHoursUpdated' => false]],
+            [LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE, ['isLocationUpdated' => false, 'isAddressUpdated' => false, 'areOpeningHoursUpdated' => false, 'areOpeningSpecialHoursUpdated' => true]],
+        ];
     }
 
     /**
@@ -176,7 +189,7 @@ class LocationTest extends AbstractTest
 
             $this->assertSameSize(
                 count($hookFile->getBody()['payload']['events']),
-                count($taskIds),
+                $taskIds,
                 'The number of events from the payload should match the number of tasks retrieved from the database by storekeeper ID.'
             );
 
@@ -298,39 +311,5 @@ class LocationTest extends AbstractTest
         ksort($openingHours, SORT_NUMERIC);
 
         return $openingHours;
-    }
-
-    public function locationUpdateScopesProvider(): array
-    {
-        return [
-            'No scope (null)' => [
-                'scope' => null,
-                'expectedLocationUpdated' => true,
-                'expectedAddressUpdated' => false,
-                'expectedOpeningHoursUpdated' => false,
-                'expectedOpeningSpecialHoursUpdated' => false,
-            ],
-            'Address scope' => [
-                'scope' => LocationUpdateImport::ADDRESS_SCOPE,
-                'expectedLocationUpdated' => false,
-                'expectedAddressUpdated' => true,
-                'expectedOpeningHoursUpdated' => false,
-                'expectedOpeningSpecialHoursUpdated' => false,
-            ],
-            'Opening hour scope' => [
-                'scope' => LocationUpdateImport::OPENING_HOUR_SCOPE,
-                'expectedLocationUpdated' => false,
-                'expectedAddressUpdated' => false,
-                'expectedOpeningHoursUpdated' => true,
-                'expectedOpeningSpecialHoursUpdated' => false,
-            ],
-            'Opening special hour scope' => [
-                'scope' => LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE,
-                'expectedLocationUpdated' => false,
-                'expectedAddressUpdated' => false,
-                'expectedOpeningHoursUpdated' => false,
-                'expectedOpeningSpecialHoursUpdated' => true,
-            ],
-        ];
     }
 }
