@@ -73,15 +73,63 @@ class LocationTest extends AbstractTest
             $updatedOpeningSpecialHours,
             OpeningSpecialHoursModel::class
         ));
+
+        $this->assertSame($expectedResults['address'], $this->isEntityUpdated($address, $updatedAddress));
+        $this->assertSame($expectedResults['opening_hour'], $this->areLocationOpeningHoursUpdated($openingHours, $updatedOpeningHours));
+        $this->assertSame($expectedResults['opening_special_hour'], $this->areLocationOpeningHoursUpdated($openingSpecialHours, $updatedOpeningSpecialHours));
     }
 
     public function locationUpdateDataProvider()
     {
         return [
-            [null, ['isLocationUpdated' => true, 'isAddressUpdated' => false, 'areOpeningHoursUpdated' => false, 'areOpeningSpecialHoursUpdated' => false]],
-            [LocationUpdateImport::ADDRESS_SCOPE, ['isLocationUpdated' => false, 'isAddressUpdated' => true, 'areOpeningHoursUpdated' => false, 'areOpeningSpecialHoursUpdated' => false]],
-            [LocationUpdateImport::OPENING_HOUR_SCOPE, ['isLocationUpdated' => false, 'isAddressUpdated' => false, 'areOpeningHoursUpdated' => true, 'areOpeningSpecialHoursUpdated' => false]],
-            [LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE, ['isLocationUpdated' => false, 'isAddressUpdated' => false, 'areOpeningHoursUpdated' => false, 'areOpeningSpecialHoursUpdated' => true]],
+            [
+                null,
+                [
+                    'isLocationUpdated' => true,
+                    'isAddressUpdated' => false,
+                    'areOpeningHoursUpdated' => false,
+                    'areOpeningSpecialHoursUpdated' => false,
+                    'address' => false,
+                    'opening_hour' => false,
+                    'opening_special_hour' => false,
+                ]
+            ],
+            [
+                LocationUpdateImport::ADDRESS_SCOPE,
+                [
+                    'isLocationUpdated' => false,
+                    'isAddressUpdated' => true,
+                    'areOpeningHoursUpdated' => false,
+                    'areOpeningSpecialHoursUpdated' => false,
+                    'address' => true,
+                    'opening_hour' => false,
+                    'opening_special_hour' => false,
+                ]
+            ],
+            [
+                LocationUpdateImport::OPENING_HOUR_SCOPE,
+                [
+                    'isLocationUpdated' => false,
+                    'isAddressUpdated' => false,
+                    'areOpeningHoursUpdated' => true,
+                    'areOpeningSpecialHoursUpdated' => false,
+                    'address' => false,
+                    'opening_hour' => true,
+                    'opening_special_hour' => false,
+                ]
+            ],
+            [
+                LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE,
+                [
+                    'isLocationUpdated' => false,
+                    'isAddressUpdated' => false,
+                    'areOpeningHoursUpdated' => false,
+                    'areOpeningSpecialHoursUpdated' => true,
+                    'address' => false,
+                    'opening_hour' => false,
+                    'opening_special_hour' => true,
+                ]
+            ],
         ];
     }
 
