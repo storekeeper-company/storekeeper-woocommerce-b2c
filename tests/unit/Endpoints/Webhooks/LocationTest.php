@@ -188,7 +188,7 @@ class LocationTest extends AbstractTest
             );
 
             $this->assertSameSize(
-                count($hookFile->getBody()['payload']['events']),
+                $hookFile->getBody()['payload']['events'],
                 $taskIds,
                 'The number of events from the payload should match the number of tasks retrieved from the database by storekeeper ID.'
             );
