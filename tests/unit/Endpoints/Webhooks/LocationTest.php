@@ -86,8 +86,8 @@ class LocationTest extends AbstractTest
                 null, // Scope is null, update all
                 [
                     'isLocationUpdated' => true,
-                    'isAddressUpdated' => false,
-                    'areOpeningHoursUpdated' => false,
+                    'isAddressUpdated' => true,
+                    'areOpeningHoursUpdated' => true,
                     'areOpeningSpecialHoursUpdated' => false,
                     'address' => false,
                     'opening_hour' => false,
@@ -99,7 +99,7 @@ class LocationTest extends AbstractTest
                 [
                     'isLocationUpdated' => false,
                     'isAddressUpdated' => true, // Address should be updated
-                    'areOpeningHoursUpdated' => false,
+                    'areOpeningHoursUpdated' => true,
                     'areOpeningSpecialHoursUpdated' => false,
                     'address' => true,
                     'opening_hour' => false,
@@ -110,7 +110,7 @@ class LocationTest extends AbstractTest
                 LocationUpdateImport::OPENING_HOUR_SCOPE, // Scope is opening hours
                 [
                     'isLocationUpdated' => false,
-                    'isAddressUpdated' => false,
+                    'isAddressUpdated' => true,
                     'areOpeningHoursUpdated' => true, // Opening hours should be updated
                     'areOpeningSpecialHoursUpdated' => false,
                     'address' => false,
@@ -122,8 +122,8 @@ class LocationTest extends AbstractTest
                 LocationUpdateImport::OPENING_SPECIAL_HOUR_SCOPE, // Scope is special opening hours
                 [
                     'isLocationUpdated' => false,
-                    'isAddressUpdated' => false,
-                    'areOpeningHoursUpdated' => false,
+                    'isAddressUpdated' => true,
+                    'areOpeningHoursUpdated' => true,
                     'areOpeningSpecialHoursUpdated' => true, // Special hours should be updated
                     'address' => false,
                     'opening_hour' => false,
