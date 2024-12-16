@@ -904,15 +904,15 @@ class OrderExport extends AbstractExport
                 'shipping_method_id' => $shipping_method_id ?? '',
                 'shipping_location_id' => $shipping_location_id ?? '',
             ];
-            if ($shipping_delivery_date_value) {
-                if ($shipping_pickup_delivery_date) {
-                    $data['pickup_date'] = $shipping_pickup_delivery_date;
-                }
 
-                if ($shipping_truck_delivery_date) {
-                    $data['track_delivery_date'] = $shipping_truck_delivery_date;
-                }
+            if ($shipping_pickup_delivery_date) {
+                $data['pickup_date'] = $shipping_delivery_date_value;
             }
+
+            if ($shipping_truck_delivery_date) {
+                $data['track_delivery_date'] = $shipping_delivery_date_value;
+            }
+
 
             $shippingMethodData = $shipping_method->get_data();
             if ($excludeTaxesTotalOnMd5 || !$this->already_exported()) {
