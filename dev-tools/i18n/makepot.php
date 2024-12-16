@@ -3,6 +3,7 @@
 require_once dirname(__FILE__).'/not-gettexted.php';
 require_once dirname(__FILE__).'/pot-ext-meta.php';
 require_once dirname(__FILE__).'/extract.php';
+require_once realpath(__DIR__.'/../../../../../wp-includes/compat.php');
 
 if (!defined('STDERR')) {
     define('STDERR', fopen('php://stderr', 'w'));

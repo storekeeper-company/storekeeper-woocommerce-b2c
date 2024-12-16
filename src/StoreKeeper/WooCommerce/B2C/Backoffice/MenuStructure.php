@@ -6,6 +6,7 @@ use StoreKeeper\WooCommerce\B2C\Backoffice\Helpers\ProductXEditor;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\AbstractPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\DashboardPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\LogsPage;
+use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\LocationsPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\SettingsPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\StatusPage;
 use StoreKeeper\WooCommerce\B2C\Backoffice\Pages\ToolsPage;
@@ -112,6 +113,10 @@ class MenuStructure implements WithHooksInterface
             new LogsPage(
                 __('Logs', I18N::DOMAIN),
                 'logs'
+            ),
+            new LocationsPage(
+                __('Locations', I18N::DOMAIN),
+                'locations'
             ),
             new ToolsPage(
                 __('Tools', I18N::DOMAIN),

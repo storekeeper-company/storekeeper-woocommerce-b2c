@@ -11,6 +11,10 @@ use StoreKeeper\WooCommerce\B2C\Options\FeaturedAttributeOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\Attributes;
 use StoreKeeper\WooCommerce\B2C\Tools\Categories;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
+use StoreKeeper\WooCommerce\B2C\Models\LocationModel;
+use StoreKeeper\WooCommerce\B2C\Models\Location\AddressModel;
+use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningHourModel;
+use StoreKeeper\WooCommerce\B2C\Models\Location\OpeningSpecialHoursModel;
 
 class SyncWoocommerceFullSyncTest extends AbstractTest
 {
@@ -39,6 +43,41 @@ class SyncWoocommerceFullSyncTest extends AbstractTest
             get_option('woocommerce_store_postcode'),
             'WooCommerce zipcode incorrect'
         );
+
+        $locationDumpData = $this->getMergedDataDump('ShopModule::listLocationsForHook');
+        $this->assertSame(count($locationDumpData), LocationModel::count());
+        $this->assertSame(count($locationDumpData), AddressModel::count());
+        $this->assertSame(
+            array_reduce(
+                $locationDumpData,
+                function ($carry, $locationData) {
+                    $openingHours = 0;
+                    if (array_key_exists('opening_hour', $locationData)) {
+                        $openingHours = count($locationData['opening_hour']['regular_periods']);
+                    }
+
+                    return $carry + $openingHours;
+                },
+                0
+            ),
+            OpeningHourModel::count()
+        );
+        $this->assertSame(
+            array_reduce(
+                $locationDumpData,
+                function ($carry, $locationData) {
+                    $openingSpecialHours = 0;
+                    if (array_key_exists('opening_special_hours', $locationData)) {
+                        $openingSpecialHours = count($locationData['opening_special_hours']);
+                    }
+
+                    return $carry + $openingSpecialHours;
+                },
+                0
+            ),
+            OpeningSpecialHoursModel::count()
+        );
+        unset($locationDumpData);
 
         // Shop config
         $shopConfigs = $this->getMergedDataDump('ShopModule::listConfigurations');

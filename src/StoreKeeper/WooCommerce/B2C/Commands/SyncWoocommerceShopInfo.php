@@ -6,6 +6,7 @@ use Adbar\Dot;
 use StoreKeeper\WooCommerce\B2C\Helpers\WpCliHelper;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
+use StoreKeeper\WooCommerce\B2C\Imports\LocationImport;
 
 class SyncWoocommerceShopInfo extends AbstractSyncCommand
 {
@@ -70,6 +71,8 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
             if ($shopData->has('image_cdn_prefix')) {
                 StoreKeeperOptions::update(StoreKeeperOptions::IMAGE_CDN_PREFIX, $shopData->get('image_cdn_prefix'));
             }
+
+            (new LocationImport(['debug' => true]))->run();
 
             WpCliHelper::attemptSuccessOutput(__('Done synchronizing shop information', I18N::DOMAIN));
         }

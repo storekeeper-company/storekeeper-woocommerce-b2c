@@ -8,6 +8,10 @@ use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Hooks\WithHooksInterface;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Imports\ProductImport;
+use StoreKeeper\WooCommerce\B2C\Imports\ShippingMethodImport;
+use StoreKeeper\WooCommerce\B2C\Models\Location\ShippingSettingModel;
+use StoreKeeper\WooCommerce\B2C\Models\ShippingMethodModel;
+use StoreKeeper\WooCommerce\B2C\Tools\LocationShippingDateResolver;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
 
 class ProductAddOnHandler implements WithHooksInterface
@@ -161,7 +165,6 @@ class ProductAddOnHandler implements WithHooksInterface
 
         }
     }
-
     public function renderPriceCalculationJsScriptOnProductPage()
     {
         global $product;
@@ -186,7 +189,7 @@ class ProductAddOnHandler implements WithHooksInterface
         }
         list($required_price, $price_addon_changes) = $this->calculateRequiredAndOptionalPriceChanges($addons);
 
-        $template_path = Core::plugin_abspath().'templates/';
+        $template_path = Core::plugin_abspath() . 'templates/';
         $price = $this->getProductSalePrice($product);
         $regularPrice = $this->getProductRegularPrice($product);
 
@@ -202,7 +205,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
     public function renderCssStyles()
     {
-        $template_path = Core::plugin_abspath().'templates/';
+        $template_path = Core::plugin_abspath() . 'templates/';
         wc_get_template('add-on/css/add-on-styles.php', [], '', $template_path);
     }
 
@@ -294,6 +297,7 @@ class ProductAddOnHandler implements WithHooksInterface
         }
     }
 
+
     public function setAddOnPriceOnCartSubitem($cart)
     {
         if (is_admin() && !defined('DOING_AJAX')) {
@@ -350,8 +354,10 @@ class ProductAddOnHandler implements WithHooksInterface
         return $link;
     }
 
+
     public function copyCartItemDataToOrderItem(\WC_Order_Item_Product $item, $cart_item_key, $cart_item_data, \WC_Order $order)
     {
+        // Add custom cart fields to order item
         if (!empty($cart_item_data[self::CART_FIELD_ID])) {
             foreach (self::CART_FIELDS as $field_name) {
                 if (isset($cart_item_data[$field_name])) {
@@ -360,15 +366,55 @@ class ProductAddOnHandler implements WithHooksInterface
             }
         }
 
+        // Add text addon
         if (!empty($cart_item_data['text'])) {
-            $meta_key = sprintf('sk_addon_text');
-            $item->add_meta_data($meta_key, $cart_item_data['text']);
+            $item->add_meta_data('sk_addon_text', $cart_item_data['text']);
         }
 
+        // Add image addon
         if (!empty($cart_item_data['image'])) {
-            $image_html = '<img src="'.esc_url($cart_item_data['image']).'" alt="Addon Image" style="max-width: 150px; height: auto;">';
-            $meta_key = sprintf('sk_addon_image');
-            $item->add_meta_data($meta_key, $image_html);
+            $image_html = '<img src="' . esc_url($cart_item_data['image']) . '" alt="Addon Image" style="max-width: 150px; height: auto;">';
+            $item->add_meta_data('sk_addon_image', $image_html);
+        }
+
+        if (!WC()->session || empty(WC()->session->get('chosen_shipping_methods'))) {
+            return;
+        }
+        $chosen_shipping_method = WC()->session->get('chosen_shipping_methods')[0];
+        $shipping_method_parts = explode(":", $chosen_shipping_method);
+        $instance_id = isset($shipping_method_parts[1]) ? $shipping_method_parts[1] : null;
+
+        if (!$instance_id) {
+            return;
+        }
+
+        $getShippingMethodStorekeeper = ShippingMethodModel::findBy(
+            ['wc_instance_id = :instance_id'],
+            ['instance_id' => $instance_id]
+        );
+
+        if (!empty($getShippingMethodStorekeeper)) {
+            $item->add_meta_data('shipping_method_id', $getShippingMethodStorekeeper[0]['storekeeper_id']);
+
+            if (isset($_POST['storekeeper']['location']['shipping_method'][$instance_id])) {
+                $shippingLocationId = $_POST['storekeeper']['location']['shipping_method'][$instance_id];
+                $item->add_meta_data('shipping_location_id', $shippingLocationId);
+            }
+
+            $getShippingLocationStorekeeper = ShippingSettingModel::findBy(
+                ['location_id = :location_id'],
+                ['location_id' => $shippingLocationId]
+            );
+
+            if (ShippingMethodImport::SHIPPING_CLASS_FLAT_RATE === $shipping_method_parts[0]) {
+                $deliveryDate = LocationShippingDateResolver::getTruckDeliveryDate($getShippingLocationStorekeeper[0]['location_id']);
+                $data =  \DateTime::createFromImmutable($deliveryDate)->format('F j, Y');
+                $item->add_meta_data('shipping_truck_delivery_date', $data);
+            } else {
+                $deliveryDate = LocationShippingDateResolver::getPickupDate($getShippingLocationStorekeeper[0]['location_id']);
+                $data =  \DateTime::createFromImmutable($deliveryDate)->format('F j, Y');
+                $item->add_meta_data('shipping_pickup_delivery_date', $data);
+            }
         }
     }
 
@@ -387,12 +433,12 @@ class ProductAddOnHandler implements WithHooksInterface
 
     protected function getSingleKeyName(int $id): string
     {
-        return self::FIELD_CHOICE."[$id][".self::ADDON_TYPE_SINGLE_CHOICE.']';
+        return self::FIELD_CHOICE . "[$id][" . self::ADDON_TYPE_SINGLE_CHOICE . ']';
     }
 
     protected function getMultipleChoiceKeyName(int $addon_id, int $option_id): string
     {
-        return self::FIELD_CHOICE."[$addon_id][".self::ADDON_TYPE_MULTIPLE_CHOICE."][$option_id]";
+        return self::FIELD_CHOICE . "[$addon_id][" . self::ADDON_TYPE_MULTIPLE_CHOICE . "][$option_id]";
     }
 
     protected function getAddOnsFromApiWithWcProducts(\WC_Product $product): array
@@ -402,14 +448,14 @@ class ProductAddOnHandler implements WithHooksInterface
             return [];
         }
 
-        $shop_product_ids = [(int) $shop_product_id];
+        $shop_product_ids = [(int)$shop_product_id];
         if ($product instanceof \WC_Product_Variable) {
             $variations = $product->get_available_variations();
             foreach ($variations as $variation) {
                 $variation_id = $variation['variation_id'];
                 $shop_product_id = get_post_meta($variation_id, 'storekeeper_id', true);
                 if (!empty($shop_product_id)) {
-                    $shop_product_ids[] = (int) $shop_product_id;
+                    $shop_product_ids[] = (int)$shop_product_id;
                 }
             }
         }
@@ -528,7 +574,7 @@ class ProductAddOnHandler implements WithHooksInterface
 
                 $wc_product = $option[self::KEY_WC_PRODUCT];
                 if (!$wc_product->is_in_stock()) {
-                    $out_of_stock_options[] = (int) $option['id'];
+                    $out_of_stock_options[] = (int)$option['id'];
                 }
             }
             $addon[self::KEY_FORM_ID] = $this->getSingleKeyName($id);
@@ -580,18 +626,6 @@ class ProductAddOnHandler implements WithHooksInterface
                     'options' => $field_options,
                     'custom_attributes' => $attributes,
                 ];
-            } elseif (self::ADDON_TYPE_IMAGE === $type) {
-                foreach ($addon['options'] as &$option) {
-                    $field_options[$option['id']] = $option[self::OPTION_TITLE];
-                }
-                $addon[self::KEY_FORM_OPTIONS] = [
-                    'type' => 'image',
-                    'class' => ['sk-addon-input'],
-                    'label' => $addon['title'],
-                    'required' => false,
-                    'options' => $field_options,
-                    'custom_attributes' => $attributes,
-                ];
             } elseif (self::ADDON_TYPE_REQUIRED_TEXT === $type) {
                 $field_options = [];
 
@@ -609,6 +643,18 @@ class ProductAddOnHandler implements WithHooksInterface
                         'placeholder' => __('Enter your required text here...', I18N::DOMAIN),
                         'maxlength' => $addon['max_text_length'] ?? 255,
                     ]),
+                ];
+            } elseif (self::ADDON_TYPE_IMAGE === $type) {
+                foreach ($addon['options'] as &$option) {
+                    $field_options[$option['id']] = $option[self::OPTION_TITLE];
+                }
+                $addon[self::KEY_FORM_OPTIONS] = [
+                    'type' => 'image',
+                    'class' => ['sk-addon-input'],
+                    'label' => $addon['title'],
+                    'required' => false,
+                    'options' => $field_options,
+                    'custom_attributes' => $attributes,
                 ];
             } elseif (self::ADDON_TYPE_TEXT === $type) {
                 $field_options = [];
@@ -628,6 +674,7 @@ class ProductAddOnHandler implements WithHooksInterface
                         'maxlength' => $addon['max_text_length'] ?? 255,
                     ]),
                 ];
+
             }
             $result[] = $addon;
         }
