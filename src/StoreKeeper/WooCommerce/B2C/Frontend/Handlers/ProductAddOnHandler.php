@@ -158,7 +158,6 @@ class ProductAddOnHandler implements WithHooksInterface
                     'addon' => $addon,
                 ], '', $template_path);
             }
-
         }
     }
 

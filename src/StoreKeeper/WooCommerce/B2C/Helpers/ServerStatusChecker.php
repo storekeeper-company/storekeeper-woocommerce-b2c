@@ -3,6 +3,8 @@
 namespace StoreKeeper\WooCommerce\B2C\Helpers;
 
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LogDirectoryUnwritableException;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\I18N;
 
 class ServerStatusChecker
@@ -128,6 +130,30 @@ class ServerStatusChecker
             'function::value' => function ($value, $item) {
                 self::renderCheck($value, $item);
                 echo $value;
+            },
+        ];
+
+        $isLogDirectoryWriteable = true;
+        $logDirectory = '';
+        try {
+            LoggerFactory::getWpLogDirectory();
+        } catch (LogDirectoryUnwritableException $exception) {
+            $isLogDirectoryWriteable = false;
+            $logDirectory = $exception->getLogDirectory();
+        }
+
+        $data[] = [
+            'title' => __('Writable log directory', I18N::DOMAIN),
+            'description' => sprintf(
+                __(
+                    'Contact your server provider to create the writeable log directory: %s',
+                    I18N::DOMAIN
+                ),
+                $logDirectory,
+            ),
+            'value' => $isLogDirectoryWriteable,
+            'function::value' => function ($value, $item) {
+                self::renderCheck($value, $item);
             },
         ];
 

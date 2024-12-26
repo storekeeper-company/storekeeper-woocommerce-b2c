@@ -1066,12 +1066,11 @@ SQL;
                     $attributeType = $this->getAttributeType($attributeId);
                     $label = sanitize_title($attribute['label']);
 
-
-                    if ($attributeType === 'color') {
+                    if ('color' === $attributeType) {
                         $blocksyTaxonomyMetaOptions['color_type'] = 'simple';
                         $blocksyTaxonomyMetaOptions['accent_color'] = [
                             'default' => ['color' => $attribute['attribute_option_color_hex']],
-                            'secondary' => ['color' => 'CT_CSS_SKIP_RULE']
+                            'secondary' => ['color' => 'CT_CSS_SKIP_RULE'],
                         ];
                     } else {
                         $blocksyTaxonomyMetaOptions['color_type'] = 'default';
@@ -1087,7 +1086,7 @@ SQL;
                         $valueLabel = $attribute['value_label'];
                         $storekeeperId = $attribute['storekeeper_id'];
                         $termId = AttributeOptionModel::getTermIdByStorekeeperId($attributeId, $storekeeperId);
-                        if ($termId && term_exists($termId, 'pa_' . sanitize_title($attribute['label']))) {
+                        if ($termId && term_exists($termId, 'pa_'.sanitize_title($attribute['label']))) {
                             update_term_meta($termId, 'blocksy_taxonomy_meta_options', $blocksyTaxonomyMetaOptions);
                         } else {
                             error_log("Term ID not found for Storekeeper ID: $storekeeperId or does not belong to the taxonomy.");
@@ -1736,7 +1735,8 @@ SQL;
         return $log_data;
     }
 
-    public function getAttributeType(int $attributeId): string {
+    public function getAttributeType(int $attributeId): string
+    {
         if (isset($this->attributeTypesCache[$attributeId])) {
             return $this->attributeTypesCache[$attributeId];
         }
@@ -1764,13 +1764,13 @@ SQL;
                 $data = $response['data'][0];
                 $attributeType = $data['type'];
                 $this->attributeTypesCache[$attributeId] = $attributeType;
+
                 return $attributeType;
             }
 
             return 'unknown';
-
         } catch (\Exception $e) {
-            error_log('Error retrieving attribute type: ' . $e->getMessage());
+            error_log('Error retrieving attribute type: '.$e->getMessage());
         }
     }
 }

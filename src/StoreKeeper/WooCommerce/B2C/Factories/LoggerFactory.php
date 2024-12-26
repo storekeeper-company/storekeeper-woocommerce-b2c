@@ -7,6 +7,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use StoreKeeper\ApiWrapper\Exception\GeneralException;
 use StoreKeeper\WooCommerce\B2C\Core;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LogDirectoryUnwritableException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\OrderDifferenceException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\WordpressException;
 use StoreKeeper\WooCommerce\B2C\Tools\TaskHandler;
@@ -16,7 +17,7 @@ class LoggerFactory
     public const LOG_DIRECTORY = 'sk-log';
 
     /**
-     * @param string $suffix
+     * @throws LogDirectoryUnwritableException
      */
     public static function getWpLogDirectory($suffix = ''): ?string
     {
@@ -28,8 +29,8 @@ class LoggerFactory
         if (!empty($suffix)) {
             $log_dir .= DIRECTORY_SEPARATOR.$suffix;
         }
-        if (!file_exists($log_dir)) {
-            mkdir($log_dir, 0777, true);
+        if (!file_exists($log_dir) && !@mkdir($log_dir, 0777, true) && !is_dir($log_dir)) {
+            throw new LogDirectoryUnwritableException($log_dir, sprintf(__('Directory "%s" was not created'), $log_dir));
         }
 
         return $log_dir;

@@ -1,15 +1,14 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: StoreKeeper for WooCommerce\n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-12-06 11:51+0200\n"
-"Last-Translator: lokalise.com\n"
-"Language-Team: lokalise.com\n"
-"Language: nl_NL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: lokalise.com\n"
+"Project-Id-Version: StoreKeeper for WooCommerce\n"
+"PO-Revision-Date: 2024-12-26 11:43\n"
+"Last-Translator: lokalise.com\n"
+"Language-Team: lokalise.com\n\n"
+"Language: nl_NL\n"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:244
 msgid " (Last called %s ago)"
@@ -228,9 +227,9 @@ msgstr "Controleer of `curl` en `cron` geïnstalleerd zijn op de server waarop j
 msgid "Check if `wp-cli` is installed in the website's server."
 msgstr "Controleer of `wp-cli` is geïnstalleerd op de server van de website."
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueCheck.php:17
-msgid "Checks if there are any issues with the sync."
-msgstr "Controleert of er problemen zijn met de synchronisatie."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:553
+msgid "City"
+msgstr "Stad"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:85
 #, fuzzy
@@ -240,6 +239,10 @@ msgstr "Verwijder alle producten."
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:289
 msgid "Click here to configure them"
 msgstr "Klik hier om ze te configureren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:67
+msgid "Closed"
+msgstr "Gesloten"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:90
 msgid "Condition"
@@ -284,6 +287,10 @@ msgstr "Neem contact op met jouw systeembeheerder als het probleem aanhoudt."
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:104
 msgid "Copy the \"Backoffice API Key\" from the text area."
 msgstr "Kopieer de \"BackOffice API Key\" uit het tekstgebied."
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:561
+msgid "Country"
+msgstr "Land"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:227
 msgid "Coupon code"
@@ -476,6 +483,10 @@ msgstr "Duur in seconden"
 msgid "Dutch"
 msgstr "Nederlands"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:575
+msgid "E-mail address"
+msgstr "E-mailadres"
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/AbstractCommand.php:70
 msgid "EXAMPLES"
 msgstr "VOORBEELDEN"
@@ -515,6 +526,10 @@ msgstr "Error foutcode"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SkuLogFormatter.php:67
 msgid "Error:"
 msgstr "Error:"
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:208
+msgid "Every Day"
+msgstr "Elke dag"
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:33
 msgid "Every minute"
@@ -653,10 +668,6 @@ msgstr "Uitgelichte productkenmerken synchroniseren"
 msgid "First set the export mappings below to make sure the export maps are as needed. Please pay attention to this, since there is NO do-overs on \"one time import\". After completing this you can to the \"One Time Export\" "
 msgstr "Stel eerst de veldtoewijzingen hieronder in om ervoor te zorgen dat de exporttoewijzingen zijn zoals nodig. Let hier goed op, want je kan het niet over doen bij een \"eenmalige importering\". Nadat je dit hebt gedaan, kun je naar de \"Eenmalige export\". "
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:18
-msgid "Fix if there are known issues with the sync."
-msgstr "Herstel als er bekende problemen zijn met de synchronisatie."
-
 #: src/StoreKeeper/WooCommerce/B2C/Commands/ProcessAllTasks.php:51
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptions.php:34
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceCrossSellProducts.php:35
@@ -678,6 +689,10 @@ msgstr "Foreign key constraint bestaat"
 msgid "Foreign key constraint is missing"
 msgstr "Foreign key constraint ontbreekt"
 
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:558
+msgid "Free Shipping"
+msgstr "Gratis verzending"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/SettingsPage.php:19
 msgid "Frontend settings"
 msgstr "Instellingen voorkant webshop"
@@ -694,6 +709,10 @@ msgstr "Volledige synchronisatie"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:30
 msgid "Function returned false"
 msgstr "Functie geeft: False"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:589
+msgid "GLN (Global Location Number)"
+msgstr "GLN (Global Location Number)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/ConnectBackend.php:17
 msgid "Generate Storekeeper Backoffice API key."
@@ -817,6 +836,10 @@ msgstr "Ongeldige postcode en/of huisnummer"
 msgid "Invalid return url, contact shop owner to check the payment"
 msgstr "Ongeldige retour-URL. Neem contact op met de winkeleigenaar om de betaling te controleren"
 
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:80
+msgid "Invalid user ID."
+msgstr "Ongeldig gebruikers-ID."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:404
 msgid "It will import the category descriptions as html, otherwise plain text. It requires a theme support for rendering it correctly."
 msgstr "Het importeert de categoriebeschrijvingen als HTML, anders als platte tekst. Er is ondersteuning voor een thema nodig om het correct te renderen."
@@ -853,6 +876,22 @@ msgstr "Laatste taak verwerkt"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:141
 msgid "Last webhook received"
 msgstr "Laatste webhook ontvangen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:190
+msgid "Limit results to those matching active filter."
+msgstr "Beperk de resultaten tot resultaten die overeenkomen met het actieve filter."
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:363
+msgid "Location activated"
+msgstr "Locatie geactiveerd"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:366
+msgid "Location deactivated"
+msgstr "Locatie gedeactiveerd"
+
+#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:369
+msgid "Location update"
+msgstr "Update locatie"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:105
 msgid "Log into your admin environment"
@@ -920,6 +959,10 @@ msgstr "Bericht"
 msgid "Minimal order quantity"
 msgstr "Minimale bestelhoeveelheid"
 
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:496
+msgid "Minimum Cost (%s)"
+msgstr "Minimale kosten (%s)"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:106
 msgid "Navigate to settings > technical settings and click on the \"webhook\" tab."
 msgstr "Navigeer naar \"Instellingen > Technische Instellingen\" en klik op het tabblad \"Webhook\"."
@@ -947,6 +990,10 @@ msgstr "Nieuw"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:44
 msgid "New products are not synced back to StoreKeeper."
 msgstr "Nieuwe producten worden niet terug gesynchroniseerd naar StoreKeeper."
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:488
+msgid "No %s selected"
+msgstr "Geen %s geselecteerd"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:526
 msgid "No extra metadata found."
@@ -1006,6 +1053,10 @@ msgstr "Open de opdrachtregel en navigeer naar de websitemap"
 msgid "Open in backoffice"
 msgstr "Openen in BackOffice"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:70
+msgid "Opened"
+msgstr "Geopend"
+
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:233
 msgid "Order"
 msgstr "Bestelling"
@@ -1034,6 +1085,10 @@ msgstr "Alleen bestellingen"
 msgid "Order payment status change"
 msgstr "Wijziging betaalstatus bestelling"
 
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:196
+msgid "Order sort attribute ascending or descending."
+msgstr "Sorteer het kenmerk oplopend of aflopend."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:365
 msgid "Order sync from date"
 msgstr "Bestelling synchroniseren vanaf datum"
@@ -1057,6 +1112,12 @@ msgstr "Overige"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:146
 msgid "Other backoffice roles"
 msgstr "Andere BackOffice rollen"
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-multiple-choice.php:5
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-multiple-choice.php:34
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-single-choice.php:22
+msgid "Out of stock"
+msgstr "Niet op voorraad"
 
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:35
 msgid "PHP version %s found, plugin requires at least version %s"
@@ -1343,14 +1404,6 @@ msgstr "Aanvraagmethode"
 msgid "Request route"
 msgstr "Verzoek - route"
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:45
-msgid "Requires the --email parameters to be set. This field is required if you want to fix the \"products active in backend not active in woocommerce\" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts."
-msgstr "[TECHMODE] Vereist dat de --email parameters zijn ingesteld. Dit veld is vereist als je de problemen met \"producten actief in backend niet actief in woocommerce\" wilt oplossen. Het gebruikt deze om te authenticeren en ProductsModule::listConfigurableAssociatedProducts aan te roepen."
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:39
-msgid "Requires the --password parameters to be set. This field is required if you want to fix the \"products active in backend not active in woocommerce\" issues. It uses this one to authenticate and call ProductsModule::listConfigurableAssociatedProducts."
-msgstr "[TECHNICIAN MODE] Vereist dat de --password parameters zijn ingesteld. Dit veld is vereist als je de problemen met \"producten actief in backend niet actief in woocommerce\" wilt oplossen. Het gebruikt deze om te authenticeren en ProductsModule::listConfigurableAssociatedProducts aan te roepen."
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:36
 msgid "Response code"
 msgstr "Antwoordcode"
@@ -1608,6 +1661,14 @@ msgstr "Er is iets misgegaan tijdens het exporteren of de server is uitgetimed. 
 msgid "Something went wrong while syncing product"
 msgstr "Er is iets misgegaan tijdens het synchroniseren van het product"
 
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:227
+msgid "Sorry, you are not allowed to list locations."
+msgstr "Sorry, je mag geen locaties vermelden."
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:203
+msgid "Sort collection by user attribute."
+msgstr "Verzameling sorteren op gebruikerskenmerk."
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptions.php:28
 msgid "Specify total amount of attribute options from Storekeeper Backoffice. By default, counts the total amount of attribute options by checking the Storekeeper Backoffice"
 msgstr "Specificeer het totale aantal attribuutopties van Storekeeper BackOffice. Standaard wordt het totale aantal attribuutopties geteld door de Storekeeper BackOffice"
@@ -1681,13 +1742,13 @@ msgstr "Synchronisatie van tags starten..."
 msgid "Starting upsell products synchronization..."
 msgstr "Upsell synchronisatie van producten starten..."
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:557
+msgid "State"
+msgstr "Provincie"
+
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:153
-msgid ""
-"Stating payment %s\n"
-" eid: %s, trx: %s"
-msgstr ""
-"Opgave betaling %s\n"
-" eid: %s, trx: %s"
+msgid "Stating payment %s\n eid: %s, trx: %s"
+msgstr "Opgave betaling %s\n eid: %s, trx: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:187
 msgid "Statistics"
@@ -1968,6 +2029,10 @@ msgstr "Taken in wachtrij"
 msgid "Tasks were processed"
 msgstr "Taken zijn verwerkt"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:568
+msgid "Telephone"
+msgstr "Telefoon"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:268
 msgid "The %s table needs to be using Engine=InnoDB in order to use the plugin"
 msgstr "De %s tabel moet Engine=InnoDB gebruiken om de plugin te kunnen gebruiken."
@@ -2004,13 +2069,13 @@ msgstr "De juiste volgorde van importeren is hetzelfde als exporteren hieronder,
 msgid "The language to which the entities will be exported."
 msgstr "De taal waarnaar de entiteiten worden geëxporteerd."
 
+#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/Renderer.php:32
+msgid "The location is deactivated."
+msgstr "De locatie is gedeactiveerd."
+
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:166
-msgid ""
-"The order\\'s payment status received: %s\n"
-"trx=%s"
-msgstr ""
-"De ontvangen betalingsstatus van de bestelling: %s \n"
-" trx= %s"
+msgid "The order\\'s payment status received: %s\ntrx=%s"
+msgstr "De ontvangen betalingsstatus van de bestelling: %s \n trx= %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:54
 msgid "The payment has been canceled, please try again"
@@ -2053,14 +2118,6 @@ msgstr "Dit kan tot 24 uur duren, afhankelijk van uw gegevens, sluit het tabblad
 #: src/StoreKeeper/WooCommerce/B2C/Exports/AbstractExport.php:138
 msgid "This channel was disconnected in StoreKeeper Backoffice, please reconnect it manually."
 msgstr "Dit verkoopkanaal is losgekoppeld in de StoreKeeper Backoffice. Maak handmatig opnieuw verbinding."
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueCheck.php:22
-msgid "This command checks if there are any issues with the sync. When it returns nothing it means there is nothing wrong. Otherwise, there is an issue."
-msgstr "Dit commando controleert of er problemen zijn met de synchronisatie. Als het niets teruggeeft, betekent dit dat er niets aan de hand is. Anders is er een probleem."
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:30
-msgid "This command fixes any known issues with the sync possible. Not all issues can be fixed using this command."
-msgstr "Dit commando repareert alle bekende problemen met de synchronisatie mogelijk. Niet alle problemen kunnen met deze opdracht worden opgelost."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:109
 msgid "This is managed product, you can only edit this seo information in StoreKeeper Backoffice."
@@ -2110,6 +2167,10 @@ msgstr "Acties voor het opslaan van variaties activeren"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/IniHelper.php:44
 msgid "Unable to set php configuration option %s"
 msgstr "Kan PHP configuratie optie %s niet instellen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:57
+msgid "Unique identifier for the location."
+msgstr "Uniek ID voor de locatie."
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:84
 msgid "Unit weight in grams"
@@ -2171,6 +2232,10 @@ msgstr "Webhooks logboektelling"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:102
 msgid "Webshop Builder"
 msgstr "Webshop Builder"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:582
+msgid "Website"
+msgstr "Website"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:389
 msgid "When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop's checkout"
@@ -2258,6 +2323,11 @@ msgstr "Je kan het geheugen-limiet verhogen door %s toe te voegen aan de wp-conf
 msgid "You can try executing this command via ssh."
 msgstr "Je kunt proberen dit commando uit te voeren via SSH (WP-CLI)."
 
+#. translators: 1: product name 2: quantity in stock
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:847
+msgid "You cannot add that amount of &quot;%1$s&quot; to the cart because there is not enough stock (%2$s remaining)."
+msgstr "Je kunt dat aantal &quot;%1$s &quot; niet toevoegen aan de winkelwagen omdat er niet genoeg voorraad is (%2$s resterend)."
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:243
 msgid "You should generate all the export files and then go to the \"%1$s\" of this account."
 msgstr "Je moet alle exportbestanden genereren en dan naar de \"%1$s\" van deze account gaan."
@@ -2319,9 +2389,17 @@ msgstr "klanten"
 msgid "days"
 msgstr "dagen"
 
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:692
+msgid "default"
+msgstr "standaard"
+
 #: src/StoreKeeper/WooCommerce/B2C/Imports/FeaturedAttributeImport.php:51
 msgid "featured attributes"
 msgstr "uitgelichte attributen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:74
+msgid "from %s"
+msgstr "van %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:185
 msgid "full package"
@@ -2334,6 +2412,10 @@ msgstr "uren"
 #. Author URI of the plugin/theme
 msgid "https://www.storekeeper.nl/"
 msgstr "https://www.storekeeper.nl/"
+
+#: src/StoreKeeper/WooCommerce/B2C/Imports/LocationImport.php:696
+msgid "location"
+msgstr "locatie"
 
 #: src/StoreKeeper/WooCommerce/B2C/Imports/MenuItemImport.php:435
 msgid "menu items"
@@ -2406,6 +2488,10 @@ msgstr "tags"
 msgid "this task was run with older version"
 msgstr "deze taak werd uitgevoerd met oudere versie"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:72
+msgid "until %s"
+msgstr "tot %s"
+
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:97
 msgid "upsell products"
 msgstr "upsell producten"
@@ -2417,201 +2503,3 @@ msgstr "woocommerce, e-commerce, woo, verkoop, winkel"
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:42
 msgid "years"
 msgstr "jaren"
-
-msgid "Free Shipping"
-msgstr "Gratis Verzending"
-
-msgid "Minimum Cost (%s)"
-msgstr "Kosten Minimaal (%s)"
-
-msgid "Customer Segments"
-msgstr "Customer Segments"
-
-msgid "Customer Segment Prices"
-msgstr "Customer Segment Prices"
-
-msgid "Customer Segment"
-msgstr "Customer Segment"
-
-msgid "No items available."
-msgstr "No items available."
-
-msgid "Customer Segment Name"
-msgstr "Customer Segment Name"
-
-msgid "From quantity"
-msgstr "From quantity"
-
-msgid "Price"
-msgstr "Price"
-
-msgid "N/A"
-msgstr "N/A"
-
-msgid "Import Customer Segment Prices"
-msgstr "Import Customer Segment Prices"
-
-msgid "Import Customer Segments"
-msgstr "Import Customer Segments"
-
-msgid "Show"
-msgstr "Show"
-
-msgid "Name"
-msgstr "Name"
-
-msgid "Please upload a CSV file."
-msgstr "Please upload a CSV file."
-
-msgid "Row %s is missing expected columns"
-msgstr "Row %s is missing expected columns"
-
-msgid "CSV imported successfully!"
-msgstr "CSV imported successfully!"
-
-msgid "Failed to open the file."
-msgstr "Failed to open the file."
-
-msgid "Skipping duplicate segment with ID: %s"
-msgstr "Skipping duplicate segment with ID: %s"
-
-msgid "No segments found for customer: %s"
-msgstr "No segments found for customer: %s"
-
-msgid "From Qty"
-msgstr "From Qty"
-
-msgid "Select a variation to view segment prices."
-msgstr "Select a variation to view segment prices."
-
-msgid "No segment prices available for this product."
-msgstr "No segment prices available for this product."
-
-msgid "No segment prices available for this variation."
-msgstr "No segment prices available for this variation."
-
-msgid "My Wishlist"
-msgstr "My Wishlist"
-
-msgid "Add to wishlist"
-msgstr "Add to wishlist"
-
-msgid "Login to Add to Wishlist"
-msgstr "Login to Add to Wishlist"
-
-msgid "Or Create a new Wishlist"
-msgstr "Or Create a new Wishlist"
-
-msgid "Create wishlist"
-msgstr "Create wishlist"
-
-msgid "Add product to your wishlists"
-msgstr "Add product to your wishlists"
-
-msgid "Select from your wishlist"
-msgstr "Select from your wishlist"
-
-msgid "Select the option"
-msgstr "Select the option"
-
-msgid "Select Wishlist"
-msgstr "Select Wishlist"
-
-msgid "New wishlist %s created successfully!"
-msgstr "New wishlist %s created successfully!"
-
-msgid "There was an error creating the wishlist."
-msgstr "There was an error creating the wishlist."
-
-msgid "Invalid order ID."
-msgstr "Invalid order ID."
-
-msgid "Order not found."
-msgstr "Order not found."
-
-msgid "No products found in this order."
-msgstr "No products found in this order."
-
-msgid "Products added to wishlist."
-msgstr "Products added to wishlist."
-
-msgid "Orderlijsten"
-msgstr "Orderlijsten"
-
-msgid "%d lijsten"
-msgstr "%d lijsten"
-
-msgid "Last edited: %s"
-msgstr "Last edited: %s"
-
-msgid "Nieuwe lijst"
-msgstr "Nieuwe lijst"
-
-msgid "Wishlist Name"
-msgstr "Wishlist Name"
-
-msgid "No wishlists found."
-msgstr "No wishlists found."
-
-msgid "Wishlist not found."
-msgstr "Wishlist not found."
-
-msgid "Orders importeren"
-msgstr "Orders importeren"
-
-msgid "Zoek naar producten op basis van de titel, SKU..."
-msgstr "Zoek naar producten op basis van de titel, SKU..."
-
-msgid "Zoek naar ID, Datum"
-msgstr "Zoek naar ID, Datum"
-
-msgid "Lijst opslaan"
-msgstr "Lijst opslaan"
-
-msgid "Alles toevoegen aan winkelmand "
-msgstr "Alles toevoegen aan winkelmand "
-
-msgid "File upload failed"
-msgstr "File upload failed"
-
-msgid "Nonce verification failed"
-msgstr "Nonce verification failed"
-
-msgid "No file uploaded"
-msgstr "No file uploaded"
-
-msgid "Would you like a text on the product?"
-msgstr "Would you like a text on the product?"
-
-msgid "free"
-msgstr "free"
-
-msgid "Upload Image"
-msgstr "Upload Image"
-
-msgid "Would you like an image on the product?"
-msgstr "Would you like an image on the product?"
-
-msgid "Select an image"
-msgstr "Select an image"
-
-msgid "Upload"
-msgstr "Upload"
-
-msgid "Please select an image first."
-msgstr "Please select an image first."
-
-msgid "Image is too small. Minimum dimensions are {width}x{height}."
-msgstr "Image is too small. Minimum dimensions are {width}x{height}."
-
-msgid "Image is too large. Maximum dimensions are {width}x{height}."
-msgstr "Image is too large. Maximum dimensions are {width}x{height}."
-
-msgid "Image uploaded successfully!"
-msgstr "Image uploaded successfully!"
-
-msgid "An error occurred while uploading the image."
-msgstr "An error occurred while uploading the image."
-
-msgid "Invalid file type. Please upload a valid image."
-msgstr "Invalid file type. Please upload a valid image."

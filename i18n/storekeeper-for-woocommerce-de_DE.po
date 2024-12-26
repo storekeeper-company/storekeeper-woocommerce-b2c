@@ -1,15 +1,14 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: StoreKeeper for WooCommerce\n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: 2024-12-06 11:51+0200\n"
-"Last-Translator: lokalise.com\n"
-"Language-Team: lokalise.com\n"
-"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: lokalise.com\n"
+"Project-Id-Version: StoreKeeper for WooCommerce\n"
+"PO-Revision-Date: 2024-12-26 11:43\n"
+"Last-Translator: lokalise.com\n"
+"Language-Team: lokalise.com\n\n"
+"Language: de_DE\n"
 
 #: storekeeper-woocommerce-b2c.php:35
 msgid "%s: Your PHP Version is lower then the minimum required %s, Thus the activation of this plugin will not continue."
@@ -356,12 +355,8 @@ msgid "Sql on %s::%s operation: %s"
 msgstr "SQL für %s::%s-Operation: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:153
-msgid ""
-"Stating payment %s\n"
-" eid: %s, trx: %s"
-msgstr ""
-"Angabe der Zahlung %s\n"
-" eid: %s, trx: %s"
+msgid "Stating payment %s\n eid: %s, trx: %s"
+msgstr "Angabe der Zahlung %s\n eid: %s, trx: %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StoreKeeperSeoPages.php:32
 msgid "StoreKeeper Seo"
@@ -400,12 +395,8 @@ msgid "Tag import"
 msgstr "Tag-Import"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:166
-msgid ""
-"The order\\'s payment status received: %s\n"
-"trx=%s"
-msgstr ""
-"Zahlungsstatus der Bestellung erhalten: %s\n"
-"trx=%s"
+msgid "The order\\'s payment status received: %s\ntrx=%s"
+msgstr "Zahlungsstatus der Bestellung erhalten: %s\ntrx=%s"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:54
 msgid "The payment has been canceled, please try again"
@@ -514,216 +505,3 @@ msgstr "umleiten"
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"
 msgstr "woocommerce,e-commerce, woo,verkauf,store,geschaft"
-
-msgid "Free Shipping"
-msgstr "Free Shipping"
-
-msgid "Minimum Cost (%s)"
-msgstr "Minimum Cost (%s)"
-
-msgid "Customer Segments"
-msgstr "Customer Segments"
-
-msgid "Customer Segment Prices"
-msgstr "Customer Segment Prices"
-
-msgid "Customer Segment"
-msgstr "Customer Segment"
-
-msgid "No items available."
-msgstr "No items available."
-
-msgid "ID"
-msgstr "ID"
-
-msgid "Customer Segment Name"
-msgstr "Customer Segment Name"
-
-msgid "Product"
-msgstr "Product"
-
-msgid "From quantity"
-msgstr "From quantity"
-
-msgid "Price"
-msgstr "Price"
-
-msgid "N/A"
-msgstr "N/A"
-
-msgid "Import Customer Segment Prices"
-msgstr "Import Customer Segment Prices"
-
-msgid "Import Customer Segments"
-msgstr "Import Customer Segments"
-
-msgid "Show"
-msgstr "Show"
-
-msgid "Customer Email"
-msgstr "Customer Email"
-
-msgid "Name"
-msgstr "Name"
-
-msgid "Action"
-msgstr "Action"
-
-msgid "Please upload a CSV file."
-msgstr "Please upload a CSV file."
-
-msgid "Row %s is missing expected columns"
-msgstr "Row %s is missing expected columns"
-
-msgid "CSV imported successfully!"
-msgstr "CSV imported successfully!"
-
-msgid "Failed to open the file."
-msgstr "Failed to open the file."
-
-msgid "Skipping duplicate segment with ID: %s"
-msgstr "Skipping duplicate segment with ID: %s"
-
-msgid "No segments found for customer: %s"
-msgstr "No segments found for customer: %s"
-
-msgid "From Qty"
-msgstr "From Qty"
-
-msgid "Select a variation to view segment prices."
-msgstr "Select a variation to view segment prices."
-
-msgid "No segment prices available for this product."
-msgstr "No segment prices available for this product."
-
-msgid "No segment prices available for this variation."
-msgstr "No segment prices available for this variation."
-
-msgid "My Wishlist"
-msgstr "My Wishlist"
-
-msgid "Add to wishlist"
-msgstr "Add to wishlist"
-
-msgid "Login to Add to Wishlist"
-msgstr "Login to Add to Wishlist"
-
-msgid "Or Create a new Wishlist"
-msgstr "Or Create a new Wishlist"
-
-msgid "Create wishlist"
-msgstr "Create wishlist"
-
-msgid "Add product to your wishlists"
-msgstr "Add product to your wishlists"
-
-msgid "Select from your wishlist"
-msgstr "Select from your wishlist"
-
-msgid "Select the option"
-msgstr "Select the option"
-
-msgid "Select Wishlist"
-msgstr "Select Wishlist"
-
-msgid "New wishlist %s created successfully!"
-msgstr "New wishlist %s created successfully!"
-
-msgid "There was an error creating the wishlist."
-msgstr "There was an error creating the wishlist."
-
-msgid "Invalid order ID."
-msgstr "Invalid order ID."
-
-msgid "Order not found."
-msgstr "Order not found."
-
-msgid "No products found in this order."
-msgstr "No products found in this order."
-
-msgid "Products added to wishlist."
-msgstr "Products added to wishlist."
-
-msgid "Orderlijsten"
-msgstr "Orderlijsten"
-
-msgid "%d lijsten"
-msgstr "%d lijsten"
-
-msgid "Last edited: %s"
-msgstr "Last edited: %s"
-
-msgid "Nieuwe lijst"
-msgstr "Nieuwe lijst"
-
-msgid "Wishlist Name"
-msgstr "Wishlist Name"
-
-msgid "No wishlists found."
-msgstr "No wishlists found."
-
-msgid "Wishlist not found."
-msgstr "Wishlist not found."
-
-msgid "Orders importeren"
-msgstr "Orders importeren"
-
-msgid "Zoek naar producten op basis van de titel, SKU..."
-msgstr "Zoek naar producten op basis van de titel, SKU..."
-
-msgid "Zoek naar ID, Datum"
-msgstr "Zoek naar ID, Datum"
-
-msgid "Products"
-msgstr "Products"
-
-msgid "Lijst opslaan"
-msgstr "Lijst opslaan"
-
-msgid "Alles toevoegen aan winkelmand"
-msgstr "Alles toevoegen aan winkelmand"
-
-msgid "File upload failed"
-msgstr "File upload failed"
-
-msgid "Nonce verification failed"
-msgstr "Nonce verification failed"
-
-msgid "No file uploaded"
-msgstr "No file uploaded"
-
-msgid "Would you like a text on the product?"
-msgstr "Would you like a text on the product?"
-
-msgid "free"
-msgstr "free"
-
-msgid "Upload Image"
-msgstr "Upload Image"
-
-msgid "Would you like an image on the product?"
-msgstr "Would you like an image on the product?"
-
-msgid "Select an image"
-msgstr "Select an image"
-
-msgid "Upload"
-msgstr "Upload"
-
-msgid "Please select an image first."
-msgstr "Please select an image first."
-
-msgid "Image is too small. Minimum dimensions are {width}x{height}."
-msgstr "Image is too small. Minimum dimensions are {width}x{height}."
-
-msgid "Image is too large. Maximum dimensions are {width}x{height}."
-msgstr "Image is too large. Maximum dimensions are {width}x{height}."
-
-msgid "Image uploaded successfully!"
-msgstr "Image uploaded successfully!"
-
-msgid "An error occurred while uploading the image."
-msgstr "An error occurred while uploading the image."
-
-msgid "Invalid file type. Please upload a valid image."
-msgstr "Invalid file type. Please upload a valid image."

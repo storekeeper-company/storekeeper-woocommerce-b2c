@@ -1,19 +1,17 @@
 # Copyright (C) 2024 StoreKeeper for WooCommerce
 # This file is distributed under the same license as the StoreKeeper for WooCommerce package.
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: StoreKeeper for WooCommerce 0.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/storekeeper-for-"
 "woocommerce\n"
-"POT-Creation-Date: 2024-12-06 11:52+0200\n"
-"PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2024-12-26 10:43:24+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.5\n"
+"PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:116
 msgid "Your allowed memory size has been exhausted."
@@ -58,80 +56,92 @@ msgid ""
 "your memory limit."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:75
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:76
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:53
+msgid "Woocommerce Builder cannot be loaded."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:54
+msgid " It was tested with version builder version: %s. "
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:65
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:66
 msgid "StoreKeeper"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:102
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:92
 msgid "Webshop Builder"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:117
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:107
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/DashboardPage.php:13
 msgid "Dashboard"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:123
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:113
 msgid "Logs"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:127
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:117
 msgid "Tools"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:131
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:121
 msgid "Settings"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:135
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:125
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/StatusPage.php:13
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:204
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:127
 msgid "Status"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:23
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:26
+msgid "Order sync"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:51
 msgid "%s sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:44
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:73
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:41
 msgid "Backoffice ID"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:47
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:76
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:44
 msgid "Last sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:55
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:84
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:52
 msgid "Open in backoffice"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:62
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:91
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:59
 msgid "Force sync"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:66
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:95
 msgid ""
 "All orders won't be synced automatically with your currently selected "
 "Synchronization mode, but you can do it manually using the Force sync button"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:108
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:129
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:143
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:168
 msgid "Failed to sync order"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:108
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:143
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:136
 msgid "Please try again"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:137
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:180
 msgid "Order was synced successfully."
 msgstr ""
 
@@ -151,67 +161,74 @@ msgstr ""
 msgid "Failed to sync product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:35
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:38
 msgid "Failed to build notices: %s."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:46
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:49
 msgid "New products are not synced back to StoreKeeper."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:63
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:59
+msgid ""
+"The log directory cannot be created and is need by plugin to work properly. "
+"Please create \"%s\" directory with writeable permissions or contact your "
+"server provider."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:80
 msgid ""
 "The StoreKeeper synchronization plugin extension is not connected, thus "
 "nothing is synchronized. please click configure to do so."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:67
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:84
 msgid "Configure StoreKeeper synchronization plugin"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:91
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:108
 msgid "product"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:101
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:118
 msgid "category"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:111
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:128
 msgid "tag"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:126
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:143
 msgid "attribute"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:135
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:152
 msgid "attribute term"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:149
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:169
 msgid ""
 "This order is marked as completed, any changes might not be synced to the "
 "backoffice"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:166
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:193
 msgid ""
 "This %s is synced from the backoffice, thus any changes won't be synced back "
 "and can be overwritten when made in WooCommerce!"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:244
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:271
 msgid ""
 "It seems that its been %s ago since the process tasks cron has been running, "
 "Contact your system administrator to solve this problem."
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/AbstractPage.php:75
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:65
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:81
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:155
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:171
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:67
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:83
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:181
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:197
 msgid "PHP %s extension"
 msgstr ""
 
@@ -772,7 +789,7 @@ msgid "attributes"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:201
-#: src/StoreKeeper/WooCommerce/B2C/Imports/AttributeOptionImport.php:111
+#: src/StoreKeeper/WooCommerce/B2C/Imports/AttributeOptionImport.php:112
 msgid "attribute options"
 msgstr ""
 
@@ -781,7 +798,7 @@ msgid "product blueprints"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:203
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1665
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1715
 msgid "products"
 msgstr ""
 
@@ -1662,42 +1679,6 @@ msgid ""
 "process-all-tasks instead."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueCheck.php:17
-msgid "Checks if there are any issues with the sync."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueCheck.php:22
-msgid ""
-"This command checks if there are any issues with the sync. When it returns "
-"nothing it means there is nothing wrong. Otherwise, there is an issue."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:19
-msgid "Fix if there are known issues with the sync."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:31
-msgid ""
-"This command fixes any known issues with the sync possible. Not all issues "
-"can be fixed using this command."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:40
-msgid ""
-"Requires the --password parameters to be set. This field is required if you "
-"want to fix the \"products active in backend not active in woocommerce\" "
-"issues. It uses this one to authenticate and call ProductsModule::"
-"listConfigurableAssociatedProducts."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Commands/SyncIssueFixer.php:46
-msgid ""
-"Requires the --email parameters to be set. This field is required if you "
-"want to fix the \"products active in backend not active in woocommerce\" "
-"issues. It uses this one to authenticate and call ProductsModule::"
-"listConfigurableAssociatedProducts."
-msgstr ""
-
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptionPage.php:13
 msgid "Sync product attribute options with limit and offset."
 msgstr ""
@@ -1993,14 +1974,66 @@ msgstr ""
 msgid "upsell products"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:228
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:209
+msgid "Every Day"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:256
 msgid "%s: You need to have WooCommerce installed for this add-on to work"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:294
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:321
 msgid ""
 "Your WooCommerce version (%s) is lower then the minimum required %s which "
 "could cause unexpected behaviour"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:496
+msgid "Minimum Cost (%s)"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:558
+msgid "Free Shipping"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:587
+msgid "Please select an image first."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:588
+msgid "Image is too small. Minimum dimensions are {width}x{height}."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:589
+msgid "Image is too large. Maximum dimensions are {width}x{height}."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:590
+msgid "Image uploaded successfully!"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:591
+msgid "An error occurred while uploading the image."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:599
+msgid "Nonce verification failed"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:610
+msgid "Invalid image file. Please upload a valid image."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:617
+msgid "Invalid file type. Please upload a valid image."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:622
+msgid "File upload failed"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:626
+msgid "No file uploaded"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:33
@@ -2073,21 +2106,25 @@ msgid ""
 "manually."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:118
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:144
 msgid "Customer Email"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:120
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:146
 msgid "Customer phone number"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1048
-#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:304
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1064
+#: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:309
 msgid "Refund via Wordpress plugin (Refund #%s)"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1163
+#: src/StoreKeeper/WooCommerce/B2C/Exports/OrderExport.php:1179
 msgid "Wordpress plugin"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Factories/LoggerFactory.php:33
+msgid "Directory \"%s\" was not created"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/FileExport/CustomerFileExport.php:205
@@ -2141,18 +2178,34 @@ msgstr ""
 msgid "House number"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:28
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:41
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CustomerEmailHandler.php:23
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CustomerEmailHandler.php:36
 msgid "Please provide a valid email address."
-msgstr ""
-
-#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:74
-msgid "Emballage fee"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/OrderHookHandler.php:30
 msgid ""
 "To check your parcel status, go to <a href=\"%s\">Track & Trace page</a>."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:543
+msgid "No %s selected"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:608
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:626
+msgid "Enter your required text here..."
+msgstr ""
+
+#. translators: 1: product name 2: quantity in stock
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:986
+msgid ""
+"You cannot add that amount of &quot;%1$s&quot; to the cart because there is "
+"not enough stock (%2$s remaining)."
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:1037
+msgid "Emballage fee"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:27
@@ -2253,64 +2306,72 @@ msgctxt "User role"
 msgid "StoreKeeper Webshop manager"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:30
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:103
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:32
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:105
 msgid "PHP version %s or up"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:35
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:37
 msgid "PHP version %s found, plugin requires at least version %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:47
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:135
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:49
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:161
 msgid "WooCommerce SKU feature enabled"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:49
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:136
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:51
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:162
 msgid "SKU feature for WooCommerce has been disabled."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:55
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:144
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:57
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:170
 msgid "WooCommerce stock management feature enabled"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:57
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:145
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:59
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:171
 msgid "WooCommerce stock management feature has been disabled."
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:68
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:70
 msgid "Enabling PHP %s extension is required"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:84
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:86
 msgid "Enabling PHP %s extension is optional to improve performance"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:107
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:109
 msgid "Contact your server provider to upgrade your PHP version to at least %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:119
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:121
 msgid "Writable tmp directory"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:121
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:123
 msgid ""
 "Contact your server provider to allow one of the those directories to be "
 "writable: %s"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:157
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:146
+msgid "Writable log directory"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:148
+msgid "Contact your server provider to create the writeable log directory: %s"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:183
 msgid ""
 "Contact your server provider to enable the PHP %s extension for the "
 "StoreKeeper synchronization plugin to function properly"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:173
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:199
 msgid ""
 "Contact your server provider to enable the PHP %s extension to improve the "
 "performance and stability"
@@ -2351,7 +2412,7 @@ msgstr ""
 msgid "orders"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1567
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ProductImport.php:1617
 msgid "Done processing %s items of %s (%s new / %s updated)"
 msgstr ""
 
@@ -2363,7 +2424,7 @@ msgstr ""
 msgid "redirect"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Imports/ShippingMethodImport.php:340
+#: src/StoreKeeper/WooCommerce/B2C/Imports/ShippingMethodImport.php:341
 msgid "shipping methods"
 msgstr ""
 
@@ -2668,7 +2729,46 @@ msgstr ""
 msgid "Failed to update 'StoreKeeper for WooCommerce' plugin to version %s."
 msgstr ""
 
-#: storekeeper-woocommerce-b2c.php:54
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-multiple-choice.php:5
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-multiple-choice.php:34
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/form-single-choice.php:22
+msgid "Out of stock"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:17
+msgid "Required Image"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:18
+msgid "Would you like an image on the product?"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:29
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/text-addon.php:29
+msgid "free"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:32
+msgid "Upload Image"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:50
+msgid "Select an image"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:56
+msgid "Upload"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/text-addon.php:15
+msgid "Required Text"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/text-addon.php:18
+msgid "Would you like text on the product?"
+msgstr ""
+
+#: storekeeper-woocommerce-b2c.php:55
 msgid ""
 "%s: Your PHP Version is lower then the minimum required %s, Thus the "
 "activation of this plugin will not continue."
@@ -2693,199 +2793,4 @@ msgstr ""
 
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"
-msgstr ""
-
-msgid "Free Shipping"
-msgstr ""
-
-msgid "Minimum Cost (%s)"
-msgstr ""
-
-msgid "Customer Segments"
-msgstr ""
-
-msgid "Customer Segment Prices"
-msgstr ""
-
-msgid "Customer Segment"
-msgstr ""
-
-msgid "No items available."
-msgstr ""
-
-msgid "Customer Segment Name"
-msgstr ""
-
-msgid "From quantity"
-msgstr ""
-
-msgid "Price"
-msgstr ""
-
-msgid "N/A"
-msgstr ""
-
-msgid "Import Customer Segment Prices"
-msgstr ""
-
-msgid "Import Customer Segments"
-msgstr ""
-
-msgid "Show"
-msgstr ""
-
-msgid "Please upload a CSV file."
-msgstr ""
-
-msgid "Row %s is missing expected columns"
-msgstr ""
-
-msgid "CSV imported successfully!"
-msgstr ""
-
-msgid "Failed to open the file."
-msgstr ""
-
-msgid "Skipping duplicate segment with ID: %s"
-msgstr ""
-
-msgid "No segments found for customer: %s"
-msgstr ""
-
-msgid "From Qty"
-msgstr ""
-
-msgid "Select a variation to view segment prices."
-msgstr ""
-
-msgid "No segment prices available for this product."
-msgstr ""
-
-msgid "No segment prices available for this variation."
-msgstr ""
-
-msgid "My Wishlist"
-msgstr ""
-
-msgid "Add to wishlist"
-msgstr ""
-
-msgid "Login to Add to Wishlist"
-msgstr ""
-
-msgid "Or Create a new Wishlist"
-msgstr ""
-
-msgid "Create wishlist"
-msgstr ""
-
-msgid "Add product to your wishlists"
-msgstr ""
-
-msgid "Select from your wishlist"
-msgstr ""
-
-msgid "Select the option"
-msgstr ""
-
-msgid "Select Wishlist"
-msgstr ""
-
-msgid "New wishlist %s created successfully!"
-msgstr ""
-
-msgid "There was an error creating the wishlist."
-msgstr ""
-
-msgid "Invalid order ID."
-msgstr ""
-
-msgid "Order not found."
-msgstr ""
-
-msgid "No products found in this order."
-msgstr ""
-
-msgid "Products added to wishlist."
-msgstr ""
-
-msgid "Orderlijsten"
-msgstr ""
-
-msgid "%d lijsten"
-msgstr ""
-
-msgid "Last edited: %s"
-msgstr ""
-
-msgid "Nieuwe lijst"
-msgstr ""
-
-msgid "Wishlist Name"
-msgstr ""
-
-msgid "No wishlists found."
-msgstr ""
-
-msgid "Wishlist not found."
-msgstr ""
-
-msgid "Orders importeren"
-msgstr ""
-
-msgid "Zoek naar producten op basis van de titel, SKU..."
-msgstr ""
-
-msgid "Zoek naar ID, Datum"
-msgstr ""
-
-msgid "Lijst opslaan"
-msgstr ""
-
-msgid "Alles toevoegen aan winkelmand "
-msgstr ""
-
-msgid "File upload failed"
-msgstr ""
-
-msgid "Nonce verification failed"
-msgstr ""
-
-msgid "No file uploaded"
-msgstr ""
-
-msgid "Would you like a text on the product?"
-msgstr ""
-
-msgid "free"
-msgstr ""
-
-msgid "Upload Image"
-msgstr ""
-
-msgid "Would you like an image on the product?"
-msgstr ""
-
-msgid "Select an image"
-msgstr ""
-
-msgid "Upload"
-msgstr ""
-
-msgid "Please select an image first."
-msgstr ""
-
-msgid "Image is too small. Minimum dimensions are {width}x{height}."
-msgstr ""
-
-msgid "Image is too large. Maximum dimensions are {width}x{height}."
-msgstr ""
-
-msgid "Image uploaded successfully!"
-msgstr ""
-
-msgid "An error occurred while uploading the image."
-msgstr ""
-
-msgid "Invalid file type. Please upload a valid image."
 msgstr ""
