@@ -1221,7 +1221,6 @@ class OrderExport extends AbstractExport
         array $orderItem,
         array &$orderItems
     ): void {
-
         $added_to_items = false;
         $orderItemId = $wcItemProduct->get_meta(self::CART_FIELD_ID);
         if (!empty($orderItemId)) {
@@ -1275,7 +1274,7 @@ class OrderExport extends AbstractExport
             $orderItems[$orderItemIndex] = $orderItem;
         }
         ++$orderItemIndex;
-        $this->debug($orderItemIndex . ' Added product item', $orderItem);
+        $this->debug($orderItemIndex.' Added product item', $orderItem);
     }
 
     protected function getOrderLineMeta(\WC_Order_Item $orderItemProduct): array

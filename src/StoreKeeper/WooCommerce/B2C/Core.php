@@ -555,7 +555,7 @@ HTML;
                 foreach ($methods_data as $method_data) {
                     if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
                         $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= ': '. esc_html__('Free Shipping', I18N::DOMAIN);
+                        $rates[$rate_key]->label .= ': '.esc_html__('Free Shipping', I18N::DOMAIN);
                         break;
                     }
                 }
@@ -597,16 +597,16 @@ HTML;
     {
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'upload_product_image_nonce')) {
             wp_send_json_error(['message' => esc_html__('Nonce verification failed', I18N::DOMAIN)]);
+
             return;
         }
-
 
         if (isset($_FILES['file']) && !empty($_FILES['file']['tmp_name'])) {
             $uploaded_file = $_FILES['file'];
             $upload_dir = wp_upload_dir();
-            $upload_path = $upload_dir['path'] . '/' . basename($uploaded_file['name']);
+            $upload_path = $upload_dir['path'].'/'.basename($uploaded_file['name']);
             $image_info = getimagesize($uploaded_file['tmp_name']);
-            if ($image_info === false) {
+            if (false === $image_info) {
                 wp_send_json_error(['message' => esc_html__('Invalid image file. Please upload a valid image.', I18N::DOMAIN)]);
             }
 
@@ -617,7 +617,7 @@ HTML;
                 wp_send_json_error(['message' => esc_html__('Invalid file type. Please upload a valid image.', I18N::DOMAIN)]);
             } else {
                 if (move_uploaded_file($uploaded_file['tmp_name'], $upload_path)) {
-                    wp_send_json_success(['url' => $upload_dir['url'] . '/' . basename($uploaded_file['name'])]);
+                    wp_send_json_success(['url' => $upload_dir['url'].'/'.basename($uploaded_file['name'])]);
                 } else {
                     wp_send_json_error(['message' => esc_html__('File upload failed', I18N::DOMAIN)]);
                 }

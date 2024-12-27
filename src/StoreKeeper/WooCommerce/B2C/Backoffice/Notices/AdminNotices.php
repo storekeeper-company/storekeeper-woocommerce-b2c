@@ -5,6 +5,8 @@ namespace StoreKeeper\WooCommerce\B2C\Backoffice\Notices;
 use Automattic\WooCommerce\Utilities\OrderUtil;
 use StoreKeeper\WooCommerce\B2C\Cron\CronRegistrar;
 use StoreKeeper\WooCommerce\B2C\Database\DatabaseConnection;
+use StoreKeeper\WooCommerce\B2C\Exceptions\LogDirectoryUnwritableException;
+use StoreKeeper\WooCommerce\B2C\Factories\LoggerFactory;
 use StoreKeeper\WooCommerce\B2C\Helpers\DateTimeHelper;
 use StoreKeeper\WooCommerce\B2C\Helpers\HtmlEscape;
 use StoreKeeper\WooCommerce\B2C\I18N;
@@ -22,6 +24,7 @@ class AdminNotices
             $this->connectionCheck();
             $this->lastCronCheck();
             $this->checkCronRunner();
+            $this->checkLogDirectory();
 
             $this->StoreKeeperNewProduct();
             $this->StoreKeeperProductCheck();
@@ -31,7 +34,7 @@ class AdminNotices
             $this->StoreKeeperProductAttributeTermCheck();
             $this->StoreKeeperOrderCheck();
         } catch (Throwable $e) {
-            AdminNotices::showError(
+            self::showError(
                 sprintf(__('Failed to build notices: %s.', I18N::DOMAIN), $e->getMessage()),
                 $e->getTraceAsString()
             );
@@ -43,7 +46,21 @@ class AdminNotices
         global $pagenow;
         $postType = $this->getRequestPostType();
         if ('post-new.php' === $pagenow && 'product' === $postType) {
-            AdminNotices::showWarning(__('New products are not synced back to StoreKeeper.', I18N::DOMAIN));
+            self::showWarning(__('New products are not synced back to StoreKeeper.', I18N::DOMAIN));
+        }
+    }
+
+    private function checkLogDirectory(): void
+    {
+        try {
+            LoggerFactory::getWpLogDirectory();
+        } catch (LogDirectoryUnwritableException $exception) {
+            $logDirectory = $exception->getLogDirectory();
+            $message = sprintf(__(
+                'The log directory cannot be created and is need by plugin to work properly. Please create "%s" directory with writeable permissions or contact your server provider.',
+                I18N::DOMAIN
+            ), $logDirectory);
+            self::showError($message);
         }
     }
 

@@ -30,6 +30,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     public const MEDIA_IMAGE_JPEG_FILE = 'image_big_image.jpeg';
     public const MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE = 'cat_sample_big_image.jpg';
+
     /**
      * Initialize the tests by following these steps:
      * 1. Initialize the API connection and the mock API calls
@@ -613,7 +614,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
                                         'final_langs' => [],
                                         'date_created' => '2024-01-01 10:00:00+00:00',
                                         'backref' => 'BlogModule::Attribute(id=2)',
-                                        'translatable_type_id' => 1
+                                        'translatable_type_id' => 1,
                                     ],
                                     'id' => 2,
                                     'name' => 'size',
@@ -628,7 +629,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
                                     'translatable_id' => 2,
                                     'date_updated' => '2024-01-01 10:00:00+00:00',
                                     'unique' => false,
-                                    'order' => 1
+                                    'order' => 1,
                                 ],
                             ],
                             'total' => 8,
