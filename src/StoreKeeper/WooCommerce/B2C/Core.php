@@ -196,27 +196,34 @@ class Core
 
     private function prepareCron()
     {
-        $registrar = new CronRegistrar();
-        $this->loader->add_filter('cron_schedules', $registrar, 'addCustomCronInterval');
-        $this->loader->add_action('admin_init', $registrar, 'register');
-
-        $processTask = new ProcessTaskCron();
-        $this->loader->add_action(CronRegistrar::HOOK_PROCESS_TASK, $processTask, 'execute');
-
+        // Register cron schedules
         add_filter('cron_schedules', function ($schedules) {
+            // Add custom interval for every 15 minutes
+            $schedules['every_15_minutes'] = [
+                'interval' => 15 * 60, // 15 minutes in seconds
+                'display'  => __('Every 15 Minutes'),
+            ];
+            // Add custom interval for every day
             $schedules['every_day'] = [
-                'interval' => 86400,
-                'display' => __('Every Day'),
+                'interval' => 86400, // 24 hours in seconds
+                'display'  => __('Every Day'),
             ];
 
             return $schedules;
         });
 
+        // Schedule cron jobs if not already scheduled
         if (!wp_next_scheduled('sk_sync_paid_orders')) {
             wp_schedule_event(time(), 'every_day', 'sk_sync_paid_orders');
         }
 
+        if (!wp_next_scheduled('monitor_payment_status')) {
+            wp_schedule_event(time(), 'every_15_minutes', 'monitor_payment_status');
+        }
+
+        // Add actions for scheduled cron jobs
         $this->loader->add_action('sk_sync_paid_orders', $this, 'syncAllPaidAndProcessingOrders');
+        $this->loader->add_action('monitor_payment_status', $this, 'scheduleMonitorPaymentStatusCron');
     }
 
     /**
@@ -569,6 +576,12 @@ HTML;
     {
         $orderSyncMetaBox = new Cron();
         $orderSyncMetaBox->syncAllPaidOrders();
+    }
+
+    public function scheduleMonitorPaymentStatusCron(): void
+    {
+        $orderSyncMetaBox = new Cron();
+        $orderSyncMetaBox->scheduleMonitorPaymentStatusCron();
     }
 
     public function enqueueMediaUploaderScripts()

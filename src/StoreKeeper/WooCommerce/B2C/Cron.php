@@ -34,4 +34,22 @@ class Cron
             error_log('WC_Order_Query not found.');
         }
     }
+    public function scheduleMonitorPaymentStatusCron(): void
+    {
+        $args = [
+            'status' => 'pending',
+            'limit'  => -1,
+        ];
+        $orders = wc_get_orders($args);
+
+        foreach ($orders as $order) {
+            $orderStatus = $order->get_status();
+            error_log('Order ID: ' . $order->get_id() . ' - Order Status: ' . $orderStatus);
+
+            if ($orderStatus === 'pending') {
+                error_log('Cancelling Order ID: ' . $order->get_id() . ' due to failed payment.');
+                $order->update_status('cancelled', 'Payment failed, order cancelled.');
+            }
+        }
+    }
 }
