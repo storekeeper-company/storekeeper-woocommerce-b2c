@@ -76,7 +76,7 @@ jobs:
             storekeeper-for-woocommerce/Readme.txt \
             storekeeper-for-woocommerce/.distignore
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: storekeeper-for-woocommerce
           if-no-files-found: error
