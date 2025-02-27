@@ -221,7 +221,7 @@ class OrderExport extends AbstractExport
          * Billing address
          */
         $callData['billing_address'] = [
-            'name' => $order->get_formatted_billing_full_name(),
+            'name' => !empty($order->get_billing_company(self::CONTEXT)) ? $order->get_billing_company(self::CONTEXT) : $order->get_formatted_billing_full_name(),
             'address_billing' => [
                 'state' => $order->get_billing_state(self::CONTEXT),
                 'city' => $order->get_billing_city(self::CONTEXT),
@@ -270,7 +270,7 @@ class OrderExport extends AbstractExport
          */
         if ($order->has_shipping_address()) {
             $callData['shipping_address'] = [
-                'name' => $order->get_formatted_shipping_full_name(),
+                'name' => !empty($order->get_shipping_company(self::CONTEXT)) ? $order->get_shipping_company(self::CONTEXT) : $order->get_formatted_shipping_full_name(),
                 'contact_address' => [
                     'state' => $order->get_shipping_state(self::CONTEXT),
                     'city' => $order->get_shipping_city(self::CONTEXT),
@@ -279,7 +279,7 @@ class OrderExport extends AbstractExport
                         $order->get_shipping_address_2(self::CONTEXT)
                     ),
                     'country_iso2' => $order->get_shipping_country(self::CONTEXT),
-                    'name' => $order->get_formatted_shipping_full_name(),
+                    'name' => !empty($order->get_shipping_company(self::CONTEXT)) ? $order->get_shipping_company(self::CONTEXT) : $order->get_formatted_shipping_full_name(),
                 ],
                 'contact_set' => [
                     'email' => $order->get_billing_email(self::CONTEXT),
