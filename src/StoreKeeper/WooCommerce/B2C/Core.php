@@ -184,10 +184,12 @@ class Core
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
 
-        add_filter('woocommerce_shipping_settings', 'displayMinAmountField');
-        add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
-        add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
-        add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+        if(StoreKeeperOptions::isShippingMethodSyncEnabled()){
+            add_filter('woocommerce_shipping_settings', 'displayMinAmountField');
+            add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
+            add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
+            add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+        }
 
         add_action('wp_enqueue_scripts', [$this, 'enqueueMediaUploaderScripts']);
         add_action('wp_ajax_upload_product_image', [$this, 'handleProductImageUpload']);
