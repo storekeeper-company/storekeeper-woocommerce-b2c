@@ -1771,7 +1771,7 @@ class OrderExportTest extends AbstractOrderExportTest
         $expectedBillingStreet = $new_order['billing_address_1'].' '.$new_order['billing_address_2'];
 
         $expect_billing = [
-            'name' => $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
+            'name' => !empty($new_order['billing_company']) ? $new_order['billing_company'] : $new_order['billing_first_name'].' '.$new_order['billing_last_name'],
             'isprivate' => empty($new_order['billing_company']),
             'address_billing' => [
                 'state' => $new_order['billing_state'],
@@ -1813,7 +1813,7 @@ class OrderExportTest extends AbstractOrderExportTest
             $expectedShippingStreet = $new_order['shipping_address_1'].' '.$new_order['shipping_address_2'];
 
             $expect_shipping = [
-                'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
+                'name' => !empty($new_order['shipping_company']) ? $new_order['shipping_company'] : $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
                 'isprivate' => empty($new_order['shipping_company']),
                 'contact_address' => [
                     'state' => $new_order['shipping_state'],
@@ -1821,7 +1821,7 @@ class OrderExportTest extends AbstractOrderExportTest
                     'zipcode' => $new_order['shipping_postcode'],
                     'street' => $expectedShippingStreet,
                     'country_iso2' => $new_order['shipping_country'],
-                    'name' => $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
+                    'name' => !empty($new_order['shipping_company']) ? $new_order['shipping_company'] : $new_order['shipping_first_name'].' '.$new_order['shipping_last_name'],
                 ],
                 'contact_set' => [
                     'email' => $new_order['billing_email'],
