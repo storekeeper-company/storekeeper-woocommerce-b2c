@@ -74,10 +74,6 @@ msgstr "Action"
 msgid "Activate StoreKeeper payments"
 msgstr "Activate StoreKeeper Payments"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:299
-msgid "Activated"
-msgstr "Activated"
-
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:288
 msgid "Activeer product"
 msgstr "Activeer product"
@@ -86,11 +82,6 @@ msgstr "Activeer product"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:163
 msgid "Add %s to crontab."
 msgstr "Add %s to crontab."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:106
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:533
-msgid "Address"
-msgstr "Address"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:92
 msgid "Advanced configuration"
@@ -124,6 +115,10 @@ msgstr "Allows to change the Track&Trace HTML on the order page before it's show
 #, fuzzy
 msgid "Allows to change the product category summary, which is shown below the products in the category archive page."
 msgstr "Allows to change the product category summary, which is shown below the products in the category archive page."
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:591
+msgid "An error occurred while uploading the image."
+msgstr "An error occurred while uploading the image."
 
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/ShortCodes/FormShortCode.php:32
 msgid "An error occurred!"
@@ -241,10 +236,6 @@ msgstr "Check if `curl` and `cron` is installed in the server hosting your websi
 msgid "Check if `wp-cli` is installed in the website's server."
 msgstr "Check if `wp-cli` is installed in the website's server."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:553
-msgid "City"
-msgstr "City"
-
 #: src/StoreKeeper/WooCommerce/B2C/Commands/CleanWoocommerceEnvironment.php:85
 msgid "Clean products only."
 msgstr "Remove all products."
@@ -252,10 +243,6 @@ msgstr "Remove all products."
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:289
 msgid "Click here to configure them"
 msgstr "Click here to configure them"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:67
-msgid "Closed"
-msgstr "Closed"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:90
 msgid "Condition"
@@ -285,6 +272,10 @@ msgstr "Contact your hosting provider."
 msgid "Contact your server provider to allow one of the those directories to be writable: %s"
 msgstr "Contact your server provider to allow one of the those directories to be writable: %s"
 
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:148
+msgid "Contact your server provider to create the writeable log directory: %s"
+msgstr "Contact your server provider to create the writeable log directory: %s"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:168
 msgid "Contact your server provider to enable the PHP %s extension for the StoreKeeper synchronization plugin to function properly"
 msgstr "Contact your server provider to enable the PHP %s extension for the StoreKeeper synchronization plugin to function properly"
@@ -308,10 +299,6 @@ msgstr "Contact your system administrator if the problem persists."
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:104
 msgid "Copy the \"Backoffice API Key\" from the text area."
 msgstr "Copy the \"BackOffice API Key\" from the text area."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:561
-msgid "Country"
-msgstr "Country"
 
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:227
 msgid "Coupon code"
@@ -396,10 +383,6 @@ msgstr "Database status"
 msgid "Date"
 msgstr "Date"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:299
-msgid "Deactivated"
-msgstr "Deactivated"
-
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:285
 msgid "Deactiveer product"
 msgstr "Deactivate product"
@@ -468,6 +451,10 @@ msgstr "Determines how many upsell products will be synchronized from the starti
 msgid "Developer settings"
 msgstr "Developer settings"
 
+#: src/StoreKeeper/WooCommerce/B2C/Factories/LoggerFactory.php:33
+msgid "Directory \"%s\" was not created"
+msgstr "Directory \"%s\" was not created"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/BackofficeRolesTab.php:138
 msgid "Disable SSO"
 msgstr "Disable SSO"
@@ -512,10 +499,6 @@ msgstr "Duration in seconds"
 msgid "Dutch"
 msgstr "Dutch"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:575
-msgid "E-mail address"
-msgstr "E-mail address"
-
 #: src/StoreKeeper/WooCommerce/B2C/Commands/AbstractCommand.php:70
 msgid "EXAMPLES"
 msgstr "EXAMPLES"
@@ -543,6 +526,11 @@ msgstr "English"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:333
 msgid "Enter message or back reference/post/task ID"
 msgstr "Enter message or back reference/post/task ID"
+
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:608
+#: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/ProductAddOnHandler.php:626
+msgid "Enter your required text here..."
+msgstr "Enter your required text here..."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:262
 msgid "Error key"
@@ -697,6 +685,10 @@ msgstr "Featured attributes"
 msgid "Featured attributes sync"
 msgstr "Featured attributes sync"
 
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:622
+msgid "File upload failed"
+msgstr "File upload failed"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportSettingsTab.php:77
 msgid "First set the export mappings below to make sure the export maps are as needed. Please pay attention to this, since there is NO do-overs on \"one time import\". After completing this you can to the \"One Time Export\" "
 msgstr "First set the export mappings below to make sure the export maps are as needed. Please pay attention to this, since there is NO do-overs on \"one time import\". After completing this you can to the \"One Time Export\" "
@@ -708,10 +700,6 @@ msgstr "First set the export mappings below to make sure the export maps are as 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProducts.php:35
 msgid "Flag to prevent spawning of child processes. Having this might cause timeouts during execution."
 msgstr "[TECH] Flag to prevent spawning of child processes. Having this might cause timeouts during execution."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:545
-msgid "Flat number"
-msgstr "Flat number"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:58
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:55
@@ -746,10 +734,6 @@ msgstr "Full sync"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/WordpressExceptionThrower.php:30
 msgid "Function returned false"
 msgstr "Function returned: False"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:589
-msgid "GLN (Global Location Number)"
-msgstr "GLN (Global Location Number)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/ConnectBackend.php:17
 msgid "Generate Storekeeper Backoffice API key."
@@ -827,13 +811,21 @@ msgstr "House number"
 msgid "ID"
 msgstr "ID"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:474
-msgid "ID#%s"
-msgstr "ID#%s"
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Helpers/OverlayRenderer.php:119
 msgid "If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit."
 msgstr "If you are not comfortable in trying the methods above, or it did not work for you. You can talk to your hosting provider about having them increase your memory limit."
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:589
+msgid "Image is too large. Maximum dimensions are {width}x{height}."
+msgstr "Image is too large. Maximum dimensions are {width}x{height}."
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:588
+msgid "Image is too small. Minimum dimensions are {width}x{height}."
+msgstr "Image is too small. Minimum dimensions are {width}x{height}."
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:590
+msgid "Image uploaded successfully!"
+msgstr "Image uploaded successfully!"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:233
 msgid "Import & Export Center"
@@ -873,6 +865,14 @@ msgstr "Index database size"
 msgid "Instructions"
 msgstr "Instructions"
 
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:617
+msgid "Invalid file type. Please upload a valid image."
+msgstr "Invalid file type. Please upload a valid image."
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:610
+msgid "Invalid image file. Please upload a valid image."
+msgstr "Invalid image file. Please upload a valid image."
+
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/AddressFormHandler.php:48
 msgid "Invalid postcode or house number"
 msgstr "Invalid postcode or house number"
@@ -880,10 +880,6 @@ msgstr "Invalid postcode or house number"
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:147
 msgid "Invalid return url, contact shop owner to check the payment"
 msgstr "Invalid return URL, contact shop owner to check the payment"
-
-#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:80
-msgid "Invalid user ID."
-msgstr "Invalid user ID."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:240
 msgid "It seems that its been %s ago since the process tasks cron has been running, Contact your system administrator to solve this problem."
@@ -930,38 +926,6 @@ msgstr "Last task processed"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:141
 msgid "Last webhook received"
 msgstr "Last webhook received"
-
-#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:190
-msgid "Limit results to those matching active filter."
-msgstr "Limit results to those matching active filter."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:471
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:268
-msgid "Location"
-msgstr "Location"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:363
-msgid "Location activated"
-msgstr "Location activated"
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:366
-msgid "Location deactivated"
-msgstr "Location deactivated"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:358
-#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/template.php:70
-msgid "Location is closed."
-msgstr "Location is closed."
-
-#: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:369
-msgid "Location update"
-msgstr "Location update"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:118
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/LocationsPage.php:14
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:470
-msgid "Locations"
-msgstr "Locations"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:105
 msgid "Log into your admin environment"
@@ -1073,9 +1037,9 @@ msgstr "No %s selected"
 msgid "No extra metadata found."
 msgstr "No extra metadata found."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:382
-msgid "No special opening hours set."
-msgstr "No special opening hours set."
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:626
+msgid "No file uploaded"
+msgstr "No file uploaded"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:272
 msgid "No sync"
@@ -1092,6 +1056,10 @@ msgstr "No tasks processed (successfully) yet, but the cron is running"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:57
 msgid "No, thanks"
 msgstr "No, thanks"
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:599
+msgid "Nonce verification failed"
+msgstr "Nonce verification failed"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:284
 msgid "None"
@@ -1139,14 +1107,6 @@ msgstr "Open command line and navigate to website directory"
 msgid "Open in backoffice"
 msgstr "Open in BackOffice"
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:70
-msgid "Opened"
-msgstr "Opened"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:497
-msgid "Opening hours"
-msgstr "Opening hours"
-
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:233
 msgid "Order"
 msgstr "Order"
@@ -1174,10 +1134,6 @@ msgstr "Order only"
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:292
 msgid "Order payment status change"
 msgstr "Order payment status change"
-
-#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:196
-msgid "Order sort attribute ascending or descending."
-msgstr "Order sort attribute ascending or descending."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:26
 msgid "Order sync"
@@ -1248,6 +1204,10 @@ msgstr "Payments are disabled in currently selected Synchronization mode"
 #: src/StoreKeeper/WooCommerce/B2C/Frontend/Handlers/CartHandler.php:41
 msgid "Please provide a valid email address."
 msgstr "Please provide a valid email address."
+
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:587
+msgid "Please select an image first."
+msgstr "Please select an image first."
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/OrderSyncMetaBox.php:103
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MetaBoxes/ProductSyncMetaBox.php:132
@@ -1483,12 +1443,6 @@ msgstr "Refund via Wordpress plugin (Refund #%s)"
 msgid "Registered wordpress hooks"
 msgstr "Registered WordPress hooks"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:111
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:502
-#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/template.php:67
-msgid "Regular opening hours"
-msgstr "Regular opening hours"
-
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:239
 #: src/StoreKeeper/WooCommerce/B2C/Tools/TaskHandler.php:318
 msgid "Report error"
@@ -1509,6 +1463,14 @@ msgstr "Request method"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:20
 msgid "Request route"
 msgstr "Request route"
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:17
+msgid "Required Image"
+msgstr "Required Image"
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/text-addon.php:15
+msgid "Required Text"
+msgstr "Required Text"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/WebhookLogsTab.php:36
 msgid "Response code"
@@ -1612,6 +1574,10 @@ msgstr "See documentation"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:323
 msgid "Select action"
 msgstr "Select action"
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:50
+msgid "Select an image"
+msgstr "Select an image"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:306
 msgid "Select log status"
@@ -1767,20 +1733,6 @@ msgstr "Something went wrong during export or server timed out. You can try manu
 msgid "Something went wrong while syncing product"
 msgstr "Something went wrong while syncing product"
 
-#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:227
-msgid "Sorry, you are not allowed to list locations."
-msgstr "Sorry, you are not allowed to list locations."
-
-#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:203
-msgid "Sort collection by user attribute."
-msgstr "Sort collection by user attribute."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:116
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:509
-#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/template.php:98
-msgid "Special opening hours"
-msgstr "Special opening hours"
-
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceAttributeOptions.php:28
 msgid "Specify total amount of attribute options from Storekeeper Backoffice. By default, counts the total amount of attribute options by checking the Storekeeper Backoffice"
 msgstr "Specify total amount of attribute options from Storekeeper BackOffice. By default, counts the total amount of attribute options by checking the Storekeeper BackOffice"
@@ -1853,10 +1805,6 @@ msgstr "Starting tags synchronization..."
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceFullSync.php:128
 msgid "Starting upsell products synchronization..."
 msgstr "Starting upsell products synchronization..."
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:557
-msgid "State"
-msgstr "State"
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/StoreKeeperBaseGateway.php:153
 #, fuzzy
@@ -2159,10 +2107,6 @@ msgstr "Tasks in queue"
 msgid "Tasks were processed"
 msgstr "Tasks were processed"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:568
-msgid "Telephone"
-msgstr "Telephone"
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:268
 msgid "The %s table needs to be using Engine=InnoDB in order to use the plugin"
 msgstr "The %s table needs to be using Engine=InnoDB in order to use the plugin"
@@ -2203,9 +2147,9 @@ msgstr "The following required extensions are missing from your server: %s"
 msgid "The language to which the entities will be exported."
 msgstr "The language to which the entities will be exported."
 
-#: src/StoreKeeper/WooCommerce/B2C/Blocks/BlockTypes/Location/Renderer.php:32
-msgid "The location is deactivated."
-msgstr "The location is deactivated."
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:59
+msgid "The log directory cannot be created and is need by plugin to work properly. Please create \"%s\" directory with writeable permissions or contact your server provider."
+msgstr "The log directory cannot be created and is need by plugin to work properly. Please create \"%s\" directory with writeable permissions or contact your server provider."
 
 #: src/StoreKeeper/WooCommerce/B2C/PaymentGateway/PaymentGateway.php:166
 #, fuzzy
@@ -2310,13 +2254,17 @@ msgstr "Trigger variation save actions"
 msgid "Unable to set php configuration option %s"
 msgstr "Unable to set php configuration option %s"
 
-#: src/StoreKeeper/WooCommerce/B2C/Endpoints/WebService/LocationsEndpoint.php:57
-msgid "Unique identifier for the location."
-msgstr "Unique identifier for the location."
-
 #: src/StoreKeeper/WooCommerce/B2C/Tools/FeaturedAttributes.php:84
 msgid "Unit weight in grams"
 msgstr "Unit weight in grams"
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:56
+msgid "Upload"
+msgstr "Upload"
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:32
+msgid "Upload Image"
+msgstr "Upload Image"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:157
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/SchedulerTab.php:164
@@ -2355,11 +2303,6 @@ msgstr "Value"
 msgid "Version"
 msgstr "Version"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:407
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:408
-msgid "View"
-msgstr "View"
-
 #: src/StoreKeeper/WooCommerce/B2C/Cron/CronRegistrar.php:86
 msgid "WP Cron encountered an error and may not work: %s"
 msgstr "WP Cron encountered an error and may not work: %s"
@@ -2388,10 +2331,6 @@ msgstr "Webhooks log count"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/MenuStructure.php:102
 msgid "Webshop Builder"
 msgstr "Webshop Builder"
-
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:582
-msgid "Website"
-msgstr "Website"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:389
 msgid "When checked, active webshop payment methods from your StoreKeeper backoffice are added to your webshop's checkout"
@@ -2447,9 +2386,21 @@ msgstr "Wordpress error message: "
 msgid "Wordpress plugin"
 msgstr "Wordpress plugin"
 
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:18
+msgid "Would you like an image on the product?"
+msgstr "Would you like an image on the product?"
+
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/text-addon.php:18
+msgid "Would you like text on the product?"
+msgstr "Would you like text on the product?"
+
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:96
 msgid "Wp-config settings"
 msgstr "WP-Config settings"
+
+#: src/StoreKeeper/WooCommerce/B2C/Helpers/ServerStatusChecker.php:146
+msgid "Writable log directory"
+msgstr "Writable log directory"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/StatusTab.php:151
 msgid "Writable tmp directory"
@@ -2512,10 +2463,6 @@ msgstr "The file has been generated"
 msgid "Your order is awaiting payment. Once we receive it, we'll process your purchase."
 msgstr "Your order is awaiting payment. Once we receive it, we'll process your purchase."
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:549
-msgid "Zipcode"
-msgstr "Zipcode"
-
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Notices/AdminNotices.php:124
 msgid "attribute"
 msgstr "attribute"
@@ -2557,17 +2504,14 @@ msgstr "customers"
 msgid "days"
 msgstr "days"
 
-#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/LocationsTab.php:692
-msgid "default"
-msgstr "default"
-
 #: src/StoreKeeper/WooCommerce/B2C/Imports/FeaturedAttributeImport.php:51
 msgid "featured attributes"
 msgstr "featured attributes"
 
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:74
-msgid "from %s"
-msgstr "from %s"
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/image-addon.php:29
+#: src/StoreKeeper/WooCommerce/B2C/templates/add-on/text-addon.php:29
+msgid "free"
+msgstr "free"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ExportTab.php:185
 msgid "full package"
@@ -2580,10 +2524,6 @@ msgstr "hours"
 #. Author URI of the plugin/theme
 msgid "https://www.storekeeper.nl/"
 msgstr "https://www.storekeeper.nl/"
-
-#: src/StoreKeeper/WooCommerce/B2C/Imports/LocationImport.php:696
-msgid "location"
-msgstr "location"
 
 #: src/StoreKeeper/WooCommerce/B2C/Imports/MenuItemImport.php:435
 msgid "menu items"
@@ -2654,10 +2594,6 @@ msgstr "tags"
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/TaskLogsTab.php:271
 msgid "this task was run with older version"
 msgstr "this task was run with older version"
-
-#: src/StoreKeeper/WooCommerce/B2C/Helpers/Location/OpeningSpecialHour.php:72
-msgid "until %s"
-msgstr "until %s"
 
 #: src/StoreKeeper/WooCommerce/B2C/Commands/SyncWoocommerceUpsellProductPage.php:97
 msgid "upsell products"
