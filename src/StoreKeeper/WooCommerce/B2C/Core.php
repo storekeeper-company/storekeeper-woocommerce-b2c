@@ -612,6 +612,13 @@ HTML;
             $fileMimeType = $image_info['mime'];
             $allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
 
+            $file_ext = strtolower(pathinfo($uploaded_file['name'], PATHINFO_EXTENSION));
+            $allowed_extensions = ['jpg', 'jpeg', 'png'];
+
+            if (!in_array($file_ext, $allowed_extensions)) {
+                wp_send_json_error(['message' => esc_html__('Invalid file extension.', I18N::DOMAIN)]);
+            }
+
             if (!in_array($fileMimeType, $allowedMimeTypes)) {
                 wp_send_json_error(['message' => esc_html__('Invalid file type. Please upload a valid image.', I18N::DOMAIN)]);
             } else {
