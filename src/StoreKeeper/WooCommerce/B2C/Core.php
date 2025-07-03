@@ -609,17 +609,12 @@ HTML;
                 wp_send_json_error(['message' => esc_html__('Invalid image file. Please upload a valid image.', I18N::DOMAIN)]);
             }
 
+            $file_ext = strtolower(pathinfo($uploaded_file['name'], PATHINFO_EXTENSION));
+            $allowed_extensions = ['jpg', 'jpeg', 'png'];
             $fileMimeType = $image_info['mime'];
             $allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png'];
 
-            $file_ext = strtolower(pathinfo($uploaded_file['name'], PATHINFO_EXTENSION));
-            $allowed_extensions = ['jpg', 'jpeg', 'png'];
-
-            if (!in_array($file_ext, $allowed_extensions)) {
-                wp_send_json_error(['message' => esc_html__('Invalid file extension.', I18N::DOMAIN)]);
-            }
-
-            if (!in_array($fileMimeType, $allowedMimeTypes)) {
+            if (!in_array($fileMimeType, $allowedMimeTypes) || !in_array($file_ext, $allowed_extensions)) {
                 wp_send_json_error(['message' => esc_html__('Invalid file type. Please upload a valid image.', I18N::DOMAIN)]);
             } else {
                 if (move_uploaded_file($uploaded_file['tmp_name'], $upload_path)) {
