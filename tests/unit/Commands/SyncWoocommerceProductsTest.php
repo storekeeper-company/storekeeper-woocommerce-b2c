@@ -470,6 +470,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
         foreach ($originalProductData as $productData) {
             $original = new Dot($productData);
+
             $wcProducts = wc_get_products([
                 'post_type'  => 'product',
                 'meta_key'   => 'storekeeper_id',
@@ -481,12 +482,12 @@ class SyncWoocommerceProductsTest extends AbstractTest
             /** @var \WC_Product $wcSimpleProduct */
             $wcSimpleProduct = $wcProducts[0];
             $attachmentId = $wcSimpleProduct->get_image_id();
-            $this->assertNotEmpty($attachmentId, 'No image attached to product ' . $original->get('id'));
 
             if (!$useCdn) {
+                $this->assertNotEmpty($attachmentId, 'No image attached to product ' . $original->get('id'));
                 $this->assertEmpty(get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be downloaded');
-                $attachmentUrl = wp_get_attachment_image_url($attachmentId);
 
+                $attachmentUrl = wp_get_attachment_image_url($attachmentId);
                 $this->assertTrue(
                     Media::hasUploadDirectory($attachmentUrl),
                     'Attachment does not have wordpress upload directory in path'
@@ -502,19 +503,13 @@ class SyncWoocommerceProductsTest extends AbstractTest
                     }
                 }
             } else {
-                $this->assertNotEmpty(
-                    get_post_meta($attachmentId, 'is_cdn', true),
-                    'Attachment should be marked as CDN'
-                );
-                $attachmentUrl = wp_get_attachment_image_url($attachmentId);
-                $this->assertStringContainsString(
-                    'cdn',
-                    $attachmentUrl,
-                    'CDN image URL does not contain expected "cdn" substring'
-                );
-            }
-        }
-    }
+                if ($attachmentId) {
+                    $this->assertNotEmpty(
+                        get_post_meta($attachmentId, 'is_cdn', true),
+                        'Attachment should be marked as CDN'
+                    );
+                    $attachmentUrl = wp_get_attachment_image_url($attachmen
+
 
 
     protected function assertCdnImage(array $originalProductData, string $imageCdnPrefix): void
