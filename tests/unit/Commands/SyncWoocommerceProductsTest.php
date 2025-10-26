@@ -503,12 +503,24 @@ class SyncWoocommerceProductsTest extends AbstractTest
                     }
                 }
             } else {
+
                 if ($attachmentId) {
                     $this->assertNotEmpty(
                         get_post_meta($attachmentId, 'is_cdn', true),
                         'Attachment should be marked as CDN'
                     );
-                    $attachmentUrl = wp_get_attachment_image_url($attachmen
+                    $attachmentUrl = wp_get_attachment_image_url($attachmentId);
+                    $this->assertStringContainsString(
+                        'cdn',
+                        $attachmentUrl,
+                        'CDN image URL does not contain expected "cdn" substring'
+                    );
+                } else {
+                    $this->markTestSkipped('CDN mode enabled — no local image expected.');
+                }
+            }
+        }
+    }
 
 
 
