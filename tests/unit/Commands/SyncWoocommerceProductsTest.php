@@ -470,8 +470,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
         foreach ($originalProductData as $productData) {
             $original = new Dot($productData);
-
-            // Retrieve WooCommerce product linked to StoreKeeper ID
             $wcProducts = wc_get_products([
                 'post_type'  => 'product',
                 'meta_key'   => 'storekeeper_id',
@@ -486,7 +484,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
             $this->assertNotEmpty($attachmentId, 'No image attached to product ' . $original->get('id'));
 
             if (!$useCdn) {
-                // Local image assertions
                 $this->assertEmpty(get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be downloaded');
                 $attachmentUrl = wp_get_attachment_image_url($attachmentId);
 
@@ -505,7 +502,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
                     }
                 }
             } else {
-                // CDN image assertions
                 $this->assertNotEmpty(
                     get_post_meta($attachmentId, 'is_cdn', true),
                     'Attachment should be marked as CDN'
