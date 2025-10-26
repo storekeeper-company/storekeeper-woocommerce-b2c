@@ -374,6 +374,10 @@ SQL;
 
     protected function setImage(\WC_Product $newProduct, $product)
     {
+        if (!StoreKeeperOptions::isImageCdnEnabled()) {
+            return;
+        }
+
         if ($product->has('flat_product.main_image')) {
             $oldAttachmentId = (int) $newProduct->get_image_id();
 
@@ -405,6 +409,10 @@ SQL;
 
     protected function setGalleryImages(&$newProduct, $product, $mainImageId = null): void
     {
+        if (!StoreKeeperOptions::isImageCdnEnabled()) {
+            return;
+        }
+
         $attachmentIds = [];
         $oldAttachmentIds = $newProduct->get_gallery_image_ids();
         $count = 0;
