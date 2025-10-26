@@ -471,30 +471,55 @@ class SyncWoocommerceProductsTest extends AbstractTest
         foreach ($originalProductData as $productData) {
             $original = new Dot($productData);
 
+            // Retrieve WooCommerce product linked to StoreKeeper ID
             $wcProducts = wc_get_products([
-                'post_type' => 'product',
-                'meta_key' => 'storekeeper_id',
+                'post_type'  => 'product',
+                'meta_key'   => 'storekeeper_id',
                 'meta_value' => $original->get('id'),
             ]);
 
+            $this->assertNotEmpty($wcProducts, 'No WooCommerce product found for StoreKeeper ID ' . $original->get('id'));
+
+            /** @var \WC_Product $wcSimpleProduct */
             $wcSimpleProduct = $wcProducts[0];
             $attachmentId = $wcSimpleProduct->get_image_id();
+            $this->assertNotEmpty($attachmentId, 'No image attached to product ' . $original->get('id'));
 
             if (!$useCdn) {
+                // Local image assertions
                 $this->assertEmpty(get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be downloaded');
                 $attachmentUrl = wp_get_attachment_image_url($attachmentId);
-                $this->assertTrue(Media::hasUploadDirectory($attachmentUrl), 'Attachment does not have wordpress upload directory in path');
+
+                $this->assertTrue(
+                    Media::hasUploadDirectory($attachmentUrl),
+                    'Attachment does not have wordpress upload directory in path'
+                );
 
                 $attachmentImageSrcSet = wp_get_attachment_image_srcset($attachmentId);
-                $attachmentImageSrcSet = explode(',', $attachmentImageSrcSet);
-                foreach ($attachmentImageSrcSet as $attachmentImageSrc) {
-                    $this->assertTrue(Media::hasUploadDirectory($attachmentImageSrc), 'Attachment image src set is not valid');
+                if ($attachmentImageSrcSet) {
+                    foreach (explode(',', $attachmentImageSrcSet) as $attachmentImageSrc) {
+                        $this->assertTrue(
+                            Media::hasUploadDirectory($attachmentImageSrc),
+                            'Attachment image src set is not valid'
+                        );
+                    }
                 }
             } else {
-                $this->assertNotEmpty(get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be marked as CDN');
+                // CDN image assertions
+                $this->assertNotEmpty(
+                    get_post_meta($attachmentId, 'is_cdn', true),
+                    'Attachment should be marked as CDN'
+                );
+                $attachmentUrl = wp_get_attachment_image_url($attachmentId);
+                $this->assertStringContainsString(
+                    'cdn',
+                    $attachmentUrl,
+                    'CDN image URL does not contain expected "cdn" substring'
+                );
             }
         }
     }
+
 
     protected function assertCdnImage(array $originalProductData, string $imageCdnPrefix): void
     {
