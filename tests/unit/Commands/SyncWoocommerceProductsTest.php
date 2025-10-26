@@ -466,31 +466,32 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     protected function assertDownloadedImage(array $originalProductData): void
     {
+        $useCdn = StoreKeeperOptions::isImageCdnEnabled();
+
         foreach ($originalProductData as $productData) {
             $original = new Dot($productData);
 
-            // Retrieve product(s) with the storekeeper_id from the source data
-            $wcProducts = wc_get_products(
-                [
-                    'post_type' => 'product',
-                    'meta_key' => 'storekeeper_id',
-                    'meta_value' => $original->get('id'),
-                ]
-            );
+            $wcProducts = wc_get_products([
+                'post_type' => 'product',
+                'meta_key' => 'storekeeper_id',
+                'meta_value' => $original->get('id'),
+            ]);
 
-            // Get the simple product with the storekeeper_id
-            /* @var \WC_Product $wcSimpleProduct */
             $wcSimpleProduct = $wcProducts[0];
-
             $attachmentId = $wcSimpleProduct->get_image_id();
-            $this->assertEmpty(get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be downloaded');
-            $attachmentUrl = wp_get_attachment_image_url($attachmentId);
-            $this->assertTrue(Media::hasUploadDirectory($attachmentUrl), 'Attachment does not have wordpress upload directory in path');
 
-            $attachmentImageSrcSet = wp_get_attachment_image_srcset($attachmentId);
-            $attachmentImageSrcSet = explode(',', $attachmentImageSrcSet);
-            foreach ($attachmentImageSrcSet as $attachmentImageSrc) {
-                $this->assertTrue(Media::hasUploadDirectory($attachmentImageSrc), 'Attachment image src set is not valid');
+            if (!$useCdn) {
+                $this->assertEmpty(get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be downloaded');
+                $attachmentUrl = wp_get_attachment_image_url($attachmentId);
+                $this->assertTrue(Media::hasUploadDirectory($attachmentUrl), 'Attachment does not have wordpress upload directory in path');
+
+                $attachmentImageSrcSet = wp_get_attachment_image_srcset($attachmentId);
+                $attachmentImageSrcSet = explode(',', $attachmentImageSrcSet);
+                foreach ($attachmentImageSrcSet as $attachmentImageSrc) {
+                    $this->assertTrue(Media::hasUploadDirectory($attachmentImageSrc), 'Attachment image src set is not valid');
+                }
+            } else {
+                $this->assertNotEmpty(get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be marked as CDN');
             }
         }
     }
