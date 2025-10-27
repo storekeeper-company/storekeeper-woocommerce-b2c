@@ -454,10 +454,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     protected function assertDownloadedImage(array $originalProductData): void
     {
-        do_action('woocommerce_init');
-
-        $useCdn = StoreKeeperOptions::isImageCdnEnabled();
-
         foreach ($originalProductData as $productData) {
             $original = new Dot($productData);
 
@@ -467,53 +463,20 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 'meta_value' => $original->get('id'),
             ]);
 
-            $this->assertNotEmpty(
-                $wcProducts,
-                'No WooCommerce product found for StoreKeeper ID ' . $original->get('id')
-            );
-
             /** @var \WC_Product $wcSimpleProduct */
             $wcSimpleProduct = $wcProducts[0];
             $attachmentId = $wcSimpleProduct->get_image_id();
 
-            $this->assertNotEmpty(
-                $attachmentId,
-                'No image attached to product ' . $original->get('id') . '. Did the import run and create images?'
-            );
+            $this->assertEmpty(get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be downloaded');
 
             $attachmentUrl = wp_get_attachment_image_url($attachmentId);
 
-            if (!$useCdn) {
-                $this->assertEmpty(
-                    get_post_meta($attachmentId, 'is_cdn', true),
-                    'Attachment should be downloaded'
-                );
+            $this->assertTrue(Media::hasUploadDirectory($attachmentUrl), 'Attachment does not have wordpress upload directory in path');
 
-                $this->assertTrue(
-                    Media::hasUploadDirectory($attachmentUrl),
-                    'Attachment does not have WordPress upload directory in path: ' . $attachmentUrl
-                );
-
-                $attachmentImageSrcSet = wp_get_attachment_image_srcset($attachmentId);
-                if ($attachmentImageSrcSet) {
-                    foreach (explode(',', $attachmentImageSrcSet) as $attachmentImageSrc) {
-                        $this->assertTrue(
-                            Media::hasUploadDirectory($attachmentImageSrc),
-                            'Attachment image srcset is not valid: ' . $attachmentImageSrc
-                        );
-                    }
-                }
-            } else {
-                $this->assertNotEmpty(
-                    get_post_meta($attachmentId, 'is_cdn', true),
-                    'Attachment should be marked as CDN'
-                );
-
-                $this->assertStringContainsString(
-                    'cdn',
-                    $attachmentUrl,
-                    'CDN image URL does not contain expected "cdn" substring: ' . $attachmentUrl
-                );
+            $attachmentImageSrcSet = wp_get_attachment_image_srcset($attachmentId);
+            $attachmentImageSrcSet = explode(',', $attachmentImageSrcSet);
+            foreach ($attachmentImageSrcSet as $attachmentImageSrc) {
+                $this->assertTrue(Media::hasUploadDirectory($attachmentImageSrc), 'Attachment image src set is not valid');
             }
         }
     }
@@ -560,7 +523,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
     /**
      * @throws \Exception
      */
-    protected function mockSyncWoocommerceShopInfo(string $imageCdnPrefix): void
+    protected
+    function mockSyncWoocommerceShopInfo(string $imageCdnPrefix): void
     {
         // Mock SyncWoocommerceShopInfo
         StoreKeeperApi::$mockAdapter->withModule(
@@ -592,7 +556,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
         );
     }
 
-    protected function mockSyncWoocommerceBlogModule()
+    protected
+    function mockSyncWoocommerceBlogModule()
     {
         StoreKeeperApi::$mockAdapter->withModule(
             'BlogModule',
@@ -665,7 +630,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
         );
     }
 
-    protected function prepareVFSForCDNImageTest(string $imageCdnPrefix): void
+    protected
+    function prepareVFSForCDNImageTest(string $imageCdnPrefix): void
     {
         // Prepare VFS for CDN image test
         $rootDirectoryName = 'test-shop.sk-cdn.net';
