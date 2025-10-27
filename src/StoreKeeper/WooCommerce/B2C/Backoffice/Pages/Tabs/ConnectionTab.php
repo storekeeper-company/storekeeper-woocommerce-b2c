@@ -430,7 +430,7 @@ HTML;
         );
 
         $checkboxName = 'storekeeper_image_sync';
-        $checked = checked(get_option($checkboxName, 'no'), 'yes', false);
+        $checked = checked(get_option($checkboxName, 'yes'), 'yes', false);
 
         $checkbox = <<<HTML
     <label>

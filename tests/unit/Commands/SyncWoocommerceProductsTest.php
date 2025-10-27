@@ -629,10 +629,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
         );
     }
 
-    protected
-    function prepareVFSForCDNImageTest(string $imageCdnPrefix): void
+    protected function prepareVFSForCDNImageTest(string $imageCdnPrefix): void
     {
-        // Prepare VFS for CDN image test
         $rootDirectoryName = 'test-shop.sk-cdn.net';
         $testImageContent = file_get_contents($this->getDataDir() . self::DATADUMP_DIRECTORY . '/media/' . self::MEDIA_IMAGE_JPEG_FILE);
         $testCatSampleImageContent = file_get_contents($this->getDataDir() . self::DATADUMP_DIRECTORY . '/media/' . self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
@@ -650,7 +648,15 @@ class SyncWoocommerceProductsTest extends AbstractTest
             ],
         ];
 
-        vfsStream::setup($rootDirectoryName);
-        vfsStream::create($structure);
+        $root = vfsStream::setup($rootDirectoryName);
+        vfsStream::create($structure, $root);
+
+        // Hook vfsStream dir into WP upload_dir
+        add_filter('upload_dir', function ($dirs) use ($root) {
+            $dirs['basedir'] = $root->url();
+            $dirs['path'] = $root->url();
+            $dirs['url'] = 'http://example.test/wp-content/uploads';
+            return $dirs;
+        });
     }
 }
