@@ -192,9 +192,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $this->assertDownloadedImage($originalProductData);
     }
 
-
-
-
     public function testOrderableSimpleProductStock()
     {
         $productStorekeeperId = 22;
