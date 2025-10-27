@@ -178,6 +178,7 @@ class ConnectionTab extends AbstractTab
         $this->renderFormHeader(__('Synchronization settings', I18N::DOMAIN));
 
         $this->renderSyncModeSetting();
+        $this->renderImageSyncModeSetting();
         $this->renderOrderSyncFromDate();
         $this->renderSeoSetting();
         $this->renderPaymentSetting();
@@ -336,6 +337,9 @@ class ConnectionTab extends AbstractTab
             $data[$mode] = StoreKeeperOptions::SYNC_MODE_FULL_SYNC;
         }
 
+        $imageSyncName = 'storekeeper_image_sync';
+        $data[$imageSyncName] = isset($_POST[$imageSyncName]) && '1' === $_POST[$imageSyncName] ? 'yes' : 'no';
+
         if (!empty($_POST[$seoHandler])) {
             $data[$seoHandler] = sanitize_key($_POST[$seoHandler]);
         } else {
@@ -413,6 +417,30 @@ HTML;
                 StoreKeeperOptions::getSyncMode()
             )
         );
+
+        $this->renderFormGroup('', $description);
+    }
+
+    private function renderImageSyncModeSetting(): void
+    {
+        $checkboxLabel = esc_html__(
+            'Allow images to be overwritten by StoreKeeper.',
+            I18N::DOMAIN
+        );
+
+        $checkboxName = 'storekeeper_image_sync';
+        $checked = checked(get_option($checkboxName, 'yes'), 'yes', false);
+
+        $checkbox = <<<HTML
+    <label>
+        <input type="checkbox" name="$checkboxName" value="1" $checked>
+        $checkboxLabel
+    </label>
+HTML;
+
+        $description = <<<HTML
+    $checkbox
+HTML;
 
         $this->renderFormGroup('', $description);
     }
