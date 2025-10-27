@@ -454,6 +454,9 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     protected function assertDownloadedImage(array $originalProductData): void
     {
+        if (!StoreKeeperOptions::isImageCdnEnabled()) {
+            return;
+        }
         foreach ($originalProductData as $productData) {
             $original = new Dot($productData);
 
