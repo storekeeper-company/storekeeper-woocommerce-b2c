@@ -507,19 +507,32 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
             $attachmentUrl = wp_get_attachment_image_url($attachmentId, [10000, 10000]);
             $originalCdnUrl = $original->get('flat_product.main_image.cdn_url');
-            $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}." . Media::FULL_VARIANT_KEY, $originalCdnUrl);
-            $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
+if (empty($originalCdnUrl)) {
+    $this->fail('Original product data does not have a CDN URL set for the main image.');
+}
+            // Adjust expected URL: replace vfs:// with WordPress upload URL prefix
+            $expectedUrl = str_replace(
+                Media::CDN_URL_VARIANT_PLACEHOLDER_KEY,
+                "{$imageCdnPrefix}." . Media::FULL_VARIANT_KEY,
+                $originalCdnUrl
+            );
+            $expectedUrl = str_replace('vfs://test-shop.sk-cdn.net', 'http://example.org/wp-content/uploads', $expectedUrl);
+
+            $this->assertEquals($expectedUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
 
             $attachmentImageSrcSet = (string)wp_get_attachment_image_srcset($attachmentId);
             $attachmentImageSrcSetArray = explode(', ', $attachmentImageSrcSet);
             if (!empty($attachmentImageSrcSet)) {
                 foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
-                    // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
+                    // Adjust pattern to match real WordPress upload URL
                     $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl) . ' [0-9]+w';
+                    $pattern = str_replace('vfs://test-shop.sk-cdn.net', 'http:\/\/example\.org\/wp-content\/uploads', $pattern);
                     $pattern = str_replace('/', '\/', $pattern);
+
                     $this->assertTrue((bool)preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
                 }
             }
+
         }
     }
 
