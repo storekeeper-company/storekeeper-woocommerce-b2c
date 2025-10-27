@@ -338,8 +338,7 @@ class ConnectionTab extends AbstractTab
         }
 
         $imageSyncName = 'storekeeper_image_sync';
-        $data[$imageSyncName] = isset($_POST[$imageSyncName]) && $_POST[$imageSyncName] === '1' ? 'yes' : 'no';
-
+        $data[$imageSyncName] = isset($_POST[$imageSyncName]) && '1' === $_POST[$imageSyncName] ? 'yes' : 'no';
 
         if (!empty($_POST[$seoHandler])) {
             $data[$seoHandler] = sanitize_key($_POST[$seoHandler]);
@@ -445,8 +444,6 @@ HTML;
 
         $this->renderFormGroup('', $description);
     }
-
-
 
     private function renderSeoSetting(): void
     {
