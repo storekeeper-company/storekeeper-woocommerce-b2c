@@ -523,8 +523,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
     /**
      * @throws \Exception
      */
-    protected
-    function mockSyncWoocommerceShopInfo(string $imageCdnPrefix): void
+    protected function mockSyncWoocommerceShopInfo(string $imageCdnPrefix): void
     {
         // Mock SyncWoocommerceShopInfo
         StoreKeeperApi::$mockAdapter->withModule(
