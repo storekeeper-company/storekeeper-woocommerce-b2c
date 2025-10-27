@@ -165,7 +165,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $this->initializeTest($storekeeperProductId);
 
         $originalProductData = $this->getReturnData(self::DATADUMP_IMAGE_PRODUCT_FILE);
-        $originalProductData = $this->getProductsByTypeFromDataDump($originalProductData, self::SK_TYPE_SIMPLE);
+//        $originalProductData = $this->getProductsByTypeFromDataDump($originalProductData, self::SK_TYPE_SIMPLE);
 
         $this->assertDownloadedImage($originalProductData);
 
