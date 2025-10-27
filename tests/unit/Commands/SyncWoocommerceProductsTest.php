@@ -51,7 +51,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
         $this->mockApiCallsFromDirectory(self::DATADUMP_DIRECTORY, true);
         $this->mockApiCallsFromCommonDirectory();
-        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
+        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY . '/media');
         $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
 
         // Tests whether there are no products before import
@@ -83,7 +83,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
     protected function getReturnData($file = self::DATADUMP_SOURCE_FILE): array
     {
         // Read the original data from the data dump
-        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.$file);
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY . '/' . $file);
 
         return $file->getReturn()['data'];
     }
@@ -169,17 +169,11 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $originalProductData = $this->getReturnData(self::DATADUMP_IMAGE_PRODUCT_FILE);
         $originalProductData = $this->getProductsByTypeFromDataDump($originalProductData, self::SK_TYPE_SIMPLE);
 
-        $this->runner->execute(ProcessAllTasks::getCommandName());
-        do_action('woocommerce_init');
-
         $this->assertDownloadedImage($originalProductData);
 
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'yes');
         $syncCommand = new SyncWoocommerceSingleProduct();
         $syncCommand->runSync(['storekeeper_id' => $storekeeperProductId]);
-
-        $this->runner->execute(ProcessAllTasks::getCommandName());
-        do_action('woocommerce_init');
 
         $this->assertCdnImage($originalProductData, $imageCdnPrefix);
         $this->assertEquals($imageCdnPrefix, StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be synchronized from shop info');
@@ -188,8 +182,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $syncCommand = new SyncWoocommerceSingleProduct();
         $syncCommand->runSync(['storekeeper_id' => $storekeeperProductId]);
 
-        $this->runner->execute(ProcessAllTasks::getCommandName());
-        do_action('woocommerce_init');
 
         $this->assertDownloadedImage($originalProductData);
     }
@@ -302,7 +294,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
                 'MWVR2-zwart' => 4,
             ],
             $actualAttributeOptionPosition,
-            'Menu order for '.$variationProduct->get_title()
+            'Menu order for ' . $variationProduct->get_title()
         );
 
         $this->assertAttributeOptionOrder();
@@ -385,7 +377,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
     protected function assertAttributeOptionOrder()
     {
         // Read the original data from the data dump
-        $file = $this->getDataDump(self::DATADUMP_DIRECTORY.'/'.self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
+        $file = $this->getDataDump(self::DATADUMP_DIRECTORY . '/' . self::DATADUMP_CONFIGURABLE_OPTIONS_FILE);
         $configurableProductOptions = $file->getReturn();
         $attributeOptions = $configurableProductOptions['attribute_options'];
 
@@ -452,7 +444,7 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
         $this->mockApiCallsFromDirectory(self::WITH_ERRORS_DATADUMP_DIRECTORY);
         $this->mockApiCallsFromCommonDirectory();
-        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY.'/media');
+        $this->mockMediaFromDirectory(self::DATADUMP_DIRECTORY . '/media');
         $this->runner->execute(SyncWoocommerceFeaturedAttributes::getCommandName());
 
         // Run the product import command
@@ -472,8 +464,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
             $original = new Dot($productData);
 
             $wcProducts = wc_get_products([
-                'post_type'  => 'product',
-                'meta_key'   => 'storekeeper_id',
+                'post_type' => 'product',
+                'meta_key' => 'storekeeper_id',
                 'meta_value' => $original->get('id'),
             ]);
 
@@ -529,8 +521,6 @@ class SyncWoocommerceProductsTest extends AbstractTest
     }
 
 
-
-
     protected function assertCdnImage(array $originalProductData, string $imageCdnPrefix): void
     {
         foreach ($originalProductData as $productData) {
@@ -549,21 +539,21 @@ class SyncWoocommerceProductsTest extends AbstractTest
             /* @var \WC_Product $wcSimpleProduct */
             $wcSimpleProduct = $wcProducts[0];
             $attachmentId = $wcSimpleProduct->get_image_id();
-            $this->assertTrue((bool) get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be external');
+            $this->assertTrue((bool)get_post_meta($attachmentId, 'is_cdn', true), 'Attachment should be external');
 
             $attachmentUrl = wp_get_attachment_image_url($attachmentId, [10000, 10000]);
             $originalCdnUrl = $original->get('flat_product.main_image.cdn_url');
-            $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}.".Media::FULL_VARIANT_KEY, $originalCdnUrl);
+            $originalUrl = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, "{$imageCdnPrefix}." . Media::FULL_VARIANT_KEY, $originalCdnUrl);
             $this->assertEquals($originalUrl, $attachmentUrl, 'Original URL is not same with attachment URL');
 
-            $attachmentImageSrcSet = (string) wp_get_attachment_image_srcset($attachmentId);
+            $attachmentImageSrcSet = (string)wp_get_attachment_image_srcset($attachmentId);
             $attachmentImageSrcSetArray = explode(', ', $attachmentImageSrcSet);
             if (!empty($attachmentImageSrcSet)) {
                 foreach ($attachmentImageSrcSetArray as $attachmentImageSrc) {
                     // Pattern will be https:\/\/cdn_url\/path\/[0-9a-zA-Z]+\.[0-9a-zA-Z_]+\/filename size
-                    $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl).' [0-9]+w';
+                    $pattern = str_replace(Media::CDN_URL_VARIANT_PLACEHOLDER_KEY, '[0-9a-zA-Z]+\.[0-9a-zA-Z_]+', $originalCdnUrl) . ' [0-9]+w';
                     $pattern = str_replace('/', '\/', $pattern);
-                    $this->assertTrue((bool) preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
+                    $this->assertTrue((bool)preg_match("/$pattern/", $attachmentImageSrc), 'Attachment image src set is not valid');
                 }
             }
         }
@@ -681,13 +671,13 @@ class SyncWoocommerceProductsTest extends AbstractTest
     {
         // Prepare VFS for CDN image test
         $rootDirectoryName = 'test-shop.sk-cdn.net';
-        $testImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_IMAGE_JPEG_FILE);
-        $testCatSampleImageContent = file_get_contents($this->getDataDir().self::DATADUMP_DIRECTORY.'/media/'.self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
+        $testImageContent = file_get_contents($this->getDataDir() . self::DATADUMP_DIRECTORY . '/media/' . self::MEDIA_IMAGE_JPEG_FILE);
+        $testCatSampleImageContent = file_get_contents($this->getDataDir() . self::DATADUMP_DIRECTORY . '/media/' . self::MEDIA_CAT_SAMPLE_IMAGE_JPEG_FILE);
 
         $structure = [
             'g' => [
                 'test-shop-img-scale' => [
-                    $imageCdnPrefix.'.'.Media::FULL_VARIANT_KEY => [
+                    $imageCdnPrefix . '.' . Media::FULL_VARIANT_KEY => [
                         'f' => [
                             'image.jpeg' => $testImageContent,
                             'cat_sample.jpg' => $testCatSampleImageContent,
