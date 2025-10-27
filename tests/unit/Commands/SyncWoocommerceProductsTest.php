@@ -156,25 +156,39 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $imageCdnPrefix = 'testPrefix';
         $this->prepareVFSForCDNImageTest($imageCdnPrefix);
         $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
+
         $this->assertEmpty(StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be empty initially');
+
         $storekeeperProductId = 20;
+
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
         $this->initializeTest($storekeeperProductId);
+
         $originalProductData = $this->getReturnData(self::DATADUMP_IMAGE_PRODUCT_FILE);
         $originalProductData = $this->getProductsByTypeFromDataDump($originalProductData, self::SK_TYPE_SIMPLE);
-        do_action('woocommerce_init');
+
         $this->runner->execute(ProcessAllTasks::getCommandName());
+        do_action('woocommerce_init');
+
         $this->assertDownloadedImage($originalProductData);
+
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'yes');
         $syncCommand = new SyncWoocommerceSingleProduct();
         $syncCommand->runSync(['storekeeper_id' => $storekeeperProductId]);
+
         $this->runner->execute(ProcessAllTasks::getCommandName());
+        do_action('woocommerce_init');
+
         $this->assertCdnImage($originalProductData, $imageCdnPrefix);
         $this->assertEquals($imageCdnPrefix, StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be synchronized from shop info');
+
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
         $syncCommand = new SyncWoocommerceSingleProduct();
         $syncCommand->runSync(['storekeeper_id' => $storekeeperProductId]);
+
         $this->runner->execute(ProcessAllTasks::getCommandName());
+        do_action('woocommerce_init');
+
         $this->assertDownloadedImage($originalProductData);
     }
 
