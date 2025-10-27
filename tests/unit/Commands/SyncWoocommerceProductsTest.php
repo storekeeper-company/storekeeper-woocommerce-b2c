@@ -160,14 +160,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $this->assertEmpty(StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be empty initially');
 
         $storekeeperProductId = 20;
-
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
         $this->initializeTest($storekeeperProductId);
-
-        $syncCommand = new SyncWoocommerceSingleProduct();
-        $syncCommand->runSync([
-            'storekeeper_id' => $storekeeperProductId,
-        ]);
 
         $originalProductData = $this->getReturnData(self::DATADUMP_IMAGE_PRODUCT_FILE);
         $originalProductData = $this->getProductsByTypeFromDataDump(
@@ -178,24 +172,43 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $this->assertDownloadedImage($originalProductData);
 
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'yes');
+        $syncCommand = new SyncWoocommerceSingleProduct();
         $syncCommand->runSync([
             'storekeeper_id' => $storekeeperProductId,
         ]);
+
+        $wcProducts = wc_get_products([
+            'post_type'  => 'product',
+            'meta_key'   => 'storekeeper_id',
+            'meta_value' => $storekeeperProductId,
+        ]);
+
+        $this->assertNotEmpty($wcProducts, "WooCommerce product $storekeeperProductId not found after sync");
+        $imageId = $wcProducts[0]->get_image_id();
+        $this->assertNotEmpty($imageId, "No image attached to product $storekeeperProductId after CDN sync");
 
         $this->assertCdnImage($originalProductData, $imageCdnPrefix);
-        $this->assertEquals(
-            $imageCdnPrefix,
-            StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX),
-            'CDN prefix should be synchronized from shop info'
-        );
+        $this->assertEquals($imageCdnPrefix, StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be synchronized from shop info');
 
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
+        $syncCommand = new SyncWoocommerceSingleProduct();
         $syncCommand->runSync([
             'storekeeper_id' => $storekeeperProductId,
         ]);
+
+        $wcProducts = wc_get_products([
+            'post_type'  => 'product',
+            'meta_key'   => 'storekeeper_id',
+            'meta_value' => $storekeeperProductId,
+        ]);
+
+        $this->assertNotEmpty($wcProducts, "WooCommerce product $storekeeperProductId not found after second sync");
+        $imageId = $wcProducts[0]->get_image_id();
+        $this->assertNotEmpty($imageId, "No image attached to product $storekeeperProductId after second sync");
 
         $this->assertDownloadedImage($originalProductData);
     }
+
 
     public function testOrderableSimpleProductStock()
     {
