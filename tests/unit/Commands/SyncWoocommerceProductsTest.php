@@ -153,6 +153,8 @@ class SyncWoocommerceProductsTest extends AbstractTest
 
     public function testProductImageImport()
     {
+        StoreKeeperOptions::set(StoreKeeperOptions::isImageCdnEnabled(), 'yes');
+
         $imageCdnPrefix = 'testPrefix';
         $this->prepareVFSForCDNImageTest($imageCdnPrefix);
         $this->mockSyncWoocommerceShopInfo($imageCdnPrefix);
