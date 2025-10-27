@@ -160,39 +160,40 @@ class SyncWoocommerceProductsTest extends AbstractTest
         $this->assertEmpty(StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be empty initially');
 
         $storekeeperProductId = 20;
-        // Set CDN to false first
+
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
         $this->initializeTest($storekeeperProductId);
 
-        $originalProductData = $this->getReturnData(self::DATADUMP_IMAGE_PRODUCT_FILE);
+        $syncCommand = new SyncWoocommerceSingleProduct();
+        $syncCommand->runSync([
+            'storekeeper_id' => $storekeeperProductId,
+        ]);
 
-        // Get the simple products from the data dump
+        $originalProductData = $this->getReturnData(self::DATADUMP_IMAGE_PRODUCT_FILE);
         $originalProductData = $this->getProductsByTypeFromDataDump(
             $originalProductData,
             self::SK_TYPE_SIMPLE
         );
 
-        // Test if image is downloaded
         $this->assertDownloadedImage($originalProductData);
 
-        // Set CDN to true
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'yes');
-        $syncCommand = new SyncWoocommerceSingleProduct();
         $syncCommand->runSync([
             'storekeeper_id' => $storekeeperProductId,
         ]);
 
         $this->assertCdnImage($originalProductData, $imageCdnPrefix);
-        $this->assertEquals($imageCdnPrefix, StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX), 'CDN prefix should be synchronized from shop info');
+        $this->assertEquals(
+            $imageCdnPrefix,
+            StoreKeeperOptions::get(StoreKeeperOptions::IMAGE_CDN_PREFIX),
+            'CDN prefix should be synchronized from shop info'
+        );
 
-        // Set CDN to false again
         StoreKeeperOptions::set(StoreKeeperOptions::IMAGE_CDN, 'no');
-        $syncCommand = new SyncWoocommerceSingleProduct();
         $syncCommand->runSync([
             'storekeeper_id' => $storekeeperProductId,
         ]);
 
-        // Test if image is downloaded again
         $this->assertDownloadedImage($originalProductData);
     }
 
