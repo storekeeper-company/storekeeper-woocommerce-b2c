@@ -71,6 +71,8 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
                 StoreKeeperOptions::update(StoreKeeperOptions::IMAGE_CDN_PREFIX, $shopData->get('image_cdn_prefix'));
             }
 
+            $this->syncIclTaxRateId();
+
             WpCliHelper::attemptSuccessOutput(__('Done synchronizing shop information', I18N::DOMAIN));
         }
     }
@@ -99,6 +101,31 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
         }
 
         return $data[0]['currency_iso3'];
+    }
+
+
+    private function syncIclTaxRateId(): void
+    {
+        $response = $this->api->getModule('ProductsModule')->listTaxRates(
+            0,
+            20,
+            null,
+            [
+                [
+                    'name' => 'alias__=',
+                    'val' => 'special_community_intra',
+                ],
+            ]
+        );
+
+        $data = $response['data'] ?? [];
+        $iclId = !empty($data) ? (int) ($data[0]['id'] ?? 0) : 0;
+
+        if ($iclId > 0) {
+            StoreKeeperOptions::set(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS, (string) $iclId);
+        } else {
+            StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        }
     }
 
     /**

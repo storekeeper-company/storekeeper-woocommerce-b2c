@@ -85,18 +85,12 @@ class FrontendSettingsTab extends AbstractTab
 
     private function renderIclTaxRate(): void
     {
-        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
-        $value = (int) StoreKeeperOptions::get($name, 0);
+        $value = (int) StoreKeeperOptions::get(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS, 0);
+        $display = $value > 0 ? (string) $value : __('not set', I18N::DOMAIN);
         $this->renderFormGroup(
             __('ICL tax rate id (intra-community supply)', I18N::DOMAIN),
-            $this->getFormInput(
-                $name,
-                '',
-                $value > 0 ? (string) $value : '',
-                '',
-                'number'
-            ).'<br><small>'.__(
-                'Numeric StoreKeeper tax_rate_id used on every product, shipping and fee line when the order is marked VAT-exempt by the EU VAT plugin. Leave empty to disable.',
+            '<code>'.esc_html($display).'</code><br><small>'.__(
+                'Fetched from the StoreKeeper back-office (tax rate with alias special_community_intra) during shop info sync. Applied on every product, shipping and fee line when the order is marked VAT-exempt by the EU VAT plugin.',
                 I18N::DOMAIN
             ).'</small>'
         );
@@ -106,14 +100,10 @@ class FrontendSettingsTab extends AbstractTab
     {
         $validateAddress = StoreKeeperOptions::getConstant(StoreKeeperOptions::VALIDATE_CUSTOMER_ADDRESS);
         $imageCdn = StoreKeeperOptions::getConstant(StoreKeeperOptions::IMAGE_CDN);
-        $iclTaxRate = StoreKeeperOptions::getConstant(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
-
-        $iclValue = isset($_POST[$iclTaxRate]) ? (int) $_POST[$iclTaxRate] : 0;
 
         $data = [
             $validateAddress => 'on' === sanitize_key($_POST[$validateAddress]) ? 'yes' : 'no',
             $imageCdn => 'on' === sanitize_key($_POST[$imageCdn]) ? 'yes' : 'no',
-            $iclTaxRate => $iclValue > 0 ? (string) $iclValue : '',
         ];
 
         foreach ($data as $key => $value) {
