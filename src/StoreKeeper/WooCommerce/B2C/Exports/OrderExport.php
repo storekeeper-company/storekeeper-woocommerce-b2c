@@ -94,6 +94,27 @@ class OrderExport extends AbstractExport
         ];
     }
 
+    public function run(): void
+    {
+        if (!$this->isSingle() && BackofficeCore::isHighPerformanceOrderStorageReady()) {
+            $this->debug('[multiple] HPOS-aware export via wc_get_orders');
+            $orders = wc_get_orders([
+                'limit' => -1,
+                'type' => wc_get_order_types(),
+                'status' => array_keys(wc_get_order_statuses()),
+                'return' => 'objects',
+            ]);
+            foreach ($orders as $index => $order) {
+                $this->debug('['.count($orders).'/'.$index.'] [multiple] Export order: '.$order->get_id());
+                $this->processItem($order);
+            }
+
+            return;
+        }
+
+        parent::run();
+    }
+
     /**
      * @param \WC_Order $order
      *
