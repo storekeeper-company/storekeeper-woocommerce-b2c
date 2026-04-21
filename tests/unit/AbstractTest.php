@@ -404,14 +404,14 @@ abstract class AbstractTest extends \WP_UnitTestCase
         );
 
         $this->assertEquals(
-            $expected->get('min_order_value_wt'),
-            $actual->get_minimum_amount(),
+            (float) $expected->get('min_order_value_wt'),
+            (float) $actual->get_minimum_amount(),
             "[$code] Coupon minimum amount does not matches"
         );
 
         $this->assertEquals(
-            $expected->get('max_order_value_wt'),
-            $actual->get_maximum_amount(),
+            (float) $expected->get('max_order_value_wt'),
+            (float) $actual->get_maximum_amount(),
             "[$code] Coupon maximum amount does not matches"
         );
 
