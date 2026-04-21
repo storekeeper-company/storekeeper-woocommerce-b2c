@@ -47,9 +47,9 @@
   },
   "config": {
     "platform": {
-      "php": "7.4",
-      "ext-mysqli": "7.4",
-      "ext-filter": "7.4"
+      "php": "8.2",
+      "ext-mysqli": "8.2",
+      "ext-filter": "8.2"
     }
   },
   "require-dev": {
