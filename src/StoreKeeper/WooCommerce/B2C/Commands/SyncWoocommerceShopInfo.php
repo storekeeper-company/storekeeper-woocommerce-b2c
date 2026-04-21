@@ -106,23 +106,17 @@ class SyncWoocommerceShopInfo extends AbstractSyncCommand
 
     private function syncIclTaxRateId(): void
     {
-        try {
-            $response = $this->api->getModule('ProductsModule')->listTaxRates(
-                0,
-                20,
-                null,
+        $response = $this->api->getModule('ProductsModule')->listTaxRates(
+            0,
+            20,
+            null,
+            [
                 [
-                    [
-                        'name' => 'alias__=',
-                        'val' => 'special_community_intra',
-                    ],
-                ]
-            );
-        } catch (\Throwable $e) {
-            // Backoffices without a listTaxRates endpoint (or missing mocks in tests)
-            // should not fail the whole shop info sync — just skip ICL update.
-            return;
-        }
+                    'name' => 'alias__=',
+                    'val' => 'special_community_intra',
+                ],
+            ]
+        );
 
         $data = $response['data'] ?? [];
         $iclId = !empty($data) ? (int) ($data[0]['id'] ?? 0) : 0;

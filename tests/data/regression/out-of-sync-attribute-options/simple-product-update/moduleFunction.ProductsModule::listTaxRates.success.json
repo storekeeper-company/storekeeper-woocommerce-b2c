@@ -1,0 +1,34 @@
+{
+    "success": true,
+    "call_id": "7f306797a9ef8",
+    "module_name": "ProductsModule",
+    "function": "listTaxRates",
+    "params": [
+        0,
+        20,
+        null,
+        [
+            {
+                "name": "alias__=",
+                "val": "special_community_intra"
+            }
+        ]
+    ],
+    "return": {
+        "data": [
+            {
+                "id": 85,
+                "name": "EU (special: intra-Community Goods)",
+                "alias": "special_community_intra",
+                "value": 0,
+                "country_iso2": "EU"
+            }
+        ],
+        "total": 1,
+        "count": 1
+    },
+    "_timestamp": "2020-01-28T16:55:52+00:00",
+    "_type": "moduleFunction",
+    "_version": "1.0",
+    "time_ms": 12.0
+}
