@@ -43,7 +43,7 @@
     "desarrolla2/cache": "^3.0",
     "aura/sqlquery": "^2.7.1",
     "ext-openssl": "*",
-    "storekeeper/api-wrapper": "^5.0"
+    "storekeeper/api-wrapper": "^7.0.3"
   },
   "config": {
     "platform": {
@@ -53,6 +53,7 @@
     }
   },
   "require-dev": {
+    "psr/log": "^1.1",
     "mockery/mockery": "^1.3",
     "symfony/dotenv": "^5",
     "fakerphp/faker": "^1.23",
