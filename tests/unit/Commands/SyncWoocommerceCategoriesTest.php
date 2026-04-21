@@ -147,7 +147,8 @@ class SyncWoocommerceCategoriesTest extends AbstractTest
             }
 
             // Thumbnail image
-            $expected_image_file = basename(parse_url($original->get('image_url'))['path']);
+            $image_url = (string) $original->get('image_url');
+            $expected_image_file = '' !== $image_url ? basename(parse_url($image_url)['path'] ?? '') : '';
             $thumbnail_id = $wc_category_meta->get('thumbnail_id');
             $wc_image_file = $thumbnail_id ? basename(wp_get_attachment_url($thumbnail_id[0])) : '';
             $this->assertEquals(
