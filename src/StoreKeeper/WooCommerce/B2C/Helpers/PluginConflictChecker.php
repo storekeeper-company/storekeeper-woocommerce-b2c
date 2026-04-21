@@ -18,6 +18,7 @@ class PluginConflictChecker
     public const CONFLICTS = [
         'woocommerce/woocommerce.php' => '<4.1.0',
         'woocommerce-product-search/woocommerce-product-search.php' => '*',
+        'woocommerce-eu-vat-number/woocommerce-eu-vat-number.php' => '<3.0.0',
     ];
 
     public static function getConflictData(): array
