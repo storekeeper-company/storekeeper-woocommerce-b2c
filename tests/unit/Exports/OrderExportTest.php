@@ -14,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Exports\OrderExport;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\Models\RefundModel;
 use StoreKeeper\WooCommerce\B2C\Models\TaskModel;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
 use StoreKeeper\WooCommerce\B2C\Tools\StoreKeeperApi;
@@ -1851,5 +1852,73 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->assertDeepArray($expect_billing, $sk_order['billing_address'], 'billing_address ');
 
         $this->assertDeepArray($expect_shipping, $sk_order['shipping_address'], 'shipping_address ');
+    }
+
+    public function testIsIclOrderRequiresOptionAndExemptMeta(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+
+        $order = new \WC_Order();
+        $order->save();
+
+        $this->assertFalse(
+            OrderExport::isIclOrder($order),
+            'No meta and no option => not ICL'
+        );
+
+        $order->update_meta_data('is_vat_exempt', 'yes');
+        $order->save();
+        $this->assertFalse(
+            OrderExport::isIclOrder($order),
+            'Meta alone without configured tax_rate_id => not ICL'
+        );
+
+        StoreKeeperOptions::set(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS, '42');
+        $this->assertTrue(
+            OrderExport::isIclOrder($order),
+            'Meta + configured tax_rate_id => ICL'
+        );
+
+        $order->delete_meta_data('is_vat_exempt');
+        $order->save();
+        $this->assertFalse(
+            OrderExport::isIclOrder($order),
+            'Option without exempt meta => not ICL'
+        );
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+    }
+
+    public function testIclTaxRateIdInjectedIntoShippingRow(): void
+    {
+        StoreKeeperOptions::set(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS, '42');
+
+        $order = \WC_Helper_Order::create_order();
+        $order->update_meta_data('is_vat_exempt', 'yes');
+        $order->save();
+
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $items = $export->getShippingOrderItems($order, true);
+
+        $this->assertNotEmpty($items, 'Fixture order should have a shipping method');
+        foreach ($items as $item) {
+            $this->assertSame(42, (int) ($item['tax_rate_id'] ?? 0), 'Shipping row carries ICL tax_rate_id');
+        }
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+    }
+
+    public function testShippingRowHasNoTaxRateIdWhenNotIclOrder(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+
+        $order = \WC_Helper_Order::create_order();
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $items = $export->getShippingOrderItems($order, true);
+
+        $this->assertNotEmpty($items);
+        foreach ($items as $item) {
+            $this->assertArrayNotHasKey('tax_rate_id', $item, 'Non-ICL shipping must not carry tax_rate_id');
+        }
     }
 }

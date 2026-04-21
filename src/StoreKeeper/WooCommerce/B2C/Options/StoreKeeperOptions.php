@@ -61,6 +61,8 @@ class StoreKeeperOptions extends AbstractOptions
     public const VALIDATE_CUSTOMER_ADDRESS = 'validate-customer-address';
     public const IMAGE_CDN = 'image-cdn';
 
+    public const SPECIAL_COMMUNITY_INTRA_GOODS = 'special_community_intra';
+
     /**
      * returns true if the WooCommerce is connected to the StoreKeeper backend.
      */

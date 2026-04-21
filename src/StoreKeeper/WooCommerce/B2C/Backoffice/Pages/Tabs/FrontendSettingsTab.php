@@ -32,6 +32,7 @@ class FrontendSettingsTab extends AbstractTab
         $this->renderTheme();
         $this->renderPostcodeChecking();
         $this->renderCdnUsage();
+        $this->renderIclTaxRate();
 
         $this->renderFormActionGroup(
             $this->getFormButton(
@@ -81,14 +82,38 @@ class FrontendSettingsTab extends AbstractTab
         );
     }
 
+
+    private function renderIclTaxRate(): void
+    {
+        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        $value = (int) StoreKeeperOptions::get($name, 0);
+        $this->renderFormGroup(
+            __('ICL tax rate id (intra-community supply)', I18N::DOMAIN),
+            $this->getFormInput(
+                $name,
+                '',
+                $value > 0 ? (string) $value : '',
+                '',
+                'number'
+            ).'<br><small>'.__(
+                'Numeric StoreKeeper tax_rate_id used on every product, shipping and fee line when the order is marked VAT-exempt by the EU VAT plugin. Leave empty to disable.',
+                I18N::DOMAIN
+            ).'</small>'
+        );
+    }
+
     public function saveAction()
     {
         $validateAddress = StoreKeeperOptions::getConstant(StoreKeeperOptions::VALIDATE_CUSTOMER_ADDRESS);
         $imageCdn = StoreKeeperOptions::getConstant(StoreKeeperOptions::IMAGE_CDN);
+        $iclTaxRate = StoreKeeperOptions::getConstant(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+
+        $iclValue = isset($_POST[$iclTaxRate]) ? (int) $_POST[$iclTaxRate] : 0;
 
         $data = [
             $validateAddress => 'on' === sanitize_key($_POST[$validateAddress]) ? 'yes' : 'no',
             $imageCdn => 'on' === sanitize_key($_POST[$imageCdn]) ? 'yes' : 'no',
+            $iclTaxRate => $iclValue > 0 ? (string) $iclValue : '',
         ];
 
         foreach ($data as $key => $value) {

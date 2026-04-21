@@ -679,9 +679,32 @@ class OrderExport extends AbstractExport
      *
      * @throws \Exception
      */
+    public static function isIclOrder(\WC_Order $order): bool
+    {
+        return 'yes' === $order->get_meta('is_vat_exempt')
+            && (int) \StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions::get(
+                \StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS,
+                0
+            ) > 0;
+    }
+
+    private function getIclTaxRateId(\WC_Order $order): ?int
+    {
+        if (!self::isIclOrder($order)) {
+            return null;
+        }
+        $value = (int) \StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions::get(
+            \StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS,
+            0
+        );
+
+        return $value > 0 ? $value : null;
+    }
+
     private function getOrderItems(\WC_Order $order): array
     {
         $orderItems = [];
+        $iclTaxRateId = $this->getIclTaxRateId($order);
         $this->debug('Adding product items');
         $productFactory = new \WC_Product_Factory();
 
@@ -785,6 +808,10 @@ class OrderExport extends AbstractExport
                     self::EXTRA_ROW_META => $this->getOrderLineMeta($orderItemProduct),
                 ];
 
+                if ($iclTaxRateId) {
+                    $data['tax_rate_id'] = $iclTaxRateId;
+                }
+
                 $data['extra'] = $extra;
             }
 
@@ -816,7 +843,9 @@ class OrderExport extends AbstractExport
                 'name' => $fee->get_name(self::CONTEXT),
             ];
 
-            if ($fee->meta_exists(self::EMBALLAGE_TAX_RATE_ID_META_KEY)) {
+            if ($iclTaxRateId) {
+                $data['tax_rate_id'] = $iclTaxRateId;
+            } elseif ($fee->meta_exists(self::EMBALLAGE_TAX_RATE_ID_META_KEY)) {
                 $data['tax_rate_id'] = $fee->get_meta(self::EMBALLAGE_TAX_RATE_ID_META_KEY);
             }
 
@@ -842,6 +871,7 @@ class OrderExport extends AbstractExport
     public function getShippingOrderItems(\WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
     {
         $orderItems = [];
+        $iclTaxRateId = $this->getIclTaxRateId($order);
         /**
          * @var $shipping_method \WC_Order_Item_Shipping
          */
@@ -864,6 +894,10 @@ class OrderExport extends AbstractExport
                 self::EXTRA_ROW_MD5_KEY => md5(json_encode($shippingMethodData, JSON_THROW_ON_ERROR)),
                 self::EXTRA_ROW_TYPE => self::ROW_SHIPPING_METHOD_TYPE,
             ];
+
+            if ($iclTaxRateId) {
+                $data['tax_rate_id'] = $iclTaxRateId;
+            }
 
             $data['extra'] = $extra;
 
