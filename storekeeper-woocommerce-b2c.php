@@ -10,7 +10,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:         StoreKeeper for WooCommerce
- * Version:             14.5.0
+ * Version:             0.0.1
  * Tags: woocommerce,e-commerce, woo,sales,store
  * Author:              Storekeeper
  * Author URI:          https://www.storekeeper.nl/
