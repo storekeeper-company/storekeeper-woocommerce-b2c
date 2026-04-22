@@ -1176,7 +1176,7 @@ class OrderExportTest extends AbstractOrderExportTest
                             if ($triesCount < $duplicateCount) {
                                 ++$triesCount;
 
-                                throw GeneralException::buildFromBody(['class' => 'ShopModule::OrderDuplicateNumber']);
+                                throw GeneralException::buildFromBody(['class' => 'ShopModule::OrderDuplicateNumber', 'error' => 'Duplicate order number', 'errno' => 0]);
                             }
                             [$order] = $params;
 
@@ -1237,11 +1237,11 @@ class OrderExportTest extends AbstractOrderExportTest
                             $email = $emailPayload['email'];
 
                             if ($email === $existingAdminEmail) {
-                                throw GeneralException::buildFromBody(['class' => 'ShopModule::EmailIsAdminUser']);
+                                throw GeneralException::buildFromBody(['class' => 'ShopModule::EmailIsAdminUser', 'error' => 'Email belongs to an admin user', 'errno' => 0]);
                             }
 
                             // Throwing this error basically means email was not found
-                            throw GeneralException::buildFromBody(['error' => 'Wrong DataBasicSubuser']);
+                            throw GeneralException::buildFromBody(['class' => 'General', 'error' => 'Wrong DataBasicSubuser', 'errno' => 0]);
                         }
                     );
 
@@ -1312,7 +1312,7 @@ class OrderExportTest extends AbstractOrderExportTest
                     $module->allows('findShopCustomerBySubuserEmail')->andReturnUsing(
                         function () {
                             // Throwing this error basically means email was not found
-                            throw GeneralException::buildFromBody(['error' => 'Wrong DataBasicSubuser']);
+                            throw GeneralException::buildFromBody(['class' => 'General', 'error' => 'Wrong DataBasicSubuser', 'errno' => 0]);
                         }
                     );
 
@@ -1530,7 +1530,7 @@ class OrderExportTest extends AbstractOrderExportTest
                         $refundPayments = $refund['refund_payments'];
                         foreach ($refundPayments as $refundPayment) {
                             if (0.0 === $refundPayment['amount']) {
-                                throw GeneralException::buildFromBody(['class' => 'General', 'error' => 'Refund amount needs to be negative']);
+                                throw GeneralException::buildFromBody(['class' => 'General', 'error' => 'Refund amount needs to be negative', 'errno' => 0]);
                             }
                         }
 
