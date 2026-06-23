@@ -414,7 +414,9 @@ SQL;
         }
 
         $attachmentIds = [];
-        $oldAttachmentIds = $newProduct->get_gallery_image_ids();
+        // Use 'edit' context to skip the woocommerce_product_get_gallery_image_ids filter,
+        // which WPML/WCML hooks into and crashes on stored 0 ids in gallery meta.
+        $oldAttachmentIds = $newProduct->get_gallery_image_ids('edit');
         $count = 0;
         if ($product->has('flat_product.product_images')) {
             $count = count($product->get('flat_product.product_images'));
