@@ -1959,4 +1959,85 @@ class OrderExportTest extends AbstractOrderExportTest
             $this->assertArrayNotHasKey('tax_rate_id', $item, 'Non-ICL shipping must not carry tax_rate_id');
         }
     }
+
+    public function testShippingRowResolvesForeignDestinationTaxRateId(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        update_option('woocommerce_default_country', 'NL');
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+        // Warm the resolver cache so no backoffice call is needed during the test.
+        StoreKeeperOptions::set(StoreKeeperOptions::TAX_RATE_ID_MAP, ['DE|19.0000' => 555]);
+
+        $order = new \WC_Order();
+        $shipping = new \WC_Order_Item_Shipping();
+        $shipping->set_props([
+            'method_title' => 'Flat rate',
+            'method_id' => 'flat_rate',
+            'total' => '10',
+            'taxes' => ['total' => [$rateId => '1.90']],
+        ]);
+        $order->add_item($shipping);
+        $order->save();
+
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $items = $export->getShippingOrderItems($order, true);
+
+        $this->assertNotEmpty($items);
+        foreach ($items as $item) {
+            $this->assertSame(555, (int) ($item['tax_rate_id'] ?? 0), 'Foreign destination rate should map to the backoffice tax_rate_id');
+        }
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
+
+    public function testIclOverridesResolvedDestinationTaxRateId(): void
+    {
+        StoreKeeperOptions::set(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS, '42');
+        update_option('woocommerce_default_country', 'NL');
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+        StoreKeeperOptions::set(StoreKeeperOptions::TAX_RATE_ID_MAP, ['DE|19.0000' => 555]);
+
+        $order = new \WC_Order();
+        $order->update_meta_data('is_vat_exempt', 'yes');
+        $shipping = new \WC_Order_Item_Shipping();
+        $shipping->set_props([
+            'method_title' => 'Flat rate',
+            'method_id' => 'flat_rate',
+            'total' => '10',
+            'taxes' => ['total' => [$rateId => '1.90']],
+        ]);
+        $order->add_item($shipping);
+        $order->save();
+
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $items = $export->getShippingOrderItems($order, true);
+
+        $this->assertNotEmpty($items);
+        foreach ($items as $item) {
+            $this->assertSame(42, (int) ($item['tax_rate_id'] ?? 0), 'ICL rate must take precedence over destination lookup');
+        }
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
 }

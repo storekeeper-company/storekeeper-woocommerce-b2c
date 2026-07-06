@@ -64,6 +64,16 @@ class StoreKeeperOptions extends AbstractOptions
     public const SPECIAL_COMMUNITY_INTRA_GOODS = 'special_community_intra';
 
     /**
+     * Persisted map of resolved StoreKeeper TaxRate ids, keyed by
+     * "{country_iso2}|{percentage}" (e.g. "DE|19.0000"). StoreKeeper TaxRate ids
+     * never change, so a resolved entry is cached indefinitely; only new
+     * (country, value) pairs trigger a backoffice lookup.
+     *
+     * @see \StoreKeeper\WooCommerce\B2C\Tools\OrderTaxRateResolver
+     */
+    public const TAX_RATE_ID_MAP = 'tax_rate_id_map';
+
+    /**
      * returns true if the WooCommerce is connected to the StoreKeeper backend.
      */
     public static function disconnect()

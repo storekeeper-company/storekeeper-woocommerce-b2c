@@ -14,6 +14,7 @@ use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
+use StoreKeeper\WooCommerce\B2C\Tools\OrderTaxRateResolver;
 use StoreKeeper\WooCommerce\B2C\Tools\WordpressExceptionThrower;
 use WC_Meta_Data;
 use WC_Order;
@@ -60,6 +61,16 @@ class OrderExport extends AbstractExport
 
     private ?int $shopOrderId = null;
     private \WC_Order $order;
+    private ?OrderTaxRateResolver $taxRateResolver = null;
+
+    private function getTaxRateResolver(): OrderTaxRateResolver
+    {
+        if (null === $this->taxRateResolver) {
+            $this->taxRateResolver = new OrderTaxRateResolver($this->storekeeper_api);
+        }
+
+        return $this->taxRateResolver;
+    }
 
     protected function getFunction()
     {
@@ -863,6 +874,11 @@ class OrderExport extends AbstractExport
 
                 if ($iclTaxRateId) {
                     $data['tax_rate_id'] = $iclTaxRateId;
+                } else {
+                    $resolvedTaxRateId = $this->getTaxRateResolver()->resolveForItem($orderItemProduct);
+                    if (null !== $resolvedTaxRateId) {
+                        $data['tax_rate_id'] = $resolvedTaxRateId;
+                    }
                 }
 
                 $data['extra'] = $extra;
@@ -900,6 +916,11 @@ class OrderExport extends AbstractExport
                 $data['tax_rate_id'] = $iclTaxRateId;
             } elseif ($fee->meta_exists(self::EMBALLAGE_TAX_RATE_ID_META_KEY)) {
                 $data['tax_rate_id'] = $fee->get_meta(self::EMBALLAGE_TAX_RATE_ID_META_KEY);
+            } else {
+                $resolvedTaxRateId = $this->getTaxRateResolver()->resolveForItem($fee);
+                if (null !== $resolvedTaxRateId) {
+                    $data['tax_rate_id'] = $resolvedTaxRateId;
+                }
             }
 
             $extra = [
@@ -950,6 +971,11 @@ class OrderExport extends AbstractExport
 
             if ($iclTaxRateId) {
                 $data['tax_rate_id'] = $iclTaxRateId;
+            } else {
+                $resolvedTaxRateId = $this->getTaxRateResolver()->resolveForItem($shipping_method);
+                if (null !== $resolvedTaxRateId) {
+                    $data['tax_rate_id'] = $resolvedTaxRateId;
+                }
             }
 
             $data['extra'] = $extra;
