@@ -1908,6 +1908,44 @@ class OrderExportTest extends AbstractOrderExportTest
         StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
     }
 
+    public function testGetOrderVatNumberReadsBillingVatMeta(): void
+    {
+        $order = new \WC_Order();
+        $order->update_meta_data('_billing_vat_number', 'BE1005201991');
+        $order->save();
+
+        $this->assertSame(
+            'BE1005201991',
+            OrderExport::getOrderVatNumber($order),
+            'VAT number should be read from _billing_vat_number meta'
+        );
+    }
+
+    public function testGetOrderVatNumberFallsBackToLegacyMetaAndUppercases(): void
+    {
+        $order = new \WC_Order();
+        $order->update_meta_data('_vat_number', 'be1005201991');
+        $order->save();
+
+        $this->assertSame(
+            'BE1005201991',
+            OrderExport::getOrderVatNumber($order),
+            'VAT number should fall back to legacy _vat_number meta and be uppercased'
+        );
+    }
+
+    public function testGetOrderVatNumberEmptyWhenNoMeta(): void
+    {
+        $order = new \WC_Order();
+        $order->save();
+
+        $this->assertSame(
+            '',
+            OrderExport::getOrderVatNumber($order),
+            'VAT number should be empty when no meta is present'
+        );
+    }
+
     public function testShippingRowHasNoTaxRateIdWhenNotIclOrder(): void
     {
         StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);

@@ -269,6 +269,11 @@ class OrderExport extends AbstractExport
                 'name' => $order->get_billing_company(self::CONTEXT),
                 'country_iso2' => $order->get_billing_country(self::CONTEXT),
             ];
+
+            $vatNumber = self::getOrderVatNumber($order);
+            if (!empty($vatNumber)) {
+                $callData['billing_address']['business_data']['vat_number'] = $vatNumber;
+            }
         }
 
         if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_billing_country(self::CONTEXT)) {
@@ -318,6 +323,11 @@ class OrderExport extends AbstractExport
                     'name' => $order->get_shipping_company(self::CONTEXT),
                     'country_iso2' => $order->get_shipping_country(self::CONTEXT),
                 ];
+
+                $vatNumber = self::getOrderVatNumber($order);
+                if (!empty($vatNumber)) {
+                    $callData['shipping_address']['business_data']['vat_number'] = $vatNumber;
+                }
             }
 
             if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_shipping_country(self::CONTEXT)) {
@@ -707,6 +717,28 @@ class OrderExport extends AbstractExport
                 \StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS,
                 0
             ) > 0;
+    }
+
+    /**
+     * Reads the VAT number stored on the order by the WooCommerce EU VAT Number plugin.
+     *
+     * Mirrors the plugin's wc_eu_vat_get_vat_from_order(): primary meta is
+     * `_billing_vat_number`, with `_vat_number` as a legacy fallback, uppercased.
+     * The backend requires this value in business_data whenever the invoice ends
+     * up on an ICP (special_community_intra) tax rate.
+     */
+    public static function getOrderVatNumber(\WC_Order $order): string
+    {
+        if (function_exists('wc_eu_vat_get_vat_from_order')) {
+            return (string) wc_eu_vat_get_vat_from_order($order);
+        }
+
+        $vat = $order->get_meta('_billing_vat_number', true);
+        if (empty($vat)) {
+            $vat = $order->get_meta('_vat_number', true);
+        }
+
+        return strtoupper((string) $vat);
     }
 
     private function getIclTaxRateId(\WC_Order $order): ?int
