@@ -960,9 +960,9 @@ msgstr "Bericht"
 msgid "Minimal order quantity"
 msgstr "Minimale bestelhoeveelheid"
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:496
-msgid "Minimum Cost (%s)"
-msgstr "Minimale kosten (%s)"
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:497
+msgid "Free shipping from (%s)"
+msgstr "Gratis verzending vanaf (%s)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:106
 msgid "Navigate to settings > technical settings and click on the \"webhook\" tab."

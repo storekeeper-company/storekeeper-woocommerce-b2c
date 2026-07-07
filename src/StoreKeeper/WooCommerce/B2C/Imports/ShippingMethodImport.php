@@ -26,6 +26,11 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
 
     public const FREE_SHIPPING_REQUIRES = 'min_amount';
 
+    // Instance-setting key holding the "free shipping from" threshold for
+    // flat_rate/local_pickup methods. free_shipping uses WooCommerce's native
+    // 'min_amount' (paired with FREE_SHIPPING_REQUIRES) instead.
+    public const FREE_FROM_VALUE_KEY = 'free_from_value_wt';
+
     public const SK_SHIPPING_TYPE_ALIAS_PARCEL = 'Parcel';
     public const SK_SHIPPING_TYPE_ALIAS_TRUCK_DELIVERY = 'TruckDelivery';
     public const SK_SHIPPING_TYPE_ALIAS_PICKUP_AT_STORE = 'PickupAtStore';
@@ -151,7 +156,7 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                         ]);
                         /* @var \WC_Shipping_Flat_Rate $wcShippingMethodInstance */
                         $wcShippingMethodInstance->init_instance_settings();
-                        $wcShippingMethodInstance->instance_settings['min_amount'] = floatval($dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt'));
+                        $wcShippingMethodInstance->instance_settings[self::FREE_FROM_VALUE_KEY] = floatval($dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt'));
                         $wcShippingMethodInstance->instance_settings['cost'] = (string) $dotObject->get('shipping_method_price_flat_strategy.ppu_wt');
                         $wcShippingMethodInstance->instance_settings['title'] = (string) $dotObject->get('name');
                         $this->saveShippingMethodInstance($wcShippingMethodInstance);
@@ -164,7 +169,7 @@ class ShippingMethodImport extends AbstractImport implements WithConsoleProgress
                         ]);
                         /* @var \WC_Shipping_Local_Pickup $wcShippingMethodInstance */
                         $wcShippingMethodInstance->init_instance_settings();
-                        $wcShippingMethodInstance->instance_settings['min_amount'] = floatval($dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt'));
+                        $wcShippingMethodInstance->instance_settings[self::FREE_FROM_VALUE_KEY] = floatval($dotObject->get('shipping_method_price_flat_strategy.free_from_value_wt'));
                         $wcShippingMethodInstance->instance_settings['cost'] = (string) $dotObject->get('shipping_method_price_flat_strategy.ppu_wt');
                         $wcShippingMethodInstance->instance_settings['title'] = (string) $dotObject->get('name');
                         $this->saveShippingMethodInstance($wcShippingMethodInstance);

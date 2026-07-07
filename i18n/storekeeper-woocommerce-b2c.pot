@@ -1988,8 +1988,8 @@ msgid ""
 "could cause unexpected behaviour"
 msgstr ""
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:496
-msgid "Minimum Cost (%s)"
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:497
+msgid "Free shipping from (%s)"
 msgstr ""
 
 #: src/StoreKeeper/WooCommerce/B2C/Core.php:558

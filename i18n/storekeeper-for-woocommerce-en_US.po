@@ -993,9 +993,9 @@ msgstr "Message"
 msgid "Minimal order quantity"
 msgstr "Minimal order quantity"
 
-#: src/StoreKeeper/WooCommerce/B2C/Core.php:496
-msgid "Minimum Cost (%s)"
-msgstr "Minimum Cost (%s)"
+#: src/StoreKeeper/WooCommerce/B2C/Core.php:497
+msgid "Free shipping from (%s)"
+msgstr "Free shipping from (%s)"
 
 #: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/PluginConflictCheckerTab.php:36
 msgid "Name"

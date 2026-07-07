@@ -57,6 +57,7 @@ use StoreKeeper\WooCommerce\B2C\Frontend\FrontendCore;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\AddressFormattingHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\Handlers\CustomerLoginRegisterHandler;
 use StoreKeeper\WooCommerce\B2C\Frontend\ShortCodes\MarkdownCode;
+use StoreKeeper\WooCommerce\B2C\Imports\ShippingMethodImport;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\ActionFilterLoader;
@@ -492,8 +493,8 @@ HTML;
         $new_settings = $settings;
         $currency_code = get_woocommerce_currency_symbol();
 
-        $new_settings['min_amount'] = [
-            'title' => sprintf(__('Minimum Cost (%s)', I18N::DOMAIN), $currency_code),
+        $new_settings[ShippingMethodImport::FREE_FROM_VALUE_KEY] = [
+            'title' => sprintf(__('Free shipping from (%s)', I18N::DOMAIN), $currency_code),
             'type' => 'text',
             'placeholder' => '100.00', // Adjusted to reflect decimal format
             'default' => '100.00', // Default value as a decimal
@@ -508,8 +509,9 @@ HTML;
 
     public function applyMinAmountToAllShippingMethods(): void
     {
-        // Manually add the filter for known methods, including Local Pickup
-        $shipping_methods = ['flat_rate', 'free_shipping', 'local_pickup'];
+        // free_shipping is intentionally excluded: WooCommerce already provides a
+        // native "minimum order amount" field for it (requires => min_amount).
+        $shipping_methods = ['flat_rate', 'local_pickup'];
 
         foreach ($shipping_methods as $method_id) {
             add_filter("woocommerce_shipping_instance_form_fields_{$method_id}", [$this, 'addExtraFieldsInShippingMethods'], 10, 1);
@@ -535,11 +537,13 @@ HTML;
                 continue;
             }
 
-            // 'min_amount' is the "free from" threshold the StoreKeeper import
-            // stores on every method type (flat_rate/local_pickup/free_shipping).
-            $minAmount = isset($method->instance_settings['min_amount'])
-                ? (float) $method->instance_settings['min_amount']
-                : 0.0;
+            // The "free from" threshold the StoreKeeper import stores per method
+            // instance. 'min_amount' is kept as a fallback for instances imported
+            // before the key was renamed.
+            $freeFrom = $method->instance_settings[ShippingMethodImport::FREE_FROM_VALUE_KEY]
+                ?? $method->instance_settings['min_amount']
+                ?? null;
+            $minAmount = null !== $freeFrom ? (float) $freeFrom : 0.0;
 
             // Only convert a *paid* rate to free above the threshold; leave rates
             // that are already free (e.g. native free_shipping) untouched.
