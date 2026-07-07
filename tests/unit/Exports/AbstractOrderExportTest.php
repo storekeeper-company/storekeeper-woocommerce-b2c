@@ -54,6 +54,13 @@ abstract class AbstractOrderExportTest extends AbstractExportTest
     protected function getAddress($prefix, bool $isNlCountry = false, string $houseNumber = ''): array
     {
         $faker = $this->faker;
+
+        // Use a fixed non-NL country: a non-NL address does not get an
+        // address_house_number, but the assertion helper expects one whenever the
+        // order country is 'NL'. A random faker countryCode occasionally rolled
+        // 'NL', which made every getOrderProps()-based test flaky.
+        $country = $isNlCountry ? 'NL' : 'DE';
+
         $vals = [
             'first_name' => $faker->firstName,
             'last_name' => $faker->lastName,
@@ -62,7 +69,7 @@ abstract class AbstractOrderExportTest extends AbstractExportTest
             'address_2' => $faker->streetSuffix,
             'city' => $faker->city,
             'postcode' => $faker->postcode,
-            'country' => $isNlCountry ? 'NL' : $faker->countryCode,
+            'country' => $country,
             'state' => $faker->state,
         ];
 
