@@ -111,7 +111,7 @@ class OrderTaxRateResolver
 
         $id = $this->findTaxRateId($country, $percent);
         if (null === $id) {
-            throw new ExportException(sprintf('No StoreKeeper TaxRate found for country %1$s at %2$s%% (WooCommerce rate on order line "%3$s"). Configure the matching tax rate in the StoreKeeper backoffice.', $country, self::formatPercent($percent), $this->describeItem($item)));
+            throw new ExportException(sprintf('No StoreKeeper TaxRate found for country %1$s at %2$s%% (WooCommerce rate on order line "%3$s"). This tax rate is managed by StoreKeeper and cannot be configured here - please contact StoreKeeper support to have it added.', $country, self::formatPercent($percent), $this->describeItem($item)));
         }
 
         return $id;
@@ -169,6 +169,11 @@ class OrderTaxRateResolver
             return 0;
         }
 
+        // StoreKeeper stores the tax rate as a fraction (e.g. 0.21) while
+        // WooCommerce stores it as a percentage (e.g. 21). Convert before both
+        // filtering and matching.
+        $value = $percent / 100;
+
         $response = $this->storekeeperApi->getModule('ProductsModule')->listTaxRates(
             0,
             1,
@@ -180,17 +185,24 @@ class OrderTaxRateResolver
                 ],
                 [
                     'name' => 'value__=',
-                    'val' => self::formatPercent($percent),
+                    'val' => self::formatValue($value),
                 ],
             ]
         );
 
         $row = $response['data'][0] ?? null;
-        if (is_array($row) && isset($row['value'], $row['id']) && abs((float) $row['value'] - $percent) < 0.0001) {
+        if (is_array($row) && isset($row['value'], $row['id']) && abs((float) $row['value'] - $value) < 0.0001) {
             return (int) $row['id'];
         }
 
         return 0;
+    }
+
+    private static function formatValue(float $value): string
+    {
+        // Round first to shed floating-point noise from the /100 conversion
+        // (e.g. 0.21000000000000002) before formatting/trimming.
+        return rtrim(rtrim(number_format(round($value, 6), 6, '.', ''), '0'), '.');
     }
 
     private function getMap(): array

@@ -66,8 +66,9 @@ class OrderTaxRateResolverTest extends AbstractTest
     public function testFindTaxRateIdFetchesAndPersistsOnMiss(): void
     {
         $api = $this->makeApi([
+            // StoreKeeper stores the rate as a fraction (0.19), not a percentage.
             'data' => [
-                ['id' => 77, 'name' => 'VAT 19% DE', 'alias' => null, 'value' => 19, 'country_iso2' => 'DE'],
+                ['id' => 77, 'name' => 'VAT 19% DE', 'alias' => null, 'value' => 0.19, 'country_iso2' => 'DE'],
             ],
             'total' => 1,
             'count' => 1,
@@ -82,7 +83,7 @@ class OrderTaxRateResolverTest extends AbstractTest
         $this->assertContains('country_iso2__=', $filterNames, 'Country filter must be sent');
         $this->assertContains('value__=', $filterNames, 'Value filter must be sent');
         $valueFilter = current(array_filter($api->lastFilters, static fn ($f) => 'value__=' === $f['name']));
-        $this->assertSame('19', $valueFilter['val'], 'Value filter should carry the normalised percentage');
+        $this->assertSame('0.19', $valueFilter['val'], 'Value filter should carry the fraction, not the percentage');
 
         $stored = StoreKeeperOptions::get(StoreKeeperOptions::TAX_RATE_ID_MAP, []);
         $this->assertSame(77, $stored['DE|19.0000'] ?? null, 'Resolved id should be persisted');
@@ -90,6 +91,25 @@ class OrderTaxRateResolverTest extends AbstractTest
         // A second lookup is served from cache (still one API call total).
         $this->assertSame(77, $resolver->findTaxRateId('DE', 19.0));
         $this->assertSame(1, $api->calls, 'Second lookup must not hit the API again');
+    }
+
+    public function testFindTaxRateIdMatchesBackendFractionValue(): void
+    {
+        // Regression: WooCommerce 21% must match StoreKeeper's fractional 0.21.
+        $api = $this->makeApi([
+            'data' => [
+                ['id' => 3, 'name' => 'Belgium (standard)', 'alias' => 'standard', 'value' => 0.21, 'country_iso2' => 'BE'],
+            ],
+            'total' => 1,
+            'count' => 1,
+        ]);
+
+        $resolver = new OrderTaxRateResolver($api);
+
+        $this->assertSame(3, $resolver->findTaxRateId('BE', 21.0), '21% must match backend fraction 0.21');
+
+        $valueFilter = current(array_filter($api->lastFilters, static fn ($f) => 'value__=' === $f['name']));
+        $this->assertSame('0.21', $valueFilter['val'], 'Value filter must send the fraction 0.21');
     }
 
     public function testFindTaxRateIdDoesNotCacheMiss(): void
