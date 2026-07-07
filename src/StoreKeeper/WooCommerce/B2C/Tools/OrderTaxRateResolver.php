@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\Tools;
 
+use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 
 /**
@@ -42,33 +43,15 @@ class OrderTaxRateResolver
     /**
      * Resolve the StoreKeeper tax_rate_id for a WooCommerce order line item.
      *
-     * Returns null when the line carries no usable tax rate, when the rate maps
-     * to the shop base country (the backoffice default already applies), or when
-     * no matching StoreKeeper TaxRate exists.
+     * Returns null when the line carries no tax at all or when the rate maps to
+     * the shop base country (the backoffice default already applies). Throws when
+     * a foreign, taxed line cannot be mapped to a single StoreKeeper TaxRate,
+     * because exporting it would otherwise produce an invoice with the wrong VAT.
+     *
+     * @throws ExportException when the line has ambiguous (compound) tax rates,
+     *                         or a foreign rate with no matching StoreKeeper TaxRate
      */
     public function resolveForItem(\WC_Order_Item $item): ?int
-    {
-        $rate = $this->readWcRate($item);
-        if (null === $rate) {
-            return null;
-        }
-
-        [$country, $percent] = $rate;
-
-        // Base-country lines keep the backoffice default; only foreign rates need translation.
-        if ('' === $country || $country === $this->getBaseCountry()) {
-            return null;
-        }
-
-        return $this->findTaxRateId($country, $percent);
-    }
-
-    /**
-     * Read the WooCommerce tax rate the order line carries.
-     *
-     * @return array{0: string, 1: float}|null [country_iso2, percentage], or null
-     */
-    private function readWcRate(\WC_Order_Item $item): ?array
     {
         if (!is_callable([$item, 'get_taxes'])) {
             return null;
@@ -78,6 +61,7 @@ class OrderTaxRateResolver
         $totals = isset($taxes['total']) && is_array($taxes['total']) ? $taxes['total'] : [];
 
         if (empty($totals)) {
+            // Line carries no tax at all - nothing to resolve.
             return null;
         }
 
@@ -88,9 +72,13 @@ class OrderTaxRateResolver
             }
         }
 
-        // More than one non-zero rate on a single line (compound tax) is ambiguous - skip.
+        // More than one non-zero rate on a single line (compound tax) cannot be
+        // mapped to a single StoreKeeper tax_rate_id.
         if (count($appliedRateIds) > 1) {
-            return null;
+            throw new ExportException(sprintf(
+                'Cannot resolve StoreKeeper tax_rate_id: order line "%s" has multiple (compound) tax rates applied.',
+                $this->describeItem($item)
+            ));
         }
 
         if (1 === count($appliedRateIds)) {
@@ -109,10 +97,43 @@ class OrderTaxRateResolver
             return null;
         }
 
-        return [
-            strtoupper((string) $wcRate['tax_rate_country']),
-            (float) ($wcRate['tax_rate'] ?? 0),
-        ];
+        $country = strtoupper((string) $wcRate['tax_rate_country']);
+        $percent = (float) ($wcRate['tax_rate'] ?? 0);
+
+        // Base-country lines keep the backoffice default; only foreign rates need translation.
+        if ('' === $country || $country === $this->getBaseCountry()) {
+            return null;
+        }
+
+        $id = $this->findTaxRateId($country, $percent);
+        if (null === $id) {
+            throw new ExportException(sprintf(
+                'No StoreKeeper TaxRate found for country %1$s at %2$s%% (WooCommerce rate on order line "%3$s"). '
+                .'Configure the matching tax rate in the StoreKeeper backoffice.',
+                $country,
+                self::formatPercent($percent),
+                $this->describeItem($item)
+            ));
+        }
+
+        return $id;
+    }
+
+    private function describeItem(\WC_Order_Item $item): string
+    {
+        if (is_callable([$item, 'get_name'])) {
+            $name = (string) $item->get_name();
+            if ('' !== $name) {
+                return $name;
+            }
+        }
+
+        return '#'.$item->get_id();
+    }
+
+    private static function formatPercent(float $percent): string
+    {
+        return rtrim(rtrim(number_format($percent, 4, '.', ''), '0'), '.');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace StoreKeeper\WooCommerce\B2C\UnitTest\Tools;
 
+use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
 use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderTaxRateResolver;
 use StoreKeeper\WooCommerce\B2C\UnitTest\AbstractTest;
@@ -143,7 +144,34 @@ class OrderTaxRateResolverTest extends AbstractTest
         $this->assertNull($resolver->resolveForItem($item), 'Line without taxes => null');
     }
 
-    public function testResolveForItemSkipsCompoundRates(): void
+    public function testResolveForItemThrowsWhenNoBackofficeMatch(): void
+    {
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+
+        // Backoffice has no matching rate.
+        $api = $this->makeApi(['data' => [], 'total' => 0, 'count' => 0]);
+
+        $item = new \WC_Order_Item_Shipping();
+        $item->set_name('Flat rate');
+        $item->set_taxes(['total' => [$rateId => '1.90']]);
+
+        $resolver = new OrderTaxRateResolver($api);
+
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessage('No StoreKeeper TaxRate found for country DE at 19%');
+        $resolver->resolveForItem($item);
+    }
+
+    public function testResolveForItemThrowsOnCompoundRates(): void
     {
         $rateA = \WC_Tax::_insert_tax_rate([
             'tax_rate_country' => 'DE',
@@ -167,10 +195,12 @@ class OrderTaxRateResolverTest extends AbstractTest
         ]);
 
         $item = new \WC_Order_Item_Shipping();
+        $item->set_name('Flat rate');
         $item->set_taxes(['total' => [$rateA => '1.90', $rateB => '0.70']]);
 
         $resolver = new OrderTaxRateResolver(null);
-        $this->assertNull($resolver->resolveForItem($item), 'Ambiguous compound taxes must be skipped');
+        $this->expectException(ExportException::class);
+        $resolver->resolveForItem($item);
     }
 
     private function makeApi(array $listTaxRatesReturn)

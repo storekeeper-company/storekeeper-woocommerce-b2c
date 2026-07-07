@@ -2040,4 +2040,40 @@ class OrderExportTest extends AbstractOrderExportTest
         StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
         StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
     }
+
+    public function testShippingRowThrowsWhenDestinationTaxRateMissing(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+        update_option('woocommerce_default_country', 'NL');
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+
+        $order = new \WC_Order();
+        $shipping = new \WC_Order_Item_Shipping();
+        $shipping->set_props([
+            'method_title' => 'Flat rate',
+            'method_id' => 'flat_rate',
+            'total' => '10',
+            'taxes' => ['total' => [$rateId => '1.90']],
+        ]);
+        $order->add_item($shipping);
+        $order->save();
+
+        // No cached mapping and no API connection => the destination rate cannot be
+        // resolved, which must fail the export rather than silently drop the rate.
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+
+        $this->expectException(ExportException::class);
+        $export->getShippingOrderItems($order, true);
+    }
 }
