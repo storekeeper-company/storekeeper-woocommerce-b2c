@@ -549,6 +549,10 @@ HTML;
             // that are already free (e.g. native free_shipping) untouched.
             if ((float) $rate->get_cost() > 0 && $minAmount > 0 && $total >= $minAmount) {
                 $rate->set_cost(0);
+                // WooCommerce already calculated the tax on the original cost, so a
+                // now-free rate would otherwise keep a stale shipping tax (e.g. the
+                // €0 line still showing 21% VAT). Zero it to match the zero cost.
+                $rate->set_taxes([]);
                 $rate->set_label($rate->get_label().': '.esc_html__('Free Shipping', I18N::DOMAIN));
             }
         }
