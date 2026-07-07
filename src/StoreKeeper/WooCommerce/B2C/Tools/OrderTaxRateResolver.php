@@ -171,25 +171,23 @@ class OrderTaxRateResolver
 
         $response = $this->storekeeperApi->getModule('ProductsModule')->listTaxRates(
             0,
-            100,
+            1,
             null,
             [
                 [
                     'name' => 'country_iso2__=',
                     'val' => $countryIso2,
                 ],
+                [
+                    'name' => 'value__=',
+                    'val' => self::formatPercent($percent),
+                ],
             ]
         );
 
-        $data = $response['data'] ?? [];
-        foreach ($data as $row) {
-            if (!isset($row['value'], $row['id'])) {
-                continue;
-            }
-
-            if (abs((float) $row['value'] - $percent) < 0.0001) {
-                return (int) $row['id'];
-            }
+        $row = $response['data'][0] ?? null;
+        if (is_array($row) && isset($row['value'], $row['id']) && abs((float) $row['value'] - $percent) < 0.0001) {
+            return (int) $row['id'];
         }
 
         return 0;

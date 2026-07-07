@@ -78,6 +78,12 @@ class OrderTaxRateResolverTest extends AbstractTest
         $this->assertSame(77, $resolver->findTaxRateId('DE', 19.0), 'Should resolve via backoffice on a miss');
         $this->assertSame(1, $api->calls, 'Backoffice should be queried exactly once');
 
+        $filterNames = array_column($api->lastFilters, 'name');
+        $this->assertContains('country_iso2__=', $filterNames, 'Country filter must be sent');
+        $this->assertContains('value__=', $filterNames, 'Value filter must be sent');
+        $valueFilter = current(array_filter($api->lastFilters, static fn ($f) => 'value__=' === $f['name']));
+        $this->assertSame('19', $valueFilter['val'], 'Value filter should carry the normalised percentage');
+
         $stored = StoreKeeperOptions::get(StoreKeeperOptions::TAX_RATE_ID_MAP, []);
         $this->assertSame(77, $stored['DE|19.0000'] ?? null, 'Resolved id should be persisted');
 
@@ -232,6 +238,7 @@ class OrderTaxRateResolverTest extends AbstractTest
     {
         return new class($listTaxRatesReturn) {
             public int $calls = 0;
+            public array $lastFilters = [];
             private array $ret;
 
             public function __construct(array $ret)
@@ -247,6 +254,7 @@ class OrderTaxRateResolverTest extends AbstractTest
             public function listTaxRates($start, $limit, $order, $filters)
             {
                 ++$this->calls;
+                $this->lastFilters = $filters;
 
                 return $this->ret;
             }
