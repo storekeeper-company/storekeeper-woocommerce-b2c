@@ -184,9 +184,10 @@ class Core
             $this->loader->add_filter('wp_calculate_image_srcset', $media, 'calculateImageSrcSet', 999, 5);
         }
 
-        add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
-        add_action('woocommerce_review_order_after_shipping', [$this, 'displayShippingMinAmountContent']);
-        add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+        if (BackofficeCore::isShippingMethodUsed()) {
+            add_action('woocommerce_shipping_init', [$this, 'applyMinAmountToAllShippingMethods']);
+            add_filter('woocommerce_package_rates', [$this, 'modifyShippingRates'], 10, 2);
+        }
 
         add_action('wp_enqueue_scripts', [$this, 'enqueueMediaUploaderScripts']);
         add_action('wp_ajax_upload_product_image', [$this, 'handleProductImageUpload']);
@@ -505,22 +506,6 @@ HTML;
         return $new_settings;
     }
 
-    public function displayShippingMinAmountContent(): void
-    {
-        // Retrieve the shipping method selected by the user
-        $chosen_shipping_method = WC()->session->get('chosen_shipping_methods')[0];
-
-        // Get the shipping settings for the chosen method
-        $shipping_method_settings = get_option("woocommerce_{$chosen_shipping_method}_settings");
-
-        // Ensure the settings are an array and contain 'min_amount'
-        if (is_array($shipping_method_settings) && isset($shipping_method_settings['min_amount'])) {
-            $min_amount = floatval($shipping_method_settings['min_amount']);
-        } else {
-            $min_amount = '';
-        }
-    }
-
     public function applyMinAmountToAllShippingMethods(): void
     {
         // Manually add the filter for known methods, including Local Pickup
@@ -533,31 +518,34 @@ HTML;
 
     public function modifyShippingRates($rates, $package)
     {
-        // Get the formatted cart total using WooCommerce's functions and settings
         $total = WC()->cart->get_cart_contents_total();
 
-        // Get the available shipping methods
-        $shipping_methods = WC()->shipping->get_shipping_methods();
+        /** @var \WC_Shipping_Rate $rate */
+        foreach ($rates as $rate) {
+            // Match the rate to its exact shipping method instance by instance id.
+            // Matching by title is unreliable: titles are not unique, are
+            // translated, and this method mutates the label below.
+            $instanceId = $rate->get_instance_id();
+            if (!$instanceId) {
+                continue;
+            }
 
-        // Prepare the methods data, ensuring 'min_amount' is properly retrieved and formatted
-        $methods_data = array_map(function ($method) {
-            $min_amount = isset($method->instance_settings['min_amount']) ? floatval($method->instance_settings['min_amount']) : 0;
+            $method = \WC_Shipping_Zones::get_shipping_method($instanceId);
+            if (!$method) {
+                continue;
+            }
 
-            return [
-                'name' => $method->title,
-                'min_amount' => $min_amount,
-            ];
-        }, $shipping_methods);
+            // 'min_amount' is the "free from" threshold the StoreKeeper import
+            // stores on every method type (flat_rate/local_pickup/free_shipping).
+            $minAmount = isset($method->instance_settings['min_amount'])
+                ? (float) $method->instance_settings['min_amount']
+                : 0.0;
 
-        foreach ($rates as $rate_key => $rate) {
-            if (isset($rate->method_id, $rate->instance_id)) {
-                foreach ($methods_data as $method_data) {
-                    if ($method_data['name'] === $rate->label && $method_data['min_amount'] > 0 && $total >= $method_data['min_amount']) {
-                        $rates[$rate_key]->cost = 0;
-                        $rates[$rate_key]->label .= ': '.esc_html__('Free Shipping', I18N::DOMAIN);
-                        break;
-                    }
-                }
+            // Only convert a *paid* rate to free above the threshold; leave rates
+            // that are already free (e.g. native free_shipping) untouched.
+            if ((float) $rate->get_cost() > 0 && $minAmount > 0 && $total >= $minAmount) {
+                $rate->set_cost(0);
+                $rate->set_label($rate->get_label().': '.esc_html__('Free Shipping', I18N::DOMAIN));
             }
         }
 
