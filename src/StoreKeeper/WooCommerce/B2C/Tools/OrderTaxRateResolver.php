@@ -202,7 +202,7 @@ class OrderTaxRateResolver
     {
         // Round first to shed floating-point noise from the /100 conversion
         // (e.g. 0.21000000000000002) before formatting/trimming.
-        return rtrim(rtrim(number_format(round($value, 6), 6, '.', ''), '0'), '.');
+        return rtrim(rtrim(number_format(round($value, 4), 4, '.', ''), '0'), '.');
     }
 
     private function getMap(): array
