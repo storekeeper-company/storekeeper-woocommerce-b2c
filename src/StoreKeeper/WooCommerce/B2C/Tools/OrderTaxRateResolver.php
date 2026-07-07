@@ -53,6 +53,13 @@ class OrderTaxRateResolver
      */
     public function resolveForItem(\WC_Order_Item $item): ?int
     {
+        // When WooCommerce tax calculation is disabled there is no destination
+        // rate to preserve (and any leftover tax rows are stale), so never
+        // resolve or fail on them.
+        if (!function_exists('wc_tax_enabled') || !wc_tax_enabled()) {
+            return null;
+        }
+
         if (!is_callable([$item, 'get_taxes'])) {
             return null;
         }
@@ -75,10 +82,7 @@ class OrderTaxRateResolver
         // More than one non-zero rate on a single line (compound tax) cannot be
         // mapped to a single StoreKeeper tax_rate_id.
         if (count($appliedRateIds) > 1) {
-            throw new ExportException(sprintf(
-                'Cannot resolve StoreKeeper tax_rate_id: order line "%s" has multiple (compound) tax rates applied.',
-                $this->describeItem($item)
-            ));
+            throw new ExportException(sprintf('Cannot resolve StoreKeeper tax_rate_id: order line "%s" has multiple (compound) tax rates applied.', $this->describeItem($item)));
         }
 
         if (1 === count($appliedRateIds)) {
@@ -107,13 +111,7 @@ class OrderTaxRateResolver
 
         $id = $this->findTaxRateId($country, $percent);
         if (null === $id) {
-            throw new ExportException(sprintf(
-                'No StoreKeeper TaxRate found for country %1$s at %2$s%% (WooCommerce rate on order line "%3$s"). '
-                .'Configure the matching tax rate in the StoreKeeper backoffice.',
-                $country,
-                self::formatPercent($percent),
-                $this->describeItem($item)
-            ));
+            throw new ExportException(sprintf('No StoreKeeper TaxRate found for country %1$s at %2$s%% (WooCommerce rate on order line "%3$s"). Configure the matching tax rate in the StoreKeeper backoffice.', $country, self::formatPercent($percent), $this->describeItem($item)));
         }
 
         return $id;

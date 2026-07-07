@@ -1964,6 +1964,7 @@ class OrderExportTest extends AbstractOrderExportTest
     {
         StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
         update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'yes');
 
         $rateId = \WC_Tax::_insert_tax_rate([
             'tax_rate_country' => 'DE',
@@ -2046,6 +2047,7 @@ class OrderExportTest extends AbstractOrderExportTest
         StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
         StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
         update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'yes');
 
         $rateId = \WC_Tax::_insert_tax_rate([
             'tax_rate_country' => 'DE',

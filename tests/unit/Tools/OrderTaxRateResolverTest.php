@@ -13,7 +13,32 @@ class OrderTaxRateResolverTest extends AbstractTest
     {
         parent::setUp();
         update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'yes');
         StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
+
+    public function testResolveForItemReturnsNullWhenTaxesDisabled(): void
+    {
+        update_option('woocommerce_calc_taxes', 'no');
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+
+        // Even a stale foreign tax row must not resolve or throw when WooCommerce
+        // tax calculation is turned off.
+        $item = new \WC_Order_Item_Shipping();
+        $item->set_taxes(['total' => [$rateId => '1.90']]);
+
+        $resolver = new OrderTaxRateResolver(null);
+        $this->assertNull($resolver->resolveForItem($item), 'Taxes disabled => no resolution, no error');
     }
 
     /**
