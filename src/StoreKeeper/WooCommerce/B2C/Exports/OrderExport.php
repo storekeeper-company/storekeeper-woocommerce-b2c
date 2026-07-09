@@ -894,6 +894,14 @@ class OrderExport extends AbstractExport
                     self::EXTRA_ROW_ID_KEY => $orderItemProduct->get_id(),
                     self::EXTRA_ROW_TYPE => self::ROW_PRODUCT_DIFF_TYPE,
                 ];
+                // The rounding correction belongs to the same product line, so it
+                // must carry that line's tax rate. Without this the backoffice
+                // falls back to the shop default rate (e.g. NL 21%) instead of the
+                // line's actual rate (e.g. a cross-border 19%), producing a bogus
+                // negative-value tax row at the wrong percentage.
+                if (isset($data['tax_rate_id'])) {
+                    $diff_product['tax_rate_id'] = $data['tax_rate_id'];
+                }
                 $orderItems[] = $diff_product;
                 $this->debug($index.' Added diff product item', $diff_product);
             }

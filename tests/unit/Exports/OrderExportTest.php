@@ -2078,4 +2078,85 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->expectException(ExportException::class);
         $export->getShippingOrderItems($order, true);
     }
+
+    public function testProductDiffRowInheritsParentTaxRateId(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'yes');
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+        // Warm the resolver cache so the DE 19% rate maps to backoffice id 26 without an API call.
+        StoreKeeperOptions::set(StoreKeeperOptions::TAX_RATE_ID_MAP, ['DE|19.0000' => 26]);
+
+        $product = new \WC_Product();
+        $product->set_name('HP Pro X2 612 G2');
+        $product->set_sku('178394');
+        $product->set_price(100);
+        $product->save();
+
+        // A per-unit price of 100/3 = 33.3333... cannot be expressed in 2 decimals, so
+        // the export emits a small rounding-correction (product_diff) row to keep the
+        // order total right.
+        $order = new \WC_Order();
+        $item = new \WC_Order_Item_Product();
+        $item->set_props([
+            'product_id' => $product->get_id(),
+            'name' => 'HP Pro X2 612 G2',
+            'quantity' => 3,
+            'total' => '100',
+        ]);
+        $item->set_taxes(['total' => [$rateId => '19'], 'subtotal' => [$rateId => '19']]);
+        // Avoid an API lookup for the shop product id.
+        $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 330);
+        $order->add_item($item);
+
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $debugProperty = new \ReflectionProperty(OrderExport::class, 'debug');
+        $debugProperty->setAccessible(true);
+        $debugProperty->setValue($export, false);
+        $method = new \ReflectionMethod(OrderExport::class, 'getOrderItems');
+        $method->setAccessible(true);
+        $items = $method->invoke($export, $order);
+
+        $productRow = null;
+        $diffRow = null;
+        foreach ($items as $row) {
+            $type = $row['extra'][OrderExport::EXTRA_ROW_TYPE] ?? null;
+            if (OrderExport::ROW_PRODUCT_DIFF_TYPE === $type) {
+                $diffRow = $row;
+            } elseif (OrderExport::ROW_PRODUCT_TYPE === $type) {
+                $productRow = $row;
+            }
+        }
+
+        $this->assertNotNull($productRow, 'Product row must be exported');
+        $this->assertNotNull($diffRow, 'A rounding-correction product_diff row must be exported');
+        $this->assertNotEquals(0.0, (float) ($diffRow['ppu_wt'] ?? 0), 'The correction row must carry a non-zero rounding amount');
+        $this->assertTrue(
+            ($diffRow['is_discount'] ?? false) || ($diffRow['is_payment'] ?? false),
+            'The correction must be a discount or payment row'
+        );
+
+        $this->assertSame(26, (int) ($productRow['tax_rate_id'] ?? 0), 'Product row carries the resolved DE tax rate');
+        // Regression: the diff row used to carry no tax_rate_id, so the backoffice fell
+        // back to the shop default rate (NL 21%) and produced a bogus 21% tax on the
+        // negative correction. It must inherit its parent product line rate instead.
+        $this->assertSame(
+            (int) $productRow['tax_rate_id'],
+            (int) ($diffRow['tax_rate_id'] ?? 0),
+            'The rounding-correction row must inherit the parent product tax rate'
+        );
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
 }
