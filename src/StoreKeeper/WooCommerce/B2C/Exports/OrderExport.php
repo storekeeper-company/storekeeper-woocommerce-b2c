@@ -947,7 +947,101 @@ class OrderExport extends AbstractExport
         $orderItems = array_merge($orderItems, $shippingMethodOrderItems);
         $this->debug('Added shipping items');
 
+        $this->reconcileOrderTotal($order, $orderItems);
+
         return $orderItems;
+    }
+
+    /**
+     * Close any residual cent between the exported line items and the WooCommerce
+     * order total.
+     *
+     * Per-line product_diff rows correct the rounding of each line's per-unit price,
+     * but total_diff is itself rounded to 2 decimals, so sub-cent residuals are
+     * dropped and can accumulate across lines. WooCommerce, by contrast, rounds the
+     * grand total once. The result is that the exported items can sum to a cent more
+     * or less than {@see \WC_Order::get_total()} - which is the value the backoffice
+     * echoes back as value_wt and the value the difference check compares against.
+     *
+     * We therefore reconcile the whole order once: sum the exported inclusive line
+     * totals and, if they differ from the WooCommerce total, append a single
+     * correction row. It is attached to the highest-value product line so it is
+     * shaped exactly like the existing per-line product_diff rows (same sku, name,
+     * shop_product_id and tax_rate_id), which keeps it valid for the backoffice.
+     */
+    private function reconcileOrderTotal(\WC_Order $order, array &$orderItems): void
+    {
+        $decimals = wc_get_price_decimals();
+        $target = NumberUtil::round((float) $order->get_total(self::CONTEXT), $decimals);
+
+        // An order without a calculated total (e.g. a partially built order) or a
+        // zero total has no inclusive amount to reconcile against.
+        if ($target <= 0.0) {
+            return;
+        }
+
+        $exportedTotal = 0.0;
+        foreach ($orderItems as $item) {
+            if (!isset($item['ppu_wt'])) {
+                continue;
+            }
+            $quantity = $item['quantity'] ?? 1;
+            $exportedTotal += NumberUtil::round((float) $item['ppu_wt'] * $quantity, $decimals);
+        }
+        $exportedTotal = NumberUtil::round($exportedTotal, $decimals);
+
+        $residual = NumberUtil::round($target - $exportedTotal, $decimals);
+        if (0.0 === $residual) {
+            return;
+        }
+
+        // Attach the correction to the highest-value product line so the backoffice
+        // can resolve it to a real product, just like the per-line diff rows.
+        $anchor = null;
+        $anchorValue = -1.0;
+        foreach ($orderItems as $item) {
+            $type = $item['extra'][self::EXTRA_ROW_TYPE] ?? null;
+            if (self::ROW_PRODUCT_TYPE !== $type) {
+                continue;
+            }
+            $value = abs((float) ($item['ppu_wt'] ?? 0) * ($item['quantity'] ?? 1));
+            if ($value > $anchorValue) {
+                $anchorValue = $value;
+                $anchor = $item;
+            }
+        }
+
+        if (null === $anchor) {
+            $this->debug('Cannot reconcile order total, no product row to anchor the correction to', [
+                'residual' => $residual,
+            ]);
+
+            return;
+        }
+
+        $correction = [
+            'ppu_wt' => $residual,
+            'quantity' => 1,
+            'is_discount' => $residual < 0,
+            'is_payment' => $residual > 0,
+            'name' => $anchor['name'],
+            'sku' => $anchor['sku'],
+            'shop_product_id' => $anchor['shop_product_id'] ?? null,
+            'extra' => [
+                self::EXTRA_ROW_ID_KEY => $anchor['extra'][self::EXTRA_ROW_ID_KEY] ?? null,
+                self::EXTRA_ROW_TYPE => self::ROW_PRODUCT_DIFF_TYPE,
+            ],
+        ];
+        if (isset($anchor['tax_rate_id'])) {
+            $correction['tax_rate_id'] = $anchor['tax_rate_id'];
+        }
+
+        $orderItems[] = $correction;
+        $this->debug('Added order total reconciliation row', [
+            'residual' => $residual,
+            'target' => $target,
+            'exported' => $exportedTotal,
+        ]);
     }
 
     public function getShippingOrderItems(\WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array

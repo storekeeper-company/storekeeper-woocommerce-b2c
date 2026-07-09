@@ -2159,4 +2159,79 @@ class OrderExportTest extends AbstractOrderExportTest
 
         StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
     }
+
+    public function testExportedItemsReconcileToWooCommerceOrderTotal(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'yes');
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+        StoreKeeperOptions::set(StoreKeeperOptions::TAX_RATE_ID_MAP, ['DE|19.0000' => 26]);
+
+        $product = new \WC_Product();
+        $product->set_name('HP Pro X2 612 G2');
+        $product->set_sku('178394');
+        $product->set_price(100);
+        $product->save();
+
+        $order = new \WC_Order();
+        $item = new \WC_Order_Item_Product();
+        $item->set_props([
+            'product_id' => $product->get_id(),
+            'name' => 'HP Pro X2 612 G2',
+            'quantity' => 1,
+            'total' => '100',
+        ]);
+        $item->set_taxes(['total' => [$rateId => '19'], 'subtotal' => [$rateId => '19']]);
+        $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 330);
+        $order->add_item($item);
+        // The line exports inclusive of tax as 119.00 while the WooCommerce grand total
+        // lands a cent lower after its own rounding. Per-line diffs cannot bridge that
+        // (there is no per-unit rounding on a single unit), so the export must reconcile
+        // the whole order or the backoffice value_wt ends up a cent higher than
+        // WooCommerce - exactly the symptom seen on the German B2B order.
+        $order->set_total('118.99');
+
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $debugProperty = new \ReflectionProperty(OrderExport::class, 'debug');
+        $debugProperty->setAccessible(true);
+        $debugProperty->setValue($export, false);
+        $method = new \ReflectionMethod(OrderExport::class, 'getOrderItems');
+        $method->setAccessible(true);
+        $items = $method->invoke($export, $order);
+
+        $exportedTotal = 0.0;
+        $correctionRow = null;
+        foreach ($items as $row) {
+            if (isset($row['ppu_wt'])) {
+                $exportedTotal += round((float) $row['ppu_wt'] * ($row['quantity'] ?? 1), 2);
+            }
+            if (OrderExport::ROW_PRODUCT_DIFF_TYPE === ($row['extra'][OrderExport::EXTRA_ROW_TYPE] ?? null)) {
+                $correctionRow = $row;
+            }
+        }
+
+        $this->assertEqualsWithDelta(
+            118.99,
+            round($exportedTotal, 2),
+            0.0001,
+            'Exported items must sum to the WooCommerce order total, not a cent more'
+        );
+        $this->assertNotNull($correctionRow, 'A reconciliation row must be added to close the cent gap');
+        $this->assertEqualsWithDelta(-0.01, (float) $correctionRow['ppu_wt'], 0.0001, 'The correction must remove the surplus cent');
+        $this->assertTrue($correctionRow['is_discount'] ?? false, 'A negative correction must be a discount row');
+        $this->assertSame(26, (int) ($correctionRow['tax_rate_id'] ?? 0), 'The correction inherits the tax rate of the line it is booked against');
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
 }
