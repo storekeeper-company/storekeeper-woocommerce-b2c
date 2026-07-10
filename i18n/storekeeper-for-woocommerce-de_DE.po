@@ -505,3 +505,19 @@ msgstr "umleiten"
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"
 msgstr "woocommerce,e-commerce, woo,verkauf,store,geschaft"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:519
+msgid "Sent incl. VAT prices"
+msgstr "Preise inkl. MwSt. senden"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:524
+msgid ""
+"When checked, orders are exported with VAT-inclusive prices. Uncheck to "
+"export VAT-exclusive prices and let the backoffice add the VAT per line; this "
+"avoids rounding-correction rows on cross-border (One Stop Shop) orders."
+msgstr ""
+"Wenn aktiviert, werden Bestellungen mit Preisen inklusive MwSt. exportiert. "
+"Deaktivieren, um Preise exklusive MwSt. zu exportieren und das Backoffice die "
+"MwSt. pro Position hinzufügen zu lassen; dies vermeidet "
+"Rundungskorrekturzeilen bei grenzüberschreitenden (One Stop Shop) "
+"Bestellungen."

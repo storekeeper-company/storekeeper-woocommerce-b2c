@@ -2606,3 +2606,17 @@ msgstr "woocommerce,e-commerce, woo,sales,store"
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:42
 msgid "years"
 msgstr "years"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:519
+msgid "Sent incl. VAT prices"
+msgstr "Sent incl. VAT prices"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:524
+msgid ""
+"When checked, orders are exported with VAT-inclusive prices. Uncheck to "
+"export VAT-exclusive prices and let the backoffice add the VAT per line; this "
+"avoids rounding-correction rows on cross-border (One Stop Shop) orders."
+msgstr ""
+"When checked, orders are exported with VAT-inclusive prices. Uncheck to "
+"export VAT-exclusive prices and let the backoffice add the VAT per line; this "
+"avoids rounding-correction rows on cross-border (One Stop Shop) orders."

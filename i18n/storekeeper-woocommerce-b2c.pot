@@ -2794,3 +2794,14 @@ msgstr ""
 #. Tags of the plugin/theme
 msgid "woocommerce,e-commerce, woo,sales,store"
 msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:519
+msgid "Sent incl. VAT prices"
+msgstr ""
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:524
+msgid ""
+"When checked, orders are exported with VAT-inclusive prices. Uncheck to "
+"export VAT-exclusive prices and let the backoffice add the VAT per line; this "
+"avoids rounding-correction rows on cross-border (One Stop Shop) orders."
+msgstr ""

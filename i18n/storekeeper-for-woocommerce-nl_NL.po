@@ -2505,3 +2505,18 @@ msgstr "woocommerce, e-commerce, woo, verkoop, winkel"
 #: src/StoreKeeper/WooCommerce/B2C/Helpers/DateTimeHelper.php:42
 msgid "years"
 msgstr "jaren"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:519
+msgid "Sent incl. VAT prices"
+msgstr "Prijzen incl. btw versturen"
+
+#: src/StoreKeeper/WooCommerce/B2C/Backoffice/Pages/Tabs/ConnectionTab.php:524
+msgid ""
+"When checked, orders are exported with VAT-inclusive prices. Uncheck to "
+"export VAT-exclusive prices and let the backoffice add the VAT per line; this "
+"avoids rounding-correction rows on cross-border (One Stop Shop) orders."
+msgstr ""
+"Indien aangevinkt worden bestellingen geëxporteerd met prijzen inclusief "
+"btw. Vink dit uit om prijzen exclusief btw te exporteren en de backoffice de "
+"btw per regel te laten toevoegen; dit voorkomt afrondingscorrectieregels bij "
+"grensoverschrijdende (One Stop Shop) bestellingen."
