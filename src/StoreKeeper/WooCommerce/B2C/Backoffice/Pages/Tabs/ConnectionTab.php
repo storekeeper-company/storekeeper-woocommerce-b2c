@@ -180,6 +180,7 @@ class ConnectionTab extends AbstractTab
         $this->renderSyncModeSetting();
         $this->renderImageSyncModeSetting();
         $this->renderOrderSyncFromDate();
+        $this->renderOrderExportVatSetting();
         $this->renderSeoSetting();
         $this->renderPaymentSetting();
         $this->renderShippingMethodSetting();
@@ -273,9 +274,12 @@ class ConnectionTab extends AbstractTab
         $barcode = StoreKeeperOptions::getConstant(StoreKeeperOptions::BARCODE_MODE);
         $categoryHtml = StoreKeeperOptions::getConstant(StoreKeeperOptions::CATEGORY_DESCRIPTION_HTML);
 
+        $orderExportIncludeVat = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT);
+
         $data = [
             $backorder => 'on' === sanitize_key($_POST[$backorder]) ? 'yes' : 'no',
             $categoryHtml => 'on' === sanitize_key($_POST[$categoryHtml]) ? 'yes' : 'no',
+            $orderExportIncludeVat => 'on' === sanitize_key($_POST[$orderExportIncludeVat] ?? '') ? 'yes' : 'no',
         ];
 
         if (in_array($_POST[$mode], StoreKeeperOptions::MODES_WITH_PAYMENTS, true)) {
@@ -506,6 +510,21 @@ HTML;
             I18N::DOMAIN
         );
         $this->renderFormGroup('', $description);
+    }
+
+    private function renderOrderExportVatSetting(): void
+    {
+        $name = StoreKeeperOptions::getConstant(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT);
+        $this->renderFormGroup(
+            __('Sent incl. VAT prices', I18N::DOMAIN),
+            $this->getFormCheckbox(
+                $name,
+                StoreKeeperOptions::isOrderExportIncludingVat()
+            ).' '.__(
+                'When checked, orders are exported with VAT-inclusive prices. Uncheck to export VAT-exclusive prices and let the backoffice add the VAT per line; this avoids rounding-correction rows on cross-border (One Stop Shop) orders.',
+                I18N::DOMAIN
+            )
+        );
     }
 
     private function renderPaymentSetting(): void

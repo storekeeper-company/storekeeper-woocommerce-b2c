@@ -2234,4 +2234,92 @@ class OrderExportTest extends AbstractOrderExportTest
 
         StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
     }
+
+    public function testOrderItemsUseExclusiveVatPricesWhenSettingDisabled(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'yes');
+
+        // Export VAT-exclusive prices: the backoffice adds the VAT per line.
+        StoreKeeperOptions::set(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT, 'no');
+        $this->assertFalse(
+            StoreKeeperOptions::isOrderExportIncludingVat(),
+            'Disabling the setting must switch the export to exclusive prices'
+        );
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+        StoreKeeperOptions::set(StoreKeeperOptions::TAX_RATE_ID_MAP, ['DE|19.0000' => 26]);
+
+        $product = new \WC_Product();
+        $product->set_name('HP Pro X2 612 G2');
+        $product->set_sku('178394');
+        $product->set_price(100);
+        $product->save();
+
+        $order = new \WC_Order();
+        $item = new \WC_Order_Item_Product();
+        $item->set_props([
+            'product_id' => $product->get_id(),
+            'name' => 'HP Pro X2 612 G2',
+            'quantity' => 1,
+            'total' => '100',
+        ]);
+        $item->set_taxes(['total' => [$rateId => '19'], 'subtotal' => [$rateId => '19']]);
+        $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 330);
+        $order->add_item($item);
+        // Gross 118.99 with 19 tax => net total 99.99, one cent below the exported
+        // net line of 100.00, so the reconciliation must close the gap on the net basis.
+        $order->set_cart_tax('19.00');
+        $order->set_total('118.99');
+
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $debugProperty = new \ReflectionProperty(OrderExport::class, 'debug');
+        $debugProperty->setAccessible(true);
+        $debugProperty->setValue($export, false);
+        $method = new \ReflectionMethod(OrderExport::class, 'getOrderItems');
+        $method->setAccessible(true);
+        $items = $method->invoke($export, $order);
+
+        $productRow = null;
+        $correctionRow = null;
+        $exportedNetTotal = 0.0;
+        foreach ($items as $row) {
+            $type = $row['extra'][OrderExport::EXTRA_ROW_TYPE] ?? null;
+            if (OrderExport::ROW_PRODUCT_TYPE === $type) {
+                $productRow = $row;
+            }
+            if (OrderExport::ROW_PRODUCT_DIFF_TYPE === $type) {
+                $correctionRow = $row;
+            }
+            if (isset($row['ppu'])) {
+                $exportedNetTotal += round((float) $row['ppu'] * ($row['quantity'] ?? 1), 2);
+            }
+        }
+
+        $this->assertNotNull($productRow, 'A product row must be exported');
+        $this->assertArrayHasKey('ppu', $productRow, 'Exclusive export must use the net ppu key');
+        $this->assertArrayHasKey('before_discount_ppu', $productRow, 'Exclusive export must use the net before-discount key');
+        $this->assertArrayNotHasKey('ppu_wt', $productRow, 'Exclusive export must not emit the inclusive ppu_wt key');
+        $this->assertEqualsWithDelta(100.00, (float) $productRow['ppu'], 0.0001, 'The net per-unit price must be exported');
+        $this->assertSame(26, (int) ($productRow['tax_rate_id'] ?? 0), 'The line must still carry its resolved tax rate');
+
+        $this->assertEqualsWithDelta(99.99, round($exportedNetTotal, 2), 0.0001, 'Exported net items must sum to the WooCommerce net total');
+        $this->assertNotNull($correctionRow, 'A reconciliation row must close the net cent gap');
+        $this->assertArrayHasKey('ppu', $correctionRow, 'The correction row must use the net ppu key');
+        $this->assertArrayNotHasKey('ppu_wt', $correctionRow, 'The correction row must not emit the inclusive ppu_wt key');
+        $this->assertEqualsWithDelta(-0.01, (float) $correctionRow['ppu'], 0.0001, 'The correction must remove the surplus net cent');
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT);
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
 }

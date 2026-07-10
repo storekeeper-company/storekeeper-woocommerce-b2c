@@ -11,6 +11,7 @@ use StoreKeeper\WooCommerce\B2C\Exceptions\ExportException;
 use StoreKeeper\WooCommerce\B2C\Exceptions\OrderDifferenceException;
 use StoreKeeper\WooCommerce\B2C\I18N;
 use StoreKeeper\WooCommerce\B2C\Models\PaymentModel;
+use StoreKeeper\WooCommerce\B2C\Options\StoreKeeperOptions;
 use StoreKeeper\WooCommerce\B2C\PaymentGateway\PaymentGateway;
 use StoreKeeper\WooCommerce\B2C\Tools\CustomerFinder;
 use StoreKeeper\WooCommerce\B2C\Tools\OrderHandler;
@@ -161,6 +162,10 @@ class OrderExport extends AbstractExport
             'shipping_address__merge' => false, // defaults to true when not set
             'force_order_if_product_not_active' => true,
             'force_backorder_if_not_on_stock' => true,
+            // When exporting VAT-inclusive prices (ppu_wt) the backoffice derives
+            // the net amounts; when exporting VAT-exclusive prices (ppu) it adds
+            // the VAT from each line's tax rate instead.
+            'calculate_from_wt' => StoreKeeperOptions::isOrderExportIncludingVat(),
         ];
 
         // Adding the shop order number on order creation.
@@ -657,11 +662,16 @@ class OrderExport extends AbstractExport
      */
     private function checkOrderDifferenceBySet(array $databaseOrderItems, array $backofficeOrderItems): void
     {
+        // Compare on the same price basis we export with: the backoffice echoes
+        // both ppu and ppu_wt, but the locally built database rows only carry the
+        // one matching the current export mode.
+        $ppuKey = self::ppuKey(StoreKeeperOptions::isOrderExportIncludingVat());
+
         $databaseSets = [];
         foreach ($databaseOrderItems as $databaseOrderItem) {
             $databaseSets[] = (
                 (int) $databaseOrderItem['quantity']).'|'
-                .round($databaseOrderItem['ppu_wt'], 2).'|'
+                .round($databaseOrderItem[$ppuKey], 2).'|'
                 .$databaseOrderItem['sku'];
         }
 
@@ -669,7 +679,7 @@ class OrderExport extends AbstractExport
         foreach ($backofficeOrderItems as $backofficeOrderItem) {
             $backofficeSets[] = (
                 (int) $backofficeOrderItem['quantity']).'|'
-                .round($backofficeOrderItem['ppu_wt'], 2).'|'
+                .round($backofficeOrderItem[$ppuKey], 2).'|'
                 .$backofficeOrderItem['sku'];
         }
 
@@ -765,9 +775,28 @@ class OrderExport extends AbstractExport
         return $value > 0 ? $value : null;
     }
 
+    /**
+     * Backoffice per-unit price key: VAT-inclusive (ppu_wt) or exclusive (ppu).
+     */
+    private static function ppuKey(bool $withVat): string
+    {
+        return $withVat ? 'ppu_wt' : 'ppu';
+    }
+
+    /**
+     * Backoffice per-unit before-discount price key, matching {@see ppuKey}.
+     */
+    private static function beforeDiscountPpuKey(bool $withVat): string
+    {
+        return $withVat ? 'before_discount_ppu_wt' : 'before_discount_ppu';
+    }
+
     private function getOrderItems(\WC_Order $order): array
     {
         $orderItems = [];
+        $withVat = StoreKeeperOptions::isOrderExportIncludingVat();
+        $ppuKey = self::ppuKey($withVat);
+        $beforeDiscountPpuKey = self::beforeDiscountPpuKey($withVat);
         $iclTaxRateId = $this->getIclTaxRateId($order);
         $this->debug('Adding product items');
         $productFactory = new \WC_Product_Factory();
@@ -827,23 +856,23 @@ class OrderExport extends AbstractExport
 
                 $this->debug('Got product', $currentProduct);
 
-                $ppu_wt = $order->get_item_total($orderItemProduct, true, false);
-                $rounded_ppu_wt = NumberUtil::round($ppu_wt, wc_get_price_decimals());
-                if ($rounded_ppu_wt != $ppu_wt) {
+                $ppu = $order->get_item_total($orderItemProduct, $withVat, false);
+                $rounded_ppu = NumberUtil::round($ppu, wc_get_price_decimals());
+                if ($rounded_ppu != $ppu) {
                     // StoreKeeper backend does not accept the prices which are rounded to 2 digits
                     // to make the sum right we will add and extra product, so the total order it correct
-                    $total_diff = ($quantity * $ppu_wt) - ($quantity * $rounded_ppu_wt);
+                    $total_diff = ($quantity * $ppu) - ($quantity * $rounded_ppu);
                     $total_diff = NumberUtil::round($total_diff, wc_get_price_decimals());
 
                     if ($total_diff < 0) {
                         $diff_product = [
-                            'ppu_wt' => $total_diff,
+                            $ppuKey => $total_diff,
                             'quantity' => 1,
                             'is_discount' => true,
                         ];
                     } elseif ($total_diff > 0) {
                         $diff_product = [
-                            'ppu_wt' => $total_diff,
+                            $ppuKey => $total_diff,
                             'quantity' => 1,
                             'is_payment' => true,
                         ];
@@ -853,8 +882,8 @@ class OrderExport extends AbstractExport
                     'sku' => $currentProduct ?
                         $currentProduct->get_sku(self::CONTEXT) :
                         $orderItemProduct->get_name(self::CONTEXT),
-                    'ppu_wt' => $rounded_ppu_wt, // get price with discount
-                    'before_discount_ppu_wt' => $order->get_item_subtotal($orderItemProduct, true, false), // get without discount
+                    $ppuKey => $rounded_ppu, // get price with discount
+                    $beforeDiscountPpuKey => $order->get_item_subtotal($orderItemProduct, $withVat, false), // get without discount
                     'quantity' => $quantity,
                     'name' => $orderItemProduct->get_name(self::CONTEXT),
                     'description' => $description,
@@ -915,7 +944,7 @@ class OrderExport extends AbstractExport
         foreach ($order->get_fees() as $fee) {
             $data = [
                 'sku' => strtolower($fee->get_name(self::CONTEXT)),
-                'ppu_wt' => $order->get_item_total($fee, true, false),
+                $ppuKey => $order->get_item_total($fee, $withVat, false),
                 'quantity' => $fee->get_quantity(),
                 'name' => $fee->get_name(self::CONTEXT),
             ];
@@ -972,21 +1001,30 @@ class OrderExport extends AbstractExport
     private function reconcileOrderTotal(\WC_Order $order, array &$orderItems): void
     {
         $decimals = wc_get_price_decimals();
-        $target = NumberUtil::round((float) $order->get_total(self::CONTEXT), $decimals);
+        $withVat = StoreKeeperOptions::isOrderExportIncludingVat();
+        $ppuKey = self::ppuKey($withVat);
+
+        // Reconcile against the same basis we exported: the gross order total for
+        // inclusive prices, the net total (gross minus tax) for exclusive prices.
+        $orderTotal = (float) $order->get_total(self::CONTEXT);
+        if (!$withVat) {
+            $orderTotal -= (float) $order->get_total_tax(self::CONTEXT);
+        }
+        $target = NumberUtil::round($orderTotal, $decimals);
 
         // An order without a calculated total (e.g. a partially built order) or a
-        // zero total has no inclusive amount to reconcile against.
+        // zero total has no amount to reconcile against.
         if ($target <= 0.0) {
             return;
         }
 
         $exportedTotal = 0.0;
         foreach ($orderItems as $item) {
-            if (!isset($item['ppu_wt'])) {
+            if (!isset($item[$ppuKey])) {
                 continue;
             }
             $quantity = $item['quantity'] ?? 1;
-            $exportedTotal += NumberUtil::round((float) $item['ppu_wt'] * $quantity, $decimals);
+            $exportedTotal += NumberUtil::round((float) $item[$ppuKey] * $quantity, $decimals);
         }
         $exportedTotal = NumberUtil::round($exportedTotal, $decimals);
 
@@ -1004,7 +1042,7 @@ class OrderExport extends AbstractExport
             if (self::ROW_PRODUCT_TYPE !== $type) {
                 continue;
             }
-            $value = abs((float) ($item['ppu_wt'] ?? 0) * ($item['quantity'] ?? 1));
+            $value = abs((float) ($item[$ppuKey] ?? 0) * ($item['quantity'] ?? 1));
             if ($value > $anchorValue) {
                 $anchorValue = $value;
                 $anchor = $item;
@@ -1020,7 +1058,7 @@ class OrderExport extends AbstractExport
         }
 
         $correction = [
-            'ppu_wt' => $residual,
+            $ppuKey => $residual,
             'quantity' => 1,
             'is_discount' => $residual < 0,
             'is_payment' => $residual > 0,
@@ -1047,6 +1085,8 @@ class OrderExport extends AbstractExport
     public function getShippingOrderItems(\WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
     {
         $orderItems = [];
+        $withVat = StoreKeeperOptions::isOrderExportIncludingVat();
+        $ppuKey = self::ppuKey($withVat);
         $iclTaxRateId = $this->getIclTaxRateId($order);
         /**
          * @var $shipping_method \WC_Order_Item_Shipping
@@ -1054,7 +1094,7 @@ class OrderExport extends AbstractExport
         foreach ($order->get_shipping_methods() as $shipping_method) {
             $data = [
                 'sku' => strtolower($shipping_method->get_name(self::CONTEXT)),
-                'ppu_wt' => $order->get_item_total($shipping_method, true, false),
+                $ppuKey => $order->get_item_total($shipping_method, $withVat, false),
                 'quantity' => $shipping_method->get_quantity(),
                 'name' => $shipping_method->get_name(self::CONTEXT),
                 'is_shipping' => true,

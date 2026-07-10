@@ -54,6 +54,17 @@ class StoreKeeperOptions extends AbstractOptions
 
     public const ORDER_SYNC_FROM_DATE = 'sync-order-from-date';
 
+    /**
+     * When enabled (the default), orders are exported with VAT-inclusive prices
+     * (ppu_wt / before_discount_ppu_wt) and the backoffice calculates the net
+     * amounts from them (calculate_from_wt = true). When disabled, orders are
+     * exported with VAT-exclusive prices (ppu / before_discount_ppu) and the
+     * backoffice adds the VAT from each line's tax rate. Exclusive export avoids
+     * the rounding correction rows that inclusive prices need for cross-border
+     * (OSS) orders, where the net amount - not the gross - is the invariant.
+     */
+    public const ORDER_EXPORT_INCLUDE_VAT = 'order-export-include-vat';
+
     public const BARCODE_MODE = 'barcode-mode';
     public const BARCODE_META_FALLBACK = 'storekeeper_barcode';
 
@@ -156,6 +167,15 @@ class StoreKeeperOptions extends AbstractOptions
     public static function getSeoHandler()
     {
         return self::get(self::SEO_HANDLER, Seo::STOREKEEPER_HANDLER);
+    }
+
+    /**
+     * Whether orders are exported with VAT-inclusive prices. Defaults to true
+     * to keep the historical behaviour for shops that never touched the setting.
+     */
+    public static function isOrderExportIncludingVat(): bool
+    {
+        return self::getBoolOption(self::ORDER_EXPORT_INCLUDE_VAT, true);
     }
 
     private static function getExplodedApiUrl(): array
