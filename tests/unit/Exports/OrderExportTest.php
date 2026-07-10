@@ -2322,4 +2322,154 @@ class OrderExportTest extends AbstractOrderExportTest
         StoreKeeperOptions::delete(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT);
         StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
     }
+
+    /**
+     * Reproduces a real German (One Stop Shop) order exported VAT-exclusive:
+     * two quantity-3 product lines whose net per-unit price does not divide
+     * evenly, plus flat-rate shipping, all at DE 19%.
+     *
+     * Backoffice reference (net / exclusive):
+     *   HP Elitebook 840 G6 (178594)  329,75 x3  => line 989,26  VAT 187,96
+     *   Thuiskopieheffing   (366)       1,65 x3  => line   4,96  VAT   0,94
+     *   Verzekerd verzenden            11,95      => line  11,95  VAT   2,27
+     *   Subtotal items 994,22 + shipping 11,95 + VAT 191,17 = total 1.197,34
+     *
+     * 329,75 x3 = 989,25 but the real net line is 989,26 (ppu 329,7533...), so a
+     * per-line product_diff of +0,01 is booked; the levy behaves the same. The two
+     * diffs alone close the net total, so no extra reconciliation row is needed.
+     */
+    public function testExclusiveVatExportReproducesGermanQuantityThreeOrder(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'yes');
+
+        StoreKeeperOptions::set(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT, 'no');
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'DE',
+            'tax_rate_state' => '',
+            'tax_rate' => '19.0000',
+            'tax_rate_name' => 'VAT 19 % DE',
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+        StoreKeeperOptions::set(StoreKeeperOptions::TAX_RATE_ID_MAP, ['DE|19.0000' => 26]);
+
+        $laptop = new \WC_Product();
+        $laptop->set_name('HP Elitebook 840 G6');
+        $laptop->set_sku('178594');
+        $laptop->set_price(329.75);
+        $laptop->save();
+
+        $levy = new \WC_Product();
+        $levy->set_name('Thuiskopieheffing');
+        $levy->set_sku('366');
+        $levy->set_price(1.65);
+        $levy->save();
+
+        $order = new \WC_Order();
+
+        $laptopItem = new \WC_Order_Item_Product();
+        $laptopItem->set_props([
+            'product_id' => $laptop->get_id(),
+            'name' => 'HP Elitebook 840 G6',
+            'quantity' => 3,
+            // Net line total is a cent above 3 x 329.75, so the per-unit price
+            // (329.7533...) does not round cleanly and needs a diff row.
+            'subtotal' => '989.26',
+            'total' => '989.26',
+        ]);
+        $laptopItem->set_taxes(['total' => [$rateId => '187.96'], 'subtotal' => [$rateId => '187.96']]);
+        $laptopItem->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 178594);
+        $order->add_item($laptopItem);
+
+        $levyItem = new \WC_Order_Item_Product();
+        $levyItem->set_props([
+            'product_id' => $levy->get_id(),
+            'name' => 'Thuiskopieheffing',
+            'quantity' => 3,
+            'subtotal' => '4.96',
+            'total' => '4.96',
+        ]);
+        $levyItem->set_taxes(['total' => [$rateId => '0.94'], 'subtotal' => [$rateId => '0.94']]);
+        $levyItem->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 366);
+        $order->add_item($levyItem);
+
+        $shipping = new \WC_Order_Item_Shipping();
+        $shipping->set_name('Verzekerd verzenden (vast tarief)');
+        $shipping->set_method_title('Verzekerd verzenden (vast tarief)');
+        $shipping->set_method_id('flat_rate');
+        $shipping->set_instance_id('1');
+        $shipping->set_total('11.95');
+        $shipping->set_taxes(['total' => [$rateId => '2.27']]);
+        $order->add_item($shipping);
+
+        $order->set_cart_tax('188.90');
+        $order->set_shipping_tax('2.27');
+        $order->set_total('1197.34');
+
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $debugProperty = new \ReflectionProperty(OrderExport::class, 'debug');
+        $debugProperty->setAccessible(true);
+        $debugProperty->setValue($export, false);
+        $method = new \ReflectionMethod(OrderExport::class, 'getOrderItems');
+        $method->setAccessible(true);
+        $items = $method->invoke($export, $order);
+
+        $productRows = [];
+        $diffRows = [];
+        $shippingRow = null;
+        $exportedNetTotal = 0.0;
+        foreach ($items as $row) {
+            $type = $row['extra'][OrderExport::EXTRA_ROW_TYPE] ?? null;
+            if (OrderExport::ROW_PRODUCT_TYPE === $type) {
+                $productRows[$row['sku']] = $row;
+            }
+            if (OrderExport::ROW_PRODUCT_DIFF_TYPE === $type) {
+                $diffRows[] = $row;
+            }
+            if (OrderExport::ROW_SHIPPING_METHOD_TYPE === $type) {
+                $shippingRow = $row;
+            }
+            if (isset($row['ppu'])) {
+                $exportedNetTotal += round((float) $row['ppu'] * ($row['quantity'] ?? 1), 2);
+                $this->assertArrayNotHasKey('ppu_wt', $row, 'No row may emit the inclusive ppu_wt key in exclusive mode');
+            }
+        }
+
+        // Product lines carry the net per-unit price and their resolved DE rate.
+        $this->assertArrayHasKey('178594', $productRows, 'The laptop line must be exported');
+        $this->assertArrayHasKey('366', $productRows, 'The levy line must be exported');
+        $this->assertEqualsWithDelta(329.75, (float) $productRows['178594']['ppu'], 0.0001, 'Laptop net ppu');
+        $this->assertSame(3, (int) $productRows['178594']['quantity']);
+        $this->assertSame(26, (int) ($productRows['178594']['tax_rate_id'] ?? 0), 'Laptop keeps the DE rate');
+        $this->assertEqualsWithDelta(1.65, (float) $productRows['366']['ppu'], 0.0001, 'Levy net ppu');
+        $this->assertSame(26, (int) ($productRows['366']['tax_rate_id'] ?? 0), 'Levy keeps the DE rate');
+
+        // Shipping is exported net at its resolved DE rate.
+        $this->assertNotNull($shippingRow, 'The shipping line must be exported');
+        $this->assertEqualsWithDelta(11.95, (float) $shippingRow['ppu'], 0.0001, 'Shipping net ppu');
+        $this->assertSame(26, (int) ($shippingRow['tax_rate_id'] ?? 0), 'Shipping keeps the DE rate');
+
+        // Each uneven line gets exactly one +0.01 payment diff; the two diffs alone
+        // close the net total, so no separate reconciliation row is appended.
+        $this->assertCount(2, $diffRows, 'Both quantity-3 lines need a per-unit rounding diff');
+        foreach ($diffRows as $diff) {
+            $this->assertEqualsWithDelta(0.01, (float) $diff['ppu'], 0.0001, 'Each diff books the missing cent');
+            $this->assertTrue($diff['is_payment'] ?? false, 'A positive rounding correction is a payment row');
+            $this->assertSame(26, (int) ($diff['tax_rate_id'] ?? 0), 'The diff inherits its line DE rate');
+        }
+
+        // Exported net items must reconcile to the WooCommerce net total
+        // (gross 1197.34 minus 191.17 VAT = 1006.17), exactly as the backoffice shows.
+        $this->assertEqualsWithDelta(1006.17, round($exportedNetTotal, 2), 0.0001, 'Exported net items must sum to the net order total');
+        $expectedNet = round((float) $order->get_total() - (float) $order->get_total_tax(), 2);
+        $this->assertEqualsWithDelta($expectedNet, round($exportedNetTotal, 2), 0.0001, 'Exported net must equal gross total minus VAT');
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT);
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
 }
