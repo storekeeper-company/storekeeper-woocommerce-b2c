@@ -53,6 +53,60 @@ class OrderTaxRateResolver
      */
     public function resolveForItem(\WC_Order_Item $item): ?int
     {
+        $wcRate = $this->getWcRateForItem($item, true);
+        if (null === $wcRate) {
+            return null;
+        }
+
+        // Base-country lines keep the backoffice default; only foreign rates need translation.
+        if ($wcRate['country'] === $this->getBaseCountry()) {
+            return null;
+        }
+
+        $id = $this->findTaxRateId($wcRate['country'], $wcRate['percent']);
+        if (null === $id) {
+            throw new ExportException(sprintf('No StoreKeeper TaxRate found for country %1$s at %2$s%% (WooCommerce rate on order line "%3$s"). This tax rate is managed by StoreKeeper and cannot be configured here - please contact StoreKeeper support to have it added.', $wcRate['country'], self::formatPercent($wcRate['percent']), $this->describeItem($item)));
+        }
+
+        return $id;
+    }
+
+    /**
+     * Resolve the StoreKeeper tax_rate_id to bucket this line under when the order
+     * declares its own amounts.
+     *
+     * Unlike {@see resolveForItem} this also resolves base-country lines. A
+     * declaring payload has to name a tax_rate_id on every line, because the
+     * per-rate VAT it declares is keyed by the id the backoffice books the line
+     * under - leaving a domestic line to fall back to the product's configured
+     * rate would put it in a bucket that was never declared, which the backoffice
+     * rejects.
+     *
+     * Never throws: any rate we cannot establish means "this order cannot declare
+     * its amounts", which the caller handles by exporting the old way.
+     */
+    public function resolveBucketRateId(\WC_Order_Item $item): ?int
+    {
+        $wcRate = $this->getWcRateForItem($item, false);
+        if (null === $wcRate) {
+            return null;
+        }
+
+        return $this->findTaxRateId($wcRate['country'], $wcRate['percent']);
+    }
+
+    /**
+     * The WooCommerce tax rate (country + percentage) a single order line carries.
+     *
+     * @param bool $throwOnCompound throw instead of returning null when the line
+     *                              has more than one non-zero rate applied
+     *
+     * @return array{country: string, percent: float}|null
+     *
+     * @throws ExportException
+     */
+    private function getWcRateForItem(\WC_Order_Item $item, bool $throwOnCompound): ?array
+    {
         // When WooCommerce tax calculation is disabled there is no destination
         // rate to preserve (and any leftover tax rows are stale), so never
         // resolve or fail on them.
@@ -82,7 +136,11 @@ class OrderTaxRateResolver
         // More than one non-zero rate on a single line (compound tax) cannot be
         // mapped to a single StoreKeeper tax_rate_id.
         if (count($appliedRateIds) > 1) {
-            throw new ExportException(sprintf('Cannot resolve StoreKeeper tax_rate_id: order line "%s" has multiple (compound) tax rates applied.', $this->describeItem($item)));
+            if ($throwOnCompound) {
+                throw new ExportException(sprintf('Cannot resolve StoreKeeper tax_rate_id: order line "%s" has multiple (compound) tax rates applied.', $this->describeItem($item)));
+            }
+
+            return null;
         }
 
         if (1 === count($appliedRateIds)) {
@@ -102,19 +160,14 @@ class OrderTaxRateResolver
         }
 
         $country = strtoupper((string) $wcRate['tax_rate_country']);
-        $percent = (float) ($wcRate['tax_rate'] ?? 0);
-
-        // Base-country lines keep the backoffice default; only foreign rates need translation.
-        if ('' === $country || $country === $this->getBaseCountry()) {
+        if ('' === $country) {
             return null;
         }
 
-        $id = $this->findTaxRateId($country, $percent);
-        if (null === $id) {
-            throw new ExportException(sprintf('No StoreKeeper TaxRate found for country %1$s at %2$s%% (WooCommerce rate on order line "%3$s"). This tax rate is managed by StoreKeeper and cannot be configured here - please contact StoreKeeper support to have it added.', $country, self::formatPercent($percent), $this->describeItem($item)));
-        }
-
-        return $id;
+        return [
+            'country' => $country,
+            'percent' => (float) ($wcRate['tax_rate'] ?? 0),
+        ];
     }
 
     private function describeItem(\WC_Order_Item $item): string

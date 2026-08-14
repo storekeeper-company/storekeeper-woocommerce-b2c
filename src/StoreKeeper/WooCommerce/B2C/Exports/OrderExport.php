@@ -64,6 +64,12 @@ class OrderExport extends AbstractExport
     private \WC_Order $order;
     private ?OrderTaxRateResolver $taxRateResolver = null;
 
+    /**
+     * Amounts declared by the last {@see getOrderItems} call, or null when that
+     * order fell back to the correction rows. See {@see buildDeclaredAmounts}.
+     */
+    private ?array $declaredAmounts = null;
+
     private function getTaxRateResolver(): OrderTaxRateResolver
     {
         if (null === $this->taxRateResolver) {
@@ -203,6 +209,14 @@ class OrderExport extends AbstractExport
          */
         if (!$isUpdate) {
             $callData['order_items'] = $this->getOrderItems($order);
+            // Declared amounts are accepted on newOrder only. When they reproduce
+            // what the backoffice would have computed the order stays ordinary;
+            // when they differ they are stored verbatim and it is flagged
+            // is_tax_forced, which is what removes the correction rows.
+            if (null !== $this->declaredAmounts) {
+                $callData['order_taxes'] = $this->declaredAmounts['order_taxes'];
+                $callData['value_wt'] = $this->declaredAmounts['value_wt'];
+            }
             $this->debug('Added order_items information', $callData);
         } else {
             $storekeeperId = $this->get_storekeeper_id();
@@ -221,7 +235,11 @@ class OrderExport extends AbstractExport
             // were changed, so they were never synched as they are part of order items.
             // Logic below is to only update order items if they have difference and order is not paid yet
             if ($hasDifference && !$storekeeperOrder['is_paid']) {
-                $callData['order_items'] = $this->getOrderItems($order);
+                // updateOrder cannot carry order_taxes - re-sending items always
+                // recalculates and clears is_tax_forced - so the correction rows
+                // are the only way to keep the recalculated total on WooCommerce's
+                // figure here. The order stops being forced from now on.
+                $callData['order_items'] = $this->getOrderItems($order, false);
                 $this->debug('Updated order_items information due to difference with the backoffice order items', $callData);
             } elseif ($hasDifference && $storekeeperOrder['is_paid']) {
                 $this->debug('Cannot synchronize order, there are differences but order is already paid',
@@ -415,6 +433,22 @@ class OrderExport extends AbstractExport
         // Refetch the order to make sure we have the latest
         $storekeeper_order = $ShopModule->getOrder($storekeeper_id, null);
 
+        if (!$isUpdate && null !== $this->declaredAmounts) {
+            // A backoffice that predates declared amounts ignores the fields
+            // instead of rejecting them, and then books its own total - the cent
+            // the correction rows used to cover. Nothing can be repaired from
+            // here (the order exists), so say so loudly in the log.
+            $declaredTotal = $this->declaredAmounts['value_wt'];
+            if (self::toCents((float) $declaredTotal) !== self::toCents((float) $storekeeper_order['value_wt'])) {
+                $this->debug('Declared order total was not honoured by the backoffice, it may not support declared amounts', [
+                    'shop_order_id' => $shopOrderId,
+                    'storekeeper_id' => $storekeeper_id,
+                    'declared_value_wt' => $declaredTotal,
+                    'backoffice_value_wt' => $storekeeper_order['value_wt'],
+                ]);
+            }
+        }
+
         // Get the storekeeper and converted woocommerce status.
         $storekeeper_status = $storekeeper_order['status'];
         $woocommerce_status = self::convertWooCommerceToStorekeeperOrderStatus($order->get_status(self::CONTEXT));
@@ -481,7 +515,11 @@ class OrderExport extends AbstractExport
      */
     public function checkOrderDifference(\WC_Order $databaseOrder, $backofficeOrder): void
     {
-        $databaseOrderItems = $this->getOrderItems($databaseOrder);
+        // Compare against the rows we would send today for an order in the state
+        // this one is in: a forced order was created from declared amounts and so
+        // carries no correction rows, and rebuilding it with them would report a
+        // difference on every single re-export.
+        $databaseOrderItems = $this->getOrderItems($databaseOrder, !empty($backofficeOrder['is_tax_forced']));
         $backofficeOrderItems = $backofficeOrder['order_items'];
 
         if (count($databaseOrderItems) !== count($backofficeOrderItems)) {
@@ -791,13 +829,23 @@ class OrderExport extends AbstractExport
         return $withVat ? 'before_discount_ppu_wt' : 'before_discount_ppu';
     }
 
-    private function getOrderItems(\WC_Order $order): array
+    /**
+     * @param bool $allowDeclaredAmounts when false the order is exported the old
+     *                                   way (per-line and whole-order correction
+     *                                   rows) even if its amounts could be
+     *                                   declared; see {@see buildDeclaredAmounts}
+     */
+    private function getOrderItems(\WC_Order $order, bool $allowDeclaredAmounts = true): array
     {
         $orderItems = [];
         $withVat = StoreKeeperOptions::isOrderExportIncludingVat();
         $ppuKey = self::ppuKey($withVat);
+        $priceKey = self::priceKey($withVat);
         $beforeDiscountPpuKey = self::beforeDiscountPpuKey($withVat);
         $iclTaxRateId = $this->getIclTaxRateId($order);
+
+        $declared = $allowDeclaredAmounts ? $this->buildDeclaredAmounts($order) : null;
+        $this->declaredAmounts = $declared;
         $this->debug('Adding product items');
         $productFactory = new \WC_Product_Factory();
 
@@ -858,7 +906,9 @@ class OrderExport extends AbstractExport
 
                 $ppu = $order->get_item_total($orderItemProduct, $withVat, false);
                 $rounded_ppu = NumberUtil::round($ppu, wc_get_price_decimals());
-                if ($rounded_ppu != $ppu) {
+                // A declared line total already states what this line comes to, so
+                // there is no shortfall left for a correction row to carry.
+                if (null === $declared && $rounded_ppu != $ppu) {
                     // StoreKeeper backend does not accept the prices which are rounded to 2 digits
                     // to make the sum right we will add and extra product, so the total order it correct
                     $total_diff = ($quantity * $ppu) - ($quantity * $rounded_ppu);
@@ -910,6 +960,8 @@ class OrderExport extends AbstractExport
                     }
                 }
 
+                $this->applyDeclaredLineAmounts($declared, $index, $priceKey, $data);
+
                 $data['extra'] = $extra;
             }
 
@@ -941,7 +993,7 @@ class OrderExport extends AbstractExport
         /**
          * @var $fee \WC_Order_Item_Fee
          */
-        foreach ($order->get_fees() as $fee) {
+        foreach ($order->get_fees() as $feeKey => $fee) {
             $data = [
                 'sku' => strtolower($fee->get_name(self::CONTEXT)),
                 $ppuKey => $order->get_item_total($fee, $withVat, false),
@@ -966,19 +1018,191 @@ class OrderExport extends AbstractExport
                 self::EXTRA_ROW_TYPE => self::ROW_FEE_TYPE,
             ];
 
+            $this->applyDeclaredLineAmounts($declared, $feeKey, $priceKey, $data);
+
             $data['extra'] = $extra;
             $orderItems[] = $data;
 
             $this->debug('Added fee item', $data);
         }
 
-        $shippingMethodOrderItems = $this->getShippingOrderItems($order);
+        $shippingMethodOrderItems = $this->getShippingOrderItems($order, false, $declared);
         $orderItems = array_merge($orderItems, $shippingMethodOrderItems);
         $this->debug('Added shipping items');
 
-        $this->reconcileOrderTotal($order, $orderItems);
+        if (null === $declared) {
+            $this->reconcileOrderTotal($order, $orderItems);
+        }
 
         return $orderItems;
+    }
+
+    /**
+     * Backoffice line-total key, matching {@see ppuKey}. This is the whole line,
+     * not the per-unit price, and it is the side the backoffice leads on.
+     */
+    private static function priceKey(bool $withVat): string
+    {
+        return $withVat ? 'price_wt' : 'price';
+    }
+
+    private static function formatMoney(float $value): string
+    {
+        // Amounts are Smoney fields in the backoffice; send them as strings so a
+        // JSON float round-trip cannot reintroduce the drift we are removing.
+        return number_format($value + 0.0, 2, '.', '');
+    }
+
+    /**
+     * Put the declared line total and its bucket's tax rate on an exported row.
+     *
+     * @param int|string $itemKey the key the line has in its WC_Order item list -
+     *                            not WC_Order_Item::get_id(), which is 0 until the
+     *                            order is saved and would collide across lines
+     */
+    private function applyDeclaredLineAmounts(?array $declared, $itemKey, string $priceKey, array &$data): void
+    {
+        if (null === $declared || !isset($declared['line_totals'][$itemKey])) {
+            return;
+        }
+
+        $data[$priceKey] = self::formatMoney($declared['line_totals'][$itemKey]);
+        $data['tax_rate_id'] = $declared['line_tax_rate_ids'][$itemKey];
+    }
+
+    /**
+     * Build the amounts to declare on the order, or null when this order cannot
+     * be expressed that way.
+     *
+     * The backoffice recomputes every money value from ppu x quantity unless the
+     * payload declares its own, which is why this exporter used to append
+     * synthetic product_diff and reconciliation rows to force our arithmetic onto
+     * WooCommerce's total. Declaring sends WooCommerce's line totals and per-rate
+     * VAT verbatim instead, so those phantom rows are no longer needed - and the
+     * VAT itself lands right, which no correction row could ever achieve (a shop
+     * rounding VAT per line books a different amount than the backoffice rounding
+     * once per rate, on lines that agree to the cent).
+     *
+     * Returning null falls back to the correction rows. The backoffice rejects a
+     * declaration that does not close exactly, so we only declare when we can
+     * satisfy its identities here first:
+     *
+     *   per rate  SUM line total (leading side) = the bucket we declare
+     *   header    SUM bucket totals incl. VAT   = WC_Order::get_total()
+     *
+     * @return array{order_taxes: array, value_wt: string, line_totals: array<int|string, float>, line_tax_rate_ids: array<int|string, int>}|null
+     */
+    private function buildDeclaredAmounts(\WC_Order $order): ?array
+    {
+        $withVat = StoreKeeperOptions::isOrderExportIncludingVat();
+        $iclTaxRateId = $this->getIclTaxRateId($order);
+        $productFactory = new \WC_Product_Factory();
+
+        $buckets = [];
+        $lineTotals = [];
+        $lineTaxRateIds = [];
+
+        foreach ($order->get_items() as $item) {
+            if (null === $this->getProductForOrderLine($item, $productFactory)) {
+                // The product is gone, so the row is exported without a price at
+                // all and there is nothing to declare for it.
+                return $this->cannotDeclare('an order line has no WooCommerce product', $item);
+            }
+
+            if (!empty($item->get_meta(self::CART_FIELD_PARENT_ID))) {
+                // Bundle subitems are synthesised at ppu 0 and rolled into the
+                // parent, so the backoffice refuses declared totals on them.
+                return $this->cannotDeclare('the order contains bundled lines', $item);
+            }
+        }
+
+        foreach ([$order->get_items(), $order->get_fees(), $order->get_shipping_methods()] as $group) {
+            foreach ($group as $itemKey => $item) {
+                $taxRateId = $this->resolveDeclaredTaxRateId($item, $iclTaxRateId);
+                if (null === $taxRateId) {
+                    return $this->cannotDeclare('no StoreKeeper tax rate could be resolved for an order line', $item);
+                }
+
+                $tax = (float) $item->get_total_tax();
+                $lineTotal = NumberUtil::round((float) $item->get_total() + ($withVat ? $tax : 0.0), 2);
+
+                $lineTotals[$itemKey] = $lineTotal;
+                $lineTaxRateIds[$itemKey] = $taxRateId;
+
+                if (!isset($buckets[$taxRateId])) {
+                    $buckets[$taxRateId] = ['total' => 0.0, 'tax' => 0.0];
+                }
+                $buckets[$taxRateId]['total'] += $lineTotal;
+                $buckets[$taxRateId]['tax'] += $tax;
+            }
+        }
+
+        if (empty($buckets)) {
+            return null;
+        }
+
+        $orderTaxes = [];
+        $declaredTotalWt = 0.0;
+        foreach ($buckets as $taxRateId => $bucket) {
+            $value = NumberUtil::round($bucket['tax'], 2);
+            $orderTaxes[] = [
+                'tax_rate_id' => $taxRateId,
+                'value' => self::formatMoney($value),
+            ];
+            // The header total is always incl. VAT: when we lead on the net side
+            // the bucket's VAT still has to be added to reach it.
+            $declaredTotalWt += NumberUtil::round($bucket['total'], 2) + ($withVat ? 0.0 : $value);
+        }
+
+        $orderTotal = (float) $order->get_total(self::CONTEXT);
+        if (self::toCents($declaredTotalWt) !== self::toCents($orderTotal)) {
+            $this->debug('Not declaring order amounts, the lines do not add up to the WooCommerce order total', [
+                'declared' => $declaredTotalWt,
+                'order_total' => $orderTotal,
+            ]);
+
+            return null;
+        }
+
+        return [
+            'order_taxes' => $orderTaxes,
+            'value_wt' => self::formatMoney($orderTotal),
+            'line_totals' => $lineTotals,
+            'line_tax_rate_ids' => $lineTaxRateIds,
+        ];
+    }
+
+    private function cannotDeclare(string $reason, \WC_Order_Item $item): ?array
+    {
+        $this->debug('Not declaring order amounts, falling back to correction rows: '.$reason, [
+            'order_item_id' => $item->get_id(),
+            'name' => $item->get_name(),
+        ]);
+
+        return null;
+    }
+
+    /**
+     * The tax rate a declared line is bucketed under. Mirrors the precedence the
+     * export uses for tax_rate_id, but also resolves domestic lines, which a
+     * declaring payload has to name explicitly.
+     */
+    private function resolveDeclaredTaxRateId(\WC_Order_Item $item, ?int $iclTaxRateId): ?int
+    {
+        if ($iclTaxRateId) {
+            return $iclTaxRateId;
+        }
+
+        if ($item->meta_exists(self::EMBALLAGE_TAX_RATE_ID_META_KEY)) {
+            return (int) $item->get_meta(self::EMBALLAGE_TAX_RATE_ID_META_KEY);
+        }
+
+        return $this->getTaxRateResolver()->resolveBucketRateId($item);
+    }
+
+    private static function toCents(float $value): int
+    {
+        return (int) NumberUtil::round($value * 100, 0);
     }
 
     /**
@@ -1082,16 +1306,17 @@ class OrderExport extends AbstractExport
         ]);
     }
 
-    public function getShippingOrderItems(\WC_Order $order, bool $excludeTaxesTotalOnMd5 = false): array
+    public function getShippingOrderItems(\WC_Order $order, bool $excludeTaxesTotalOnMd5 = false, ?array $declared = null): array
     {
         $orderItems = [];
         $withVat = StoreKeeperOptions::isOrderExportIncludingVat();
         $ppuKey = self::ppuKey($withVat);
+        $priceKey = self::priceKey($withVat);
         $iclTaxRateId = $this->getIclTaxRateId($order);
         /**
          * @var $shipping_method \WC_Order_Item_Shipping
          */
-        foreach ($order->get_shipping_methods() as $shipping_method) {
+        foreach ($order->get_shipping_methods() as $shippingKey => $shipping_method) {
             $data = [
                 'sku' => strtolower($shipping_method->get_name(self::CONTEXT)),
                 $ppuKey => $order->get_item_total($shipping_method, $withVat, false),
@@ -1119,6 +1344,8 @@ class OrderExport extends AbstractExport
                     $data['tax_rate_id'] = $resolvedTaxRateId;
                 }
             }
+
+            $this->applyDeclaredLineAmounts($declared, $shippingKey, $priceKey, $data);
 
             $data['extra'] = $extra;
 
