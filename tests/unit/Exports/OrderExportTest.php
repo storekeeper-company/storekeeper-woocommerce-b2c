@@ -2631,6 +2631,96 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->assertNotNull($diffRow, 'The rounding correction row must survive on the fallback path');
     }
 
+    /**
+     * The payload that actually leaves the plugin, for the order the correction
+     * rows existed for. Everything else here tests getOrderItems in isolation;
+     * this one asserts that order_taxes and value_wt reach ShopModule::newOrder.
+     */
+    public function testNewOrderPayloadCarriesTheDeclaredAmounts(): void
+    {
+        $this->initApiConnection();
+        $rateId = $this->givenDutchTaxRateMappedTo(55, '21.0000');
+
+        $product = new \WC_Product();
+        $product->set_name('bread');
+        $product->set_sku('bread');
+        $product->set_price(10.99);
+        $product->save();
+
+        $order = new \WC_Order();
+        $order->set_props($this->getOrderProps());
+        $item = new \WC_Order_Item_Product();
+        $item->set_props([
+            'product_id' => $product->get_id(),
+            'name' => 'bread',
+            'quantity' => 3,
+            // 3 x 10.9933 incl. VAT = 32.98, which round(10.99, 2) x 3 cannot reach.
+            'subtotal' => '27.26',
+            'total' => '27.26',
+        ]);
+        $item->set_taxes(['total' => [$rateId => '5.72'], 'subtotal' => [$rateId => '5.72']]);
+        $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 17);
+        $order->add_item($item);
+        $order->set_cart_tax('5.72');
+        $order->set_total('32.98');
+        $order->save();
+
+        $skOrderId = mt_rand();
+        $sentOrder = [];
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($skOrderId, &$sentOrder) {
+                $module->allows('newOrder')->andReturnUsing(
+                    function ($got) use ($skOrderId, &$sentOrder) {
+                        [$order] = $got;
+                        $sentOrder = $order;
+
+                        return $skOrderId;
+                    }
+                );
+                $module->allows('findShopCustomerBySubuserEmail')->andReturn(['id' => mt_rand()]);
+                // Echo back the total the payload declared, the way a backoffice
+                // that honours declared amounts does.
+                $module->allows('getOrder')->andReturnUsing(
+                    function () use ($skOrderId, &$sentOrder) {
+                        return [
+                            'id' => $skOrderId,
+                            'status' => OrderExport::STATUS_NEW,
+                            'is_paid' => false,
+                            'is_tax_forced' => true,
+                            'value_wt' => (float) ($sentOrder['value_wt'] ?? 0),
+                            'order_items' => $sentOrder['order_items'] ?? [],
+                        ];
+                    }
+                );
+                $module->allows('updateOrderStatus')->andReturn(null);
+                $module->allows('updateOrder')->andReturn(null);
+            }
+        );
+
+        $export = new OrderExport(['id' => $order->get_id()]);
+        $method = new \ReflectionMethod(OrderExport::class, 'processItem');
+        $method->setAccessible(true);
+        $method->invoke($export, $order);
+
+        $this->assertNotEmpty($sentOrder, 'newOrder must have been called');
+        $this->assertSame(
+            [['tax_rate_id' => 55, 'value' => '5.72']],
+            $sentOrder['order_taxes'],
+            'The per-rate VAT must be declared on the order'
+        );
+        $this->assertSame('32.98', $sentOrder['value_wt'], 'The declared order total closes the payload');
+        $this->assertTrue($sentOrder['calculate_from_wt'], 'This account exports VAT-inclusive prices');
+
+        $this->assertCount(1, $sentOrder['order_items'], 'One WooCommerce line, one exported line');
+        $line = $sentOrder['order_items'][0];
+        $this->assertSame('32.98', $line['price_wt'], 'The line declares its own total');
+        $this->assertSame(55, (int) $line['tax_rate_id']);
+        $this->assertEqualsWithDelta(10.99, (float) $line['ppu_wt'], 0.0001, 'The unit price stays at 2 decimals');
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
+
     private function givenDutchTaxRateMappedTo(int $backofficeId, string $percent): int
     {
         StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
