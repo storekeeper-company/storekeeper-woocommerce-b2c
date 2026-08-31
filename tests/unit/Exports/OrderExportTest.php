@@ -2334,9 +2334,11 @@ class OrderExportTest extends AbstractOrderExportTest
      *   Verzekerd verzenden            11,95      => line  11,95  VAT   2,27
      *   Subtotal items 994,22 + shipping 11,95 + VAT 191,17 = total 1.197,34
      *
-     * 329,75 x3 = 989,25 but the real net line is 989,26 (ppu 329,7533...), so a
-     * per-line product_diff of +0,01 is booked; the levy behaves the same. The two
-     * diffs alone close the net total, so no extra reconciliation row is needed.
+     * 329,75 x3 = 989,25 but the real net line is 989,26 (ppu 329,7533...). This
+     * used to be booked as a per-line +0,01 product_diff row (and the levy the
+     * same). The order now declares its line totals and its per-rate VAT instead,
+     * so the uneven lines are sent as the amounts WooCommerce actually charged and
+     * the two phantom rows are gone.
      */
     public function testExclusiveVatExportReproducesGermanQuantityThreeOrder(): void
     {
@@ -2435,8 +2437,11 @@ class OrderExportTest extends AbstractOrderExportTest
                 $shippingRow = $row;
             }
             if (isset($row['ppu'])) {
-                $exportedNetTotal += round((float) $row['ppu'] * ($row['quantity'] ?? 1), 2);
                 $this->assertArrayNotHasKey('ppu_wt', $row, 'No row may emit the inclusive ppu_wt key in exclusive mode');
+            }
+            if (isset($row['price'])) {
+                $exportedNetTotal += (float) $row['price'];
+                $this->assertArrayNotHasKey('price_wt', $row, 'No row may declare the inclusive side in exclusive mode');
             }
         }
 
@@ -2454,22 +2459,338 @@ class OrderExportTest extends AbstractOrderExportTest
         $this->assertEqualsWithDelta(11.95, (float) $shippingRow['ppu'], 0.0001, 'Shipping net ppu');
         $this->assertSame(26, (int) ($shippingRow['tax_rate_id'] ?? 0), 'Shipping keeps the DE rate');
 
-        // Each uneven line gets exactly one +0.01 payment diff; the two diffs alone
-        // close the net total, so no separate reconciliation row is appended.
-        $this->assertCount(2, $diffRows, 'Both quantity-3 lines need a per-unit rounding diff');
-        foreach ($diffRows as $diff) {
-            $this->assertEqualsWithDelta(0.01, (float) $diff['ppu'], 0.0001, 'Each diff books the missing cent');
-            $this->assertTrue($diff['is_payment'] ?? false, 'A positive rounding correction is a payment row');
-            $this->assertSame(26, (int) ($diff['tax_rate_id'] ?? 0), 'The diff inherits its line DE rate');
-        }
+        // The declared line total is the amount WooCommerce charged, which is what
+        // the +0.01 correction rows used to approximate. ppu x quantity no longer
+        // has to reproduce it: 329.75 x 3 is 989.25, the line is 989.26.
+        $this->assertSame('989.26', $productRows['178594']['price'], 'The laptop line declares its real net total');
+        $this->assertSame('4.96', $productRows['366']['price'], 'The levy line declares its real net total');
+        $this->assertSame('11.95', $shippingRow['price'], 'Shipping declares its net total');
+        $this->assertCount(0, $diffRows, 'A declared line total replaces the per-unit rounding diff rows');
 
-        // Exported net items must reconcile to the WooCommerce net total
-        // (gross 1197.34 minus 191.17 VAT = 1006.17), exactly as the backoffice shows.
-        $this->assertEqualsWithDelta(1006.17, round($exportedNetTotal, 2), 0.0001, 'Exported net items must sum to the net order total');
+        // Declared net lines add up to the WooCommerce net total (gross 1197.34
+        // minus 191.17 VAT = 1006.17), exactly as the backoffice shows.
+        $this->assertEqualsWithDelta(1006.17, round($exportedNetTotal, 2), 0.0001, 'Declared net lines must sum to the net order total');
         $expectedNet = round((float) $order->get_total() - (float) $order->get_total_tax(), 2);
-        $this->assertEqualsWithDelta($expectedNet, round($exportedNetTotal, 2), 0.0001, 'Exported net must equal gross total minus VAT');
+        $this->assertEqualsWithDelta($expectedNet, round($exportedNetTotal, 2), 0.0001, 'Declared net must equal gross total minus VAT');
+
+        // One bucket, carrying the VAT WooCommerce booked, and the closing total.
+        $declared = $this->readDeclaredAmounts($export);
+        $this->assertNotNull($declared, 'The order must declare its amounts');
+        $this->assertSame(
+            [['tax_rate_id' => 26, 'value' => '191.17']],
+            $declared['order_taxes'],
+            'The single DE bucket carries the VAT WooCommerce charged'
+        );
+        $this->assertSame('1197.34', $declared['value_wt'], 'The declared total closes on the WooCommerce gross total');
 
         StoreKeeperOptions::delete(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT);
         StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
+
+    /**
+     * Case A of the forced-order contract: a unit price with more than 2 decimals.
+     * 3 x 10.9933 incl. VAT comes to 32.98, while round(10.99, 2) x 3 is 32.97 -
+     * the cent the exporter used to cover with a synthetic second "bread" line.
+     */
+    public function testDeclaresLineTotalInsteadOfAppendingARoundingProductDiff(): void
+    {
+        $rateId = $this->givenDutchTaxRateMappedTo(55, '21.0000');
+
+        $order = $this->givenOrderWithSingleProductLine($rateId, [
+            'quantity' => 3,
+            'total' => '27.26',
+        ], '5.72', '32.98');
+
+        $items = $this->exportOrderItems($order, $export);
+
+        $productRow = null;
+        foreach ($items as $row) {
+            $type = $row['extra'][OrderExport::EXTRA_ROW_TYPE] ?? null;
+            $this->assertNotSame(
+                OrderExport::ROW_PRODUCT_DIFF_TYPE,
+                $type,
+                'A declared line total leaves nothing for a correction row to carry'
+            );
+            if (OrderExport::ROW_PRODUCT_TYPE === $type) {
+                $productRow = $row;
+            }
+        }
+
+        $this->assertNotNull($productRow);
+        $this->assertEqualsWithDelta(10.99, (float) $productRow['ppu_wt'], 0.0001, 'The unit price stays rounded to 2 decimals');
+        $this->assertSame('32.98', $productRow['price_wt'], 'The line declares the total WooCommerce charged');
+        $this->assertSame(55, (int) $productRow['tax_rate_id'], 'A declared line names its rate explicitly');
+
+        $declared = $this->readDeclaredAmounts($export);
+        $this->assertSame([['tax_rate_id' => 55, 'value' => '5.72']], $declared['order_taxes']);
+        $this->assertSame('32.98', $declared['value_wt']);
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
+
+    /**
+     * Case B: every unit price, line total and the order total agree, and the VAT
+     * still differs. WooCommerce rounds VAT per line (3 x 0.17 = 0.51) where the
+     * backoffice rounds once per rate (round(3.00 x 21/121) = 0.52). No correction
+     * row can express this - only a declared per-rate VAT can.
+     */
+    public function testDeclaresPerRateVatWhenOnlyTheRoundingPositionDiffers(): void
+    {
+        $rateId = $this->givenDutchTaxRateMappedTo(55, '21.0000');
+
+        $product = new \WC_Product();
+        $product->set_name('bread');
+        $product->set_sku('bread');
+        $product->set_price(1.00);
+        $product->save();
+
+        $order = new \WC_Order();
+        for ($i = 0; $i < 3; ++$i) {
+            $item = new \WC_Order_Item_Product();
+            $item->set_props([
+                'product_id' => $product->get_id(),
+                'name' => 'bread',
+                'quantity' => 1,
+                'subtotal' => '0.83',
+                'total' => '0.83',
+            ]);
+            // WooCommerce rounds this line's VAT on its own: 1.00 incl. at 21% is
+            // 0.1736, booked as 0.17.
+            $item->set_taxes(['total' => [$rateId => '0.17'], 'subtotal' => [$rateId => '0.17']]);
+            $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 17);
+            $order->add_item($item);
+        }
+        $order->set_cart_tax('0.51');
+        $order->set_total('3.00');
+        $order->save();
+
+        $items = $this->exportOrderItems($order, $export);
+
+        $this->assertCount(3, $items, 'Three lines in, three lines out - nothing synthetic');
+        foreach ($items as $row) {
+            $this->assertSame('1.00', $row['price_wt'], 'Each line declares the gross total WooCommerce charged');
+        }
+
+        $declared = $this->readDeclaredAmounts($export);
+        $this->assertSame(
+            [['tax_rate_id' => 55, 'value' => '0.51']],
+            $declared['order_taxes'],
+            "The bucket carries WooCommerce's per-line rounding (0.51), not the backoffice's per-rate 0.52"
+        );
+        $this->assertSame('3.00', $declared['value_wt']);
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
+
+    /**
+     * The backoffice rejects a declaration that does not close, so an order whose
+     * rate cannot be resolved must keep exporting the old way rather than send one.
+     */
+    public function testFallsBackToCorrectionRowsWhenNoTaxRateCanBeResolved(): void
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+        StoreKeeperOptions::delete(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT);
+        update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'no');
+
+        $product = new \WC_Product();
+        $product->set_name('bread');
+        $product->set_sku('bread');
+        $product->set_price(100);
+        $product->save();
+
+        // No tax rows at all, so no bucket can be established for the line.
+        $order = new \WC_Order();
+        $item = new \WC_Order_Item_Product();
+        $item->set_props([
+            'product_id' => $product->get_id(),
+            'name' => 'bread',
+            'quantity' => 3,
+            'subtotal' => '100',
+            'total' => '100',
+        ]);
+        $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 330);
+        $order->add_item($item);
+        $order->set_total('100');
+        $order->save();
+
+        $items = $this->exportOrderItems($order, $export);
+
+        $this->assertNull($this->readDeclaredAmounts($export), 'An unresolvable rate must not produce a declaration');
+
+        $diffRow = null;
+        foreach ($items as $row) {
+            $this->assertArrayNotHasKey('price_wt', $row, 'Nothing may be declared on a fallback export');
+            $this->assertArrayNotHasKey('price', $row, 'Nothing may be declared on a fallback export');
+            if (OrderExport::ROW_PRODUCT_DIFF_TYPE === ($row['extra'][OrderExport::EXTRA_ROW_TYPE] ?? null)) {
+                $diffRow = $row;
+            }
+        }
+        // 100/3 = 33.3333... so the old per-unit correction row must still appear.
+        $this->assertNotNull($diffRow, 'The rounding correction row must survive on the fallback path');
+    }
+
+    /**
+     * The payload that actually leaves the plugin, for the order the correction
+     * rows existed for. Everything else here tests getOrderItems in isolation;
+     * this one asserts that order_taxes and value_wt reach ShopModule::newOrder.
+     */
+    public function testNewOrderPayloadCarriesTheDeclaredAmounts(): void
+    {
+        $this->initApiConnection();
+        $rateId = $this->givenDutchTaxRateMappedTo(55, '21.0000');
+
+        $product = new \WC_Product();
+        $product->set_name('bread');
+        $product->set_sku('bread');
+        $product->set_price(10.99);
+        $product->save();
+
+        $order = new \WC_Order();
+        $order->set_props($this->getOrderProps());
+        $item = new \WC_Order_Item_Product();
+        $item->set_props([
+            'product_id' => $product->get_id(),
+            'name' => 'bread',
+            'quantity' => 3,
+            // 3 x 10.9933 incl. VAT = 32.98, which round(10.99, 2) x 3 cannot reach.
+            'subtotal' => '27.26',
+            'total' => '27.26',
+        ]);
+        $item->set_taxes(['total' => [$rateId => '5.72'], 'subtotal' => [$rateId => '5.72']]);
+        $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 17);
+        $order->add_item($item);
+        $order->set_cart_tax('5.72');
+        $order->set_total('32.98');
+        $order->save();
+
+        $skOrderId = mt_rand();
+        $sentOrder = [];
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($skOrderId, &$sentOrder) {
+                $module->allows('newOrder')->andReturnUsing(
+                    function ($got) use ($skOrderId, &$sentOrder) {
+                        [$order] = $got;
+                        $sentOrder = $order;
+
+                        return $skOrderId;
+                    }
+                );
+                $module->allows('findShopCustomerBySubuserEmail')->andReturn(['id' => mt_rand()]);
+                // Echo back the total the payload declared, the way a backoffice
+                // that honours declared amounts does.
+                $module->allows('getOrder')->andReturnUsing(
+                    function () use ($skOrderId, &$sentOrder) {
+                        return [
+                            'id' => $skOrderId,
+                            'status' => OrderExport::STATUS_NEW,
+                            'is_paid' => false,
+                            'is_tax_forced' => true,
+                            'value_wt' => (float) ($sentOrder['value_wt'] ?? 0),
+                            'order_items' => $sentOrder['order_items'] ?? [],
+                        ];
+                    }
+                );
+                $module->allows('updateOrderStatus')->andReturn(null);
+                $module->allows('updateOrder')->andReturn(null);
+            }
+        );
+
+        $export = new OrderExport(['id' => $order->get_id()]);
+        $method = new \ReflectionMethod(OrderExport::class, 'processItem');
+        $method->setAccessible(true);
+        $method->invoke($export, $order);
+
+        $this->assertNotEmpty($sentOrder, 'newOrder must have been called');
+        $this->assertSame(
+            [['tax_rate_id' => 55, 'value' => '5.72']],
+            $sentOrder['order_taxes'],
+            'The per-rate VAT must be declared on the order'
+        );
+        $this->assertSame('32.98', $sentOrder['value_wt'], 'The declared order total closes the payload');
+        $this->assertTrue($sentOrder['calculate_from_wt'], 'This account exports VAT-inclusive prices');
+
+        $this->assertCount(1, $sentOrder['order_items'], 'One WooCommerce line, one exported line');
+        $line = $sentOrder['order_items'][0];
+        $this->assertSame('32.98', $line['price_wt'], 'The line declares its own total');
+        $this->assertSame(55, (int) $line['tax_rate_id']);
+        $this->assertEqualsWithDelta(10.99, (float) $line['ppu_wt'], 0.0001, 'The unit price stays at 2 decimals');
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
+    }
+
+    private function givenDutchTaxRateMappedTo(int $backofficeId, string $percent): int
+    {
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+        StoreKeeperOptions::delete(StoreKeeperOptions::ORDER_EXPORT_INCLUDE_VAT);
+        update_option('woocommerce_default_country', 'NL');
+        update_option('woocommerce_calc_taxes', 'yes');
+
+        $rateId = \WC_Tax::_insert_tax_rate([
+            'tax_rate_country' => 'NL',
+            'tax_rate_state' => '',
+            'tax_rate' => $percent,
+            'tax_rate_name' => 'BTW '.$percent,
+            'tax_rate_priority' => '1',
+            'tax_rate_compound' => '0',
+            'tax_rate_shipping' => '1',
+            'tax_rate_order' => '1',
+        ]);
+        // A declaring payload has to name a tax_rate_id even on a domestic line,
+        // so the base-country rate must resolve too.
+        StoreKeeperOptions::set(StoreKeeperOptions::TAX_RATE_ID_MAP, ['NL|'.$percent => $backofficeId]);
+
+        return $rateId;
+    }
+
+    private function givenOrderWithSingleProductLine(int $rateId, array $props, string $tax, string $total): \WC_Order
+    {
+        $product = new \WC_Product();
+        $product->set_name('bread');
+        $product->set_sku('bread');
+        $product->set_price(10.99);
+        $product->save();
+
+        $order = new \WC_Order();
+        $item = new \WC_Order_Item_Product();
+        $item->set_props($props + [
+            'product_id' => $product->get_id(),
+            'name' => 'bread',
+        ]);
+        $item->set_taxes(['total' => [$rateId => $tax], 'subtotal' => [$rateId => $tax]]);
+        $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 17);
+        $order->add_item($item);
+        $order->set_cart_tax($tax);
+        $order->set_total($total);
+        $order->save();
+
+        return $order;
+    }
+
+    /**
+     * @param OrderExport|null $export set to the exporter used, so the caller can
+     *                                 read back what it declared
+     */
+    private function exportOrderItems(\WC_Order $order, &$export = null): array
+    {
+        $export = (new \ReflectionClass(OrderExport::class))->newInstanceWithoutConstructor();
+        $debugProperty = new \ReflectionProperty(OrderExport::class, 'debug');
+        $debugProperty->setAccessible(true);
+        $debugProperty->setValue($export, false);
+
+        $method = new \ReflectionMethod(OrderExport::class, 'getOrderItems');
+        $method->setAccessible(true);
+
+        return $method->invoke($export, $order);
+    }
+
+    private function readDeclaredAmounts(OrderExport $export): ?array
+    {
+        $property = new \ReflectionProperty(OrderExport::class, 'declaredAmounts');
+        $property->setAccessible(true);
+
+        return $property->getValue($export);
     }
 }
