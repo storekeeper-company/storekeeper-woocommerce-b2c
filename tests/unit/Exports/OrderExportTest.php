@@ -2721,6 +2721,92 @@ class OrderExportTest extends AbstractOrderExportTest
         StoreKeeperOptions::delete(StoreKeeperOptions::TAX_RATE_ID_MAP);
     }
 
+    /**
+     * The invoice ICP check reads address_to.contact_address.country_iso2, where
+     * address_to is the order's billing snapshot. Without a contact_address an
+     * intra-community order syncs and then cannot be invoiced.
+     */
+    public function testBillingAddressCarriesContactAddressForTheInvoiceIcpCheck(): void
+    {
+        $this->initApiConnection();
+        StoreKeeperOptions::set(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS, '93');
+
+        $orderProps = $this->getOrderProps();
+        $order = new \WC_Order();
+        $order->set_props($orderProps);
+        $order->update_meta_data('is_vat_exempt', 'yes');
+        $order->update_meta_data('_billing_vat_number', 'DE143454214');
+
+        $product = new \WC_Product();
+        $product->set_name('bread');
+        $product->set_sku('bread');
+        $product->set_price(10.99);
+        $product->save();
+
+        $item = new \WC_Order_Item_Product();
+        $item->set_props([
+            'product_id' => $product->get_id(),
+            'name' => 'bread',
+            'quantity' => 1,
+            'subtotal' => '10.99',
+            'total' => '10.99',
+        ]);
+        $item->update_meta_data(OrderExport::CART_FIELD_SHOP_PRODUCT_ID, 17);
+        $order->add_item($item);
+        $order->set_total('10.99');
+        $order->save();
+
+        $skOrderId = mt_rand();
+        $sentOrder = [];
+        StoreKeeperApi::$mockAdapter->withModule(
+            'ShopModule',
+            function (MockInterface $module) use ($skOrderId, &$sentOrder) {
+                $module->allows('newOrder')->andReturnUsing(
+                    function ($got) use ($skOrderId, &$sentOrder) {
+                        [$order] = $got;
+                        $sentOrder = $order;
+
+                        return $skOrderId;
+                    }
+                );
+                $module->allows('findShopCustomerBySubuserEmail')->andReturn(['id' => mt_rand()]);
+                $module->allows('getOrder')->andReturnUsing(
+                    function () use ($skOrderId, &$sentOrder) {
+                        return [
+                            'id' => $skOrderId,
+                            'status' => OrderExport::STATUS_NEW,
+                            'is_paid' => false,
+                            'value_wt' => (float) ($sentOrder['value_wt'] ?? 0),
+                            'order_items' => $sentOrder['order_items'] ?? [],
+                        ];
+                    }
+                );
+                $module->allows('updateOrderStatus')->andReturn(null);
+                $module->allows('updateOrder')->andReturn(null);
+            }
+        );
+
+        $export = new OrderExport(['id' => $order->get_id()]);
+        $method = new \ReflectionMethod(OrderExport::class, 'processItem');
+        $method->setAccessible(true);
+        $method->invoke($export, $order);
+
+        $this->assertNotEmpty($sentOrder, 'newOrder must have been called');
+        $billingAddress = $sentOrder['billing_address'];
+        $this->assertSame(
+            $orderProps['billing_country'],
+            $billingAddress['contact_address']['country_iso2'] ?? null,
+            'The billing snapshot must name its country in contact_address'
+        );
+        $this->assertSame(
+            $billingAddress['address_billing'],
+            $billingAddress['contact_address'],
+            'contact_address holds the same billing address the invoice prints'
+        );
+
+        StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
+    }
+
     private function givenDutchTaxRateMappedTo(int $backofficeId, string $percent): int
     {
         StoreKeeperOptions::delete(StoreKeeperOptions::SPECIAL_COMMUNITY_INTRA_GOODS);
