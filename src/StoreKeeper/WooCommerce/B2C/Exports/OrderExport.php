@@ -275,18 +275,40 @@ class OrderExport extends AbstractExport
         /*
          * Billing address
          */
+        $billingAddress = [
+            'state' => $order->get_billing_state(self::CONTEXT),
+            'city' => $order->get_billing_city(self::CONTEXT),
+            'zipcode' => $order->get_billing_postcode(self::CONTEXT),
+            'street' => trim($order->get_billing_address_1(self::CONTEXT)).' '.trim(
+                $order->get_billing_address_2(self::CONTEXT)
+            ),
+            'country_iso2' => $order->get_billing_country(self::CONTEXT),
+            'name' => !empty($order->get_billing_company(self::CONTEXT)) ? $order->get_billing_company(self::CONTEXT) : $order->get_formatted_billing_full_name(),
+        ];
+
+        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_billing_country(self::CONTEXT)) {
+            $houseNumber = $order->get_meta('billing_address_house_number', true);
+            if (!empty($houseNumber)) {
+                $splitStreet = self::splitStreetNumber($houseNumber);
+                $billingAddress['streetnumber'] = $splitStreet['streetnumber'];
+
+                if (!empty($splitStreet['flatnumber'])) {
+                    $billingAddress['flatnumber'] = $splitStreet['flatnumber'];
+                }
+            }
+        }
+
         $callData['billing_address'] = [
             'name' => !empty($order->get_billing_company(self::CONTEXT)) ? $order->get_billing_company(self::CONTEXT) : $order->get_formatted_billing_full_name(),
-            'address_billing' => [
-                'state' => $order->get_billing_state(self::CONTEXT),
-                'city' => $order->get_billing_city(self::CONTEXT),
-                'zipcode' => $order->get_billing_postcode(self::CONTEXT),
-                'street' => trim($order->get_billing_address_1(self::CONTEXT)).' '.trim(
-                    $order->get_billing_address_2(self::CONTEXT)
-                ),
-                'country_iso2' => $order->get_billing_country(self::CONTEXT),
-                'name' => !empty($order->get_billing_company(self::CONTEXT)) ? $order->get_billing_company(self::CONTEXT) : $order->get_formatted_billing_full_name(),
-            ],
+            'address_billing' => $billingAddress,
+            // The invoice's ICP / outside-EU check reads the country from
+            // address_to.contact_address, and address_to is the order's billing
+            // snapshot. Since we export with billing_address__merge disabled,
+            // nothing fills contact_address, so an intra-community order syncs
+            // fine and then refuses to invoice ("To country_iso2 is required
+            // when using ICP tax rate"). The printed invoice keeps using
+            // address_billing.
+            'contact_address' => $billingAddress,
             'contact_set' => [
                 'email' => $order->get_billing_email(self::CONTEXT),
                 'phone' => $order->get_billing_phone(self::CONTEXT),
@@ -307,19 +329,6 @@ class OrderExport extends AbstractExport
             $vatNumber = self::getOrderVatNumber($order);
             if (!empty($vatNumber)) {
                 $callData['billing_address']['business_data']['vat_number'] = $vatNumber;
-            }
-        }
-
-        if (AddressSearchEndpoint::DEFAULT_COUNTRY_ISO === $order->get_billing_country(self::CONTEXT)) {
-            $houseNumber = $order->get_meta('billing_address_house_number', true);
-            if (!empty($houseNumber)) {
-                $splitStreet = self::splitStreetNumber($houseNumber);
-                $streetNumber = $splitStreet['streetnumber'];
-                $callData['billing_address']['address_billing']['streetnumber'] = $streetNumber;
-
-                if (!empty($splitStreet['flatnumber'])) {
-                    $callData['billing_address']['address_billing']['flatnumber'] = $splitStreet['flatnumber'];
-                }
             }
         }
 
